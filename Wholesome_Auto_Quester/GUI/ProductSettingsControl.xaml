@@ -1,0 +1,63 @@
+﻿<UserControl x:Class="Wholesome_Auto_Quester.GUI.ProductSettingsControl"
+    xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    mc:Ignorable="d" 
+    d:DesignHeight="500" d:DesignWidth="800"
+    VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- MahApps.Metro resource dictionaries. Make sure that all file names are Case Sensitive! -->
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
+                <!-- Accent and AppTheme setting -->
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="10" 
+               Margin="30" FontWeight="Bold" FontSize="20"
+               Text="Wholesome Auto Quester" HorizontalAlignment="Center" />
+
+        <TextBlock Grid.Row="2" Grid.Column="0" Margin="10" 
+                   HorizontalAlignment="Right" VerticalAlignment="Center"  Text="Log debug :" FontSize="13"  />
+
+        <Controls:ToggleSwitch Grid.Row="2" Grid.Column="1"  Margin="10,10,10,10"
+                   HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="True" 
+                               MouseLeave="LogDebugChanged" Name="LogDebug" OnLabel="" OffLabel="" />
+
+        <TextBlock Grid.Row="3" Grid.Column="0" Margin="10" 
+                   HorizontalAlignment="Right" VerticalAlignment="Center"  Text="Quests GUI :" FontSize="13"  />
+
+        <Controls:ToggleSwitch Grid.Row="3" Grid.Column="1"  Margin="10,10,10,10"
+                   HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="True" 
+                               MouseLeave="ActivateQuestsGUIChanged" Name="ActivateQuestsGUI" OnLabel="" OffLabel="" />
+
+    </Grid>
+</UserControl>
