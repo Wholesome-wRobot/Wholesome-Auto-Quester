@@ -260,10 +260,10 @@
     </Compile>
     <Compile Include="Helpers\Enums.cs" />
     <Compile Include="Helpers\Logger.cs" />
-    <Compile Include="SafeDapper\ColumnAttributeTypeMapper.cs" />
-    <Compile Include="SafeDapper\DapperExtensions.cs" />
-    <Compile Include="SafeDapper\DapperObjectMappingException.cs" />
-    <Compile Include="SafeDapper\ThrowWhenNullTypeMap.cs" />
+    <Compile Include="Database\SafeDapper\ColumnAttributeTypeMapper.cs" />
+    <Compile Include="Database\SafeDapper\DapperExtensions.cs" />
+    <Compile Include="Database\SafeDapper\DapperObjectMappingException.cs" />
+    <Compile Include="Database\SafeDapper\ThrowWhenNullTypeMap.cs" />
     <Compile Include="States\WAQKillAndLoot.cs" />
     <Compile Include="States\WAQTurnInQuest.cs" />
     <Compile Include="States\WAQPickupQuest.cs" />
@@ -274,14 +274,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WholesomeAQSettings.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Compiled\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="App.config" />
     <None Include="Database\test.json" />
     <None Include="packages.config" />
-    <None Include="SafeDapper\SafeDapper.csproj" />
+    <None Include="Database\SafeDapper\SafeDapper.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="GUI\ProductSettingsControl.xaml">
@@ -301,6 +299,8 @@
     <Resource Include="Resources\discord-logo.png" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Compiled\Version.txt" />
+    <Content Include="Compiled\Wholesome_Auto_Quester.dll" />
     <Content Include="Helpers\Misc.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
