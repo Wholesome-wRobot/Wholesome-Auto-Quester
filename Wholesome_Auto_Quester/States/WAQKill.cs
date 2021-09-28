@@ -45,7 +45,7 @@ namespace Wholesome_Auto_Quester.States
             {
                 if (GoToTask.ToPosition(task.Location, 10f, conditionExit: e => WAQTasks.TaskInProgressWoWObject != null))
                 {
-                    if (WAQTasks.TaskInProgressWoWObject == null && task.GetDistance <= 10f)
+                    if (WAQTasks.TaskInProgressWoWObject == null && task.GetDistance <= 13f)
                     {
                         Logger.Log($"We are close to {ToolBox.GetTaskId(task)} position and no npc to kill in sight. Time out");
                         task.PutTaskOnTimeout();

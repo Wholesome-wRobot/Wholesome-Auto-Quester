@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using robotManager.Helpful;
 using System;
 using System.Collections.Generic;
@@ -38,6 +37,11 @@ namespace Wholesome_Auto_Quester.Helpers
             return File.Exists(Others.GetCurrentDirectory + @"\Data\WAQquests.json");
         }
 
+        public static bool CompiledJSONFileIsPresent()
+        {
+            return File.Exists(@"C:\Users\Nico\Dropbox\Programmation\wRobot\Wholesome_Auto_Quester\Wholesome_Auto_Quester\Compiled\WAQquests.zip");
+        }
+
         public static bool ZippedJSONIsPresent()
         {
             return File.Exists(Others.GetCurrentDirectory + @"\Data\WAQquests.zip");
@@ -47,9 +51,9 @@ namespace Wholesome_Auto_Quester.Helpers
         {
             try
             {
-                if (!JSONFileIsPresent())
+                if (!CompiledJSONFileIsPresent())
                 {
-                    Logger.LogError("The JSON file is not present in Data");
+                    Logger.LogError("The Compiled JSON file is not present");
                     return null;
                 }
 
@@ -72,7 +76,7 @@ namespace Wholesome_Auto_Quester.Helpers
             {
                 if (!JSONFileIsPresent())
                 {
-                    Logger.LogError("The zip file is not present in Data");
+                    Logger.LogError("The JSON file is not present in Data");
                     return;
                 }
 
@@ -88,10 +92,16 @@ namespace Wholesome_Auto_Quester.Helpers
                     using (var entryStream = entry.Open())
                         stream.CopyTo(entryStream);
                 }
+
+                // Copy to Compiled folder
+                string compiledzip = @"C:\Users\Nico\Dropbox\Programmation\wRobot\Wholesome_Auto_Quester\Wholesome_Auto_Quester\Compiled\Wholesome_Auto_Quester\Compiled\WAQquests.zip";
+                if (File.Exists(compiledzip))
+                    File.Delete(compiledzip);
+                File.Copy(Others.GetCurrentDirectory + @"\Data\WAQquests.zip", compiledzip);
             }
             catch (Exception e)
             {
-                Logger.LogError(e.Message);
+                Logger.LogError("ZipJSONFile > " + e.Message);
             }
         }
 
@@ -102,12 +112,21 @@ namespace Wholesome_Auto_Quester.Helpers
                 if (File.Exists(Others.GetCurrentDirectory + @"\Data\WAQquests.json"))
                     File.Delete(Others.GetCurrentDirectory + @"\Data\WAQquests.json");
 
+                /*
+                Logger.Log("Serialize");
                 string jsonString = JsonConvert.SerializeObject(resultFromDB, Formatting.Indented);
+                Logger.Log("Write");
                 File.WriteAllText(Others.GetCurrentDirectory + @"\Data\WAQquests.json", jsonString);
+                */
+                using (StreamWriter file = File.CreateText(Others.GetCurrentDirectory + @"\Data\WAQquests.json")) 
+                { 
+                    JsonSerializer serializer = new JsonSerializer(); 
+                    serializer.Serialize(file, resultFromDB); 
+                }
             }
             catch (Exception e)
             {
-                Logger.LogError(e.Message);
+                Logger.LogError("WriteJSONFromDBResult > " + e.Message);
             }
         }
 

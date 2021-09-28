@@ -10,7 +10,6 @@ namespace Wholesome_Auto_Quester.Database
     {
         public static SQLiteConnection _con;
         private readonly SQLiteCommand _cmd;
-
         public DB()
         {
             string baseDirectory = "";

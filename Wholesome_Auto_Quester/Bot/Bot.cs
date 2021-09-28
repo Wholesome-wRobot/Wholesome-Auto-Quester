@@ -39,13 +39,14 @@ namespace Wholesome_Auto_Quester.Bot
                 Fsm.AddState(new Looting { Priority = 28 });
                 Fsm.AddState(new FlightMasterTakeTaxiState { Priority = 27 });
                 Fsm.AddState(new Farming { Priority = 26 });
+                Fsm.AddState(new Trainers { Priority = 25 });
                 Fsm.AddState(new ToTown { Priority = 25 });
 
-                Fsm.AddState(new WAQKill { Priority = 24 });
-                Fsm.AddState(new WAQKillAndLoot { Priority = 23 });
-                Fsm.AddState(new WAQPickupWorldObject { Priority = 22 });
-                Fsm.AddState(new WAQPickupQuest { Priority = 21 });
-                Fsm.AddState(new WAQTurnInQuest { Priority = 20 });
+                Fsm.AddState(new WAQKill { Priority = 14 });
+                Fsm.AddState(new WAQKillAndLoot { Priority = 13 });
+                Fsm.AddState(new WAQPickupWorldObject { Priority = 12 });
+                Fsm.AddState(new WAQPickupQuest { Priority = 11 });
+                Fsm.AddState(new WAQTurnInQuest { Priority = 10 });
 
                 Fsm.AddState(new Grinding { Priority = 2 });
                 Fsm.AddState(new MovementLoop { Priority = 1 });

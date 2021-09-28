@@ -93,6 +93,9 @@ public class Main : IProduct
             Radar3D.Pulse();
             Radar3D.OnDrawEvent += Radar3DOnDrawEvent;
 
+            if (ToolBox.GetWoWVersion() == "3.3.5")
+                DBQueriesWotlk.GetAvailableQuests();
+
             if (Bot.Pulse())
             {
                 PluginsManager.LoadAllPlugins();
@@ -130,7 +133,9 @@ public class Main : IProduct
             _getQuestsFromDbThread.DoWork -= GetQuestsFromDbPulse;
             _getQuestsFromDbThread.Dispose();
 
-            database.Dispose();
+            if (database != null)
+                database.Dispose();
+
             Bot.Dispose();
             IsStarted = false;
             PluginsManager.DisposeAllPlugins();
@@ -156,9 +161,6 @@ public class Main : IProduct
                 {
                     Quest.RequestQuestsCompleted();
                     Quest.ConsumeQuestsCompletedRequest();
-
-                    if (ToolBox.GetWoWVersion() == "3.3.5")
-                        DBQueriesWotlk.GetAvailableQuests();
 
                     _dbPulseTimer = new Timer(1000*60*15);
                 }

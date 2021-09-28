@@ -17,7 +17,6 @@ namespace Wholesome_Auto_Quester.Bot
 
         public static void AddQuests(List<ModelQuest> quests)
         {
-            quests.RemoveAll(q => q.QuestGivers.All(qg => qg.IsHostile));
             quests.ForEach(newQuest =>
             {
                 if (!Quests.Exists(quest => quest.Id == newQuest.Id))

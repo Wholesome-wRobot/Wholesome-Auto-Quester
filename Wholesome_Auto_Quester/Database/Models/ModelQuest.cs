@@ -26,6 +26,9 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int NextQuestInChain { get; set; } // TBC DB Only
         public int PrevQuestID { get; set; }
         public int QuestLevel { get; set; }
+        public int QuestSortID { get; set; }
+        public int QuestInfoID { get; set; }
+        public int QuestType { get; set; }
         public int RequiredItemCount1 { get; set; }
         public int RequiredItemCount2 { get; set; }
         public int RequiredItemCount3 { get; set; }
@@ -48,6 +51,7 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int RequiredNpcOrGoCount4 { get; set; }
         public int RequiredSkillID { get; set; }
         public int RequiredSkillPoints { get; set; }
+        public int StartItem { get; set; }
 
         public bool IsPickable()
         {
