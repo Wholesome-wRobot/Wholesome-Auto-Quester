@@ -56,8 +56,8 @@ namespace Wholesome_Auto_Quester.GUI
             ModelQuest selected = (ModelQuest)sourceQuestsList.SelectedItem;
             if (selected != null)
             {
-                questTitle.Text = $"{selected.Title}";
-                questId.Text = $"Entry: {selected.entry}";
+                questTitle.Text = $"{selected.LogTitle}";
+                questId.Text = $"Entry: {selected.Id}";
                 questLevel.Text = $"Level: {selected.QuestLevel}";
 
                 string qg = "";

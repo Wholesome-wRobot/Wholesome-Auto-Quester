@@ -1,8 +1,12 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using robotManager.Helpful;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using Wholesome_Auto_Quester.Bot;
+using Wholesome_Auto_Quester.Database.Models;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
@@ -11,48 +15,154 @@ namespace Wholesome_Auto_Quester.Helpers
 {
     public class ToolBox
     {
-        public static void GetUserDetails()
+        public static List<int> GetCompletedQuests()
         {
-            var json = File.ReadAllText("jsonFile");
+            List<int> completedQuests = new List<int>();
+            completedQuests.AddRange(Quest.FinishedQuestSet);
+            completedQuests.AddRange(WholesomeAQSettings.CurrentSetting.ListCompletedQuests);
+            return completedQuests;
+        }
+
+        public static bool IsQuestCompleted(int questId)
+        {
+            return GetCompletedQuests().Contains(questId);
+        }
+
+        public static bool WoWDBFileIsPresent()
+        {
+            return File.Exists(Others.GetCurrentDirectory + @"\Data\WoWDb335-quests");
+        }
+
+        public static bool JSONFileIsPresent()
+        {
+            return File.Exists(Others.GetCurrentDirectory + @"\Data\WAQquests.json");
+        }
+
+        public static bool ZippedJSONIsPresent()
+        {
+            return File.Exists(Others.GetCurrentDirectory + @"\Data\WAQquests.zip");
+        }
+
+        public static List<ModelQuest> GetAllQuestsFromJSON()
+        {
             try
             {
-                var jObject = JObject.Parse(json);
-
-                if (jObject != null)
+                if (!JSONFileIsPresent())
                 {
-                    Console.WriteLine("ID :" + jObject["id"].ToString());
-                    Console.WriteLine("Name :" + jObject["name"].ToString());
+                    Logger.LogError("The JSON file is not present in Data");
+                    return null;
+                }
 
-                    var address = jObject["address"];
-                    Console.WriteLine("Street :" + address["street"].ToString());
-                    Console.WriteLine("City :" + address["city"].ToString());
-                    Console.WriteLine("Zipcode :" + address["zipcode"]);
-                    JArray experiencesArrary = (JArray)jObject["experiences"];
-                    if (experiencesArrary != null)
-                    {
-                        foreach (var item in experiencesArrary)
-                        {
-                            Console.WriteLine("company Id :" + item["companyid"]);
-                            Console.WriteLine("company Name :" + item["companyname"].ToString());
-                        }
-
-                    }
-                    Console.WriteLine("Phone Number :" + jObject["phoneNumber"].ToString());
-                    Console.WriteLine("Role :" + jObject["role"].ToString());
-
+                using (StreamReader file = File.OpenText(Others.GetCurrentDirectory + @"\Data\WAQquests.json"))
+                {
+                    JsonSerializer serializer = new JsonSerializer();
+                    return (List<ModelQuest>)serializer.Deserialize(file, typeof(List<ModelQuest>));
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
-                throw;
+                Logger.LogError(e.Message);
+                return null;
             }
+        }
+
+        public static void ZipJSONFile()
+        {
+            try
+            {
+                if (!JSONFileIsPresent())
+                {
+                    Logger.LogError("The zip file is not present in Data");
+                    return;
+                }
+
+                if (ZippedJSONIsPresent())
+                    File.Delete(Others.GetCurrentDirectory + @"\Data\WAQquests.zip");
+
+                using (var zip = ZipFile.Open(Others.GetCurrentDirectory + @"\Data\WAQquests.zip", ZipArchiveMode.Create))
+                {
+                    var entry = zip.CreateEntry("WAQquests.json");
+                    entry.LastWriteTime = DateTimeOffset.Now;
+
+                    using (var stream = File.OpenRead(Others.GetCurrentDirectory + @"\Data\WAQquests.json"))
+                    using (var entryStream = entry.Open())
+                        stream.CopyTo(entryStream);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e.Message);
+            }
+        }
+
+        public static void WriteJSONFromDBResult(List<ModelQuest> resultFromDB)
+        {
+            try
+            {
+                if (File.Exists(Others.GetCurrentDirectory + @"\Data\WAQquests.json"))
+                    File.Delete(Others.GetCurrentDirectory + @"\Data\WAQquests.json");
+
+                string jsonString = JsonConvert.SerializeObject(resultFromDB, Formatting.Indented);
+                File.WriteAllText(Others.GetCurrentDirectory + @"\Data\WAQquests.json", jsonString);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e.Message);
+            }
+        }
+
+        public static List<string> GetAvailableQuestGossips()
+        {
+            List<string> result = new List<string>();
+            int numGossips = Lua.LuaDoString<int>(@"return GetNumGossipAvailableQuests()");
+            int nameIndex = 1;
+            for (int i = 1; i <= numGossips; i++)
+            {
+                result.Add(Lua.LuaDoString<string>(@"
+                    local gossips = { GetGossipAvailableQuests() };
+                    return gossips[" + nameIndex + "];"));
+                nameIndex += 4;
+            }
+
+            return result;
+        }
+        
+        public static List<string> GetActiveQuestGossips()
+        {
+            List<string> result = new List<string>();
+            int numGossips = Lua.LuaDoString<int>(@"return GetNumGossipActiveQuests()");
+            int nameIndex = 1;
+            for (int i = 1; i <= numGossips; i++)
+            {
+                result.Add(Lua.LuaDoString<string>(@"
+                    local gossips = { GetGossipActiveQuests() };
+                    return gossips[" + nameIndex + "];"));
+                nameIndex += 4;
+            }
+
+            return result;
+        }
+
+        public static List<string> GetAllGossips()
+        {
+            List<string> result = new List<string>();
+            int numGossips = Lua.LuaDoString<int>(@"return GetNumGossipOptions()");
+            int nameIndex = 1;
+            for (int i = 1; i <= numGossips; i++)
+            {
+                result.Add(Lua.LuaDoString<string>(@"
+                    local gossips = { GetGossipOptions() };
+                    return gossips[" + nameIndex + "];"));
+                nameIndex += 3;
+            }
+
+            return result;
         }
 
         public static ulong GetTaskId(WAQTask task)
         {
             string taskType = $"{(int)task.TaskType}";
-            string questEntry = $"{task.Quest.entry}";
+            string questEntry = $"{task.Quest.Id}";
             string objIndex = $"{task.ObjectiveIndex}";
             string guid = $"{(task.Npc != null ? task.Npc.Guid : task.GatherObject.Guid)}";
             return ulong.Parse($"{taskType}{questEntry}{objIndex}{guid}");

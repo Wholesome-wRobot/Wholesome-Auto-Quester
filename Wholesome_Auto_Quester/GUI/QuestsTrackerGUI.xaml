@@ -115,7 +115,7 @@
                             <DataTemplate>
                                 <Grid Margin="0,2">
                                     <TextBlock 
-                                            Text="{Binding Title}"
+                                            Text="{Binding LogTitle}"
                                             Foreground="{Binding TrackerColor}"/>
                                 </Grid>
                             </DataTemplate>

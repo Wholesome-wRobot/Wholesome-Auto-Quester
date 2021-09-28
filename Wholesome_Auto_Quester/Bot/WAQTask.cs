@@ -15,6 +15,7 @@ namespace Wholesome_Auto_Quester.Bot
         public Vector3 Location { get; set; }
         public int ObjectiveIndex { get; set; }
         public int POIEntry { get; set; }
+        public int Map { get; set; }
 
         private Timer _timeOutTimer = new Timer();
 
@@ -26,15 +27,16 @@ namespace Wholesome_Auto_Quester.Bot
             Quest = quest;
             ObjectiveIndex = objectiveIndex;
             POIEntry = npc.Id;
+            Map = npc.Map;
 
             if (taskType == TaskType.PickupQuest)
-                TaskName = $"[{ToolBox.GetTaskId(this)}] Pick up {quest.Title} from {npc.Name}";
+                TaskName = $"[{ToolBox.GetTaskId(this)}] Pick up {quest.LogTitle} from {npc.Name}";
             if (taskType == TaskType.TurnInQuest)
-                TaskName = $"[{ToolBox.GetTaskId(this)}] Turn in {quest.Title} at {npc.Name}";
+                TaskName = $"[{ToolBox.GetTaskId(this)}] Turn in {quest.LogTitle} at {npc.Name}";
             if (taskType == TaskType.Kill)
-                TaskName = $"[{ToolBox.GetTaskId(this)}] Kill {npc.Name} for {quest.Title}";
+                TaskName = $"[{ToolBox.GetTaskId(this)}] Kill {npc.Name} for {quest.LogTitle}";
             if (taskType == TaskType.KillAndLoot)
-                TaskName = $"[{ToolBox.GetTaskId(this)}] Kill and Loot {npc.Name} for {quest.Title}";
+                TaskName = $"[{ToolBox.GetTaskId(this)}] Kill and Loot {npc.Name} for {quest.LogTitle}";
         }
 
         public WAQTask(TaskType taskType, ModelGatherObject modelGatherObject, ModelQuest quest, int objectiveIndex)
@@ -45,14 +47,15 @@ namespace Wholesome_Auto_Quester.Bot
             Quest = quest;
             ObjectiveIndex = objectiveIndex;
             POIEntry = modelGatherObject.GameObjectEntry;
+            Map = modelGatherObject.Map;
 
             if (taskType == TaskType.PickupObject)
-                TaskName = $"[{ToolBox.GetTaskId(this)}] Gather {modelGatherObject.Name} for {quest.Title}";
+                TaskName = $"[{ToolBox.GetTaskId(this)}] Gather {modelGatherObject.Name} for {quest.LogTitle}";
         }
 
-        public void PutTaskOnTimeout(int timeInSeconds)
+        public void PutTaskOnTimeout()
         {
-            _timeOutTimer = new Timer(timeInSeconds * 1000);
+            _timeOutTimer = new Timer(300 * 1000);
             WAQTasks.UpdateTasks();
         }
 

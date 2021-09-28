@@ -2,9 +2,8 @@
 using robotManager.Helpful;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
-using System.ComponentModel;
 using System.IO;
-using robotManager;
+using System.Collections.Generic;
 
 namespace Wholesome_Auto_Quester
 {
@@ -16,24 +15,17 @@ namespace Wholesome_Auto_Quester
         public WholesomeAQSettings()
         {
             LogDebug = false;
-
+            ActivateQuestsGUI = false;
+            /*
             ConfigWinForm(
                 new System.Drawing.Point(400, 400), "Wholesome Auto Quester "
                 + Translate.Get("Settings")
-            );
+            );*/
         }
 
-        [Category("Misc")]
-        [DefaultValue(false)]
-        [DisplayName("Log Debug")]
-        [Description("For Development purpose")]
         public bool LogDebug { get; set; }
-
-        [Category("Misc")]
-        [DefaultValue(false)]
-        [DisplayName("Activate Quests GUI")]
-        [Description("For Development purpose")]
         public bool ActivateQuestsGUI { get; set; }
+        public List<int> ListCompletedQuests { get; set; } = new List<int>();
 
         public bool Save()
         {

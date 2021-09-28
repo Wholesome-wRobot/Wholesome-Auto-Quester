@@ -5,6 +5,7 @@ using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
+using System.Collections.Generic;
 
 namespace Wholesome_Auto_Quester.States
 {
@@ -22,7 +23,7 @@ namespace Wholesome_Auto_Quester.States
 
                 if (WAQTasks.TaskInProgress?.TaskType == TaskType.PickupQuest)
                 {
-                    DisplayName = $"Pick up quest {WAQTasks.TaskInProgress.Quest.Title} at {WAQTasks.TaskInProgress.Npc.Name}";
+                    DisplayName = $"Pick up quest {WAQTasks.TaskInProgress.Quest.LogTitle} at {WAQTasks.TaskInProgress.Npc.Id} - {WAQTasks.TaskInProgress.Npc.Name}";
                     return true;
                 }
 
@@ -33,23 +34,44 @@ namespace Wholesome_Auto_Quester.States
         public override void Run()
         {
             WAQTask task = WAQTasks.TaskInProgress;
+            WoWObject npc = WAQTasks.TaskInProgressWoWObject;
 
-            if (WAQTasks.TaskInProgressWoWObject != null)
+            if (npc != null)
             {
-                Logger.Log($"NPC found - Picking up quest at {WAQTasks.TaskInProgressWoWObject.Name}");
-                GoToTask.ToPositionAndIntecractWithNpc(WAQTasks.TaskInProgressWoWObject.Position, WAQTasks.TaskInProgressWoWObject.Entry);
-                Quest.AcceptQuest();
+                Logger.Log($"NPC found - Picking up quest from {npc.Name}");
+                GoToTask.ToPositionAndIntecractWithNpc(npc.Position, npc.Entry);
+                Thread.Sleep(1000);
+
+                List<string> gossipOptions = ToolBox.GetAvailableQuestGossips();
+                gossipOptions.ForEach(g => Logger.Log(g));
+
+                if (!gossipOptions.Contains(task.Quest.LogTitle))
+                {
+                    Logger.Log($"Gossips don't contain {task.Quest.LogTitle}");
+                    Quest.AcceptQuest();
+                }
+                else
+                {
+                    Logger.Log($"Selecting gossip {task.Quest.LogTitle}");
+                    Quest.SelectGossipAvailableQuest(gossipOptions.IndexOf(task.Quest.LogTitle) + 1);
+                    Thread.Sleep(1000);
+                    Quest.AcceptQuest();
+                }
+
+                Quest.CloseQuestWindow();
                 Thread.Sleep(1000);
             }
             else
             {
-                GoToTask.ToPosition(task.Location, 5f, conditionExit: e => WAQTasks.TaskInProgressWoWObject != null || task.GetDistance < 10f);
-
-                if (task.GetDistance <= 11 && WAQTasks.TaskInProgressWoWObject == null)
+                if (GoToTask.ToPosition(task.Location, 10f, conditionExit: e => WAQTasks.TaskInProgressWoWObject != null))
                 {
-                    Logger.Log($"We are close to {ToolBox.GetTaskId(task)} position and no object in sight. Time out");
-                    task.PutTaskOnTimeout(200);
+                    if (WAQTasks.TaskInProgressWoWObject == null && task.GetDistance <= 10f)
+                    {
+                        Logger.Log($"We are close to {ToolBox.GetTaskId(task)} position and no NPC for pickup in sight. Time out");
+                        task.PutTaskOnTimeout();
+                    }
                 }
+
             }
         }
     }

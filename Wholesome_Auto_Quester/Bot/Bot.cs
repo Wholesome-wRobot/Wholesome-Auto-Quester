@@ -1,6 +1,8 @@
 ﻿using System;
 using robotManager.FiniteStateMachine;
 using robotManager.Helpful;
+using Wholesome_Auto_Quester.Database;
+using Wholesome_Auto_Quester.Helpers;
 using Wholesome_Auto_Quester.States;
 using wManager.Wow.Bot.States;
 using wManager.Wow.Helpers;
@@ -91,6 +93,9 @@ namespace Wholesome_Auto_Quester.Bot
             Logging.Write("Level UP! Reload Fight Class.");
             SpellManager.UpdateSpellBook();
             CustomClass.ResetCustomClass();
+
+            if (ToolBox.GetWoWVersion() == "3.3.5")
+                DBQueriesWotlk.GetAvailableQuests();
         }
 
         private static void ScreenReloaded()

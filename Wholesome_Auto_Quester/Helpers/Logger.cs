@@ -15,5 +15,10 @@ namespace Wholesome_Auto_Quester.Helpers
             if (WholesomeAQSettings.CurrentSetting.LogDebug)
                 Logging.Write($"[{Main.productName}] " + str, Logging.LogType.Debug, Color.BlueViolet);
         }
+
+        public static void LogError(string str)
+        {
+            Logging.Write($"[{Main.productName}] " + str, Logging.LogType.Error, Color.Red);
+        }
     }
 }

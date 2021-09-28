@@ -6,7 +6,7 @@ using Dapper;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Bot;
 using System;
-
+/*
 namespace Wholesome_Auto_Quester.Database
 {
     public class DBQueriesTBC
@@ -43,58 +43,58 @@ namespace Wholesome_Auto_Quester.Database
             foreach (ModelQuest quest in result)
             {
                 // Add gather Objects
-                if (quest.ReqItemId1 != 0)
+                if (quest.RequiredItemId1 != 0)
                 {
-                    if ((resultListObj = GetGatherObjects(quest.ReqItemId1)).Count > 0)
-                        quest.GatherObjectsObjectives.Add(new GatherObjectObjective(quest.ReqItemCount1, quest.ReqItemId1, resultListObj, 1));
-                    else if ((resultListCreature = GetCreatureToLoot(quest.ReqItemId1)).Count > 0)
-                        quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.ReqItemCount1, resultListCreature[0].ItemName, resultListCreature, 1));
+                    if ((resultListObj = GetGatherObjects(quest.RequiredItemId1)).Count > 0)
+                        quest.GatherObjectsObjectives.Add(new GatherObjectObjective(quest.RequiredItemCount1, quest.RequiredItemId1, resultListObj, 1));
+                    else if ((resultListCreature = GetCreatureToLoot(quest.RequiredItemId1)).Count > 0)
+                        quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.RequiredItemCount1, resultListCreature[0].ItemName, resultListCreature, 1));
                 }
 
-                if (quest.ReqItemId2 != 0)
+                if (quest.RequiredItemId2 != 0)
                 {
-                    if ((resultListObj = GetGatherObjects(quest.ReqItemId2)).Count > 0)
-                        quest.GatherObjectsObjectives.Add(new GatherObjectObjective(quest.ReqItemCount2, quest.ReqItemId2, resultListObj, 2));
-                    else if ((resultListCreature = GetCreatureToLoot(quest.ReqItemCount2)).Count > 0)
-                        quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.ReqItemCount2, resultListCreature[0].ItemName, resultListCreature, 2));
+                    if ((resultListObj = GetGatherObjects(quest.RequiredItemId2)).Count > 0)
+                        quest.GatherObjectsObjectives.Add(new GatherObjectObjective(quest.RequiredItemCount2, quest.RequiredItemId2, resultListObj, 2));
+                    else if ((resultListCreature = GetCreatureToLoot(quest.RequiredItemCount2)).Count > 0)
+                        quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.RequiredItemCount2, resultListCreature[0].ItemName, resultListCreature, 2));
                 }
 
-                if (quest.ReqItemId3 != 0)
+                if (quest.RequiredItemId3 != 0)
                 {
-                    if ((resultListObj = GetGatherObjects(quest.ReqItemId3)).Count > 0)
-                        quest.GatherObjectsObjectives.Add(new GatherObjectObjective(quest.ReqItemCount3, quest.ReqItemId3, resultListObj, 3));
-                    else if ((resultListCreature = GetCreatureToLoot(quest.ReqItemCount3)).Count > 0)
-                        quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.ReqItemCount3, resultListCreature[0].ItemName, resultListCreature, 3));
+                    if ((resultListObj = GetGatherObjects(quest.RequiredItemId3)).Count > 0)
+                        quest.GatherObjectsObjectives.Add(new GatherObjectObjective(quest.RequiredItemCount3, quest.RequiredItemId3, resultListObj, 3));
+                    else if ((resultListCreature = GetCreatureToLoot(quest.RequiredItemCount3)).Count > 0)
+                        quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.RequiredItemCount3, resultListCreature[0].ItemName, resultListCreature, 3));
                 }
 
-                if (quest.ReqItemId4 != 0)
+                if (quest.RequiredItemId4 != 0)
                 {
-                    if ((resultListObj = GetGatherObjects(quest.ReqItemId4)).Count > 0)
-                        quest.GatherObjectsObjectives.Add(new GatherObjectObjective(quest.ReqItemCount4, quest.ReqItemId4, resultListObj, 4));
-                    else if ((resultListCreature = GetCreatureToLoot(quest.ReqItemCount4)).Count > 0)
-                        quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.ReqItemCount4, resultListCreature[0].ItemName, resultListCreature, 4));
+                    if ((resultListObj = GetGatherObjects(quest.RequiredItemId4)).Count > 0)
+                        quest.GatherObjectsObjectives.Add(new GatherObjectObjective(quest.RequiredItemCount4, quest.RequiredItemId4, resultListObj, 4));
+                    else if ((resultListCreature = GetCreatureToLoot(quest.RequiredItemCount4)).Count > 0)
+                        quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.RequiredItemCount4, resultListCreature[0].ItemName, resultListCreature, 4));
                 }
 
                 // Add creatures to kill
-                if (quest.ReqCreatureOrGOCount1 != 0)
-                    quest.CreaturesToKillObjectives.Add(new CreaturesToKillObjective(quest.ReqCreatureOrGOCount1, quest.ReqCreatureOrGOId1, GetCreaturesToKill(quest.ReqCreatureOrGOId1), 1));
-                if (quest.ReqCreatureOrGOCount2 != 0)
-                    quest.CreaturesToKillObjectives.Add(new CreaturesToKillObjective(quest.ReqCreatureOrGOCount2, quest.ReqCreatureOrGOId2, GetCreaturesToKill(quest.ReqCreatureOrGOId2), 2));
-                if (quest.ReqCreatureOrGOCount3 != 0)
-                    quest.CreaturesToKillObjectives.Add(new CreaturesToKillObjective(quest.ReqCreatureOrGOCount3, quest.ReqCreatureOrGOId3, GetCreaturesToKill(quest.ReqCreatureOrGOId3), 3));
-                if (quest.ReqCreatureOrGOCount4 != 0)
-                    quest.CreaturesToKillObjectives.Add(new CreaturesToKillObjective(quest.ReqCreatureOrGOCount4, quest.ReqCreatureOrGOId4, GetCreaturesToKill(quest.ReqCreatureOrGOId4), 4));
-                
+                if (quest.RequiredNpcOrGoCount1 != 0)
+                    quest.CreaturesToKillObjectives.Add(new CreaturesToKillObjective(quest.RequiredNpcOrGoCount1, quest.RequiredNpcOrGo1, GetCreaturesToKill(quest.RequiredNpcOrGo1), 1));
+                if (quest.RequiredNpcOrGoCount2 != 0)
+                    quest.CreaturesToKillObjectives.Add(new CreaturesToKillObjective(quest.RequiredNpcOrGoCount2, quest.RequiredNpcOrGo2, GetCreaturesToKill(quest.RequiredNpcOrGo2), 2));
+                if (quest.RequiredNpcOrGoCount3 != 0)
+                    quest.CreaturesToKillObjectives.Add(new CreaturesToKillObjective(quest.RequiredNpcOrGoCount3, quest.RequiredNpcOrGo3, GetCreaturesToKill(quest.RequiredNpcOrGo3), 3));
+                if (quest.RequiredNpcOrGoCount4 != 0)
+                    quest.CreaturesToKillObjectives.Add(new CreaturesToKillObjective(quest.RequiredNpcOrGoCount4, quest.RequiredNpcOrGo4, GetCreaturesToKill(quest.RequiredNpcOrGo4), 4));
+
                 // Add quest givers / Turners
-                quest.QuestGivers = GetQuestGivers(quest.entry);
-                quest.QuestTurners = GetQuestTurners(quest.entry);
+                quest.QuestGivers = GetQuestGivers(quest.Id);
+                quest.QuestTurners = GetQuestTurners(quest.Id);
 
                 // Add linked quests Ids
-                quest.PreviousQuestsIds = GetPreviousQuestsIds(quest.entry);
+                quest.PreviousQuestsIds = GetPreviousQuestsIds(quest.Id);
                 if (quest.PrevQuestId != 0 && !quest.PreviousQuestsIds.Contains(quest.PrevQuestId)) 
                     quest.PreviousQuestsIds.Add(quest.PrevQuestId);
 
-                quest.NextQuestsIds = GetNextQuestsIds(quest.entry);
+                quest.NextQuestsIds = GetNextQuestsIds(quest.Id);
                 if (quest.NextQuestId != 0 && !quest.NextQuestsIds.Contains(quest.NextQuestId)) 
                     quest.NextQuestsIds.Add(quest.NextQuestId);
                 if (quest.NextQuestInChain != 0 && !quest.NextQuestsIds.Contains(quest.NextQuestInChain)) 
@@ -215,3 +215,4 @@ namespace Wholesome_Auto_Quester.Database
         }
     }
 }
+*/

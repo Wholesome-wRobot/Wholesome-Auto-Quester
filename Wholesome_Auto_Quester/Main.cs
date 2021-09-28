@@ -2,6 +2,7 @@
 using robotManager.Products;
 using System;
 using System.ComponentModel;
+using System.Drawing;
 using System.Threading;
 using Wholesome_Auto_Quester;
 using Wholesome_Auto_Quester.Bot;
@@ -10,6 +11,7 @@ using Wholesome_Auto_Quester.GUI;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Plugin;
 using wManager.Wow.Helpers;
+using wManager.Wow.ObjectManager;
 using Timer = robotManager.Helpful.Timer;
 
 public class Main : IProduct
@@ -73,7 +75,12 @@ public class Main : IProduct
             IsStarted = true;
 
             database = new DB();
-            DBQueriesTBC.Initialize(database);
+            /*
+            if (ToolBox.GetWoWVersion() == "2.4.3")
+                DBQueriesTBC.Initialize(database);
+            */
+            if (ToolBox.GetWoWVersion() == "3.3.5")
+                DBQueriesWotlk.Initialize(database);
 
             if (WholesomeAQSettings.CurrentSetting.ActivateQuestsGUI)
                 questTrackerGUI.ShowWindow();
@@ -82,6 +89,9 @@ public class Main : IProduct
             _updateSurroundingsAndTasksThread.RunWorkerAsync();
             _getQuestsFromDbThread.DoWork += GetQuestsFromDbPulse;
             _getQuestsFromDbThread.RunWorkerAsync();
+
+            Radar3D.Pulse();
+            Radar3D.OnDrawEvent += Radar3DOnDrawEvent;
 
             if (Bot.Pulse())
             {
@@ -110,6 +120,9 @@ public class Main : IProduct
             Lua.RunMacroText("/stopcasting");
             MovementManager.StopMove();
 
+            Radar3D.OnDrawEvent -= Radar3DOnDrawEvent;
+            Radar3D.Stop();
+
             questTrackerGUI.HideWindow();
 
             _updateSurroundingsAndTasksThread.DoWork -= UpdateSurroundingsAndTasksPulse;
@@ -130,7 +143,7 @@ public class Main : IProduct
         }
     }
 
-    // Update Surroundings
+    // Update from DB
     private void GetQuestsFromDbPulse(object sender, DoWorkEventArgs args)
     {
         while (IsStarted)
@@ -141,13 +154,13 @@ public class Main : IProduct
                     && IsStarted
                     & _dbPulseTimer.IsReady)
                 {
-                    if (ToolBox.GetWoWVersion() == "2.4.3")
-                        DBQueriesTBC.GetAvailableQuests(100000);
+                    Quest.RequestQuestsCompleted();
+                    Quest.ConsumeQuestsCompletedRequest();
 
                     if (ToolBox.GetWoWVersion() == "3.3.5")
-                        DBQueriesWotlk.GetAvailableQuests(100000);
+                        DBQueriesWotlk.GetAvailableQuests();
 
-                    _dbPulseTimer = new Timer(5000);
+                    _dbPulseTimer = new Timer(1000*60*15);
                 }
             }
             catch (Exception arg)
@@ -203,5 +216,19 @@ public class Main : IProduct
     {
         string[] forWow = wManager.Information.ForWow.Split(new Char[] { '.' });
         return Int32.Parse(forWow[0]);
+    }
+
+    private static void Radar3DOnDrawEvent()
+    {
+        if (WAQTasks.TaskInProgress != null)
+        {
+            Radar3D.DrawLine(ObjectManager.Me.Position, WAQTasks.TaskInProgress.Location, Color.Blue);
+        }
+
+        if (WAQTasks.TaskInProgressWoWObject != null)
+        {
+            Radar3D.DrawLine(ObjectManager.Me.Position, WAQTasks.TaskInProgressWoWObject.Position, Color.Yellow);
+            Radar3D.DrawCircle(WAQTasks.TaskInProgressWoWObject.Position, 1, Color.Yellow);
+        }
     }
 }

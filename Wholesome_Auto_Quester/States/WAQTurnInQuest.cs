@@ -1,4 +1,5 @@
 ﻿using robotManager.FiniteStateMachine;
+using System.Collections.Generic;
 using System.Threading;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Helpers;
@@ -22,7 +23,7 @@ namespace Wholesome_Auto_Quester.States
 
                 if (WAQTasks.TaskInProgress?.TaskType == TaskType.TurnInQuest)
                 {
-                    DisplayName = $"Turning in {WAQTasks.TaskInProgress.Quest.Title} to {WAQTasks.TaskInProgress.Npc.Name}";
+                    DisplayName = $"Turning in {WAQTasks.TaskInProgress.Quest.LogTitle} to {WAQTasks.TaskInProgress.Npc.Name}";
                     return true;
                 }
 
@@ -33,23 +34,60 @@ namespace Wholesome_Auto_Quester.States
         public override void Run()
         {
             WAQTask task = WAQTasks.TaskInProgress;
+            WoWObject npc = WAQTasks.TaskInProgressWoWObject;
 
-            if (WAQTasks.TaskInProgressWoWObject != null)
+            if (npc != null)
             {
-                Logger.Log($"NPC found - Turning in quest at {WAQTasks.TaskInProgressWoWObject.Name}");
-                GoToTask.ToPositionAndIntecractWithNpc(WAQTasks.TaskInProgressWoWObject.Position, WAQTasks.TaskInProgressWoWObject.Entry);
-                Quest.CompleteQuest(1);
+                Logger.Log($"NPC found - Turning in quest to {npc.Name}");
+                GoToTask.ToPositionAndIntecractWithNpc(npc.Position, npc.Entry);
                 Thread.Sleep(1000);
+
+                List<string> gossipOptions = ToolBox.GetActiveQuestGossips();
+
+                if (!gossipOptions.Contains(task.Quest.LogTitle))
+                {
+                    Logger.Log($"Gossips don't contain {task.Quest.LogTitle}");
+                    for (int i = 1; i <= 5; i++)
+                    {
+                        GoToTask.ToPositionAndIntecractWithNpc(npc.Position, npc.Entry, gossipOptions: i);
+                        Quest.CompleteQuest();
+                        Quest.CompleteQuest(i);
+                        Quest.CloseQuestWindow();
+                    }
+                }
+                else
+                {
+                    Logger.Log($"Selecting gossip {task.Quest.LogTitle}");
+                    Quest.SelectGossipActiveQuest(gossipOptions.IndexOf(task.Quest.LogTitle) + 1);
+                    Thread.Sleep(1000);
+                    Quest.CompleteQuest();
+                    Thread.Sleep(1000);
+
+                    if (Quest.HasQuest(task.Quest.Id))
+                    {
+                        Lua.LuaDoString($"GetQuestReward(1)");
+                        Thread.Sleep(500);
+                        Quest.CompleteQuest();
+                    }
+                }
+
+                Quest.CloseQuestWindow();
+                Thread.Sleep(1000);
+
+                if (!Quest.HasQuest(task.Quest.Id))
+                    task.Quest.MarkAsCompleted();
             }
             else
             {
-                GoToTask.ToPosition(task.Location, 5f, conditionExit: e => WAQTasks.TaskInProgressWoWObject != null || task.GetDistance < 10f);
-
-                if (task.GetDistance <= 11 && WAQTasks.TaskInProgressWoWObject == null)
+                if (GoToTask.ToPosition(task.Location, 10f, conditionExit: e => WAQTasks.TaskInProgressWoWObject != null))
                 {
-                    Logger.Log($"We are close to {ToolBox.GetTaskId(task)} position and no object in sight. Time out");
-                    task.PutTaskOnTimeout(200);
+                    if (WAQTasks.TaskInProgressWoWObject == null && task.GetDistance <= 10f)
+                    {
+                        Logger.Log($"We are close to {ToolBox.GetTaskId(task)} position and no NPC for turnin in sight. Time out");
+                        task.PutTaskOnTimeout();
+                    }
                 }
+
             }
         }
     }

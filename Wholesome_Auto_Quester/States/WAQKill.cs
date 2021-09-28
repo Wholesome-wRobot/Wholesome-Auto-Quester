@@ -22,7 +22,7 @@ namespace Wholesome_Auto_Quester.States
 
                 if (WAQTasks.TaskInProgress?.TaskType == TaskType.Kill)
                 {
-                    DisplayName = $"Kill {WAQTasks.TaskInProgress.Npc.Name} for {WAQTasks.TaskInProgress.Quest.Title}";
+                    DisplayName = $"Kill {WAQTasks.TaskInProgress.Npc.Name} for {WAQTasks.TaskInProgress.Quest.LogTitle}";
                     return true;
                 }
 
@@ -43,12 +43,13 @@ namespace Wholesome_Auto_Quester.States
             }
             else
             {
-                GoToTask.ToPosition(task.Location, 5f, conditionExit: e => WAQTasks.TaskInProgressWoWObject != null || task.GetDistance < 10f);
-
-                if (task.GetDistance <= 11 && WAQTasks.TaskInProgressWoWObject == null)
+                if (GoToTask.ToPosition(task.Location, 10f, conditionExit: e => WAQTasks.TaskInProgressWoWObject != null))
                 {
-                    Logger.Log($"We are close to {ToolBox.GetTaskId(task)} position and no object in sight. Time out");
-                    task.PutTaskOnTimeout(200);
+                    if (WAQTasks.TaskInProgressWoWObject == null && task.GetDistance <= 10f)
+                    {
+                        Logger.Log($"We are close to {ToolBox.GetTaskId(task)} position and no npc to kill in sight. Time out");
+                        task.PutTaskOnTimeout();
+                    }
                 }
             }
         }

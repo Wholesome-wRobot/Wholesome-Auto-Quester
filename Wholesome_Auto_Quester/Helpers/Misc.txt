@@ -73,3 +73,26 @@
 
 
 	RegisterEvent("QUEST_PROGRESS")
+
+
+
+	
+
+            string query = $@"
+                    SELECT qt.ID Id, qt.AllowableRaces, qt.RequiredItemCount1, qt.RequiredItemCount2, qt.RequiredItemCount3, qt.RequiredItemCount4,
+                        qt.RequiredItemCount5, qt.RequiredItemCount6, qt.RequiredItemId1, qt.RequiredItemId2, qt.RequiredItemId3,
+                        qt.RequiredItemId4, qt.RequiredItemId5, qt.RequiredItemId6, qt.RequiredNpcOrGo1, qt.RequiredNpcOrGo2,
+                        qt.RequiredNpcOrGo3, qt.RequiredNpcOrGo4, qt.RequiredNpcOrGoCount1, qt.RequiredNpcOrGoCount2, qt.RequiredNpcOrGoCount3,
+                        qt.RequiredNpcOrGoCount1, qt.LogTitle, qt.QuestLevel, qta.AllowableClasses, qta.PrevQuestID, qta.NextQuestID,
+                        qta.RequiredSkillID, qta.RequiredSkillPoints
+                    FROM quest_template qt
+                    JOIN creature_queststarter cq
+                    ON qt.ID = cq.quest
+                    JOIN quest_template_addon qta
+                    ON qta.ID = qt.ID
+                    WHERE MinLevel <= {ObjectManager.Me.Level}
+                    AND (QuestLevel <= {ObjectManager.Me.Level + 2} AND QuestLevel > 0 AND QuestLevel > {ObjectManager.Me.Level - 5})
+                    AND (QuestType = 0 OR QuestType = 2)
+                    AND (AllowableClasses & {(uint)ToolBox.GetClass()} <> 0 OR AllowableClasses = 0)
+                    AND (AllowableRaces & {(uint)ToolBox.GetFaction()} <> 0 OR AllowableRaces = 0)
+                ";
