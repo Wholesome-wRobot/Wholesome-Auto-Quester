@@ -1,24 +1,28 @@
 ﻿using System;
-using System.Data;
+using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Linq;
 using robotManager.Helpful;
+using SafeDapper;
+using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
 
 namespace Wholesome_Auto_Quester.Database
 {
     public class DB : IDisposable
     {
-        public static SQLiteConnection _con;
+        private readonly SQLiteConnection _con;
         private readonly SQLiteCommand _cmd;
+
         public DB()
         {
             string baseDirectory = "";
 
             if (ToolBox.GetWoWVersion() == "2.4.3")
-                baseDirectory = AppContext.BaseDirectory + "Data\\WoWDb243";
+                baseDirectory = Others.GetCurrentDirectory + @"Data\WoWDb243";
 
             if (ToolBox.GetWoWVersion() == "3.3.5")
-                baseDirectory = AppContext.BaseDirectory + "Data\\WoWDb335-quests";
+                baseDirectory = Others.GetCurrentDirectory + @"Data\WoWDb335-quests;Cache=Shared;";
 
             _con = new SQLiteConnection("Data Source=" + baseDirectory);
              _con.Open();
@@ -30,6 +34,27 @@ namespace Wholesome_Auto_Quester.Database
             _con?.Close();
         }
 
+        public List<ModelQuest> SafeQueryQuests(string query)
+        {
+            return _con.SafeQuery<ModelQuest>(query).ToList();
+        }
+
+        public List<ModelNpc> SafeQueryNpcs(string query)
+        {
+            return _con.SafeQuery<ModelNpc>(query).ToList();
+        }
+
+        public List<ModelGatherObject> SafeQueryGatherObjects(string query)
+        {
+            return _con.SafeQuery<ModelGatherObject>(query).ToList();
+        }
+
+        public List<int> SafeQueryListInts(string query)
+        {
+            return _con.SafeQuery<int>(query).ToList();
+        }
+
+        /*
         public DataTable SelectQuery(string query)
         {
             var dt = new DataTable();
@@ -58,6 +83,6 @@ namespace Wholesome_Auto_Quester.Database
         {
             _cmd.CommandText = query;
             return _cmd.ExecuteScalar().ToString();
-        }
+        }*/
     }
 }

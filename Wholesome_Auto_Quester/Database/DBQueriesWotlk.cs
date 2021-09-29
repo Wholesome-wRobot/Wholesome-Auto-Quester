@@ -2,7 +2,6 @@
 using System.Linq;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.ObjectManager;
-using SafeDapper;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Bot;
 using System;
@@ -12,15 +11,19 @@ namespace Wholesome_Auto_Quester.Database
 {
     public class DBQueriesWotlk
     {
-        private static DB _database;
+        private DB _database;
 
-        public static void Initialize(DB database)
+        public DBQueriesWotlk()
         {
-            if (_database == null)
-                _database = database;
+            _database = new DB();
         }
 
-        public static List<ModelQuest> FilterQuests(List<ModelQuest> dbResult)
+        public void DisposeDb()
+        {
+            _database.Dispose();
+        }
+
+        private List<ModelQuest> FilterQuests(List<ModelQuest> dbResult)
         {
             return dbResult.Where(q =>
                         q.MinLevel <= ObjectManager.Me.Level
@@ -33,7 +36,7 @@ namespace Wholesome_Auto_Quester.Database
                     ).ToList();
         }
 
-        public static void GetAvailableQuests()
+        public void GetAvailableQuests()
         {
             DateTime dateBegin = DateTime.Now;
 
@@ -42,6 +45,7 @@ namespace Wholesome_Auto_Quester.Database
 
             if (questsFromJSON != null)
             {
+                DisposeDb();
                 Logger.Log($"Building quests from JSON complete ({questsFromJSON.Count} quests)");
                 WAQTasks.AddQuests(FilterQuests(questsFromJSON));
                 return;
@@ -50,6 +54,7 @@ namespace Wholesome_Auto_Quester.Database
             if (!ToolBox.WoWDBFileIsPresent())
             {
                 // DOWNLOAD ZIP ETC..
+                DisposeDb();
                 return;
             }
             
@@ -95,7 +100,7 @@ namespace Wholesome_Auto_Quester.Database
             */
 
             DateTime dateBeginMain = DateTime.Now;
-            List<ModelQuest> result = DB._con.SafeQuery<ModelQuest>(query).ToList();
+            List<ModelQuest> result = _database.SafeQueryQuests(query);
             Logger.Log($"Process time (Main) : {(DateTime.Now.Ticks - dateBeginMain.Ticks) / 10000} ms");
 
             List<ModelGatherObject> resultListObj;
@@ -211,12 +216,14 @@ namespace Wholesome_Auto_Quester.Database
             Logger.Log($"Process time (TOTAL) : {(DateTime.Now.Ticks - dateBegin.Ticks) / 10000} ms");
             Logger.Log($"{result.Count} results");
 
+            DisposeDb();
+
             ToolBox.WriteJSONFromDBResult(result);
             ToolBox.ZipJSONFile();
             Products.ProductStop();
         }
 
-        public static List<ModelNpc> GetQuestGivers(int questId)
+        private List<ModelNpc> GetQuestGivers(int questId)
         {
             string query = $@"
                     SELECT cq.id Id, ct.name Name, c.guid Guid, c.map Map, 
@@ -231,10 +238,10 @@ namespace Wholesome_Auto_Quester.Database
                     GROUP BY cq.id
                 ";
 
-            return DB._con.SafeQuery<ModelNpc>(query).ToList();
+            return _database.SafeQueryNpcs(query);
         }
 
-        public static List<ModelNpc> GetQuestTurners(int questId)
+        private List<ModelNpc> GetQuestTurners(int questId)
         {
             string query =  $@"
                     SELECT ci.id Id, ct.Name, c.guid Guid, c.map Map, c.position_x PositionX, 
@@ -249,10 +256,10 @@ namespace Wholesome_Auto_Quester.Database
                     GROUP BY ci.id
                 ";
 
-            return DB._con.SafeQuery<ModelNpc>(query).ToList();
+            return _database.SafeQueryNpcs(query);
         }
 
-        public static List<ModelNpc> GetCreatureToLoot(int itemid)
+        private List<ModelNpc> GetCreatureToLoot(int itemid)
         {
             string query = $@"
                 SELECT clt.entry Id, ct.name Name, c.guid Guid, c.map Map, c.position_x PositionX, 
@@ -268,10 +275,11 @@ namespace Wholesome_Auto_Quester.Database
                 ON it.entry = {itemid}
                 WHERE item = {itemid}
             ";
-            return DB._con.SafeQuery<ModelNpc>(query).ToList();
+
+            return _database.SafeQueryNpcs(query);
         }
 
-        public static List<ModelNpc> GetCreaturesToKill(int creatureId)
+        private List<ModelNpc> GetCreaturesToKill(int creatureId)
         {
             string query = $@"
                 SELECT c.Id, ct.Name, c.guid Guid, c.map Map, c.position_x PositionX, 
@@ -283,10 +291,10 @@ namespace Wholesome_Auto_Quester.Database
                 WHERE c.id = {creatureId}
             ";
 
-            return DB._con.SafeQuery<ModelNpc>(query).ToList();
+            return _database.SafeQueryNpcs(query);
         }
 
-        public static List<ModelGatherObject> GetGatherObjects(int objectId)
+        private List<ModelGatherObject> GetGatherObjects(int objectId)
         {
             string query = $@"
                 SELECT it.entry Entry, it.class Class, it.subclass SubClass, it.name Name, it.displayid DisplayId, 
@@ -301,10 +309,11 @@ namespace Wholesome_Auto_Quester.Database
                 ON g.id = GameObjectEntry
                 WHERE it.entry == {objectId}
             ";
-            return DB._con.SafeQuery<ModelGatherObject>(query).ToList();
+
+            return _database.SafeQueryGatherObjects(query);
         }
 
-        public static List<int> GetNextQuestsIds(int questId)
+        private List<int> GetNextQuestsIds(int questId)
         {
             string query = $@"
                     SELECT ID FROM quest_template_addon
@@ -312,10 +321,10 @@ namespace Wholesome_Auto_Quester.Database
                     GROUP BY ID
                 ";
 
-            return DB._con.SafeQuery<int>(query).Distinct().ToList();
+            return _database.SafeQueryListInts(query);
         }
 
-        public static List<int> GetPreviousQuestsIds(int questId)
+        private List<int> GetPreviousQuestsIds(int questId)
         {
             string query = $@"
                     SELECT ID FROM quest_template_addon
@@ -323,7 +332,7 @@ namespace Wholesome_Auto_Quester.Database
                     GROUP BY ID
                 ";
 
-            return DB._con.SafeQuery<int>(query).Distinct().ToList();
+            return _database.SafeQueryListInts(query);
         }
     }
 }

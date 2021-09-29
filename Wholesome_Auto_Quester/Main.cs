@@ -3,7 +3,6 @@ using robotManager.Products;
 using System;
 using System.ComponentModel;
 using System.Drawing;
-using System.Threading;
 using Wholesome_Auto_Quester;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Database;
@@ -27,8 +26,6 @@ public class Main : IProduct
 
     public bool IsStarted { get; private set; } = false;
     ProductSettingsControl _settingsUserControl;
-
-    private DB database;
 
     public string version = "0.0.01"; // Must match version in Version.txt
 
@@ -74,31 +71,28 @@ public class Main : IProduct
             //AutoUpdater.CheckUpdate(version);
             IsStarted = true;
 
-            database = new DB();
-            /*
-            if (ToolBox.GetWoWVersion() == "2.4.3")
-                DBQueriesTBC.Initialize(database);
-            */
-            if (ToolBox.GetWoWVersion() == "3.3.5")
-                DBQueriesWotlk.Initialize(database);
-
-            if (WholesomeAQSettings.CurrentSetting.ActivateQuestsGUI)
-                questTrackerGUI.ShowWindow();
-
             _updateSurroundingsAndTasksThread.DoWork += UpdateSurroundingsAndTasksPulse;
             _updateSurroundingsAndTasksThread.RunWorkerAsync();
             _getQuestsFromDbThread.DoWork += GetQuestsFromDbPulse;
             _getQuestsFromDbThread.RunWorkerAsync();
 
-            Radar3D.Pulse();
-            Radar3D.OnDrawEvent += Radar3DOnDrawEvent;
-
             if (ToolBox.GetWoWVersion() == "3.3.5")
-                DBQueriesWotlk.GetAvailableQuests();
+            {
+                DBQueriesWotlk dbWotlk = new DBQueriesWotlk();
+                dbWotlk.GetAvailableQuests();
+            }
 
             if (Bot.Pulse())
             {
+
+                if (WholesomeAQSettings.CurrentSetting.ActivateQuestsGUI)
+                    questTrackerGUI.ShowWindow();
+
+                Radar3D.Pulse();
+                Radar3D.OnDrawEvent += Radar3DOnDrawEvent;
+
                 PluginsManager.LoadAllPlugins();
+
                 Logging.Status = "Start Product Complete";
                 Logging.Write("Start Product Complete");
             }
@@ -132,9 +126,6 @@ public class Main : IProduct
             _updateSurroundingsAndTasksThread.Dispose();
             _getQuestsFromDbThread.DoWork -= GetQuestsFromDbPulse;
             _getQuestsFromDbThread.Dispose();
-
-            if (database != null)
-                database.Dispose();
 
             Bot.Dispose();
             IsStarted = false;

@@ -96,7 +96,10 @@ namespace Wholesome_Auto_Quester.Bot
             CustomClass.ResetCustomClass();
 
             if (ToolBox.GetWoWVersion() == "3.3.5")
-                DBQueriesWotlk.GetAvailableQuests();
+            {
+                DBQueriesWotlk dbWotlk = new DBQueriesWotlk();
+                dbWotlk.GetAvailableQuests();
+            }
         }
 
         private static void ScreenReloaded()

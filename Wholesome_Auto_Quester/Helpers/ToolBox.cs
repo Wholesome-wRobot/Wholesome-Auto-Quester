@@ -94,7 +94,7 @@ namespace Wholesome_Auto_Quester.Helpers
                 }
 
                 // Copy to Compiled folder
-                string compiledzip = @"C:\Users\Nico\Dropbox\Programmation\wRobot\Wholesome_Auto_Quester\Wholesome_Auto_Quester\Compiled\Wholesome_Auto_Quester\Compiled\WAQquests.zip";
+                string compiledzip = @"C:\Users\Nico\Dropbox\Programmation\wRobot\Wholesome_Auto_Quester\Wholesome_Auto_Quester\Compiled\WAQquests.zip";
                 if (File.Exists(compiledzip))
                     File.Delete(compiledzip);
                 File.Copy(Others.GetCurrentDirectory + @"\Data\WAQquests.zip", compiledzip);
