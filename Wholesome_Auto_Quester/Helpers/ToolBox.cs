@@ -60,7 +60,9 @@ namespace Wholesome_Auto_Quester.Helpers {
         public static bool GossipTurnInQuest(string questName) {
             // Select quest
             int exitCodeOpen = Lua.LuaDoString<int>($@"
-            if GetClickFrame('QuestFrameAcceptButton'):IsVisible() == 1 or GetClickFrame('QuestFrameCompleteButton'):IsVisible() == 1 then return 0; end
+            if GetClickFrame('QuestFrameAcceptButton'):IsVisible() == 1
+                or GetClickFrame('QuestFrameCompleteButton'):IsVisible() == 1
+                or GetClickFrame('QuestFrameCompleteQuestButton'):IsVisible() == 1 then return 0; end
             if GetClickFrame('QuestFrame'):IsVisible() == 1 then
             	for i=1, 32 do
             		local button = GetClickFrame('QuestTitleButton' .. i);
