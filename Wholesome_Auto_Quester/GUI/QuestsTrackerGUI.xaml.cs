@@ -19,6 +19,24 @@ namespace Wholesome_Auto_Quester.GUI
             };
         }
 
+        public void AddToBLClicked(object sender, RoutedEventArgs e)
+        {
+            if (sourceQuestsList.SelectedItem != null)
+            {
+                ModelQuest selected = (ModelQuest)sourceQuestsList.SelectedItem;
+                WholesomeAQSettings.AddQuestToBlackList(selected.Id);
+            }
+        }
+
+        public void RmvFromBLClicked(object sender, RoutedEventArgs e)
+        {
+            if (sourceQuestsList.SelectedItem!= null)
+            {
+                ModelQuest selected = (ModelQuest)sourceQuestsList.SelectedItem;
+                WholesomeAQSettings.RemoveQuestFromBlackList(selected.Id);
+            }
+        }
+
         public void ShowWindow()
         {
             Dispatcher.BeginInvoke((Action)(() => {

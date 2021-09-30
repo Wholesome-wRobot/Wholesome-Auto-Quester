@@ -211,7 +211,7 @@ namespace Wholesome_Auto_Quester.Helpers {
         }
 
         public static bool CompiledJSONFileIsPresent() {
-            return File.Exists(@"D:\Dev\Wholesome-AutoQuester\Wholesome_Auto_Quester\Compiled\WAQquests.zip");
+            return File.Exists(@"F:\WoW\Dev\Wholesome-Auto-Quester\Wholesome_Auto_Quester\Compiled\WAQquests.zip");
         }
 
         public static bool ZippedJSONIsPresent() {
@@ -220,7 +220,7 @@ namespace Wholesome_Auto_Quester.Helpers {
 
         public static List<ModelQuest> GetAllQuestsFromJSON() {
             try {
-                if (!CompiledJSONFileIsPresent()) {
+                if (!JSONFileIsPresent()) {
                     Logger.LogError("The Compiled JSON file is not present.");
                     return null;
                 }
@@ -256,7 +256,7 @@ namespace Wholesome_Auto_Quester.Helpers {
                 }
 
                 // Copy to Compiled folder
-                string compiledzip = @"D:\Dev\Wholesome-AutoQuester\Wholesome_Auto_Quester\Compiled\WAQquests.zip";
+                string compiledzip = @"F:\WoW\Dev\Wholesome-Auto-Quester\Wholesome_Auto_Quester\Compiled\WAQquests.zip";
                 if (File.Exists(compiledzip))
                     File.Delete(compiledzip);
                 File.Copy(Others.GetCurrentDirectory + @"\Data\WAQquests.zip", compiledzip);

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2020
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31424.327
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wholesome_Auto_Quester", "Wholesome_Auto_Quester\Wholesome_Auto_Quester.csproj", "{1CAC3B4B-6684-47A4-82B8-D051B838A4CA}"
 EndProject
@@ -9,12 +9,15 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+		zero|Any CPU = zero|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{1CAC3B4B-6684-47A4-82B8-D051B838A4CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1CAC3B4B-6684-47A4-82B8-D051B838A4CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1CAC3B4B-6684-47A4-82B8-D051B838A4CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1CAC3B4B-6684-47A4-82B8-D051B838A4CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1CAC3B4B-6684-47A4-82B8-D051B838A4CA}.zero|Any CPU.ActiveCfg = zero|Any CPU
+		{1CAC3B4B-6684-47A4-82B8-D051B838A4CA}.zero|Any CPU.Build.0 = zero|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

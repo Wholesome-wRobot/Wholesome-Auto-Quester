@@ -176,16 +176,28 @@
                         <Separator 
                             Grid.Row="2"/>
 
-                        <TextBlock 
-                            Name="questId"
-                            TextWrapping="Wrap"
-                            Grid.Row="3"
-                            HorizontalAlignment="Left"
-                            Grid.ColumnSpan="2"
-                            Margin="0,5"/>
+                        <Button Content="Add to BL"
+                                Name="ButtonAddToBl"
+                                Click="AddToBLClicked"
+                                Grid.Row="3"
+                                Width="100"
+                                Background="#423838"
+                                Margin="10, 5"
+                                FontSize="10"
+                                HorizontalAlignment="Left"/>
+
+                        <Button Content="Rmv from BL"
+                                Name="ButtonRmvFromBl"
+                                Click="RmvFromBLClicked"
+                                Background="#384238"
+                                Grid.Row="3"
+                                Margin="10, 5"
+                                Width="100"
+                                FontSize="10"
+                                HorizontalAlignment="Right"/>
 
                         <TextBlock 
-                            Name="questLevel"
+                            Name="questId"
                             TextWrapping="Wrap"
                             Grid.Row="4"
                             HorizontalAlignment="Left"
@@ -193,7 +205,7 @@
                             Margin="0,5"/>
 
                         <TextBlock 
-                            Name="questGivers"
+                            Name="questLevel"
                             TextWrapping="Wrap"
                             Grid.Row="5"
                             HorizontalAlignment="Left"
@@ -201,7 +213,7 @@
                             Margin="0,5"/>
 
                         <TextBlock 
-                            Name="questTurners"
+                            Name="questGivers"
                             TextWrapping="Wrap"
                             Grid.Row="6"
                             HorizontalAlignment="Left"
@@ -209,7 +221,7 @@
                             Margin="0,5"/>
 
                         <TextBlock 
-                            Name="questStatus"
+                            Name="questTurners"
                             TextWrapping="Wrap"
                             Grid.Row="7"
                             HorizontalAlignment="Left"
@@ -217,7 +229,7 @@
                             Margin="0,5"/>
 
                         <TextBlock 
-                            Name="questPrevious"
+                            Name="questStatus"
                             TextWrapping="Wrap"
                             Grid.Row="8"
                             HorizontalAlignment="Left"
@@ -225,7 +237,7 @@
                             Margin="0,5"/>
 
                         <TextBlock 
-                            Name="questNext"
+                            Name="questPrevious"
                             TextWrapping="Wrap"
                             Grid.Row="9"
                             HorizontalAlignment="Left"
@@ -233,7 +245,7 @@
                             Margin="0,5"/>
 
                         <TextBlock 
-                            Name="questGatherObjects"
+                            Name="questNext"
                             TextWrapping="Wrap"
                             Grid.Row="10"
                             HorizontalAlignment="Left"
@@ -241,7 +253,7 @@
                             Margin="0,5"/>
 
                         <TextBlock 
-                            Name="questKillCreatures"
+                            Name="questGatherObjects"
                             TextWrapping="Wrap"
                             Grid.Row="11"
                             HorizontalAlignment="Left"
@@ -249,9 +261,17 @@
                             Margin="0,5"/>
 
                         <TextBlock 
-                            Name="questLootCreatures"
+                            Name="questKillCreatures"
                             TextWrapping="Wrap"
                             Grid.Row="12"
+                            HorizontalAlignment="Left"
+                            Grid.ColumnSpan="2"
+                            Margin="0,5"/>
+
+                        <TextBlock 
+                            Name="questLootCreatures"
+                            TextWrapping="Wrap"
+                            Grid.Row="13"
                             HorizontalAlignment="Left"
                             Grid.ColumnSpan="2"
                             Margin="0,5"/>

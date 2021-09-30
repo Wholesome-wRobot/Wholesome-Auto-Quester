@@ -80,7 +80,8 @@ namespace Wholesome_Auto_Quester.Database.Models
             {  QuestStatus.InProgress, "Gold"},
             {  QuestStatus.None, "Gray"},
             {  QuestStatus.ToPickup, "MediumSeaGreen"},
-            {  QuestStatus.ToTurnIn, "RoyalBlue"}
+            {  QuestStatus.ToTurnIn, "RoyalBlue"},
+            {  QuestStatus.Blacklisted, "Red"}
         };
     }
 

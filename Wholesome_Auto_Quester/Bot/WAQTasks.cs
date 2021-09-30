@@ -36,7 +36,7 @@ namespace Wholesome_Auto_Quester.Bot
             foreach(ModelQuest quest in Quests)
             {
                 // Completed
-                if (quest.Status == QuestStatus.Completed)
+                if (quest.Status == QuestStatus.Completed || quest.Status == QuestStatus.Blacklisted)
                 {
                     TasksPile.RemoveAll(t => t.Quest.Id == quest.Id);
                     continue;
@@ -201,10 +201,16 @@ namespace Wholesome_Auto_Quester.Bot
 
         public static void UpdateStatuses()
         {
-            //Logger.Log("Update statuses"); // looooooooooooooooooooooooong
             // Update quests statuses
             foreach (ModelQuest quest in Quests)
             {
+                // Quest blacklisted
+                if (WholesomeAQSettings.CurrentSetting.BlacklistesQuests.Contains(quest.Id))
+                {
+                    quest.Status = QuestStatus.Blacklisted;
+                    continue;
+                }
+
                 // Quest completed
                 if (quest.IsCompleted
                     || Quests.Any(q => q.Status == QuestStatus.Completed && q.PreviousQuestsIds.Contains(quest.Id)))

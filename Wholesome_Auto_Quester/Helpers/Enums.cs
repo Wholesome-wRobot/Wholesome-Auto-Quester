@@ -40,6 +40,7 @@
         Failed,
         None,
         Completed,
+        Blacklisted
     }
 
     public enum TaskType

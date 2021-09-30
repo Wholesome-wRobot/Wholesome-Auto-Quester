@@ -38,6 +38,15 @@
   <PropertyGroup>
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'zero|AnyCPU'">
+    <OutputPath>..\..\..\WoW Wotlk\WRobot WOTLK\Products\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="ControlzEx, Version=3.0.2.4, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ControlzEx.3.0.2.4\lib\net462\ControlzEx.dll</HintPath>
@@ -342,9 +351,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y/E/R "F:\WoW\WoW Wotlk\WRobot WOTLK\Products\Wholesome_Auto_Quester.dll" "C:\Users\Nico\Desktop"
-xcopy /Y/E/R "F:\WoW\WoW Wotlk\WRobot WOTLK\Products\Wholesome_Auto_Quester.dll" "F:\WoW\WoW TBC\WRobot\Products"
-xcopy /Y/E/R "F:\WoW\WoW Wotlk\WRobot WOTLK\Products\Wholesome_Auto_Quester.dll" "$(ProjectDir)\Compiled"
+    <PostBuildEvent>xcopy /Y/F "F:\WoW\WoW Wotlk\WRobot WOTLK\Products\Wholesome_Auto_Quester.dll" "$(ProjectDir)\Compiled"
+xcopy /Y/F "F:\WoW\WoW Wotlk\WRobot WOTLK\Data\WAQquests.zip" "$(ProjectDir)\Compiled"
 
 start "WRobot" "F:\WoW\WoW Wotlk\WRobot WOTLK\WRobot.exe" AutoAttachAndLog=true</PostBuildEvent>
   </PropertyGroup>
