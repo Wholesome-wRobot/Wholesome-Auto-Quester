@@ -93,6 +93,9 @@
       <HintPath>F:\WoW\WoW Wotlk\WRobot WOTLK\Bin\robotManager.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="SmoothMove, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>E:\Games\World of Warcraft\WRobot\Bin\SmoothMove.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.AppContext, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.AppContext.4.3.0\lib\net463\System.AppContext.dll</HintPath>
@@ -305,6 +308,7 @@
     <Compile Include="Database\SafeDapper\DapperExtensions.cs" />
     <Compile Include="Database\SafeDapper\DapperObjectMappingException.cs" />
     <Compile Include="Database\SafeDapper\ThrowWhenNullTypeMap.cs" />
+    <Compile Include="Helpers\MoveHelper.cs" />
     <Compile Include="States\WAQKillAndLoot.cs" />
     <Compile Include="States\WAQTurnInQuest.cs" />
     <Compile Include="States\WAQPickupQuest.cs" />

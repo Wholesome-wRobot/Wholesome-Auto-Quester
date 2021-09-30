@@ -1,5 +1,6 @@
 ﻿using robotManager.FiniteStateMachine;
 using System.Threading;
+using FlXProfiles;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Bot.Tasks;
@@ -43,14 +44,20 @@ namespace Wholesome_Auto_Quester.States
             }
             else
             {
-                if (GoToTask.ToPosition(task.Location, 10f, conditionExit: e => WAQTasks.TaskInProgressWoWObject != null))
-                {
-                    if (WAQTasks.TaskInProgressWoWObject == null && task.GetDistance <= 13f)
-                    {
-                        Logger.Log($"We are close to {ToolBox.GetTaskId(task)} position and no npc to kill in sight. Time out");
-                        task.PutTaskOnTimeout();
-                    }
+                Logger.Log($"Moving to Hotspot for {task.Quest.LogTitle} (Kill).");
+                if (!MoveHelper.MoveToWait(task.Location, randomizeEnd: 8,
+                    abortIf: () => WAQTasks.TaskInProgressWoWObject != null) || task.GetDistance <= 13f) {
+                    Logger.Log($"We are close to {ToolBox.GetTaskId(task)} position and no npc to kill in sight. Time out");
+                    task.PutTaskOnTimeout();
                 }
+                // if (GoToTask.ToPosition(task.Location, 10f, conditionExit: e => WAQTasks.TaskInProgressWoWObject != null))
+                // {
+                //     if (WAQTasks.TaskInProgressWoWObject == null && task.GetDistance <= 13f)
+                //     {
+                //         Logger.Log($"We are close to {ToolBox.GetTaskId(task)} position and no npc to kill in sight. Time out");
+                //         task.PutTaskOnTimeout();
+                //     }
+                // }
             }
         }
     }

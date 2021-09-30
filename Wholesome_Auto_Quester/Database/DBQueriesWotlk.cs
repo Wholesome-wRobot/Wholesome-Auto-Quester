@@ -5,6 +5,7 @@ using wManager.Wow.ObjectManager;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Bot;
 using System;
+using System.Diagnostics;
 using robotManager.Products;
 
 namespace Wholesome_Auto_Quester.Database
@@ -41,7 +42,9 @@ namespace Wholesome_Auto_Quester.Database
             DateTime dateBegin = DateTime.Now;
 
             Logger.Log($"Building quests from JSON");
+            var watch = Stopwatch.StartNew();
             List<ModelQuest> questsFromJSON = ToolBox.GetAllQuestsFromJSON();
+            Logger.LogDebug($"Loading the JSON took {watch.ElapsedMilliseconds}ms.");
 
             if (questsFromJSON != null)
             {

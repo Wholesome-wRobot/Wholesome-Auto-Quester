@@ -55,7 +55,7 @@ namespace Wholesome_Auto_Quester.Database.Models
 
         public bool IsPickable()
         {
-            if (PreviousQuestsIds.Count > 0 && !PreviousQuestsIds.Any(qid => ToolBox.IsQuestCompleted(qid)))
+            if (PreviousQuestsIds.Count > 0 && !PreviousQuestsIds.Any(ToolBox.IsQuestCompleted))
                 return false;
 
             if (RequiredSkillID > 0 && Skill.GetValue((SkillLine)RequiredSkillID) < RequiredSkillPoints)

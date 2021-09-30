@@ -3,6 +3,7 @@ using robotManager.Products;
 using System;
 using System.ComponentModel;
 using System.Drawing;
+using FlXProfiles;
 using Wholesome_Auto_Quester;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Database;
@@ -88,8 +89,8 @@ public class Main : IProduct
                 if (WholesomeAQSettings.CurrentSetting.ActivateQuestsGUI)
                     questTrackerGUI.ShowWindow();
 
-                Radar3D.Pulse();
                 Radar3D.OnDrawEvent += Radar3DOnDrawEvent;
+                Radar3D.Pulse();
 
                 PluginsManager.LoadAllPlugins();
 
@@ -115,10 +116,11 @@ public class Main : IProduct
         try
         {
             Lua.RunMacroText("/stopcasting");
+            MoveHelper.StopAllMove();
             MovementManager.StopMove();
 
             Radar3D.OnDrawEvent -= Radar3DOnDrawEvent;
-            Radar3D.Stop();
+            // Radar3D.Stop();
 
             questTrackerGUI.HideWindow();
 
