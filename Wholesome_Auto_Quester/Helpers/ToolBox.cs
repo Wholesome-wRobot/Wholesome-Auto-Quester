@@ -60,16 +60,30 @@ namespace Wholesome_Auto_Quester.Helpers {
         public static bool GossipTurnInQuest(string questName) {
             // Select quest
             int exitCodeOpen = Lua.LuaDoString<int>($@"
-            if GetClickFrame('QuestFrame'):IsVisible() == 1 then return 0; end
-            if GetClickFrame('GossipFrame'):IsVisible() == nil then return 1; end
-            local activeQuests = {{ GetGossipActiveQuests() }};
-            for j=1, GetNumGossipActiveQuests(), 1 do
-            	local i = j*4-3;
-                if activeQuests[i] == '{questName.EscapeLuaString()}' then
-            		if activeQuests[i+3] ~= 1 then return 3; end
-            		SelectGossipActiveQuest(i);
-            		return 0;
+            if GetClickFrame('QuestFrameAcceptButton'):IsVisible() == 1 or GetClickFrame('QuestFrameCompleteButton'):IsVisible() == 1 then return 0; end
+            if GetClickFrame('QuestFrame'):IsVisible() == 1 then
+            	for i=1, 32 do
+            		local button = GetClickFrame('QuestTitleButton' .. i);
+            		if button:IsVisible() ~= 1 then break; end
+            		local text = button:GetText();
+            		text = strsub(text, 11, strlen(text)-2);
+            		if text == '{questName.EscapeLuaString()}' then
+                        button:Click();
+                        return 0;
+                    end
             	end
+            elseif GetClickFrame('GossipFrame'):IsVisible() == 1 then
+            	local activeQuests = {{ GetGossipActiveQuests() }};
+            	for j=1, GetNumGossipActiveQuests(), 1 do
+            		local i = j*4-3;
+            		if activeQuests[i] == '{questName.EscapeLuaString()}' then
+            			if activeQuests[i+3] ~= 1 then return 3; end
+            			SelectGossipActiveQuest(i);
+            			return 0;
+            		end
+            	end
+            else
+            	return 1;
             end
             return 2;");
             switch (exitCodeOpen) {
