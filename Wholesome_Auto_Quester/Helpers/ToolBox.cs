@@ -131,7 +131,7 @@ namespace Wholesome_Auto_Quester.Helpers {
         public static bool GossipPickUpQuest(string questName) {
             // Select quest
             int exitCodeOpen = Lua.LuaDoString<int>($@"
-            if GetClickFrame('QuestFrameAcceptButton'):IsVisible() == 1 then return 0; end
+            if GetClickFrame('QuestFrameAcceptButton'):IsVisible() == 1 or GetClickFrame('QuestFrameCompleteButton'):IsVisible() == 1 then return 0; end
             if GetClickFrame('QuestFrame'):IsVisible() == 1 then
             	for i=1, 32 do
             		local button = GetClickFrame('QuestTitleButton' .. i);
@@ -164,9 +164,19 @@ namespace Wholesome_Auto_Quester.Helpers {
                     Logger.LogError($"The quest {questName} has not been found to pick up.");
                     return false;
             }
-
+            
             Thread.Sleep(200);
 
+            if (Lua.LuaDoString<bool>("return GetClickFrame('QuestFrameCompleteButton'):IsVisible() == 1;")) {
+                Logger.LogError($"The quest {questName} seems to be a trade quest.");
+                Lua.LuaDoString(@"
+                local closeButton = GetClickFrame('QuestFrameCloseButton');
+                if closeButton:IsVisible() then
+                	closeButton:Click();
+                end");
+                return false;
+            }
+            
             // Finish it
             Lua.LuaDoString($"if GetClickFrame('QuestFrame'):IsVisible() then AcceptQuest(); end");
             Thread.Sleep(200);

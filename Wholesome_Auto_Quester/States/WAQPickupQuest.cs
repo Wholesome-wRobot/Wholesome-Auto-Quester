@@ -54,7 +54,11 @@ namespace Wholesome_Auto_Quester.States
                     Thread.Sleep(500);
                 } while (!ToolBox.IsNpcFrameActive());
 
-                ToolBox.GossipPickUpQuest(task.Quest.LogTitle);
+                if (!ToolBox.GossipPickUpQuest(task.Quest.LogTitle)) {
+                    Logger.LogError($"Failed PickUp Gossip for {task.Quest.LogTitle}. Timeout");
+                    task.PutTaskOnTimeout();
+                    return;
+                }
 
                 // List<string> gossipOptions = ToolBox.GetAvailableQuestGossips();
                 // gossipOptions.ForEach(g => Logger.Log(g));
