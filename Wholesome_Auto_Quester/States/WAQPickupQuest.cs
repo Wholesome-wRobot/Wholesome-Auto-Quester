@@ -2,10 +2,8 @@
 using System.Threading;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Helpers;
-using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
-using System.Collections.Generic;
 using FlXProfiles;
 
 namespace Wholesome_Auto_Quester.States

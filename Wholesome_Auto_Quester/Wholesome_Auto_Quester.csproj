@@ -58,12 +58,8 @@
       <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="MahApps.Metro, Version=1.6.5.1, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MahApps.Metro.1.6.5\lib\net47\MahApps.Metro.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="MemoryRobot">
-      <HintPath>F:\WoW\WoW Wotlk\WRobot WOTLK\Bin\MemoryRobot.dll</HintPath>
+    <Reference Include="MahApps.Metro">
+      <HintPath>..\Dependencies\MahApps.Metro.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=5.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -85,16 +81,13 @@
     <Reference Include="PresentationFramework">
       <Private>False</Private>
     </Reference>
-    <Reference Include="RDManaged">
-      <HintPath>F:\WoW\WoW Wotlk\WRobot WOTLK\Bin\RDManaged.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="robotManager">
-      <HintPath>F:\WoW\WoW Wotlk\WRobot WOTLK\Bin\robotManager.dll</HintPath>
+      <HintPath>..\Dependencies\robotManager.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="SmoothMove, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>E:\Games\World of Warcraft\WRobot\Bin\SmoothMove.dll</HintPath>
+    <Reference Include="SmoothMove, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Dependencies\SmoothMove.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.AppContext, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -279,7 +272,7 @@
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="wManager">
-      <HintPath>F:\WoW\WoW Wotlk\WRobot WOTLK\Bin\wManager.dll</HintPath>
+      <HintPath>..\Dependencies\wManager.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
