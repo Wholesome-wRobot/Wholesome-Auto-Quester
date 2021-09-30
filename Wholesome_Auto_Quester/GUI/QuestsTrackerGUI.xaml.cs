@@ -4,7 +4,6 @@ using System.Linq;
 using System.Windows;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Database.Models;
-using Wholesome_Auto_Quester.Helpers;
 
 namespace Wholesome_Auto_Quester.GUI
 {
@@ -17,6 +16,7 @@ namespace Wholesome_Auto_Quester.GUI
             {
                 System.Diagnostics.Process.Start(e.Uri.ToString());
             };
+            detailsPanel.Visibility = Visibility.Hidden;
         }
 
         public void AddToBLClicked(object sender, RoutedEventArgs e)
@@ -25,15 +25,17 @@ namespace Wholesome_Auto_Quester.GUI
             {
                 ModelQuest selected = (ModelQuest)sourceQuestsList.SelectedItem;
                 WholesomeAQSettings.AddQuestToBlackList(selected.Id);
+                UpdateQuestsList();
             }
         }
 
         public void RmvFromBLClicked(object sender, RoutedEventArgs e)
         {
-            if (sourceQuestsList.SelectedItem!= null)
+            if (sourceQuestsList.SelectedItem != null)
             {
                 ModelQuest selected = (ModelQuest)sourceQuestsList.SelectedItem;
                 WholesomeAQSettings.RemoveQuestFromBlackList(selected.Id);
+                UpdateQuestsList();
             }
         }
 
@@ -51,21 +53,31 @@ namespace Wholesome_Auto_Quester.GUI
             }));
         }
 
-        public void UpdateQuestsList(List<ModelQuest> quests)
+        public void UpdateQuestsList()
         {
             Dispatcher.BeginInvoke((Action)(() => {
+                object selectedQuest = sourceQuestsList.SelectedItem;
                 sourceQuestsList.ItemsSource = null;
-                sourceQuestsList.ItemsSource = quests.OrderBy(q => q.Status);
-                questTitleTop.Text = $"Quests ({quests.Count})";
+                sourceQuestsList.ItemsSource = WAQTasks.Quests.OrderBy(q => q.Status);
+
+                if (selectedQuest != null && sourceQuestsList.Items.Contains(selectedQuest))
+                    sourceQuestsList.SelectedItem = selectedQuest;
+                else
+                    detailsPanel.Visibility = Visibility.Hidden;
+
+                questTitleTop.Text = $"Quests ({WAQTasks.Quests.Count})";
             }));
         }
 
-        public void UpdateTasksList(List<WAQTask> tasks)
+        public void UpdateTasksList()
         {
             Dispatcher.BeginInvoke((Action)(() => {
+                object selectedTask = sourceTasksList.SelectedItem;
                 sourceTasksList.ItemsSource = null;
-                sourceTasksList.ItemsSource = tasks;
-                tasksTitleTop.Text = $"Current Tasks ({tasks.Count})";
+                sourceTasksList.ItemsSource = WAQTasks.TasksPile;
+                if (selectedTask != null && sourceTasksList.Items.Contains(selectedTask))
+                    sourceTasksList.SelectedItem = selectedTask;
+                tasksTitleTop.Text = $"Current Tasks ({WAQTasks.TasksPile.Count})";
             }));
         }
 
@@ -110,6 +122,19 @@ namespace Wholesome_Auto_Quester.GUI
                 foreach (CreatureToLootObjective creaGroup in selected.CreaturesToLootObjectives)
                     creaturesToLootString += $"\n    [{creaGroup.objectiveIndex}] {creaGroup.amount} x {creaGroup.itemName} on {creaGroup.GetName} ({creaGroup.worldCreatures.Count} found)";
                 questLootCreatures.Text = creaturesToLootString;
+
+                if (WholesomeAQSettings.CurrentSetting.BlacklistesQuests.Contains(selected.Id))
+                {
+                    ButtonAddToBl.IsEnabled = false;
+                    ButtonRmvFromBl.IsEnabled = true;
+                }
+                else
+                {
+                    ButtonAddToBl.IsEnabled = true;
+                    ButtonRmvFromBl.IsEnabled = false;
+                }
+
+                detailsPanel.Visibility = Visibility.Visible;
             }
         }
     }

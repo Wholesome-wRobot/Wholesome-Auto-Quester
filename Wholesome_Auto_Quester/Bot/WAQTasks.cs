@@ -11,7 +11,7 @@ namespace Wholesome_Auto_Quester.Bot
     public class WAQTasks
     {
         public static List<WAQTask> TasksPile { get; set; } = new List<WAQTask>();
-        private static List<ModelQuest> Quests { get; set; } = new List<ModelQuest>();
+        public static List<ModelQuest> Quests { get; set; } = new List<ModelQuest>();
         public static WAQTask TaskInProgress { get; set; } = null;
         public static WoWObject TaskInProgressWoWObject { get; set; } = null;
 
@@ -177,7 +177,7 @@ namespace Wholesome_Auto_Quester.Bot
             TaskInProgress = closestTask;
             //Logger.Log($"Active task is {TaskInProgress?.TaskName} - {TaskInProgress?.GetDistance}- {TaskInProgress?.Location.ToStringNewVector()}");
 
-            Main.questTrackerGUI.UpdateTasksList(TasksPile);
+            Main.questTrackerGUI.UpdateTasksList();
         }
 
         private static bool IsObjectValidForTask(WoWObject wowObject, WAQTask task)
@@ -255,7 +255,7 @@ namespace Wholesome_Auto_Quester.Bot
                 quest.Status = QuestStatus.None;
             }
 
-            Main.questTrackerGUI.UpdateQuestsList(Quests);
+            Main.questTrackerGUI.UpdateQuestsList();
         }
     }
 }
