@@ -50,7 +50,7 @@ namespace Wholesome_Auto_Quester.States
                 } while (!ToolBox.IsNpcFrameActive());
                 
                 ToolBox.GossipTurnInQuest(task.Quest.LogTitle);
-                
+
                 // GoToTask.ToPositionAndIntecractWithNpc(npc.Position, npc.Entry);
                 // Thread.Sleep(1000);
                 //
@@ -84,6 +84,7 @@ namespace Wholesome_Auto_Quester.States
                 // }
                 //
                 // Quest.CloseQuestWindow();
+
                 Thread.Sleep(1000);
 
                 if (!Quest.HasQuest(task.Quest.Id))
@@ -92,7 +93,7 @@ namespace Wholesome_Auto_Quester.States
             else {
                 Logger.Log($"Moving to QuestGiver for {task.Quest.LogTitle} (TurnIn).");
                 if (!MoveHelper.MoveToWait(task.Location, randomizeEnd: 8,
-                    abortIf: () => WAQTasks.TaskInProgressWoWObject != null) || task.GetDistance <= 13f) {
+                    abortIf: () => ToolBox.MoveToHotSpotAbortCondition(task)) || task.GetDistance <= 13f) {
                     Logger.Log($"We are close to {ToolBox.GetTaskId(task)} position and no NPC for turn-in in sight. Time out");
                     task.PutTaskOnTimeout();
                 }

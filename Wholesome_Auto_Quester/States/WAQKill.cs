@@ -46,7 +46,7 @@ namespace Wholesome_Auto_Quester.States
             {
                 Logger.Log($"Moving to Hotspot for {task.Quest.LogTitle} (Kill).");
                 if (!MoveHelper.MoveToWait(task.Location, randomizeEnd: 8,
-                    abortIf: () => WAQTasks.TaskInProgressWoWObject != null) || task.GetDistance <= 13f) {
+                    abortIf: () => ToolBox.MoveToHotSpotAbortCondition(task)) || task.GetDistance <= 13f) {
                     Logger.Log($"We are close to {ToolBox.GetTaskId(task)} position and no npc to kill in sight. Time out");
                     task.PutTaskOnTimeout();
                 }

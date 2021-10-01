@@ -191,6 +191,12 @@ namespace Wholesome_Auto_Quester.Helpers {
             return true;
         }
 
+        public static bool MoveToHotSpotAbortCondition(WAQTask task)
+        {
+            return WAQTasks.TaskInProgressWoWObject != null
+                || (ObjectManager.Me.IsMounted && ObjectManager.Me.InCombatFlagOnly);
+        }
+
         public static List<int> GetCompletedQuests() {
             List<int> completedQuests = new List<int>();
             completedQuests.AddRange(Quest.FinishedQuestSet);

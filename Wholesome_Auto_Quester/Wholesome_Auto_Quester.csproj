@@ -352,9 +352,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y/F "F:\WoW\WoW Wotlk\WRobot WOTLK\Products\Wholesome_Auto_Quester.dll" "$(ProjectDir)\Compiled"
-xcopy /Y/F "F:\WoW\WoW Wotlk\WRobot WOTLK\Data\WAQquests.zip" "$(ProjectDir)\Compiled"
-
-start "WRobot" "F:\WoW\WoW Wotlk\WRobot WOTLK\WRobot.exe" AutoAttachAndLog=true</PostBuildEvent>
+xcopy /Y/F "F:\WoW\WoW Wotlk\WRobot WOTLK\Data\WAQquests.zip" "$(ProjectDir)\Compiled"</PostBuildEvent>
   </PropertyGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

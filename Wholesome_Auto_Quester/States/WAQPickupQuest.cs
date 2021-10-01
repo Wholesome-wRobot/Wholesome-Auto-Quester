@@ -80,7 +80,7 @@ namespace Wholesome_Auto_Quester.States
             else {
                 Logger.Log($"Moving to QuestGiver for {task.Quest.LogTitle} (PickUp).");
                 if (!MoveHelper.MoveToWait(task.Location, randomizeEnd: 8,
-                    abortIf: () => WAQTasks.TaskInProgressWoWObject != null) || task.GetDistance <= 13f) {
+                    abortIf: () => ToolBox.MoveToHotSpotAbortCondition(task)) || task.GetDistance <= 13f) {
                     Logger.Log($"We are close to {ToolBox.GetTaskId(task)} position and no NPC for pick-up in sight. Time out");
                     task.PutTaskOnTimeout();
                 }
