@@ -202,7 +202,7 @@ namespace Wholesome_Auto_Quester.Helpers {
         public static bool MoveToHotSpotAbortCondition(WAQTask task)
         {
             return WAQTasks.TaskInProgressWoWObject != null
-                || (ObjectManager.Me.IsMounted && ObjectManager.Me.InCombatFlagOnly);
+                || !ObjectManager.Me.IsMounted && ObjectManager.Me.InCombatFlagOnly;
         }
 
         public static List<int> GetCompletedQuests() {
