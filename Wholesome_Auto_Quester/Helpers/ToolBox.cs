@@ -54,6 +54,14 @@ namespace Wholesome_Auto_Quester.Helpers {
 
         public static string EscapeLuaString(this string str) => str.Replace("\\", "\\\\").Replace("'", "\\'");
 
+        public static float GetRealDistance(this WoWObject wObject) =>
+            wObject.Type switch {
+                WoWObjectType.Unit => ((WoWUnit) wObject).GetDistance,
+                WoWObjectType.GameObject => ((WoWGameObject) wObject).GetDistance,
+                WoWObjectType.Player => ((WoWPlayer) wObject).GetDistance,
+                _ => 0f
+            };
+
         public static bool IsNpcFrameActive() =>
             Lua.LuaDoString<bool>("return GetClickFrame('GossipFrame'):IsVisible() == 1 or GetClickFrame('QuestFrame'):IsVisible() == 1;");
         
@@ -191,6 +199,12 @@ namespace Wholesome_Auto_Quester.Helpers {
             return true;
         }
 
+        public static bool MoveToHotSpotAbortCondition(WAQTask task)
+        {
+            return WAQTasks.TaskInProgressWoWObject != null
+                || (ObjectManager.Me.IsMounted && ObjectManager.Me.InCombatFlagOnly);
+        }
+
         public static List<int> GetCompletedQuests() {
             List<int> completedQuests = new List<int>();
             completedQuests.AddRange(Quest.FinishedQuestSet);
@@ -221,7 +235,7 @@ namespace Wholesome_Auto_Quester.Helpers {
         public static List<ModelQuest> GetAllQuestsFromJSON() {
             try {
                 if (!JSONFileIsPresent()) {
-                    Logger.LogError("The Compiled JSON file is not present.");
+                    Logger.LogError("The JSON file is not present.");
                     return null;
                 }
 
@@ -331,7 +345,7 @@ namespace Wholesome_Auto_Quester.Helpers {
             string taskType = $"{(int) task.TaskType}";
             string questEntry = $"{task.Quest.Id}";
             string objIndex = $"{task.ObjectiveIndex}";
-            string guid = $"{(task.Npc != null ? task.Npc.Guid : task.GatherObject.Guid)}";
+            string guid = $"{task.Npc?.Guid ?? task.GatherObject.Guid}";
             return ulong.Parse($"{taskType}{questEntry}{objIndex}{guid}");
         }
 

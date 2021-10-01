@@ -6,6 +6,7 @@ using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Bot;
 using System;
 using System.Diagnostics;
+using robotManager.Helpful;
 using robotManager.Products;
 
 namespace Wholesome_Auto_Quester.Database
@@ -26,15 +27,17 @@ namespace Wholesome_Auto_Quester.Database
 
         private List<ModelQuest> FilterQuests(List<ModelQuest> dbResult)
         {
-            return dbResult.Where(q =>
-                        q.MinLevel <= ObjectManager.Me.Level
-                        && q.QuestLevel > 0
-                        && q.QuestLevel <= (int)(ObjectManager.Me.Level + 2)
-                        && q.QuestLevel > (int)(ObjectManager.Me.Level - 5)
-                        && ((q.AllowableClasses & (int)ToolBox.GetClass()) != 0 || q.AllowableClasses == 0)
-                        && ((q.AllowableRaces & (int)ToolBox.GetFaction()) != 0 || q.AllowableRaces == 0)
-                        && q.QuestGivers.Any(qg => qg.IsNeutralOrFriendly)
-                    ).ToList();
+            var myClass = (int)ToolBox.GetClass();
+            var myFaction = (int) ToolBox.GetFaction();
+            return dbResult.Where(q => {
+                return q.MinLevel <= ObjectManager.Me.Level
+                       && q.QuestLevel > 0
+                       && q.QuestLevel <= (int) (ObjectManager.Me.Level + 2)
+                       && q.QuestLevel > (int) (ObjectManager.Me.Level - 5)
+                       && ((q.AllowableClasses & myClass) != 0 || q.AllowableClasses == 0)
+                       && ((q.AllowableRaces & myFaction) != 0 || q.AllowableRaces == 0)
+                       && q.QuestGivers.Any(qg => qg.IsNeutralOrFriendly);
+            }).ToList();
         }
 
         public void GetAvailableQuests()
@@ -72,10 +75,8 @@ namespace Wholesome_Auto_Quester.Database
                         qt.RequiredNpcOrGoCount1, qt.LogTitle, qt.QuestLevel, qt.MinLevel, qta.AllowableClasses, qta.PrevQuestID, qta.NextQuestID,
                         qta.RequiredSkillID, qta.RequiredSkillPoints
                     FROM quest_template qt
-                    JOIN creature_queststarter cq
-                    ON qt.ID = cq.quest
-                    JOIN quest_template_addon qta
-                    ON qta.ID = qt.ID
+                    LEFT JOIN quest_template_addon qta
+                    ON qt.ID = qta.ID
                 ";
             
             /*
@@ -216,13 +217,17 @@ namespace Wholesome_Auto_Quester.Database
             }
             Logger.Log($"Process time (Next quests) : {(DateTime.Now.Ticks - dateBeginNextQuests.Ticks) / 10000} ms");
 
-            Logger.Log($"Process time (TOTAL) : {(DateTime.Now.Ticks - dateBegin.Ticks) / 10000} ms");
             Logger.Log($"{result.Count} results");
 
             DisposeDb();
 
+
+            DateTime dateBeginNJSON = DateTime.Now;
+
             ToolBox.WriteJSONFromDBResult(result);
             ToolBox.ZipJSONFile();
+            Logger.Log($"Process time (JSON processing) : {(DateTime.Now.Ticks - dateBeginNJSON.Ticks) / 10000} ms");
+            Logger.Log($"DONE! Process time (TOTAL) : {(DateTime.Now.Ticks - dateBegin.Ticks) / 10000} ms");
             Products.ProductStop();
         }
 
