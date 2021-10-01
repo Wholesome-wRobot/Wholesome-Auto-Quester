@@ -221,7 +221,7 @@ namespace Wholesome_Auto_Quester.Helpers {
         public static List<ModelQuest> GetAllQuestsFromJSON() {
             try {
                 if (!JSONFileIsPresent()) {
-                    Logger.LogError("The Compiled JSON file is not present.");
+                    Logger.LogError("The JSON file is not present.");
                     return null;
                 }
 
