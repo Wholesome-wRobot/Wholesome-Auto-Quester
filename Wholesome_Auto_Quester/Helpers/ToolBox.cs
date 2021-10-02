@@ -88,7 +88,7 @@ namespace Wholesome_Auto_Quester.Helpers {
             		local i = j*4-3;
             		if activeQuests[i] == '{questName.EscapeLuaString()}' then
             			if activeQuests[i+3] ~= 1 then return 3; end
-            			SelectGossipActiveQuest(i);
+            			SelectGossipActiveQuest(j);
             			return 0;
             		end
             	end
@@ -158,7 +158,7 @@ namespace Wholesome_Auto_Quester.Helpers {
             	for j=1, GetNumGossipAvailableQuests(), 1 do
             		local i = j*5-4;
             		if availableQuests[i] == '{questName.EscapeLuaString()}' then
-            			SelectGossipAvailableQuest(i);
+            			SelectGossipAvailableQuest(j);
             			return 0;
             		end
             	end
