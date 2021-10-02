@@ -34,11 +34,6 @@ namespace Wholesome_Auto_Quester.States
         {
             WAQTask task = WAQTasks.TaskInProgress;
             WoWObject npc = WAQTasks.TaskInProgressWoWObject;
-
-            if (Quest.GetQuestCompleted(task.Quest.Id)) {
-                task.Quest.MarkAsCompleted();
-                return;
-            }
             
             if (npc != null)
             {
