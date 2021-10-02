@@ -26,16 +26,50 @@ namespace Wholesome_Auto_Quester.Database
 
         private List<ModelQuest> FilterDBQuests(List<ModelQuest> dbResult)
         {
+            List<ModelQuest> result = new List<ModelQuest>();
+
+            foreach (ModelQuest q in dbResult)
+            {
+                // Our level is too low
+                if ((int)ObjectManager.Me.Level < q.MinLevel) continue;
+
+                // Repeatable quest
+                if (q.SpecialFlags == 1) continue;
+
+                // Quest is too hard
+                if ((int)(ObjectManager.Me.Level + 2) < q.QuestLevel) continue;
+
+                // Remove -1 quests that are not Class quests
+                if (q.QuestLevel == -1 && q.AllowableClasses == 0) continue;
+
+                // Quest is too low level
+                if (q.QuestLevel <= (int)(ObjectManager.Me.Level - 5) || q.QuestLevel == -1) continue;
+
+                // Quest is not for my class
+                if (q.AllowableClasses > 0 && (q.AllowableClasses & (int)ToolBox.GetClass()) == 0) continue;
+
+                // Quest is not for my race
+                if (q.AllowableRaces > 0 && (q.AllowableRaces & (int)ToolBox.GetFaction()) == 0) continue;
+
+                // Quest is not for my faction
+                if (!q.QuestGivers.Any(qg => qg.IsNeutralOrFriendly)) continue;
+
+                result.Add(q);
+            }
+
+            return result;
+            /*
             return dbResult.Where(q =>
                         q.MinLevel <= ObjectManager.Me.Level
                         && q.SpecialFlags != 1
-                        && (q.QuestLevel > 0 || q.QuestLevel < 0)
+                        && (q.QuestLevel > 0 || (q.QuestLevel == -1 && q.AllowableClasses > 0))
                         && q.QuestLevel <= (int)(ObjectManager.Me.Level + 2)
-                        && q.QuestLevel > (int)(ObjectManager.Me.Level - 5)
+                        && (q.QuestLevel > (int)(ObjectManager.Me.Level - 5) || (q.QuestLevel == -1 && q.AllowableClasses > 0))
+
                         && ((q.AllowableClasses & (int)ToolBox.GetClass()) != 0 || q.AllowableClasses == 0)
                         && ((q.AllowableRaces & (int)ToolBox.GetFaction()) != 0 || q.AllowableRaces == 0)
                         && q.QuestGivers.Any(qg => qg.IsNeutralOrFriendly)
-                    ).ToList();
+                    ).ToList();*/
         }
 
         public void GetAvailableQuests()
