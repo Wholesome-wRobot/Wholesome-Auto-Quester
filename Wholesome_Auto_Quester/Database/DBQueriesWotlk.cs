@@ -310,7 +310,7 @@ namespace Wholesome_Auto_Quester.Database
                 JOIN creature c
                 ON id = ct.entry
                 JOIN item_template it
-                ON it.entry = clt.entry
+                ON it.entry = {itemid}
                 WHERE item = {itemid}
             ";
 
