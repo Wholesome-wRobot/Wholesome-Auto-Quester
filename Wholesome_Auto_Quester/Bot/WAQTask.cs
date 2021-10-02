@@ -7,15 +7,15 @@ namespace Wholesome_Auto_Quester.Bot
 {
     public class WAQTask
     {
-        public TaskType TaskType { get; set; }
-        public ModelQuest Quest { get; set; }
-        public ModelNpc Npc { get; set; }
         public ModelGatherObject GatherObject { get; set; }
-        public string TaskName { get; set; }
         public Vector3 Location { get; set; }
+        public int Map { get; set; }
+        public ModelNpc Npc { get; set; }
         public int ObjectiveIndex { get; set; }
         public int POIEntry { get; set; }
-        public int Map { get; set; }
+        public ModelQuest Quest { get; set; }
+        public string TaskName { get; set; }
+        public TaskType TaskType { get; set; }
 
         private Timer _timeOutTimer = new Timer();
 
@@ -30,13 +30,13 @@ namespace Wholesome_Auto_Quester.Bot
             Map = npc.Map;
 
             if (taskType == TaskType.PickupQuest)
-                TaskName = $"[{ToolBox.GetTaskId(this)}] Pick up {quest.LogTitle} from {npc.Name}";
+                TaskName = $"Pick up {quest.LogTitle} from {npc.Name}";
             if (taskType == TaskType.TurnInQuest)
-                TaskName = $"[{ToolBox.GetTaskId(this)}] Turn in {quest.LogTitle} at {npc.Name}";
+                TaskName = $"Turn in {quest.LogTitle} at {npc.Name}";
             if (taskType == TaskType.Kill)
-                TaskName = $"[{ToolBox.GetTaskId(this)}] Kill {npc.Name} for {quest.LogTitle}";
+                TaskName = $"Kill {npc.Name} for {quest.LogTitle}";
             if (taskType == TaskType.KillAndLoot)
-                TaskName = $"[{ToolBox.GetTaskId(this)}] Kill and Loot {npc.Name} for {quest.LogTitle}";
+                TaskName = $"Kill and Loot {npc.Name} for {quest.LogTitle}";
         }
 
         public WAQTask(TaskType taskType, ModelGatherObject modelGatherObject, ModelQuest quest, int objectiveIndex)
@@ -49,19 +49,34 @@ namespace Wholesome_Auto_Quester.Bot
             POIEntry = modelGatherObject.GameObjectEntry;
             Map = modelGatherObject.Map;
 
-            if (taskType == TaskType.PickupObject)
-                TaskName = $"[{ToolBox.GetTaskId(this)}] Gather {modelGatherObject.Name} for {quest.LogTitle}";
+            if (taskType == TaskType.GatherObject)
+                TaskName = $"Gather {modelGatherObject.Name} for {quest.LogTitle}";
         }
 
         public void PutTaskOnTimeout()
         {
-            _timeOutTimer = new Timer(300 * 1000);
+            int timeInSecs = Npc != null ? Npc.SpawnTimeSecs : GatherObject.SpawnTimeSecs;
+            _timeOutTimer = new Timer(timeInSecs * 1000);
             WAQTasks.UpdateTasks();
         }
 
         public bool IsTimedOut => !_timeOutTimer.IsReady;
         public string TrackerColor => GetTrackerColor();
         public float GetDistance => ObjectManager.Me.Position.DistanceTo(Location);
+        public int Priority => GetPriority();
+
+        public int GetPriority()
+        {
+            // Lowest priority == do first
+            float result = GetDistance;
+
+            if (TaskType == TaskType.PickupQuest) result = result * 2;
+            if (TaskType == TaskType.TurnInQuest) result = result * 2;
+            if (Quest.AllowableClasses > 0) result -= 1000;
+            if (Quest.TimeAllowed > 0 && TaskType != TaskType.PickupQuest) result -= 10000;
+
+            return (int)result;
+        }
 
         private string GetTrackerColor()
         {

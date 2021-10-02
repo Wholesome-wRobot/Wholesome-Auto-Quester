@@ -21,7 +21,7 @@ namespace Wholesome_Auto_Quester
 
             BlacklistesQuests = new List<int>()
             {
-
+                5441, // Lazy Peons
             };
         }
 

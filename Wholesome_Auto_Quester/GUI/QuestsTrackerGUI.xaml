@@ -312,9 +312,20 @@
                              Grid.Row="1">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding TaskName}"
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Priority}"
                                            Foreground="{Binding TrackerColor}"
+                                           HorizontalAlignment="Left"
+                                           Margin="0,0,10,0"
+                                           Grid.Column="0"
                                            TextWrapping="Wrap"/>
+                                    
+                                    <TextBlock Text="{Binding TaskName}"
+                                           Foreground="{Binding TrackerColor}"
+                                           HorizontalAlignment="Left"
+                                           Grid.Column="1"
+                                           TextWrapping="Wrap"/>
+                                </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>

@@ -21,7 +21,7 @@ namespace Wholesome_Auto_Quester.States
                     || !ObjectManager.Me.IsValid)
                     return false;
 
-                if (WAQTasks.TaskInProgress?.TaskType == TaskType.PickupObject)
+                if (WAQTasks.TaskInProgress?.TaskType == TaskType.GatherObject)
                 {
                     DisplayName = $"Gather {WAQTasks.TaskInProgress.GatherObject.Name} for {WAQTasks.TaskInProgress.Quest.LogTitle}";
                     return true;
@@ -34,12 +34,13 @@ namespace Wholesome_Auto_Quester.States
         public override void Run()
         {
             WAQTask task = WAQTasks.TaskInProgress;
+            WoWObject wOobject = WAQTasks.TaskInProgressWoWObject;
             //Logger.Log($"******** RUNNING {task.TaskType} TASK {ToolBox.GetTaskId(task)}  ********");
 
-            if (WAQTasks.TaskInProgressWoWObject != null && WAQTasks.TaskInProgressWoWObject.IsValid)
+            if (wOobject != null && wOobject.IsValid)
             {
-                Logger.Log($"Object found - Gathering {WAQTasks.TaskInProgressWoWObject.Name}");
-                MoveHelper.ToPositionAndInteractWithGameObject(WAQTasks.TaskInProgressWoWObject.Position, WAQTasks.TaskInProgressWoWObject.Entry);
+                Logger.Log($"Object found - Gathering {wOobject.Name}");
+                MoveHelper.ToPositionAndInteractWithGameObject(wOobject.Position, wOobject.Entry);
                 Usefuls.WaitIsCastingAndLooting();
                 Thread.Sleep(100);
             }
@@ -47,8 +48,8 @@ namespace Wholesome_Auto_Quester.States
             {
                 Logger.Log($"Moving to Hotspot for {task.Quest.LogTitle} (Gather).");
                 if (!MoveHelper.MoveToWait(task.Location, randomizeEnd: 8,
-                    abortIf: () => ToolBox.MoveToHotSpotAbortCondition(task)) || task.GetDistance <= 13f) {
-                    Logger.Log($"We are close to {ToolBox.GetTaskId(task)} position and no object to gather in sight. Time out");
+                    abortIf: () => ToolBox.MoveToHotSpotAbortCondition(task)) || task.GetDistance <= 20f) {
+                    Logger.Log($"No {task.GatherObject.Name} in sight. Time out for {task.GatherObject.SpawnTimeSecs}s");
                     task.PutTaskOnTimeout();
                 }
                 // if (GoToTask.ToPosition(task.Location, 10f, conditionExit: e => WAQTasks.TaskInProgressWoWObject != null))

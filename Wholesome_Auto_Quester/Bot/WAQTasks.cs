@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using FlXProfiles;
+using robotManager.Helpful;
+using System.Collections.Generic;
 using System.Linq;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
@@ -116,22 +118,22 @@ namespace Wholesome_Auto_Quester.Bot
                         {
                             gatherObjective.worldObjects.ForEach(wo => {
                                 if (wo.Map == Usefuls.ContinentId
-                                    && !TasksPile.Exists(t => ToolBox.GetTaskId(t) == ToolBox.GetTaskId(TaskType.PickupObject, quest.Id, gatherObjective.objectiveIndex, wo.Guid)))
-                                    generatedTasks.Add(new WAQTask(TaskType.PickupObject, wo, quest, gatherObjective.objectiveIndex));
+                                    && !TasksPile.Exists(t => ToolBox.GetTaskId(t) == ToolBox.GetTaskId(TaskType.GatherObject, quest.Id, gatherObjective.objectiveIndex, wo.Guid)))
+                                    generatedTasks.Add(new WAQTask(TaskType.GatherObject, wo, quest, gatherObjective.objectiveIndex));
                             });
                         }
                         else
                         {
                             TasksPile.RemoveAll(t => t.Quest.Id == quest.Id
                                 && t.ObjectiveIndex == gatherObjective.objectiveIndex
-                                && t.TaskType == TaskType.PickupObject);
+                                && t.TaskType == TaskType.GatherObject);
                         }
                     }
                 }
             }
 
             TasksPile.AddRange(generatedTasks);
-            TasksPile = TasksPile.OrderBy(t => ObjectManager.Me.Position.DistanceTo2D(t.Location)).ToList();
+            TasksPile = TasksPile.OrderBy(t => t.Priority).ToList();
 
             WAQTask closestTask = TasksPile.Find(t => !t.IsTimedOut);
 
@@ -174,7 +176,17 @@ namespace Wholesome_Auto_Quester.Bot
                 TaskInProgressWoWObject = null;
             }
 
-            TaskInProgress = closestTask;
+            // If we switch task in progress
+            if (TaskInProgress != null && closestTask != null && ToolBox.GetTaskId(TaskInProgress) != ToolBox.GetTaskId(closestTask))
+            {
+                TaskInProgress = closestTask;
+                MoveHelper.StopCurrentMovementThread();
+            }
+            else
+            {
+                TaskInProgress = closestTask;
+            }
+
             //Logger.Log($"Active task is {TaskInProgress?.TaskName} - {TaskInProgress?.GetDistance}- {TaskInProgress?.Location.ToStringNewVector()}");
 
             Main.questTrackerGUI.UpdateTasksList();

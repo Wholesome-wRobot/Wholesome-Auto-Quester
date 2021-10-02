@@ -53,7 +53,7 @@ namespace Wholesome_Auto_Quester.States
                 } while (!ToolBox.IsNpcFrameActive());
 
                 if (!ToolBox.GossipPickUpQuest(task.Quest.LogTitle)) {
-                    Logger.LogError($"Failed PickUp Gossip for {task.Quest.LogTitle}. Timeout");
+                    Logger.LogError($"Failed PickUp Gossip for {task.Quest.LogTitle}. Time out for ({task.Npc.SpawnTimeSecs})s");
                     task.PutTaskOnTimeout();
                     return;
                 }
@@ -80,8 +80,8 @@ namespace Wholesome_Auto_Quester.States
             else {
                 Logger.Log($"Moving to QuestGiver for {task.Quest.LogTitle} (PickUp).");
                 if (!MoveHelper.MoveToWait(task.Location, randomizeEnd: 8,
-                    abortIf: () => ToolBox.MoveToHotSpotAbortCondition(task)) || task.GetDistance <= 13f) {
-                    Logger.Log($"We are close to {ToolBox.GetTaskId(task)} position and no NPC for pick-up in sight. Time out");
+                    abortIf: () => ToolBox.MoveToHotSpotAbortCondition(task)) || task.GetDistance <= 20f) {
+                    Logger.Log($"No {task.Npc.Name} in sight. Time out for {task.Npc.SpawnTimeSecs}s");
                     task.PutTaskOnTimeout();
                 }
                 // MoveHelper.StartGoToThread(task.Location, randomizeEnd: 3);

@@ -67,21 +67,26 @@ public class Main : IProduct
 
     public void Start()
     {
+        IsStarted = true;
         try
         {
             //AutoUpdater.CheckUpdate(version);
-            IsStarted = true;
-
-            _updateSurroundingsAndTasksThread.DoWork += UpdateSurroundingsAndTasksPulse;
-            _updateSurroundingsAndTasksThread.RunWorkerAsync();
-            _getQuestsFromDbThread.DoWork += GetQuestsFromDbPulse;
-            _getQuestsFromDbThread.RunWorkerAsync();
 
             if (ToolBox.GetWoWVersion() == "3.3.5")
             {
                 DBQueriesWotlk dbWotlk = new DBQueriesWotlk();
                 dbWotlk.GetAvailableQuests();
+                if (!Products.IsStarted)
+                {
+                    IsStarted = false;
+                    return;
+                }
             }
+
+            _updateSurroundingsAndTasksThread.DoWork += UpdateSurroundingsAndTasksPulse;
+            _updateSurroundingsAndTasksThread.RunWorkerAsync();
+            _getQuestsFromDbThread.DoWork += GetQuestsFromDbPulse;
+            _getQuestsFromDbThread.RunWorkerAsync();
 
             if (Bot.Pulse())
             {

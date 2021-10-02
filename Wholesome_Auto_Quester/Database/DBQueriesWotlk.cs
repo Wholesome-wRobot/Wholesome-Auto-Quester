@@ -24,11 +24,12 @@ namespace Wholesome_Auto_Quester.Database
             _database.Dispose();
         }
 
-        private List<ModelQuest> FilterQuests(List<ModelQuest> dbResult)
+        private List<ModelQuest> FilterDBQuests(List<ModelQuest> dbResult)
         {
             return dbResult.Where(q =>
                         q.MinLevel <= ObjectManager.Me.Level
-                        && q.QuestLevel > 0
+                        && q.SpecialFlags != 1
+                        && (q.QuestLevel > 0 || q.QuestLevel < 0)
                         && q.QuestLevel <= (int)(ObjectManager.Me.Level + 2)
                         && q.QuestLevel > (int)(ObjectManager.Me.Level - 5)
                         && ((q.AllowableClasses & (int)ToolBox.GetClass()) != 0 || q.AllowableClasses == 0)
@@ -50,7 +51,7 @@ namespace Wholesome_Auto_Quester.Database
             {
                 DisposeDb();
                 Logger.Log($"Building quests from JSON complete ({questsFromJSON.Count} quests)");
-                WAQTasks.AddQuests(FilterQuests(questsFromJSON));
+                WAQTasks.AddQuests(FilterDBQuests(questsFromJSON));
                 return;
             }
 
@@ -64,13 +65,13 @@ namespace Wholesome_Auto_Quester.Database
             Logger.Log("Rebuilding JSON");
             
             string query = $@"
-                    SELECT qt.ID Id, qt.AllowableRaces, qt.QuestSortID, qt.QuestInfoID, qt.QuestType, qt.StartItem,
+                    SELECT qt.ID Id, qt.AllowableRaces, qt.QuestSortID, qt.QuestInfoID, qt.QuestType, qt.StartItem, qt.TimeAllowed,
                         qt.RequiredItemCount1, qt.RequiredItemCount2, qt.RequiredItemCount3, qt.RequiredItemCount4,
                         qt.RequiredItemCount5, qt.RequiredItemCount6, qt.RequiredItemId1, qt.RequiredItemId2, qt.RequiredItemId3,
                         qt.RequiredItemId4, qt.RequiredItemId5, qt.RequiredItemId6, qt.RequiredNpcOrGo1, qt.RequiredNpcOrGo2,
                         qt.RequiredNpcOrGo3, qt.RequiredNpcOrGo4, qt.RequiredNpcOrGoCount1, qt.RequiredNpcOrGoCount2, qt.RequiredNpcOrGoCount3,
                         qt.RequiredNpcOrGoCount1, qt.LogTitle, qt.QuestLevel, qt.MinLevel, qta.AllowableClasses, qta.PrevQuestID, qta.NextQuestID,
-                        qta.RequiredSkillID, qta.RequiredSkillPoints
+                        qta.RequiredSkillID, qta.RequiredSkillPoints, qta.SpecialFlags 
                     FROM quest_template qt
                     LEFT JOIN quest_template_addon qta
                     ON qt.ID = qta.ID
@@ -124,7 +125,7 @@ namespace Wholesome_Auto_Quester.Database
                 {
                     if ((resultListObj = GetGatherObjects(quest.RequiredItemId2)).Count > 0)
                         quest.GatherObjectsObjectives.Add(new GatherObjectObjective(quest.RequiredItemCount2, quest.RequiredItemId2, resultListObj, 2));
-                    else if ((resultListCreature = GetCreatureToLoot(quest.RequiredItemCount2)).Count > 0)
+                    else if ((resultListCreature = GetCreatureToLoot(quest.RequiredItemId2)).Count > 0)
                         quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.RequiredItemCount2, resultListCreature[0].ItemName, resultListCreature, 2));
                 }
 
@@ -132,7 +133,7 @@ namespace Wholesome_Auto_Quester.Database
                 {
                     if ((resultListObj = GetGatherObjects(quest.RequiredItemId3)).Count > 0)
                         quest.GatherObjectsObjectives.Add(new GatherObjectObjective(quest.RequiredItemCount3, quest.RequiredItemId3, resultListObj, 3));
-                    else if ((resultListCreature = GetCreatureToLoot(quest.RequiredItemCount3)).Count > 0)
+                    else if ((resultListCreature = GetCreatureToLoot(quest.RequiredItemId3)).Count > 0)
                         quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.RequiredItemCount3, resultListCreature[0].ItemName, resultListCreature, 3));
                 }
 
@@ -140,7 +141,7 @@ namespace Wholesome_Auto_Quester.Database
                 {
                     if ((resultListObj = GetGatherObjects(quest.RequiredItemId4)).Count > 0)
                         quest.GatherObjectsObjectives.Add(new GatherObjectObjective(quest.RequiredItemCount4, quest.RequiredItemId4, resultListObj, 4));
-                    else if ((resultListCreature = GetCreatureToLoot(quest.RequiredItemCount4)).Count > 0)
+                    else if ((resultListCreature = GetCreatureToLoot(quest.RequiredItemId4)).Count > 0)
                         quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.RequiredItemCount4, resultListCreature[0].ItemName, resultListCreature, 4));
                 }
 
@@ -148,7 +149,7 @@ namespace Wholesome_Auto_Quester.Database
                 {
                     if ((resultListObj = GetGatherObjects(quest.RequiredItemId5)).Count > 0)
                         quest.GatherObjectsObjectives.Add(new GatherObjectObjective(quest.RequiredItemCount5, quest.RequiredItemId5, resultListObj, 5));
-                    else if ((resultListCreature = GetCreatureToLoot(quest.RequiredItemCount5)).Count > 0)
+                    else if ((resultListCreature = GetCreatureToLoot(quest.RequiredItemId5)).Count > 0)
                         quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.RequiredItemCount5, resultListCreature[0].ItemName, resultListCreature, 5));
                 }
 
@@ -156,7 +157,7 @@ namespace Wholesome_Auto_Quester.Database
                 {
                     if ((resultListObj = GetGatherObjects(quest.RequiredItemId6)).Count > 0)
                         quest.GatherObjectsObjectives.Add(new GatherObjectObjective(quest.RequiredItemCount6, quest.RequiredItemId6, resultListObj, 6));
-                    else if ((resultListCreature = GetCreatureToLoot(quest.RequiredItemCount6)).Count > 0)
+                    else if ((resultListCreature = GetCreatureToLoot(quest.RequiredItemId6)).Count > 0)
                         quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.RequiredItemCount6, resultListCreature[0].ItemName, resultListCreature, 6));
                 }
             }
@@ -214,7 +215,7 @@ namespace Wholesome_Auto_Quester.Database
             }
             Logger.Log($"Process time (Next quests) : {(DateTime.Now.Ticks - dateBeginNextQuests.Ticks) / 10000} ms");
 
-            Logger.Log($"{result.Count} results");
+            Logger.Log($"{result.Count} results. Building JSON. Please wait.");
 
             DisposeDb();
 
@@ -231,7 +232,7 @@ namespace Wholesome_Auto_Quester.Database
         private List<ModelNpc> GetQuestGivers(int questId)
         {
             string query = $@"
-                    SELECT cq.id Id, ct.name Name, c.guid Guid, c.map Map, 
+                    SELECT cq.id Id, ct.name Name, c.guid Guid, c.map Map, c.spawntimesecs SpawnTimeSecs,
 	                    c.position_x PositionX, c.position_y PositionY, c.position_z PositionZ,
 	                    ct.faction FactionTemplateID
                     FROM creature_queststarter cq
@@ -240,7 +241,6 @@ namespace Wholesome_Auto_Quester.Database
                     JOIN creature c
                     ON c.id = cq.id
                     WHERE cq.quest = {questId}
-                    GROUP BY cq.id
                 ";
 
             return _database.SafeQueryNpcs(query);
@@ -250,7 +250,7 @@ namespace Wholesome_Auto_Quester.Database
         {
             string query =  $@"
                     SELECT ci.id Id, ct.Name, c.guid Guid, c.map Map, c.position_x PositionX, 
-                    c.position_y PositionY, c.position_z PositionZ,
+                    c.position_y PositionY, c.position_z PositionZ, c.spawntimesecs SpawnTimeSecs,
 	                ct.faction FactionTemplateID
                     FROM creature_questender ci
                     JOIN creature_template ct
@@ -258,7 +258,6 @@ namespace Wholesome_Auto_Quester.Database
                     JOIN creature c
                     ON c.id = ci.id
                     WHERE ci.quest = {questId}
-                    GROUP BY ci.id
                 ";
 
             return _database.SafeQueryNpcs(query);
@@ -268,7 +267,7 @@ namespace Wholesome_Auto_Quester.Database
         {
             string query = $@"
                 SELECT clt.entry Id, ct.name Name, c.guid Guid, c.map Map, c.position_x PositionX, 
-                    c.position_y PositionY, c.position_z PositionZ,
+                    c.position_y PositionY, c.position_z PositionZ, c.spawntimesecs SpawnTimeSecs,
                     it.name ItemName,
 	                ct.faction FactionTemplateID
                 FROM creature_loot_template clt
@@ -277,7 +276,7 @@ namespace Wholesome_Auto_Quester.Database
                 JOIN creature c
                 ON id = ct.entry
                 JOIN item_template it
-                ON it.entry = {itemid}
+                ON it.entry = clt.entry
                 WHERE item = {itemid}
             ";
 
@@ -288,7 +287,7 @@ namespace Wholesome_Auto_Quester.Database
         {
             string query = $@"
                 SELECT c.Id, ct.Name, c.guid Guid, c.map Map, c.position_x PositionX, 
-                c.position_y PositionY, c.position_z PositionZ,
+                c.position_y PositionY, c.position_z PositionZ, c.spawntimesecs SpawnTimeSecs,
 	            ct.faction FactionTemplateID
                 FROM creature c
                 JOIN creature_template ct
@@ -304,7 +303,7 @@ namespace Wholesome_Auto_Quester.Database
             string query = $@"
                 SELECT it.entry Entry, it.class Class, it.subclass SubClass, it.name Name, it.displayid DisplayId, 
 	                it.Quality, it.Flags, glt.Entry GOLootEntry, gt.entry GameObjectEntry, g.guid Guid, g.map Map, 
-	                g.position_x PositionX, g.position_y PositionY, g.position_z PositionZ 
+	                g.position_x PositionX, g.position_y PositionY, g.position_z PositionZ, g.spawntimesecs SpawnTimeSecs
                 FROM item_template it
                 JOIN gameobject_loot_template glt
                 ON glt.item = it.entry

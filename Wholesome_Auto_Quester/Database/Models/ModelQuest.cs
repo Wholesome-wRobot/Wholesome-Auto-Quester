@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
@@ -51,7 +52,9 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int RequiredNpcOrGoCount4 { get; set; }
         public int RequiredSkillID { get; set; }
         public int RequiredSkillPoints { get; set; }
+        public int SpecialFlags { get; set; }
         public int StartItem { get; set; }
+        public int TimeAllowed { get; set; }
 
         public bool IsPickable()
         {
@@ -60,6 +63,8 @@ namespace Wholesome_Auto_Quester.Database.Models
 
             if (RequiredSkillID > 0 && Skill.GetValue((SkillLine)RequiredSkillID) < RequiredSkillPoints)
                 return false;
+
+            // Add reputation req
 
             return true;
         }
@@ -71,7 +76,7 @@ namespace Wholesome_Auto_Quester.Database.Models
         }
 
         public bool IsCompleted => ToolBox.IsQuestCompleted(Id);
-        public string TrackerColor => TrackerColorsDictionary[Status];
+        public string TrackerColor => WAQTasks.TaskInProgress?.Quest.Id == Id ? "White" : TrackerColorsDictionary[Status];
 
         private Dictionary<QuestStatus, string> TrackerColorsDictionary = new Dictionary<QuestStatus, string>
         {

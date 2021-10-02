@@ -17,24 +17,8 @@ namespace Wholesome_Auto_Quester.Database.Models
         public float PositionX { get; set; }
         public float PositionY { get; set; }
         public float PositionZ { get; set; }
-        public int SpawnTimeMin { get; set; }
-        public int SpawnTimeMax { get; set; }
-
-        // Faction related
+        public int SpawnTimeSecs { get; set; }
         public uint FactionTemplateID { get; set; }
-        public int IdFaction { get; set; }
-        public int FactionType { get; set; }
-        public int OurMask { get; set; }
-        public int FriendlyMask { get; set; }
-        public int HostileMask { get; set; }
-        public int EnemyFaction1 { get; set; }
-        public int EnemyFaction2 { get; set; }
-        public int EnemyFaction3 { get; set; }
-        public int EnemyFaction4 { get; set; }
-        public int FriendFaction1 { get; set; }
-        public int FriendFaction2 { get; set; }
-        public int FriendFaction3 { get; set; }
-        public int FriendFaction4 { get; set; }
 
         public Vector3 GetSpawnPosition => new Vector3(PositionX, PositionY, PositionZ);
 

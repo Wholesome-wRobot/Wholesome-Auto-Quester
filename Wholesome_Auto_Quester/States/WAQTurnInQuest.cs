@@ -7,6 +7,7 @@ using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
+using robotManager.Helpful;
 
 namespace Wholesome_Auto_Quester.States
 {
@@ -93,8 +94,8 @@ namespace Wholesome_Auto_Quester.States
             else {
                 Logger.Log($"Moving to QuestGiver for {task.Quest.LogTitle} (TurnIn).");
                 if (!MoveHelper.MoveToWait(task.Location, randomizeEnd: 8,
-                    abortIf: () => ToolBox.MoveToHotSpotAbortCondition(task)) || task.GetDistance <= 13f) {
-                    Logger.Log($"We are close to {ToolBox.GetTaskId(task)} position and no NPC for turn-in in sight. Time out");
+                    abortIf: () => ToolBox.MoveToHotSpotAbortCondition(task)) || task.GetDistance <= 20f) {
+                    Logger.Log($"No {task.Npc.Name} in sight. Time out for {task.Npc.SpawnTimeSecs}s");
                     task.PutTaskOnTimeout();
                 }
                 // MoveHelper.StartGoToThread(task.Location, randomizeEnd: 3);

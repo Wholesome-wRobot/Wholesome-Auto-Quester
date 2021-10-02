@@ -34,10 +34,11 @@ namespace Wholesome_Auto_Quester.States
 
         public override void Run()
         {
+            WoWObject npc = WAQTasks.TaskInProgressWoWObject;
             WAQTask task = WAQTasks.TaskInProgress;
             //Logger.Log($"******** [{task.POIEntry}] RUNNING {task.TaskType} TASK {ToolBox.GetTaskId(task)}  ********");
 
-            if (WAQTasks.TaskInProgressWoWObject != null)
+            if (npc != null)
             {
                 Logger.Log($"Unit found - Fighting {WAQTasks.TaskInProgressWoWObject.Name}");
                 Fight.StartFight(WAQTasks.TaskInProgressWoWObject.Guid);
@@ -48,8 +49,8 @@ namespace Wholesome_Auto_Quester.States
             {
                 Logger.Log($"Moving to Hotspot for {task.Quest.LogTitle} (Kill&Loot).");
                 if (!MoveHelper.MoveToWait(task.Location, randomizeEnd: 8,
-                    abortIf: () => ToolBox.MoveToHotSpotAbortCondition(task)) || task.GetDistance <= 13f) {
-                    Logger.Log($"We are close to {ToolBox.GetTaskId(task)} position and no npc to kill&loot in sight. Time out");
+                    abortIf: () => ToolBox.MoveToHotSpotAbortCondition(task)) || task.GetDistance <= 20f) {
+                    Logger.Log($"No {task.Npc.Name} in sight.. Time out for {task.Npc.SpawnTimeSecs}s");
                     task.PutTaskOnTimeout();
                 }
                 // Logger.Log("START PATH");

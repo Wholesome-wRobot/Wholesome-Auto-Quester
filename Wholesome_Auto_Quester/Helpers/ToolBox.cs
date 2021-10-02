@@ -11,6 +11,7 @@ using Wholesome_Auto_Quester.Database.Models;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
+using static wManager.Wow.Helpers.PathFinder;
 
 namespace Wholesome_Auto_Quester.Helpers {
     public static class ToolBox {
@@ -80,7 +81,7 @@ namespace Wholesome_Auto_Quester.Helpers {
             		local i = j*4-3;
             		if activeQuests[i] == '{questName.EscapeLuaString()}' then
             			if activeQuests[i+3] ~= 1 then return 3; end
-            			SelectGossipActiveQuest(i);
+            			SelectGossipActiveQuest(j);
             			return 0;
             		end
             	end
@@ -150,7 +151,7 @@ namespace Wholesome_Auto_Quester.Helpers {
             	for j=1, GetNumGossipAvailableQuests(), 1 do
             		local i = j*5-4;
             		if availableQuests[i] == '{questName.EscapeLuaString()}' then
-            			SelectGossipAvailableQuest(i);
+            			SelectGossipAvailableQuest(j);
             			return 0;
             		end
             	end
@@ -194,7 +195,7 @@ namespace Wholesome_Auto_Quester.Helpers {
         public static bool MoveToHotSpotAbortCondition(WAQTask task)
         {
             return WAQTasks.TaskInProgressWoWObject != null
-                || (ObjectManager.Me.IsMounted && ObjectManager.Me.InCombatFlagOnly);
+                || (!ObjectManager.Me.IsMounted && ObjectManager.Me.InCombatFlagOnly);
         }
 
         public static List<int> GetCompletedQuests() {
@@ -381,6 +382,19 @@ namespace Wholesome_Auto_Quester.Helpers {
                 case WoWClass.Druid: return Classes.Druid;
                 default: return Classes.Unknown;
             }
+        }
+
+        // Calculate real walking distance
+        public static float CalculatePathTotalDistance(Vector3 from, Vector3 to)
+        {
+            float distance = 0.0f;
+            List<Vector3> path = FindPath(from, to, false);
+
+            for (int i = 0; i < path.Count - 1; ++i)
+            {
+                distance += path[i].DistanceTo2D(path[i + 1]);
+            }
+            return distance;
         }
 
         public static readonly Dictionary<int, int> ZoneLevelDictionary = new Dictionary<int, int> {
