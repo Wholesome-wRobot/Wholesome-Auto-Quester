@@ -311,6 +311,7 @@
     <Compile Include="Database\SafeDapper\DapperObjectMappingException.cs" />
     <Compile Include="Database\SafeDapper\ThrowWhenNullTypeMap.cs" />
     <Compile Include="Helpers\MoveHelper.cs" />
+    <Compile Include="States\Defend.cs" />
     <Compile Include="States\WAQKillAndLoot.cs" />
     <Compile Include="States\WAQTurnInQuest.cs" />
     <Compile Include="States\WAQPickupQuest.cs" />

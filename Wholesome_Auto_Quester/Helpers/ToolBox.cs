@@ -11,6 +11,7 @@ using Wholesome_Auto_Quester.Database.Models;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
+using Math = System.Math;
 
 namespace Wholesome_Auto_Quester.Helpers {
     public static class ToolBox {
@@ -36,6 +37,14 @@ namespace Wholesome_Auto_Quester.Helpers {
 
         public static T TakeHighest<T>(this IEnumerable<T> list, Func<T, int> takeValue) {
             return list.TakeHighest(takeValue, out _);
+        }
+        
+        public static float PathLength(List<Vector3> path) {
+            var length = 0f;
+            for (var i = 0; i < path.Count - 1; i++) {
+                length += path[i].DistanceTo(path[i + 1]);
+            }
+            return length;
         }
 
         public static bool InInteractDistance(this WoWUnit unit) => unit.GetDistance < unit.CombatReach + 4f;
@@ -135,6 +144,8 @@ namespace Wholesome_Auto_Quester.Helpers {
             	closeButton:Click();
             end");
             
+            Logger.Log($"Turned id quest {questName}.");
+            
             return true;
         }
         
@@ -196,9 +207,43 @@ namespace Wholesome_Auto_Quester.Helpers {
             	closeButton:Click();
             end");
             
+            Logger.Log($"Picked up quest {questName}.");
+            
             return true;
         }
 
+        internal static int GetIndexOfClosestPoint(List<Vector3> path) {
+            if (path == null || path.Count <= 0) return 0;
+            Vector3 myPos = ObjectManager.Me.PositionWithoutType;
+
+            int curIndex = 0;
+            var curDistance = float.MaxValue;
+
+            for (var i = 0; i < path.Count; i++) {
+                float distance = myPos.DistanceTo(path[i]);
+                if (distance < curDistance) {
+                    curDistance = distance;
+                    curIndex = i;
+                }
+            }
+
+            return curIndex;
+        }
+        
+        internal static float PointDistanceToLine(Vector3 start, Vector3 end, Vector3 point) {
+            float vLenSquared = (start.X - end.X) * (start.X - end.X) +
+                                (start.Y - end.Y) * (start.Y - end.Y) +
+                                (start.Z - end.Z) * (start.Z - end.Z);
+            if (vLenSquared == 0f) return point.DistanceTo(start);
+
+            Vector3 ref1 = point - start;
+            Vector3 ref2 = end - start;
+            float clippedSegment = Math.Max(0, Math.Min(1, Vector3.Dot(ref ref1, ref ref2) / vLenSquared));
+
+            Vector3 projection = start + (end - start) * clippedSegment;
+            return point.DistanceTo(projection);
+        }
+        
         public static bool MoveToHotSpotAbortCondition(WAQTask task)
         {
             return WAQTasks.TaskInProgressWoWObject != null
@@ -216,6 +261,11 @@ namespace Wholesome_Auto_Quester.Helpers {
             return GetCompletedQuests().Contains(questId);
         }
 
+        public static bool ShouldQuestBeFinished(this ModelQuest quest) => quest.Status == QuestStatus.InProgress
+                                                                           || quest.Status == QuestStatus.ToTurnIn;
+
+        public static Vector3 Position(this ModelNpc npc) => new Vector3(npc.PositionX, npc.PositionY, npc.PositionZ);
+        
         public static bool WoWDBFileIsPresent() {
             return File.Exists(Others.GetCurrentDirectory + @"\Data\WoWDb335-quests");
         }

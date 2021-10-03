@@ -5,6 +5,7 @@ using robotManager.Helpful;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Helpers;
+using wManager.Wow.Helpers.PathFinderClass;
 using wManager.Wow.ObjectManager;
 using static wManager.Wow.Helpers.Quest.PlayerQuest;
 
@@ -124,7 +125,28 @@ namespace Wholesome_Auto_Quester.Bot {
             }
 
             TasksPile.AddRange(generatedTasks);
+
+            // Filter far away new quests if we still have quests to turn in
+            if (TasksPile.Any(task => task.Quest.ShouldQuestBeFinished())) {
+                TasksPile.RemoveAll(task => task.TaskType == TaskType.PickupQuest && !Quests
+                    .Where(quest => quest.ShouldQuestBeFinished())
+                    .Any(questToBeFinished => questToBeFinished.QuestGivers
+                        .Any(questToFinishGiver => task.Quest.QuestGivers.Any(taskQuestGiver =>
+                            taskQuestGiver.Position().DistanceTo(questToFinishGiver.Position()) < 250))));
+            }
+
+            // Filter TaskPile for low-level tasks which are close
             Vector3 myPos = ObjectManager.Me.PositionWithoutType;
+            try {
+                int lowestLevelProxy = TasksPile.Where(task => task.Location.DistanceTo(myPos) < 1000)
+                    .Min(task => task.Quest.QuestLevel);
+                TasksPile = TasksPile.Where(task =>
+                    task.Quest.QuestLevel <= lowestLevelProxy || task.TaskType == TaskType.TurnInQuest).ToList();
+            } catch (System.InvalidOperationException /* source contains no elements. */) {
+                // Logging.Write("No quests within 1000 yards.");
+            }
+
+
             TasksPile = TasksPile.OrderBy(t => myPos.DistanceTo(t.Location)).ToList();
 
             WAQTask closestTask = TasksPile.Find(t => !t.IsTimedOut);
@@ -169,8 +191,8 @@ namespace Wholesome_Auto_Quester.Bot {
 
             TaskInProgress = closestTask;
             // Logger.Log($"Active task is {TaskInProgress?.TaskName} - {TaskInProgress?.GetDistance} - {TaskInProgress?.Location.ToStringNewVector()}");
-            
-            Main.questTrackerGUI.UpdateTasksList();
+
+            Main.QuestTrackerGui.UpdateTasksList();
         }
 
         private static bool IsObjectValidForTask(WoWObject wowObject, WAQTask task) {
@@ -236,7 +258,7 @@ namespace Wholesome_Auto_Quester.Bot {
                 quest.Status = QuestStatus.None;
             }
 
-            Main.questTrackerGUI.UpdateQuestsList();
+            Main.QuestTrackerGui.UpdateQuestsList();
         }
     }
 }
