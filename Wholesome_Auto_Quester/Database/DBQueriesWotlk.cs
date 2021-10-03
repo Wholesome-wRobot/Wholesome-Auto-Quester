@@ -44,7 +44,7 @@ namespace Wholesome_Auto_Quester.Database {
                 if (q.QuestLevel == -1 && q.AllowableClasses == 0) continue;
 
                 // Quest is too low level
-                if (q.QuestLevel <= myLevel - 5 || q.QuestLevel == -1) continue;
+                if (q.QuestLevel <= myLevel - 5 && q.QuestLevel != -1) continue;
 
                 // Quest is not for my class
                 if (q.AllowableClasses > 0 && (q.AllowableClasses & myClass) == 0) continue;
