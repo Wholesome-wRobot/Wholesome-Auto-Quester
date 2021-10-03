@@ -9,7 +9,7 @@ namespace Wholesome_Auto_Quester.States
 {
     class WAQGoTo : State
     {
-        public override string DisplayName { get; set; } = "Go To";
+        public override string DisplayName { get; set; } = "Go To [SmoothMove - Q]";
 
         public override bool NeedToRun
         {
@@ -21,7 +21,7 @@ namespace Wholesome_Auto_Quester.States
 
                 if (WAQTasks.TaskInProgress?.TaskType == TaskType.Explore)
                 {
-                    DisplayName = $"Explore {WAQTasks.TaskInProgress.Location} for {WAQTasks.TaskInProgress.Quest.LogTitle}";
+                    DisplayName = $"Explore {WAQTasks.TaskInProgress.Location} for {WAQTasks.TaskInProgress.Quest.LogTitle} [SmoothMove - Q]";
                     return true;
                 }
 
@@ -34,11 +34,16 @@ namespace Wholesome_Auto_Quester.States
             WAQTask task = WAQTasks.TaskInProgress;
             //Logger.Log($"******** RUNNING EXPLORATION TASK {ToolBox.GetTaskId(task)}  ********");
 
-            Logger.Log($"Moving to Hotspot for {task.Quest.LogTitle} (Explore).");
-            if (MoveHelper.MoveToWait(task.Location, randomizeEnd: 8,
-                abortIf: () => ToolBox.MoveToHotSpotAbortCondition(task)) || task.GetDistance <= 2f)
-            {
-                Logger.Log($"Reached exploration hotspot");
+            if (task.GetDistance < 2f) {
+                MoveHelper.StopAllMove();
+                Logger.Log($"Reached exploration hotspot for {task.Quest.LogTitle}");
+                return;
+            }
+            
+            if (!MoveHelper.IsMovementThreadRunning ||
+                MoveHelper.CurrentMovementTarget.DistanceTo(task.Location) > 8) {
+                Logger.Log($"Moving to Hotspot for {task.Quest.LogTitle} (Explore).");
+                MoveHelper.StartGoToThread(task.Location, precise: true);
             }
         }
     }
