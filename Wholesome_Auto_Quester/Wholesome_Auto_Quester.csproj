@@ -15,6 +15,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <TargetFrameworkProfile />
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -30,7 +31,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>F:\WoW\WoW Wotlk\WRobot WOTLK\Products\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -312,6 +313,7 @@
     <Compile Include="Database\SafeDapper\DapperObjectMappingException.cs" />
     <Compile Include="Database\SafeDapper\ThrowWhenNullTypeMap.cs" />
     <Compile Include="Helpers\MoveHelper.cs" />
+    <Compile Include="States\Defend.cs" />
     <Compile Include="States\WAQGoTo.cs" />
     <Compile Include="States\WAQKillAndLoot.cs" />
     <Compile Include="States\WAQTurnInQuest.cs" />
@@ -353,8 +355,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y/F "F:\WoW\WoW Wotlk\WRobot WOTLK\Products\Wholesome_Auto_Quester.dll" "$(ProjectDir)\Compiled"
-xcopy /Y/F "F:\WoW\WoW Wotlk\WRobot WOTLK\Data\WAQquests.zip" "$(ProjectDir)\Compiled"</PostBuildEvent>
+    <PostBuildEvent>COPY /Y "$(ProjectDir)bin\Release\Wholesome_Auto_Quester.dll" "E:\Games\World of Warcraft\WRobot\Products\Wholesome_Auto_Quester.dll"
+start "WRobot" "E:\Games\World of Warcraft\WRobot\WRobot.exe" AutoAttachAndLog=true</PostBuildEvent>
   </PropertyGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

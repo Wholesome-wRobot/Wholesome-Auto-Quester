@@ -73,14 +73,16 @@ namespace Wholesome_Auto_Quester.Database.Models
 
         public void MarkAsCompleted()
         {
-            WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Add(Id);
-            WholesomeAQSettings.CurrentSetting.Save();
+            if(!WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Contains(Id)) {
+                WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Add(Id);
+                WholesomeAQSettings.CurrentSetting.Save();
+            }
         }
 
         public bool IsCompleted => ToolBox.IsQuestCompleted(Id);
-        public string TrackerColor => WAQTasks.TaskInProgress?.Quest.Id == Id ? "White" : TrackerColorsDictionary[Status];
+        public string TrackerColor => WAQTasks.TaskInProgress?.Quest.Id == Id ? "White" : _trackerColorsDictionary[Status];
 
-        private Dictionary<QuestStatus, string> TrackerColorsDictionary = new Dictionary<QuestStatus, string>
+        private readonly Dictionary<QuestStatus, string> _trackerColorsDictionary = new Dictionary<QuestStatus, string>
         {
             {  QuestStatus.Completed, "SkyBlue"},
             {  QuestStatus.Failed, "Red"},

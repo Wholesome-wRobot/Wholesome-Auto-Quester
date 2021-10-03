@@ -4,6 +4,7 @@ using FlXProfiles;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Bot.Tasks;
+using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
@@ -11,7 +12,7 @@ namespace Wholesome_Auto_Quester.States
 {
     class WAQKill : State
     {
-        public override string DisplayName { get; set; } = "Kill creature";
+        public override string DisplayName { get; set; } = "Kill creature [SmoothMove - Q]";
 
         public override bool NeedToRun
         {
@@ -23,7 +24,7 @@ namespace Wholesome_Auto_Quester.States
 
                 if (WAQTasks.TaskInProgress?.TaskType == TaskType.Kill)
                 {
-                    DisplayName = $"Kill {WAQTasks.TaskInProgress.Npc.Name} for {WAQTasks.TaskInProgress.Quest.LogTitle}";
+                    DisplayName = $"Kill {WAQTasks.TaskInProgress.Npc.Name} for {WAQTasks.TaskInProgress.Quest.LogTitle} [SmoothMove - Q]";
                     return true;
                 }
 
@@ -38,26 +39,30 @@ namespace Wholesome_Auto_Quester.States
 
             if (WAQTasks.TaskInProgressWoWObject != null)
             {
-                Logger.Log($"Unit found - Fighting {WAQTasks.TaskInProgressWoWObject.Name}");
-                Fight.StartFight(WAQTasks.TaskInProgressWoWObject.Guid);
-                Thread.Sleep(1000);
+                if (WAQTasks.TaskInProgressWoWObject.Type != WoWObjectType.Unit) {
+                    Logger.LogError($"Expected a WoWUnit for Kill but got {WAQTasks.TaskInProgressWoWObject.Type} instead.");
+                    return;
+                }
+
+                var killTarget = (WoWUnit) WAQTasks.TaskInProgressWoWObject;
+                Logger.Log($"Unit found - Fighting {killTarget.Name}");
+                MoveHelper.StopCurrentMovementThread();
+                Fight.StartFight(killTarget.Guid);
+                Thread.Sleep(200);
             }
             else
             {
-                Logger.Log($"Moving to Hotspot for {task.Quest.LogTitle} (Kill).");
-                if (!MoveHelper.MoveToWait(task.Location, randomizeEnd: 8,
-                    abortIf: () => ToolBox.MoveToHotSpotAbortCondition(task)) || task.GetDistance <= 20f) {
-                    Logger.Log($"No {task.Npc.Name} in sight. Time out for {task.Npc.SpawnTimeSecs}s");
-                    task.PutTaskOnTimeout();
+                if (!MoveHelper.IsMovementThreadRunning ||
+                    MoveHelper.CurrentMovementTarget.DistanceTo(task.Location) > 8) {
+                    
+                    Logger.Log($"Moving to Hotspot for {task.Quest.LogTitle} (Kill).");
+                    MoveHelper.StartGoToThread(task.Location, randomizeEnd: 8f);
                 }
-                // if (GoToTask.ToPosition(task.Location, 10f, conditionExit: e => WAQTasks.TaskInProgressWoWObject != null))
-                // {
-                //     if (WAQTasks.TaskInProgressWoWObject == null && task.GetDistance <= 13f)
-                //     {
-                //         Logger.Log($"We are close to {ToolBox.GetTaskId(task)} position and no npc to kill in sight. Time out");
-                //         task.PutTaskOnTimeout();
-                //     }
-                // }
+                if (task.GetDistance <= 12f) {
+                    Logger.Log($"We are close to {ToolBox.GetTaskId(task)} position and no npc to kill in sight. Time out");
+                    task.PutTaskOnTimeout();
+                    MoveHelper.StopAllMove();
+                }
             }
         }
     }
