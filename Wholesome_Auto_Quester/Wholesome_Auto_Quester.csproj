@@ -31,7 +31,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>F:\WoW\WoW Wotlk\WRobot WOTLK\Products\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -353,10 +353,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y/F "F:\WoW\WoW Wotlk\WRobot WOTLK\Products\Wholesome_Auto_Quester.dll" "$(ProjectDir)\Compiled"
-xcopy /Y/F "F:\WoW\WoW Wotlk\WRobot WOTLK\Data\WAQquests.zip" "$(ProjectDir)\Compiled"
-
-start "WRobot" "F:\WoW\WoW Wotlk\WRobot WOTLK\WRobot.exe" AutoAttachAndLog=true</PostBuildEvent>
+    <PostBuildEvent>COPY /Y "$(ProjectDir)bin\Release\Wholesome_Auto_Quester.dll" "E:\Games\World of Warcraft\WRobot\Products\Wholesome_Auto_Quester.dll"
+start "WRobot" "E:\Games\World of Warcraft\WRobot\WRobot.exe" AutoAttachAndLog=true</PostBuildEvent>
   </PropertyGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
