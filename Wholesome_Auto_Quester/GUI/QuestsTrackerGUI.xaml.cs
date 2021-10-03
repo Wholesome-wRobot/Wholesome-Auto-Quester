@@ -89,34 +89,48 @@ namespace Wholesome_Auto_Quester.GUI
                 questId.Text = $"Entry: {selected.Id}";
                 questLevel.Text = $"Level: {selected.QuestLevel}";
 
+                // quest givers
                 string qg = "";
                 selected.QuestGivers.ForEach(q => qg += q.Id + " ");
                 questGivers.Text = $"Quest Givers: {qg}";
 
+                // quest turners
                 string qt = "";
                 selected.QuestTurners.ForEach(q => qt += q.Id + " ");
                 questTurners.Text = $"Quest Turners: {qt}";
 
+                // status
                 questStatus.Text = $"Status: {selected.Status}";
 
+                // previous quests
                 string qp = "";
                 selected.PreviousQuestsIds.ForEach(q => qp += q + " ");
                 questPrevious.Text = $"Previous quests: {qp}";
 
+                // next quests
                 string qn = "";
                 selected.NextQuestsIds.ForEach(q => qn += q + " ");
                 questNext.Text = $"Next quests: {qn}";
 
+                // exploration objectives
+                string explorationsObjectives = "Explore: ";
+                foreach (ExplorationObjective areaObj in selected.ExplorationObjectives)
+                    explorationsObjectives += $"\n    [{selected.ExplorationObjectives.IndexOf(areaObj) + 1}] {areaObj.area.GetPosition}";
+                explorations.Text = explorationsObjectives;
+
+                // gather objectives
                 string gatherObjectsString = "Gather: ";
                 foreach (GatherObjectObjective objGroup in selected.GatherObjectsObjectives)
                     gatherObjectsString += $"\n    [{objGroup.objectiveIndex}] {objGroup.amount} x {objGroup.GetName} ({objGroup.worldObjects.Count} found)";
                 questGatherObjects.Text = gatherObjectsString;
 
+                // kill objectives
                 string creaturesToKillString = "Kill: ";
                 foreach (CreaturesToKillObjective creaGroup in selected.CreaturesToKillObjectives)
                     creaturesToKillString += $"\n    [{creaGroup.objectiveIndex}] {creaGroup.amount} x {creaGroup.GetName} ({creaGroup.worldCreatures.Count} found)";
                 questKillCreatures.Text = creaturesToKillString;
 
+                // kill&loot objectives
                 string creaturesToLootString = "Kill & Loot: ";
                 foreach (CreatureToLootObjective creaGroup in selected.CreaturesToLootObjectives)
                     creaturesToLootString += $"\n    [{creaGroup.objectiveIndex}] {creaGroup.amount} x {creaGroup.itemName} on {creaGroup.GetName} ({creaGroup.worldCreatures.Count} found)";

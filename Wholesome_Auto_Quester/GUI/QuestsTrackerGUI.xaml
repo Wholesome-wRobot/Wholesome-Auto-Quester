@@ -149,20 +149,6 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
 
@@ -198,87 +184,62 @@
                                 Width="100"
                                 FontSize="10"
                                 HorizontalAlignment="Right"/>
-
-                        <TextBlock 
-                            Name="questId"
-                            TextWrapping="Wrap"
+                    
+                        <StackPanel
                             Grid.Row="4"
-                            HorizontalAlignment="Left"
-                            Grid.ColumnSpan="2"
-                            Margin="0,5"/>
+                            Orientation="Vertical"
+                            Margin="5">
 
-                        <TextBlock 
-                            Name="questLevel"
-                            TextWrapping="Wrap"
-                            Grid.Row="5"
-                            HorizontalAlignment="Left"
-                            Grid.ColumnSpan="2"
-                            Margin="0,5"/>
+                            <StackPanel.Resources>
+                                <Style TargetType="{x:Type TextBlock}">
+                                    <Setter Property="Margin" Value="0,3,0,0"/>
+                                </Style>
+                            </StackPanel.Resources>
+                            
+                            <TextBlock 
+                                Name="questId"
+                                TextWrapping="Wrap"/>
 
-                        <TextBlock 
-                            Name="questGivers"
-                            TextWrapping="Wrap"
-                            Grid.Row="6"
-                            HorizontalAlignment="Left"
-                            Grid.ColumnSpan="2"
-                            Margin="0,5"/>
+                            <TextBlock 
+                                Name="questLevel"
+                                TextWrapping="Wrap"/>
 
-                        <TextBlock 
-                            Name="questTurners"
-                            TextWrapping="Wrap"
-                            Grid.Row="7"
-                            HorizontalAlignment="Left"
-                            Grid.ColumnSpan="2"
-                            Margin="0,5"/>
+                            <TextBlock 
+                                Name="questGivers"
+                                TextWrapping="Wrap"/>
 
-                        <TextBlock 
-                            Name="questStatus"
-                            TextWrapping="Wrap"
-                            Grid.Row="8"
-                            HorizontalAlignment="Left"
-                            Grid.ColumnSpan="2"
-                            Margin="0,5"/>
+                            <TextBlock 
+                                Name="questTurners"
+                                TextWrapping="Wrap"/>
 
-                        <TextBlock 
-                            Name="questPrevious"
-                            TextWrapping="Wrap"
-                            Grid.Row="9"
-                            HorizontalAlignment="Left"
-                            Grid.ColumnSpan="2"
-                            Margin="0,5"/>
+                            <TextBlock 
+                                Name="questStatus"
+                                TextWrapping="Wrap"/>
 
-                        <TextBlock 
-                            Name="questNext"
-                            TextWrapping="Wrap"
-                            Grid.Row="10"
-                            HorizontalAlignment="Left"
-                            Grid.ColumnSpan="2"
-                            Margin="0,5"/>
+                            <TextBlock 
+                                Name="questPrevious"
+                                TextWrapping="Wrap"/>
 
-                        <TextBlock 
-                            Name="questGatherObjects"
-                            TextWrapping="Wrap"
-                            Grid.Row="11"
-                            HorizontalAlignment="Left"
-                            Grid.ColumnSpan="2"
-                            Margin="0,5"/>
+                            <TextBlock 
+                                Name="questNext"
+                                TextWrapping="Wrap"/>
 
-                        <TextBlock 
-                            Name="questKillCreatures"
-                            TextWrapping="Wrap"
-                            Grid.Row="12"
-                            HorizontalAlignment="Left"
-                            Grid.ColumnSpan="2"
-                            Margin="0,5"/>
+                            <TextBlock 
+                                Name="explorations"
+                                TextWrapping="Wrap"/>
 
-                        <TextBlock 
-                            Name="questLootCreatures"
-                            TextWrapping="Wrap"
-                            Grid.Row="13"
-                            HorizontalAlignment="Left"
-                            Grid.ColumnSpan="2"
-                            Margin="0,5"/>
-                        
+                            <TextBlock 
+                                Name="questGatherObjects"
+                                TextWrapping="Wrap"/>
+
+                            <TextBlock 
+                                Name="questKillCreatures"
+                                TextWrapping="Wrap"/>
+
+                            <TextBlock 
+                                Name="questLootCreatures"
+                                TextWrapping="Wrap"/>
+                        </StackPanel>
                     </Grid>
                 </Grid>
             </TabItem>

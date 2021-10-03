@@ -49,6 +49,7 @@
         PickupQuest,
         Kill,
         KillAndLoot,
-        GatherObject
+        GatherObject,
+        Explore
     }
 }

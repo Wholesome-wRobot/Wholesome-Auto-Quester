@@ -296,6 +296,7 @@
     <Compile Include="Database\DBQueriesWotlk.cs" />
     <Compile Include="Database\DBQueriesTBC.cs" />
     <Compile Include="Database\Models\ModelGatherObject.cs" />
+    <Compile Include="Database\Models\ModelArea.cs" />
     <Compile Include="Database\Models\ModelNpc.cs" />
     <Compile Include="Database\Models\ModelQuest.cs" />
     <Compile Include="GUI\ProductSettingsControl.xaml.cs">
@@ -311,6 +312,7 @@
     <Compile Include="Database\SafeDapper\DapperObjectMappingException.cs" />
     <Compile Include="Database\SafeDapper\ThrowWhenNullTypeMap.cs" />
     <Compile Include="Helpers\MoveHelper.cs" />
+    <Compile Include="States\WAQGoTo.cs" />
     <Compile Include="States\WAQKillAndLoot.cs" />
     <Compile Include="States\WAQTurnInQuest.cs" />
     <Compile Include="States\WAQPickupQuest.cs" />

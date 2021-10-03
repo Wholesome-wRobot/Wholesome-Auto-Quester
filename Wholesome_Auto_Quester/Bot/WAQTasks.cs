@@ -72,6 +72,23 @@ namespace Wholesome_Auto_Quester.Bot
                 {
                     TasksPile.RemoveAll(t => t.Quest.Id == quest.Id
                         && (t.TaskType == TaskType.PickupQuest || t.TaskType == TaskType.TurnInQuest));
+                    
+                    // Explore
+                    foreach (ExplorationObjective areaObjective in quest.ExplorationObjectives)
+                    {
+                        if (!Quest.IsObjectiveComplete(areaObjective.objectiveIndex, quest.Id))
+                        {
+                            if (areaObjective.area.ContinentId == Usefuls.ContinentId
+                                && !TasksPile.Exists(t => ToolBox.GetTaskId(t) == ToolBox.GetTaskId(TaskType.Explore, quest.Id, areaObjective.objectiveIndex)))
+                                generatedTasks.Add(new WAQTask(TaskType.Explore, areaObjective.area, quest, areaObjective.objectiveIndex));
+                        }
+                        else
+                        {
+                            TasksPile.RemoveAll(t => t.Quest.Id == quest.Id
+                                && t.ObjectiveIndex == areaObjective.objectiveIndex
+                                && t.TaskType == TaskType.Explore);
+                        }
+                    }
 
                     // Kill & Loot
                     foreach (CreatureToLootObjective lootObjective in quest.CreaturesToLootObjectives)

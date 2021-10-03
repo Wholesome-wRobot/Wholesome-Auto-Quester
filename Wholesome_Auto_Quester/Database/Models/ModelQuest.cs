@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using robotManager.Helpful;
+using System.Collections.Generic;
 using System.Linq;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Helpers;
@@ -12,6 +13,7 @@ namespace Wholesome_Auto_Quester.Database.Models
         public QuestStatus Status { get; set; } = QuestStatus.None;
         public List<ModelNpc> QuestGivers { get; set; } = new List<ModelNpc>();
         public List<ModelNpc> QuestTurners { get; set; } = new List<ModelNpc>();
+        public List<ExplorationObjective> ExplorationObjectives { get; set; } = new List<ExplorationObjective>();
         public List<GatherObjectObjective> GatherObjectsObjectives { get; set; } = new List<GatherObjectObjective>();
         public List<CreaturesToKillObjective> CreaturesToKillObjectives { get; set; } = new List<CreaturesToKillObjective>();
         public List<CreatureToLootObjective> CreaturesToLootObjectives { get; set; } = new List<CreatureToLootObjective>();
@@ -142,5 +144,21 @@ namespace Wholesome_Auto_Quester.Database.Models
         }
 
         public string GetName => worldObjects.Count > 0 ? worldObjects[0].Name : "N/A";
+    }
+
+    public struct ExplorationObjective
+    {
+        public int id;
+        public ModelArea area;
+        public int objectiveIndex;
+
+        public ExplorationObjective(int id, ModelArea area, int objectiveIndex)
+        {
+            this.id = id;
+            this.area = area;
+            this.objectiveIndex = objectiveIndex;
+        }
+
+        public string GetName => area.GetPosition.ToString();
     }
 }

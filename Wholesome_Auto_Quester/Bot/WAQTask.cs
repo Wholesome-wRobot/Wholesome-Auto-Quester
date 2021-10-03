@@ -14,6 +14,7 @@ namespace Wholesome_Auto_Quester.Bot
         public int ObjectiveIndex { get; set; }
         public int POIEntry { get; set; }
         public ModelQuest Quest { get; set; }
+        public ModelArea Area { get; set; }
         public string TaskName { get; set; }
         public TaskType TaskType { get; set; }
 
@@ -49,8 +50,19 @@ namespace Wholesome_Auto_Quester.Bot
             POIEntry = modelGatherObject.GameObjectEntry;
             Map = modelGatherObject.Map;
 
-            if (taskType == TaskType.GatherObject)
-                TaskName = $"Gather {modelGatherObject.Name} for {quest.LogTitle}";
+            TaskName = $"Gather {modelGatherObject.Name} for {quest.LogTitle}";
+        }
+
+        public WAQTask(TaskType taskType, ModelArea modelArea, ModelQuest quest, int objectiveIndex)
+        {
+            TaskType = taskType;
+            Area = modelArea;
+            Location = modelArea.GetPosition;
+            Quest = quest;
+            ObjectiveIndex = objectiveIndex;
+            Map = modelArea.ContinentId;
+
+            TaskName = $"Explore {modelArea.GetPosition} for {quest.LogTitle}";
         }
 
         public void PutTaskOnTimeout()

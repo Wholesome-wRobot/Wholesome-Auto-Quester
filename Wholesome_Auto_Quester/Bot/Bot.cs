@@ -42,6 +42,8 @@ namespace Wholesome_Auto_Quester.Bot
                 Fsm.AddState(new Trainers { Priority = 25 });
                 Fsm.AddState(new ToTown { Priority = 25 });
 
+                // WAQ tasks
+                Fsm.AddState(new WAQGoTo { Priority = 15 });
                 Fsm.AddState(new WAQKill { Priority = 14 });
                 Fsm.AddState(new WAQKillAndLoot { Priority = 13 });
                 Fsm.AddState(new WAQPickupWorldObject { Priority = 12 });

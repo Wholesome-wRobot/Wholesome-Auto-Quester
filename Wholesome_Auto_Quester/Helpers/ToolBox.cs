@@ -338,12 +338,15 @@ namespace Wholesome_Auto_Quester.Helpers {
             string taskType = $"{(int) task.TaskType}";
             string questEntry = $"{task.Quest.Id}";
             string objIndex = $"{task.ObjectiveIndex}";
-            string guid = $"{(task.Npc != null ? task.Npc.Guid : task.GatherObject.Guid)}";
-            return ulong.Parse($"{taskType}{questEntry}{objIndex}{guid}");
+            string uniqueId = $"{task.Npc?.Guid}{task.GatherObject?.Guid}";
+
+            return ulong.Parse($"{taskType}{questEntry}{objIndex}{uniqueId}");
         }
 
-        public static ulong GetTaskId(TaskType taskType, int questEntry, int objIndex, int guid) {
-            return ulong.Parse($"{(int) taskType}{questEntry}{objIndex}{guid}");
+        public static ulong GetTaskId(TaskType taskType, int questEntry, int objIndex, int uniqueId = 0) 
+        {
+            string uid = uniqueId == 0 ? "" : uniqueId.ToString();
+            return ulong.Parse($"{(int) taskType}{questEntry}{objIndex}{uid}");
         }
 
         public static string GetWoWVersion() {
