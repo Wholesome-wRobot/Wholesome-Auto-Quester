@@ -59,7 +59,7 @@ namespace Wholesome_Auto_Quester.States
                     MoveHelper.StartGoToThread(task.Location, randomizeEnd: 8f);
                 }
                 if (task.GetDistance <= 12f) {
-                    Logger.Log($"We are close to {ToolBox.GetTaskId(task)} position and no npc to kill in sight. Time out");
+                    Logger.Log($"We are close to {ToolBox.GetTaskId(task)} position and no npc to kill in sight. Time out for {task.Npc.SpawnTimeSecs}s");
                     task.PutTaskOnTimeout();
                     MoveHelper.StopAllMove();
                 }

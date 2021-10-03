@@ -67,7 +67,7 @@ namespace Wholesome_Auto_Quester.Bot
 
         public void PutTaskOnTimeout()
         {
-            int timeInSecs = Npc != null ? Npc.SpawnTimeSecs : GatherObject.SpawnTimeSecs;
+            int timeInSecs = Npc?.SpawnTimeSecs ?? GatherObject.SpawnTimeSecs;
             _timeOutTimer = new Timer(timeInSecs * 1000);
             WAQTasks.UpdateTasks();
         }

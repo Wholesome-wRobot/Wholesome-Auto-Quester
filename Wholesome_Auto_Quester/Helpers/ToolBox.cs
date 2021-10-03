@@ -453,7 +453,7 @@ namespace Wholesome_Auto_Quester.Helpers {
 
             for (int i = 0; i < path.Count - 1; ++i)
             {
-                distance += path[i].DistanceTo2D(path[i + 1]);
+                distance += path[i].DistanceTo(path[i + 1]);
             }
             return distance;
         }

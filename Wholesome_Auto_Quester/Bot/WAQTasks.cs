@@ -1,12 +1,8 @@
-﻿using robotManager.Helpful;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Windows;
-using robotManager.Helpful;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Helpers;
-using wManager.Wow.Helpers.PathFinderClass;
 using wManager.Wow.ObjectManager;
 using static wManager.Wow.Helpers.Quest.PlayerQuest;
 
@@ -14,8 +10,8 @@ namespace Wholesome_Auto_Quester.Bot {
     public class WAQTasks {
         public static List<WAQTask> TasksPile { get; set; } = new List<WAQTask>();
         public static List<ModelQuest> Quests { get; set; } = new List<ModelQuest>();
-        public static WAQTask TaskInProgress { get; set; } = null;
-        public static WoWObject TaskInProgressWoWObject { get; set; } = null;
+        public static WAQTask TaskInProgress { get; set; }
+        public static WoWObject TaskInProgressWoWObject { get; set; }
 
         public static void AddQuests(List<ModelQuest> quests) {
             quests.ForEach(newQuest => {
@@ -31,7 +27,7 @@ namespace Wholesome_Auto_Quester.Bot {
                 return;
 
             //Logger.Log("Update tasks");
-            List<WAQTask> generatedTasks = new List<WAQTask>();
+            var generatedTasks = new List<WAQTask>();
             int myContinent = Usefuls.ContinentId;
             foreach (ModelQuest quest in Quests) {
                 // Completed
@@ -68,28 +64,25 @@ namespace Wholesome_Auto_Quester.Bot {
                     TasksPile.RemoveAll(t => t.Quest.Id == quest.Id
                                              && (t.TaskType == TaskType.PickupQuest ||
                                                  t.TaskType == TaskType.TurnInQuest));
-                        && (t.TaskType == TaskType.PickupQuest || t.TaskType == TaskType.TurnInQuest));
-                    
+
                     // Explore
                     foreach (ExplorationObjective areaObjective in quest.ExplorationObjectives)
-                    {
-                        if (!Quest.IsObjectiveComplete(areaObjective.objectiveIndex, quest.Id))
-                        {
+                        if (!Quest.IsObjectiveComplete(areaObjective.objectiveIndex, quest.Id)) {
                             if (areaObjective.area.ContinentId == myContinent
-                                && !TasksPile.Exists(t => ToolBox.GetTaskId(t) == ToolBox.GetTaskId(TaskType.Explore, quest.Id, areaObjective.objectiveIndex)))
-                                generatedTasks.Add(new WAQTask(TaskType.Explore, areaObjective.area, quest, areaObjective.objectiveIndex));
-                        }
-                        else
-                        {
+                                && !TasksPile.Exists(t =>
+                                    ToolBox.GetTaskId(t) == ToolBox.GetTaskId(TaskType.Explore, quest.Id,
+                                        areaObjective.objectiveIndex)))
+                                generatedTasks.Add(new WAQTask(TaskType.Explore, areaObjective.area, quest,
+                                    areaObjective.objectiveIndex));
+                        } else {
                             TasksPile.RemoveAll(t => t.Quest.Id == quest.Id
-                                && t.ObjectiveIndex == areaObjective.objectiveIndex
-                                && t.TaskType == TaskType.Explore);
+                                                     && t.ObjectiveIndex == areaObjective.objectiveIndex
+                                                     && t.TaskType == TaskType.Explore);
                         }
-                    }
 
                     // Kill & Loot
-                    foreach (CreatureToLootObjective lootObjective in quest.CreaturesToLootObjectives) {
-                        if (!Quest.IsObjectiveComplete(lootObjective.objectiveIndex, quest.Id)) {
+                    foreach (CreatureToLootObjective lootObjective in quest.CreaturesToLootObjectives)
+                        if (!Quest.IsObjectiveComplete(lootObjective.objectiveIndex, quest.Id))
                             lootObjective.worldCreatures.ForEach(wc => {
                                 if (wc.Map == myContinent
                                     && !TasksPile.Exists(t =>
@@ -98,16 +91,14 @@ namespace Wholesome_Auto_Quester.Bot {
                                     generatedTasks.Add(new WAQTask(TaskType.KillAndLoot, wc, quest,
                                         lootObjective.objectiveIndex));
                             });
-                        } else {
+                        else
                             TasksPile.RemoveAll(t => t.Quest.Id == quest.Id
                                                      && t.ObjectiveIndex == lootObjective.objectiveIndex
                                                      && t.TaskType == TaskType.KillAndLoot);
-                        }
-                    }
 
                     // Kill
-                    foreach (CreaturesToKillObjective killObjective in quest.CreaturesToKillObjectives) {
-                        if (!Quest.IsObjectiveComplete(killObjective.objectiveIndex, quest.Id)) {
+                    foreach (CreaturesToKillObjective killObjective in quest.CreaturesToKillObjectives)
+                        if (!Quest.IsObjectiveComplete(killObjective.objectiveIndex, quest.Id))
                             killObjective.worldCreatures.ForEach(wc => {
                                 if (wc.Map == myContinent
                                     && !TasksPile.Exists(t =>
@@ -116,27 +107,26 @@ namespace Wholesome_Auto_Quester.Bot {
                                     generatedTasks.Add(new WAQTask(TaskType.Kill, wc, quest,
                                         killObjective.objectiveIndex));
                             });
-                        } else {
+                        else
                             TasksPile.RemoveAll(t => t.Quest.Id == quest.Id
                                                      && t.ObjectiveIndex == killObjective.objectiveIndex
                                                      && t.TaskType == TaskType.Kill);
-                        }
-                    }
 
                     // Gather object
-                    foreach (GatherObjectObjective gatherObjective in quest.GatherObjectsObjectives) {
-                        if (!Quest.IsObjectiveComplete(gatherObjective.objectiveIndex, quest.Id)) {
+                    foreach (GatherObjectObjective gatherObjective in quest.GatherObjectsObjectives)
+                        if (!Quest.IsObjectiveComplete(gatherObjective.objectiveIndex, quest.Id))
                             gatherObjective.worldObjects.ForEach(wo => {
                                 if (wo.Map == myContinent
-                                    && !TasksPile.Exists(t => ToolBox.GetTaskId(t) == ToolBox.GetTaskId(TaskType.GatherObject, quest.Id, gatherObjective.objectiveIndex, wo.Guid)))
-                                    generatedTasks.Add(new WAQTask(TaskType.GatherObject, wo, quest, gatherObjective.objectiveIndex));
+                                    && !TasksPile.Exists(t =>
+                                        ToolBox.GetTaskId(t) == ToolBox.GetTaskId(TaskType.GatherObject, quest.Id,
+                                            gatherObjective.objectiveIndex, wo.Guid)))
+                                    generatedTasks.Add(new WAQTask(TaskType.GatherObject, wo, quest,
+                                        gatherObjective.objectiveIndex));
                             });
-                        } else {
+                        else
                             TasksPile.RemoveAll(t => t.Quest.Id == quest.Id
-                                && t.ObjectiveIndex == gatherObjective.objectiveIndex
-                                && t.TaskType == TaskType.GatherObject);
-                        }
-                    }
+                                                     && t.ObjectiveIndex == gatherObjective.objectiveIndex
+                                                     && t.TaskType == TaskType.GatherObject);
                 }
             }
 
@@ -151,15 +141,13 @@ namespace Wholesome_Auto_Quester.Bot {
             //             .Any(questToFinishGiver => task.Quest.QuestGivers.Any(taskQuestGiver =>
             //                 taskQuestGiver.Position().DistanceTo(questToFinishGiver.Position()) < 250))));
             // }
-            
-            TasksPile = TasksPile.OrderBy(t => myPos.DistanceTo(t.Location)).ToList();
 
             WAQTask closestTask = TasksPile.Find(t => !t.IsTimedOut);
 
             // Get unique POIs
-            List<WAQTask> researchedTasks = new List<WAQTask>();
-            List<int> wantedUnitEntries = new List<int>();
-            List<int> wantedObjectEntries = new List<int>();
+            var researchedTasks = new List<WAQTask>();
+            var wantedUnitEntries = new List<int>();
+            var wantedObjectEntries = new List<int>();
             TasksPile.ForEach(pileTask => {
                 if (!researchedTasks.Exists(poiTasks => poiTasks.POIEntry == pileTask.POIEntry) &&
                     !pileTask.IsTimedOut) {
@@ -202,13 +190,13 @@ namespace Wholesome_Auto_Quester.Bot {
 
         private static bool IsObjectValidForTask(WoWObject wowObject, WAQTask task) {
             if (task.TaskType == TaskType.KillAndLoot) {
-                WoWUnit unit = (WoWUnit) wowObject;
+                var unit = (WoWUnit) wowObject;
                 if (!unit.IsAlive && !unit.IsLootable)
                     return false;
             }
 
             if (task.TaskType == TaskType.Kill) {
-                WoWUnit unit = (WoWUnit) wowObject;
+                var unit = (WoWUnit) wowObject;
                 if (!unit.IsAlive)
                     return false;
             }

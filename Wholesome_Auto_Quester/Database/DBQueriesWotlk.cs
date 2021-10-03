@@ -134,8 +134,6 @@ namespace Wholesome_Auto_Quester.Database {
             // Get gather objects
             DateTime dateBeginGatherObjects = DateTime.Now;
             foreach (ModelQuest quest in result) {
-            foreach (ModelQuest quest in result)
-            {
                 int nbExploreObjectives = quest.ExplorationObjectives.Count;
                 // Add gather Objects
                 if (quest.RequiredItemId1 != 0) {
