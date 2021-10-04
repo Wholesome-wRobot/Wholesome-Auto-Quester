@@ -179,7 +179,7 @@ namespace Wholesome_Auto_Quester.Bot {
                         // (!(closestTask.TaskType == TaskType.Kill ||
                         //    closestTask.TaskType == TaskType.KillAndLoot) || ((WoWUnit) o).Level - myLevel <= 2)
                         || type == WoWObjectType.GameObject && wantedObjectEntries.Contains(entry))
-                       && o.GetRealDistance() < 40
+                       // && o.GetRealDistance() < 40
                        && IsObjectValidForTask(o, researchedTasks.Find(task => task.POIEntry == entry));
             });
 

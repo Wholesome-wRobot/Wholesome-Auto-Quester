@@ -33,8 +33,7 @@ namespace Wholesome_Auto_Quester.States
             }
         }
 
-        public override void Run()
-        {
+        public override void Run() {
             WoWObject npc = WAQTasks.TaskInProgressWoWObject;
             WAQTask task = WAQTasks.TaskInProgress;
             //Logger.Log($"******** [{task.POIEntry}] RUNNING {task.TaskType} TASK {ToolBox.GetTaskId(task)}  ********");
@@ -69,8 +68,10 @@ namespace Wholesome_Auto_Quester.States
                     Logger.Log($"We are close to {task.TaskName} position and no npc to kill&loot in sight. Time out for {task.Npc.SpawnTimeSecs}s");
                     task.PutTaskOnTimeout();
                     // MoveHelper.StopAllMove();
+                } else if (ToolBox.DangerousEnemiesAtLocation(task.Location)) {
+                    Logger.Log($"We are close to {task.TaskName} position and found dangerous mobs. Time out for {task.Npc.SpawnTimeSecs}s");
+                    task.PutTaskOnTimeout();
                 }
-                Thread.Sleep(100);
             }
         }
     }

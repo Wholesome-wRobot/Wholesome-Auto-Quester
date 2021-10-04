@@ -538,6 +538,16 @@ namespace Wholesome_Auto_Quester.Helpers {
             return false;
         }
 
+        public static bool DangerousEnemiesAtLocation(Vector3 location) {
+            uint myLevel = ObjectManager.Me.Level;
+            return ObjectManager.GetWoWUnitHostile().Any(unit => {
+                float distance = unit.PositionWithoutType.DistanceTo(location);
+                if (distance > 40 || distance > unit.AggroDistance + 3) return false;
+                uint unitLevel = unit.Level;
+                return unitLevel > myLevel + 2 || unitLevel > myLevel && unit.IsElite;
+            });
+        }
+
         // public static string GetTaskId(WAQTask task) => task.TaskId;
 
         // public static string GetTaskIdLegacy(WAQTask task) {

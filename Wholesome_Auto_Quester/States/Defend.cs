@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using FlXProfiles;
 using robotManager.FiniteStateMachine;
 using robotManager.Helpful;
 using Wholesome_Auto_Quester.Helpers;
+using wManager;
+using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
@@ -63,6 +66,8 @@ namespace Wholesome_Auto_Quester.States {
                     .Select(unit =>
                         new Tuple<WoWUnit, Vector3, int>(unit, unit.PositionWithoutType, unit.AggroDistance)).ToArray();
 
+                // uint myLevel = ObjectManager.Me.Level;
+                // bool isAvoiding = false;
                 int numEnemiesOnPath = 0;
                 for (var i = ToolBox.GetIndexOfClosestPoint(path); i < path.Count - 1; i++) {
                     if (myPos.DistanceTo(path[i + 1]) > 26) break;
@@ -72,6 +77,14 @@ namespace Wholesome_Auto_Quester.States {
                         float distance = myPos.DistanceTo(position);
                         if(ToolBox.PointDistanceToLine(path[i], path[i + 1], position) < aggroRange + 3 &&
                            unit.IsAttackable) {
+                            // TODO: Use normal navigator for enemy avoidance to path after last enemy found if dangerous
+                            // TODO: Add DangerousMob check to all States
+                            // uint unitLevel = unit.Level;
+                            // if (unitLevel > myLevel + 2 || unitLevel > myLevel && unit.IsElite) {
+                            //     Logging.Write($"Trying to avoid {unit.Name}");
+                            //     wManagerSetting.AddBlackListZone(position, aggroRange + 15, true);
+                            //     isAvoiding = true;
+                            // }
                             numEnemiesOnPath++;
                             if (distance < targetDistance) {
                                 target = unit;
@@ -80,6 +93,14 @@ namespace Wholesome_Auto_Quester.States {
                         }
                     }
                 }
+
+                // if (isAvoiding && MoveHelper.IsMovementThreadRunning) {
+                //     Logging.Write($"Generating new path without dangerous enemies.");
+                //     MoveHelper.StartGoToThread(MoveHelper.CurrentMovementTarget, false);
+                //     Thread.Sleep(250);
+                //     wManagerSetting.ClearBlacklistOfCurrentProductSession();
+                //     return false;
+                // }
 
                 if (numEnemiesOnPath >= 3 || myPos.DistanceTo(MoveHelper.CurrentMovementTarget) < 80f) {
                     _defendTarget = target;
