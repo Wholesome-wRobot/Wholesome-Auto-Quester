@@ -556,39 +556,37 @@ namespace Wholesome_Auto_Quester.Helpers {
 
         public static string GetWoWVersion() => Lua.LuaDoString<string>("v, b, d, t = GetBuildInfo(); return v");
 
-        public static Factions GetFaction() {
-            switch (ObjectManager.Me.Faction) {
-                case (uint) PlayerFactions.Human: return Factions.Human;
-                case (uint) PlayerFactions.Orc: return Factions.Orc;
-                case (uint) PlayerFactions.Dwarf: return Factions.Dwarf;
-                case (uint) PlayerFactions.NightElf: return Factions.NightElf;
-                case (uint) PlayerFactions.Undead: return Factions.Undead;
-                case (uint) PlayerFactions.Tauren: return Factions.Tauren;
-                case (uint) PlayerFactions.Gnome: return Factions.Gnome;
-                case (uint) PlayerFactions.Troll: return Factions.Troll;
-                case (uint) PlayerFactions.Goblin: return Factions.Goblin;
-                case (uint) PlayerFactions.BloodElf: return Factions.BloodElf;
-                case (uint) PlayerFactions.Draenei: return Factions.Draenei;
-                case (uint) PlayerFactions.Worgen: return Factions.Worgen;
-                default: return Factions.Unknown;
-            }
-        }
+        public static Factions GetFaction() =>
+            (PlayerFactions) ObjectManager.Me.Faction switch {
+                PlayerFactions.Human => Factions.Human,
+                PlayerFactions.Orc => Factions.Orc,
+                PlayerFactions.Dwarf => Factions.Dwarf,
+                PlayerFactions.NightElf => Factions.NightElf,
+                PlayerFactions.Undead => Factions.Undead,
+                PlayerFactions.Tauren => Factions.Tauren,
+                PlayerFactions.Gnome => Factions.Gnome,
+                PlayerFactions.Troll => Factions.Troll,
+                PlayerFactions.Goblin => Factions.Goblin,
+                PlayerFactions.BloodElf => Factions.BloodElf,
+                PlayerFactions.Draenei => Factions.Draenei,
+                PlayerFactions.Worgen => Factions.Worgen,
+                _ => Factions.Unknown
+            };
 
-        public static Classes GetClass() {
-            switch (ObjectManager.Me.WowClass) {
-                case WoWClass.Warrior: return Classes.Warrior;
-                case WoWClass.Paladin: return Classes.Paladin;
-                case WoWClass.Hunter: return Classes.Hunter;
-                case WoWClass.Rogue: return Classes.Rogue;
-                case WoWClass.Priest: return Classes.Priest;
-                case WoWClass.DeathKnight: return Classes.DeathKnight;
-                case WoWClass.Shaman: return Classes.Shaman;
-                case WoWClass.Mage: return Classes.Mage;
-                case WoWClass.Warlock: return Classes.Warlock;
-                case WoWClass.Druid: return Classes.Druid;
-                default: return Classes.Unknown;
-            }
-        }
+        public static Classes GetClass() =>
+            ObjectManager.Me.WowClass switch {
+                WoWClass.Warrior => Classes.Warrior,
+                WoWClass.Paladin => Classes.Paladin,
+                WoWClass.Hunter => Classes.Hunter,
+                WoWClass.Rogue => Classes.Rogue,
+                WoWClass.Priest => Classes.Priest,
+                WoWClass.DeathKnight => Classes.DeathKnight,
+                WoWClass.Shaman => Classes.Shaman,
+                WoWClass.Mage => Classes.Mage,
+                WoWClass.Warlock => Classes.Warlock,
+                WoWClass.Druid => Classes.Druid,
+                _ => Classes.Unknown
+            };
 
         // Calculate real walking distance
         public static float CalculatePathTotalDistance(Vector3 from, Vector3 to) {
