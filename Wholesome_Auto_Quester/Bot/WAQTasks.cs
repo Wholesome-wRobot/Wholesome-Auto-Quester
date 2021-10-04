@@ -2,12 +2,15 @@
 using System.Linq;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
+using wManager;
+using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 using static wManager.Wow.Helpers.Quest.PlayerQuest;
 
 namespace Wholesome_Auto_Quester.Bot {
     public class WAQTasks {
+        private static int _tick;
         public static List<WAQTask> TasksPile { get; set; } = new List<WAQTask>();
         public static List<ModelQuest> Quests { get; set; } = new List<ModelQuest>();
         public static WAQTask TaskInProgress { get; set; }
@@ -29,6 +32,8 @@ namespace Wholesome_Auto_Quester.Bot {
             //Logger.Log("Update tasks");
             var generatedTasks = new List<WAQTask>();
             int myContinent = Usefuls.ContinentId;
+            ToolBox.UpdateObjectiveCompletionDict(Quests.Where(quest => quest.Status == QuestStatus.InProgress)
+                .Select(quest => quest.Id).ToArray());
             foreach (ModelQuest quest in Quests) {
                 // Completed
                 if (quest.Status == QuestStatus.Completed || quest.Status == QuestStatus.Blacklisted) {
@@ -42,7 +47,7 @@ namespace Wholesome_Auto_Quester.Bot {
                     quest.QuestTurners.ForEach(qt => {
                         if (qt.Map == myContinent
                             && !TasksPile.Exists(t =>
-                                ToolBox.GetTaskId(t) == ToolBox.GetTaskId(TaskType.TurnInQuest, quest.Id, 5, qt.Guid)))
+                                t.IsSameTask(TaskType.TurnInQuest, quest.Id, 5, () => qt.Guid)))
                             generatedTasks.Add(new WAQTask(TaskType.TurnInQuest, qt, quest, 5));
                     });
                     continue;
@@ -54,7 +59,7 @@ namespace Wholesome_Auto_Quester.Bot {
                     quest.QuestGivers.ForEach(qg => {
                         if (qg.Map == myContinent
                             && !TasksPile.Exists(t =>
-                                ToolBox.GetTaskId(t) == ToolBox.GetTaskId(TaskType.PickupQuest, quest.Id, 6, qg.Guid)))
+                                t.IsSameTask(TaskType.PickupQuest, quest.Id, 6, () => qg.Guid)))
                             generatedTasks.Add(new WAQTask(TaskType.PickupQuest, qg, quest, 6));
                     });
                     continue;
@@ -67,10 +72,10 @@ namespace Wholesome_Auto_Quester.Bot {
 
                     // Explore
                     foreach (ExplorationObjective areaObjective in quest.ExplorationObjectives)
-                        if (!Quest.IsObjectiveComplete(areaObjective.objectiveIndex, quest.Id)) {
+                        if (!ToolBox.GetObjectiveCompletion(areaObjective.objectiveIndex, quest.Id)) {
                             if (areaObjective.area.ContinentId == myContinent
                                 && !TasksPile.Exists(t =>
-                                    ToolBox.GetTaskId(t) == ToolBox.GetTaskId(TaskType.Explore, quest.Id,
+                                    t.IsSameTask(TaskType.Explore, quest.Id,
                                         areaObjective.objectiveIndex)))
                                 generatedTasks.Add(new WAQTask(TaskType.Explore, areaObjective.area, quest,
                                     areaObjective.objectiveIndex));
@@ -82,12 +87,12 @@ namespace Wholesome_Auto_Quester.Bot {
 
                     // Kill & Loot
                     foreach (CreatureToLootObjective lootObjective in quest.CreaturesToLootObjectives)
-                        if (!Quest.IsObjectiveComplete(lootObjective.objectiveIndex, quest.Id))
+                        if (!ToolBox.GetObjectiveCompletion(lootObjective.objectiveIndex, quest.Id))
                             lootObjective.worldCreatures.ForEach(wc => {
                                 if (wc.Map == myContinent
                                     && !TasksPile.Exists(t =>
-                                        ToolBox.GetTaskId(t) == ToolBox.GetTaskId(TaskType.KillAndLoot, quest.Id,
-                                            lootObjective.objectiveIndex, wc.Guid)))
+                                        t.IsSameTask(TaskType.KillAndLoot, quest.Id,
+                                            lootObjective.objectiveIndex, () => wc.Guid)))
                                     generatedTasks.Add(new WAQTask(TaskType.KillAndLoot, wc, quest,
                                         lootObjective.objectiveIndex));
                             });
@@ -98,12 +103,12 @@ namespace Wholesome_Auto_Quester.Bot {
 
                     // Kill
                     foreach (CreaturesToKillObjective killObjective in quest.CreaturesToKillObjectives)
-                        if (!Quest.IsObjectiveComplete(killObjective.objectiveIndex, quest.Id))
+                        if (!ToolBox.GetObjectiveCompletion(killObjective.objectiveIndex, quest.Id))
                             killObjective.worldCreatures.ForEach(wc => {
                                 if (wc.Map == myContinent
                                     && !TasksPile.Exists(t =>
-                                        ToolBox.GetTaskId(t) == ToolBox.GetTaskId(TaskType.Kill, quest.Id,
-                                            killObjective.objectiveIndex, wc.Guid)))
+                                        t.IsSameTask(TaskType.Kill, quest.Id,
+                                            killObjective.objectiveIndex, () => wc.Guid)))
                                     generatedTasks.Add(new WAQTask(TaskType.Kill, wc, quest,
                                         killObjective.objectiveIndex));
                             });
@@ -114,12 +119,12 @@ namespace Wholesome_Auto_Quester.Bot {
 
                     // Gather object
                     foreach (GatherObjectObjective gatherObjective in quest.GatherObjectsObjectives)
-                        if (!Quest.IsObjectiveComplete(gatherObjective.objectiveIndex, quest.Id))
+                        if (!ToolBox.GetObjectiveCompletion(gatherObjective.objectiveIndex, quest.Id))
                             gatherObjective.worldObjects.ForEach(wo => {
                                 if (wo.Map == myContinent
                                     && !TasksPile.Exists(t =>
-                                        ToolBox.GetTaskId(t) == ToolBox.GetTaskId(TaskType.GatherObject, quest.Id,
-                                            gatherObjective.objectiveIndex, wo.Guid)))
+                                        t.IsSameTask(TaskType.GatherObject, quest.Id,
+                                            gatherObjective.objectiveIndex, () => wo.Guid)))
                                     generatedTasks.Add(new WAQTask(TaskType.GatherObject, wo, quest,
                                         gatherObjective.objectiveIndex));
                             });
@@ -131,7 +136,9 @@ namespace Wholesome_Auto_Quester.Bot {
             }
 
             TasksPile.AddRange(generatedTasks);
-            TasksPile = TasksPile.OrderBy(t => t.Priority).ToList();
+            WAQTask.UpdatePriorityData();
+            TasksPile = TasksPile.Where(task => !wManagerSetting.IsBlackListedZone(task.Location))
+                .OrderBy(t => t.Priority).ToList();
 
             // Filter far away new quests if we still have quests to turn in
             // if (TasksPile.Any(task => task.Quest.ShouldQuestBeFinished())) {
@@ -163,13 +170,19 @@ namespace Wholesome_Auto_Quester.Bot {
             // Look for surrounding POIs
             List<WoWObject> surroundingWoWObjects = ObjectManager.GetObjectWoW();
 
-            List<WoWObject> filteredSurroundingObjects = surroundingWoWObjects.FindAll(o =>
-                (o is WoWUnit || o is WoWGameObject)
-                && (wantedUnitEntries.Contains(o.Entry) && o is WoWUnit ||
-                    wantedObjectEntries.Contains(o.Entry) && o is WoWGameObject)
-                && o.GetRealDistance() < 40
-                && IsObjectValidForTask(o, researchedTasks.Find(task => task.POIEntry == o.Entry)
-                ));
+            var myLevel = (int) ObjectManager.Me.Level;
+
+            List<WoWObject> filteredSurroundingObjects = surroundingWoWObjects.FindAll(o => {
+                int entry = o.Entry;
+                WoWObjectType type = o.Type;
+                return (type == WoWObjectType.Unit && wantedUnitEntries.Contains(entry) &&
+                        (!(closestTask.TaskType == TaskType.Kill ||
+                           closestTask.TaskType == TaskType.KillAndLoot) || ((WoWUnit) o).Level - myLevel <= 2)
+                        || type == WoWObjectType.GameObject &&
+                        wantedObjectEntries.Contains(entry))
+                       && o.GetRealDistance() < 40
+                       && IsObjectValidForTask(o, researchedTasks.Find(task => task.POIEntry == entry));
+            });
 
             if (filteredSurroundingObjects.Count > 0) {
                 TaskInProgressWoWObject = filteredSurroundingObjects.TakeHighest(
@@ -185,7 +198,7 @@ namespace Wholesome_Auto_Quester.Bot {
             TaskInProgress = closestTask;
             // Logger.Log($"Active task is {TaskInProgress?.TaskName} - {TaskInProgress?.GetDistance} - {TaskInProgress?.Location.ToStringNewVector()}");
 
-            Main.QuestTrackerGui.UpdateTasksList();
+            if (_tick++ % 5 == 0) Main.QuestTrackerGui.UpdateTasksList();
         }
 
         private static bool IsObjectValidForTask(WoWObject wowObject, WAQTask task) {
@@ -205,6 +218,10 @@ namespace Wholesome_Auto_Quester.Bot {
         }
 
         public static void UpdateStatuses() {
+            ToolBox.UpdateCompletedQuests();
+            Dictionary<int, Quest.PlayerQuest> currentQuests = Quest.GetLogQuestId().ToDictionary(quest => quest.ID);
+            ModelQuest[] completedQuests =
+                Quests.Where(q => q.Status == QuestStatus.Completed && q.PreviousQuestsIds.Count > 0).ToArray();
             // Update quests statuses
             foreach (ModelQuest quest in Quests) {
                 // Quest blacklisted
@@ -215,43 +232,43 @@ namespace Wholesome_Auto_Quester.Bot {
 
                 // Quest completed
                 if (quest.IsCompleted
-                    || Quests.Any(q => q.Status == QuestStatus.Completed && q.PreviousQuestsIds.Contains(quest.Id))) {
+                    || completedQuests.Any(q => q.PreviousQuestsIds.Contains(quest.Id))) {
                     quest.Status = QuestStatus.Completed;
                     continue;
                 }
 
                 // Quest to pickup
                 if (quest.IsPickable()
-                    && !Quest.HasQuest(quest.Id)) {
+                    && !currentQuests.ContainsKey(quest.Id)) {
                     quest.Status = QuestStatus.ToPickup;
                     continue;
                 }
 
                 // Log quests
-                if (Quest.GetLogQuestId().Exists(q => q.ID == quest.Id)) {
+                if (currentQuests.TryGetValue(quest.Id, out Quest.PlayerQuest foundQuest)) {
                     // Quest to turn in
-                    if (Quest.GetLogQuestId().Find(q => q.ID == quest.Id).State == StateFlag.Complete) {
+                    if (foundQuest.State == StateFlag.Complete) {
                         quest.Status = QuestStatus.ToTurnIn;
                         continue;
                     }
 
                     // Quest failed
-                    if (Quest.GetLogQuestId().Find(q => q.ID == quest.Id).State == StateFlag.Failed) {
+                    if (foundQuest.State == StateFlag.Failed) {
                         quest.Status = QuestStatus.Failed;
                         continue;
                     }
 
                     // Quest in progress
-                    if (Quest.HasQuest(quest.Id)) {
-                        quest.Status = QuestStatus.InProgress;
-                        continue;
-                    }
+                    // if (Quest.HasQuest(quest.Id)) {
+                    quest.Status = QuestStatus.InProgress;
+                    continue;
+                    // }
                 }
 
                 quest.Status = QuestStatus.None;
             }
 
-            Main.QuestTrackerGui.UpdateQuestsList();
+            if (_tick++ % 5 == 0) Main.QuestTrackerGui.UpdateQuestsList();
         }
     }
 }

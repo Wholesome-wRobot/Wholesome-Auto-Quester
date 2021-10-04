@@ -67,7 +67,7 @@ namespace Wholesome_Auto_Quester.States {
                     MoveHelper.CurrentMovementTarget.DistanceTo(task.Location) > 8) {
                     if (task.GetDistance <= 12f) {
                         Logger.Log(
-                            $"We are close to {ToolBox.GetTaskId(task)} position and no NPC for pick-up in sight. Time out for {task.Npc.SpawnTimeSecs}s");
+                            $"We are close to {task.TaskName} position and no NPC for pick-up in sight. Time out for {task.Npc.SpawnTimeSecs}s");
                         task.PutTaskOnTimeout();
                         MoveHelper.StopAllMove();
                         return;

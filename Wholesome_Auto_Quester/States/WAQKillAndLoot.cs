@@ -47,24 +47,30 @@ namespace Wholesome_Auto_Quester.States
                 }
                 var killTarget = (WoWUnit) WAQTasks.TaskInProgressWoWObject;
                 if(MoveHelper.IsMovementThreadRunning) MoveHelper.StopAllMove();
-                Logger.Log($"Unit found - Fighting {killTarget.Name}");
                 MoveHelper.StopCurrentMovementThread();
-                Fight.StartFight(killTarget.Guid);
-                LootingTask.Pulse(new List<WoWUnit> { killTarget });
+                if(killTarget.IsAlive) {
+                    Logger.Log($"Unit found - Fighting {killTarget.Name}");
+                    Fight.StartFight(killTarget.Guid);
+                }
                 Thread.Sleep(200);
+                if (killTarget.IsLootable) {
+                    Logger.Log($"Looting {killTarget.Name}");
+                    LootingTask.Pulse(new List<WoWUnit> { killTarget });
+                }
             }
             else
             {
                 if (!MoveHelper.IsMovementThreadRunning ||
                     MoveHelper.CurrentMovementTarget.DistanceTo(task.Location) > 8) {
                     Logger.Log($"Moving to Hotspot for {task.Quest.LogTitle} (Kill&Loot).");
-                    MoveHelper.StartGoToThread(task.Location, randomizeEnd: 8f);
+                    MoveHelper.StartGoToThread(task.Location, face: !MoveHelper.IsMovementThreadRunning, randomizeEnd: 8f);
                 }
                 if (task.GetDistance <= 12f) {
-                    Logger.Log($"We are close to {ToolBox.GetTaskId(task)} position and no npc to kill&loot in sight. Time out for {task.Npc.SpawnTimeSecs}s");
+                    Logger.Log($"We are close to {task.TaskName} position and no npc to kill&loot in sight. Time out for {task.Npc.SpawnTimeSecs}s");
                     task.PutTaskOnTimeout();
-                    MoveHelper.StopAllMove();
+                    // MoveHelper.StopAllMove();
                 }
+                Thread.Sleep(100);
             }
         }
     }

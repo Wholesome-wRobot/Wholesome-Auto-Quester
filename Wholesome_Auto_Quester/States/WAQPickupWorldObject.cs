@@ -64,7 +64,7 @@ namespace Wholesome_Auto_Quester.States {
                 
                 if (task.GetDistance <= 12f) {
                     Logger.Log(
-                        $"We are close to {ToolBox.GetTaskId(task)} position and no object to gather in sight. Time out for {task.GatherObject.SpawnTimeSecs}s");
+                        $"We are close to {task.TaskName} position and no object to gather in sight. Time out for {task.GatherObject.SpawnTimeSecs}s");
                     task.PutTaskOnTimeout();
                     MoveHelper.StopAllMove();
                 }
