@@ -175,11 +175,10 @@ namespace Wholesome_Auto_Quester.Bot {
             List<WoWObject> filteredSurroundingObjects = surroundingWoWObjects.FindAll(o => {
                 int entry = o.Entry;
                 WoWObjectType type = o.Type;
-                return (type == WoWObjectType.Unit && wantedUnitEntries.Contains(entry) &&
-                        (!(closestTask.TaskType == TaskType.Kill ||
-                           closestTask.TaskType == TaskType.KillAndLoot) || ((WoWUnit) o).Level - myLevel <= 2)
-                        || type == WoWObjectType.GameObject &&
-                        wantedObjectEntries.Contains(entry))
+                return (type == WoWObjectType.Unit && wantedUnitEntries.Contains(entry) // &&
+                        // (!(closestTask.TaskType == TaskType.Kill ||
+                        //    closestTask.TaskType == TaskType.KillAndLoot) || ((WoWUnit) o).Level - myLevel <= 2)
+                        || type == WoWObjectType.GameObject && wantedObjectEntries.Contains(entry))
                        && o.GetRealDistance() < 40
                        && IsObjectValidForTask(o, researchedTasks.Find(task => task.POIEntry == entry));
             });
