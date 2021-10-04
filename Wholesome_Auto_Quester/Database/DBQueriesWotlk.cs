@@ -21,7 +21,7 @@ namespace Wholesome_Auto_Quester.Database {
             _database.Dispose();
         }
 
-        private List<ModelQuest> FilterDBQuests(List<ModelQuest> dbResult)
+        private static List<ModelQuest> FilterDBQuests(List<ModelQuest> dbResult)
         {
             List<ModelQuest> result = new List<ModelQuest>();
 
