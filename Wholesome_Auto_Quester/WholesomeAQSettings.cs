@@ -17,15 +17,18 @@ namespace Wholesome_Auto_Quester
         {
             LogDebug = false;
             ActivateQuestsGUI = false;
+            DevMode = false;
             ListCompletedQuests = new List<int>();
 
             BlacklistesQuests = new List<int>()
             {
                 5441, // Lazy Peons
+                354, // Roaming mobs, hard to find in a hostile zone
             };
         }
 
         public bool LogDebug { get; set; }
+        public bool DevMode { get; set; }
         public bool ActivateQuestsGUI { get; set; }
         public List<int> ListCompletedQuests { get; set; }
         public List<int> BlacklistesQuests { get; set; }

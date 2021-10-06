@@ -45,7 +45,7 @@
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>latest</LangVersion>
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
@@ -95,8 +95,7 @@
       <HintPath>..\Dependencies\robotManager.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="SmoothMove, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="SmoothMove">
       <HintPath>..\Dependencies\SmoothMove.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -355,8 +354,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>COPY /Y "$(ProjectDir)bin\Release\Wholesome_Auto_Quester.dll" "E:\Games\World of Warcraft\WRobot\Products\Wholesome_Auto_Quester.dll"
-start "WRobot" "E:\Games\World of Warcraft\WRobot\WRobot.exe" AutoAttachAndLog=true</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y/F "F:\WoW\WoW Wotlk\WRobot WOTLK\Products\Wholesome_Auto_Quester.dll" "$(ProjectDir)\Compiled"</PostBuildEvent>
   </PropertyGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

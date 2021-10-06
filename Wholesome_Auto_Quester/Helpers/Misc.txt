@@ -1,4 +1,27 @@
-﻿["Eastern Kingdoms"] = {
+﻿CREATE INDEX `idx_areatrigger_id` ON `areatrigger` (`Id`);
+CREATE INDEX `idx_areatrigger_involvedrelation_id` ON `areatrigger_involvedrelation` (`Id`);
+CREATE INDEX `idx_areatrigger_involvedrelation_quest` ON `areatrigger_involvedrelation` (`quest`);
+CREATE INDEX `idx_creature_id` ON `creature` (`id`);
+CREATE INDEX `idx_creature_loot_template_entry` ON `creature_loot_template` (`Entry`);
+CREATE INDEX `idx_creature_loot_template_item` ON `creature_loot_template` (`Item`);
+CREATE INDEX `idx_creature_questender_id` ON `creature_questender` (`id`);
+CREATE INDEX `idx_creature_questender_quest` ON `creature_questender` (`quest`);
+CREATE INDEX `idx_creature_queststarter_id` ON `creature_queststarter` (`id`);
+CREATE INDEX `idx_creature_queststarter_quest` ON `creature_queststarter` (`quest`);
+CREATE UNIQUE INDEX `idx_creature_template_entry` ON `creature_template` (`entry`);
+CREATE INDEX `idx_gameobject_id` ON `gameobject` (`id`);
+CREATE INDEX `idx_gameobject_loot_template_entry` ON `gameobject_loot_template` (`Entry`);
+CREATE INDEX `idx_gameobject_loot_template_item` ON `gameobject_loot_template` (`Item`);
+CREATE INDEX `idx_gameobject_template_data1` ON `gameobject_template` (`Data1`);
+CREATE UNIQUE INDEX `idx_gameobject_template_entry` ON `gameobject_template` (`entry`);
+CREATE UNIQUE INDEX `idx_item_template_entry` ON `item_template` (`entry`);
+CREATE UNIQUE INDEX `idx_quest_template_id` ON `quest_template` (`ID`);
+CREATE UNIQUE INDEX `idx_quest_template_addon_id` ON `quest_template_addon` (`ID`);
+CREATE INDEX `idx_quest_template_addon_nextquestid` ON `quest_template_addon` (`NextQuestId`);
+CREATE INDEX `idx_quest_template_addon_prevquestid` ON `quest_template_addon` (`PrevQuestId`);
+
+
+["Eastern Kingdoms"] = {
 		{36,"Alterac Mountains"},
 		{45,"Arathi Highlands"},
 		{3,"Badlands"},
@@ -73,26 +96,3 @@
 
 
 	RegisterEvent("QUEST_PROGRESS")
-
-
-
-	
-
-            string query = $@"
-                    SELECT qt.ID Id, qt.AllowableRaces, qt.RequiredItemCount1, qt.RequiredItemCount2, qt.RequiredItemCount3, qt.RequiredItemCount4,
-                        qt.RequiredItemCount5, qt.RequiredItemCount6, qt.RequiredItemId1, qt.RequiredItemId2, qt.RequiredItemId3,
-                        qt.RequiredItemId4, qt.RequiredItemId5, qt.RequiredItemId6, qt.RequiredNpcOrGo1, qt.RequiredNpcOrGo2,
-                        qt.RequiredNpcOrGo3, qt.RequiredNpcOrGo4, qt.RequiredNpcOrGoCount1, qt.RequiredNpcOrGoCount2, qt.RequiredNpcOrGoCount3,
-                        qt.RequiredNpcOrGoCount1, qt.LogTitle, qt.QuestLevel, qta.AllowableClasses, qta.PrevQuestID, qta.NextQuestID,
-                        qta.RequiredSkillID, qta.RequiredSkillPoints
-                    FROM quest_template qt
-                    JOIN creature_queststarter cq
-                    ON qt.ID = cq.quest
-                    JOIN quest_template_addon qta
-                    ON qta.ID = qt.ID
-                    WHERE MinLevel <= {ObjectManager.Me.Level}
-                    AND (QuestLevel <= {ObjectManager.Me.Level + 2} AND QuestLevel > 0 AND QuestLevel > {ObjectManager.Me.Level - 5})
-                    AND (QuestType = 0 OR QuestType = 2)
-                    AND (AllowableClasses & {(uint)ToolBox.GetClass()} <> 0 OR AllowableClasses = 0)
-                    AND (AllowableRaces & {(uint)ToolBox.GetFaction()} <> 0 OR AllowableRaces = 0)
-                ";

@@ -22,7 +22,7 @@ namespace Wholesome_Auto_Quester.Database
                 baseDirectory = Others.GetCurrentDirectory + @"Data\WoWDb243";
 
             if (ToolBox.GetWoWVersion() == "3.3.5")
-                baseDirectory = Others.GetCurrentDirectory + @"Data\WoWDb335-quests;Cache=Shared;";
+                baseDirectory = Others.GetCurrentDirectory + @"Data\WoWDb335;Cache=Shared;";
 
             _con = new SQLiteConnection("Data Source=" + baseDirectory);
              _con.Open();
@@ -76,7 +76,7 @@ namespace Wholesome_Auto_Quester.Database
             }
 
             return dt;
-        }
+        }*/
 
         public void ExecuteQuery(string query)
         {
@@ -88,6 +88,6 @@ namespace Wholesome_Auto_Quester.Database
         {
             _cmd.CommandText = query;
             return _cmd.ExecuteScalar().ToString();
-        }*/
+        }
     }
 }

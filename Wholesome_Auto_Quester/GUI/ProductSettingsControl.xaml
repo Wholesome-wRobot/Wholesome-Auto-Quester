@@ -27,6 +27,8 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
@@ -58,6 +60,13 @@
         <Controls:ToggleSwitch Grid.Row="3" Grid.Column="1"  Margin="10,10,10,10"
                    HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="True" 
                                MouseLeave="ActivateQuestsGUIChanged" Name="ActivateQuestsGUI" OnLabel="" OffLabel="" />
+
+        <TextBlock Grid.Row="4" Grid.Column="0" Margin="10" 
+                   HorizontalAlignment="Right" VerticalAlignment="Center"  Text="Dev Mode :" FontSize="13"  />
+
+        <Controls:ToggleSwitch Grid.Row="4" Grid.Column="1"  Margin="10,10,10,10"
+                   HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="True" 
+                   MouseLeave="DevModeChanged" Name="DevMode" OnLabel="" OffLabel="" />
 
     </Grid>
 </UserControl>

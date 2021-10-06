@@ -34,6 +34,7 @@ namespace Wholesome_Auto_Quester.Bot {
             int myContinent = Usefuls.ContinentId;
             ToolBox.UpdateObjectiveCompletionDict(Quests.Where(quest => quest.Status == QuestStatus.InProgress)
                 .Select(quest => quest.Id).ToArray());
+            int myLevel = (int)ObjectManager.Me.Level;
             foreach (ModelQuest quest in Quests) {
                 // Completed
                 if (quest.Status == QuestStatus.Completed || quest.Status == QuestStatus.Blacklisted) {
@@ -90,6 +91,7 @@ namespace Wholesome_Auto_Quester.Bot {
                         if (!ToolBox.GetObjectiveCompletion(lootObjective.objectiveIndex, quest.Id))
                             lootObjective.worldCreatures.ForEach(wc => {
                                 if (wc.Map == myContinent
+                                    && wc.MaxLevel <= myLevel + 2
                                     && !TasksPile.Exists(t =>
                                         t.IsSameTask(TaskType.KillAndLoot, quest.Id,
                                             lootObjective.objectiveIndex, () => wc.Guid)))
@@ -106,6 +108,7 @@ namespace Wholesome_Auto_Quester.Bot {
                         if (!ToolBox.GetObjectiveCompletion(killObjective.objectiveIndex, quest.Id))
                             killObjective.worldCreatures.ForEach(wc => {
                                 if (wc.Map == myContinent
+                                    && wc.MaxLevel <= myLevel + 2
                                     && !TasksPile.Exists(t =>
                                         t.IsSameTask(TaskType.Kill, quest.Id,
                                             killObjective.objectiveIndex, () => wc.Guid)))
@@ -170,8 +173,6 @@ namespace Wholesome_Auto_Quester.Bot {
             // Look for surrounding POIs
             List<WoWObject> surroundingWoWObjects = ObjectManager.GetObjectWoW();
 
-            var myLevel = (int) ObjectManager.Me.Level;
-
             List<WoWObject> filteredSurroundingObjects = surroundingWoWObjects.FindAll(o => {
                 int entry = o.Entry;
                 WoWObjectType type = o.Type;
@@ -179,7 +180,7 @@ namespace Wholesome_Auto_Quester.Bot {
                         // (!(closestTask.TaskType == TaskType.Kill ||
                         //    closestTask.TaskType == TaskType.KillAndLoot) || ((WoWUnit) o).Level - myLevel <= 2)
                         || type == WoWObjectType.GameObject && wantedObjectEntries.Contains(entry))
-                       // && o.GetRealDistance() < 40
+                       && o.GetRealDistance() < 60
                        && IsObjectValidForTask(o, researchedTasks.Find(task => task.POIEntry == entry));
             });
 

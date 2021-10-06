@@ -10,6 +10,13 @@ namespace Wholesome_Auto_Quester.GUI
             InitializeComponent();
             LogDebug.IsChecked = WholesomeAQSettings.CurrentSetting.LogDebug;
             ActivateQuestsGUI.IsChecked = WholesomeAQSettings.CurrentSetting.ActivateQuestsGUI;
+            DevMode.IsChecked = WholesomeAQSettings.CurrentSetting.DevMode;
+        }
+
+        private void DevModeChanged(object sender, RoutedEventArgs e)
+        {
+            WholesomeAQSettings.CurrentSetting.DevMode = (bool)DevMode.IsChecked;
+            WholesomeAQSettings.CurrentSetting.Save();
         }
 
         private void LogDebugChanged(object sender, RoutedEventArgs e)
