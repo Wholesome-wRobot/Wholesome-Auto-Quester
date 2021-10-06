@@ -29,6 +29,7 @@ namespace Wholesome_Auto_Quester.Bot {
             //Logger.Log("Update tasks");
             var generatedTasks = new List<WAQTask>();
             int myContinent = Usefuls.ContinentId;
+            int myLevel = (int)ObjectManager.Me.Level;
             foreach (ModelQuest quest in Quests) {
                 // Completed
                 if (quest.Status == QuestStatus.Completed || quest.Status == QuestStatus.Blacklisted) {
@@ -85,6 +86,7 @@ namespace Wholesome_Auto_Quester.Bot {
                         if (!Quest.IsObjectiveComplete(lootObjective.objectiveIndex, quest.Id))
                             lootObjective.worldCreatures.ForEach(wc => {
                                 if (wc.Map == myContinent
+                                    && wc.MaxLevel <= myLevel + 2
                                     && !TasksPile.Exists(t =>
                                         ToolBox.GetTaskId(t) == ToolBox.GetTaskId(TaskType.KillAndLoot, quest.Id,
                                             lootObjective.objectiveIndex, wc.Guid)))
@@ -101,6 +103,7 @@ namespace Wholesome_Auto_Quester.Bot {
                         if (!Quest.IsObjectiveComplete(killObjective.objectiveIndex, quest.Id))
                             killObjective.worldCreatures.ForEach(wc => {
                                 if (wc.Map == myContinent
+                                    && wc.MaxLevel <= myLevel + 2
                                     && !TasksPile.Exists(t =>
                                         ToolBox.GetTaskId(t) == ToolBox.GetTaskId(TaskType.Kill, quest.Id,
                                             killObjective.objectiveIndex, wc.Guid)))
@@ -167,7 +170,7 @@ namespace Wholesome_Auto_Quester.Bot {
                 (o is WoWUnit || o is WoWGameObject)
                 && (wantedUnitEntries.Contains(o.Entry) && o is WoWUnit ||
                     wantedObjectEntries.Contains(o.Entry) && o is WoWGameObject)
-                && o.GetRealDistance() < 40
+                && o.GetRealDistance() < 60
                 && IsObjectValidForTask(o, researchedTasks.Find(task => task.POIEntry == o.Entry)
                 ));
 

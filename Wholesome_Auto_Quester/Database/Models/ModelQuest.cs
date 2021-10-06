@@ -23,10 +23,15 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int Id { get; set; }
         public int AllowableClasses { get; set; }
         public int AllowableRaces { get; set; }
+        public string AreaDescription { get; set; }
         public string LogTitle { get; set; }
         public int MinLevel { get; set; }
         public int NextQuestID { get; set; }
         public int NextQuestInChain { get; set; } // TBC DB Only
+        public string ObjectiveText1 { get; set; }
+        public string ObjectiveText2 { get; set; }
+        public string ObjectiveText3 { get; set; }
+        public string ObjectiveText4 { get; set; }
         public int PrevQuestID { get; set; }
         public int QuestLevel { get; set; }
         public int QuestSortID { get; set; }
@@ -82,6 +87,15 @@ namespace Wholesome_Auto_Quester.Database.Models
         public bool IsCompleted => ToolBox.IsQuestCompleted(Id);
         public string TrackerColor => WAQTasks.TaskInProgress?.Quest.Id == Id ? "White" : _trackerColorsDictionary[Status];
 
+        public string GetObjectiveText(int objectiveIndex)
+        {
+            if (objectiveIndex == 1) return ObjectiveText1;
+            if (objectiveIndex == 2) return ObjectiveText2;
+            if (objectiveIndex == 3) return ObjectiveText3;
+            if (objectiveIndex == 4) return ObjectiveText4;
+            return "N/A";
+        }
+
         private readonly Dictionary<QuestStatus, string> _trackerColorsDictionary = new Dictionary<QuestStatus, string>
         {
             {  QuestStatus.Completed, "SkyBlue"},
@@ -101,10 +115,10 @@ namespace Wholesome_Auto_Quester.Database.Models
         public List<ModelNpc> worldCreatures;
         public int objectiveIndex;
 
-        public CreaturesToKillObjective(int amount, int id, List<ModelNpc> worldCreatures, int objectiveIndex)
+        public CreaturesToKillObjective(int amount, List<ModelNpc> worldCreatures, int objectiveIndex)
         {
             this.amount = amount;
-            this.id = id;
+            this.id = worldCreatures.Count > 0 ? worldCreatures[0].Id : -1;
             this.worldCreatures = worldCreatures;
             this.objectiveIndex = objectiveIndex;
         }
@@ -119,11 +133,11 @@ namespace Wholesome_Auto_Quester.Database.Models
         public List<ModelNpc> worldCreatures;
         public int objectiveIndex;
 
-        public CreatureToLootObjective(int amount, string itemName, List<ModelNpc> worldCreatures, int objectiveIndex)
+        public CreatureToLootObjective(int amount, List<ModelNpc> worldCreatures, int objectiveIndex)
         {
             this.amount = amount;
             this.worldCreatures = worldCreatures;
-            this.itemName = itemName;
+            this.itemName = worldCreatures.Count > 0 ? worldCreatures[0].ItemName : "N/A";
             this.objectiveIndex = objectiveIndex;
         }
 
@@ -137,15 +151,15 @@ namespace Wholesome_Auto_Quester.Database.Models
         public List<ModelGatherObject> worldObjects;
         public int objectiveIndex;
 
-        public GatherObjectObjective(int amount, int id, List<ModelGatherObject> worldObjects, int objectiveIndex)
+        public GatherObjectObjective(int amount, List<ModelGatherObject> worldObjects, int objectiveIndex)
         {
             this.amount = amount;
-            this.id = id;
+            this.id = worldObjects[0].Entry;
             this.worldObjects = worldObjects;
             this.objectiveIndex = objectiveIndex;
         }
 
-        public string GetName => worldObjects.Count > 0 ? worldObjects[0].Name : "N/A";
+        public string GetName => worldObjects?.Count > 0 ? worldObjects[0].Name : "N/A";
     }
 
     public struct ExplorationObjective

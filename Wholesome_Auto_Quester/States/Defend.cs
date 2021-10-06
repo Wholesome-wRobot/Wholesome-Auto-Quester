@@ -12,6 +12,7 @@ using wManager.Wow.ObjectManager;
 namespace Wholesome_Auto_Quester.States {
     internal class Defend : State {
         private WoWUnit _defendTarget;
+        public override string DisplayName { get; set; } = "Defend";
 
         public override void Run() {
             if (_defendTarget == null) return;

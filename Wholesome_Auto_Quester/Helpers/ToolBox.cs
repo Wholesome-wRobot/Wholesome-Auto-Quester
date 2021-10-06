@@ -268,7 +268,7 @@ namespace Wholesome_Auto_Quester.Helpers {
         public static Vector3 Position(this ModelNpc npc) => new Vector3(npc.PositionX, npc.PositionY, npc.PositionZ);
         
         public static bool WoWDBFileIsPresent() {
-            return File.Exists(Others.GetCurrentDirectory + @"\Data\WoWDb335-quests");
+            return File.Exists(Others.GetCurrentDirectory + @"\Data\WoWDb335");
         }
 
         public static bool JSONFileIsPresent() {
@@ -319,12 +319,13 @@ namespace Wholesome_Auto_Quester.Helpers {
                     using (var entryStream = entry.Open())
                         stream.CopyTo(entryStream);
                 }
-
+                /*
                 // Copy to Compiled folder
                 string compiledzip = @"F:\WoW\Dev\Wholesome-Auto-Quester\Wholesome_Auto_Quester\Compiled\WAQquests.zip";
                 if (File.Exists(compiledzip))
                     File.Delete(compiledzip);
                 File.Copy(Others.GetCurrentDirectory + @"\Data\WAQquests.zip", compiledzip);
+                */
             } catch (Exception e) {
                 Logger.LogError("ZipJSONFile > " + e.Message);
             }

@@ -1,6 +1,4 @@
 ﻿using robotManager.Helpful;
-using System.Collections.Generic;
-using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
@@ -14,6 +12,8 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int Id { get; set; }
         public int Guid { get; set; }
         public int Map { get; set; }
+        public int MinLevel { get; set; }
+        public int MaxLevel { get; set; }
         public float PositionX { get; set; }
         public float PositionY { get; set; }
         public float PositionZ { get; set; }
