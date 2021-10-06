@@ -15,7 +15,7 @@ namespace Wholesome_Auto_Quester.GUI
 
         private void DevModeChanged(object sender, RoutedEventArgs e)
         {
-            WholesomeAQSettings.CurrentSetting.DevMode = (bool)LogDebug.IsChecked;
+            WholesomeAQSettings.CurrentSetting.DevMode = (bool)DevMode.IsChecked;
             WholesomeAQSettings.CurrentSetting.Save();
         }
 
