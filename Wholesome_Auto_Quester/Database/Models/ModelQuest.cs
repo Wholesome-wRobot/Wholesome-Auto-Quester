@@ -24,6 +24,7 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int AllowableClasses { get; set; }
         public int AllowableRaces { get; set; }
         public string AreaDescription { get; set; }
+        public int Flags { get; set; }
         public string LogTitle { get; set; }
         public int MinLevel { get; set; }
         public int NextQuestID { get; set; }

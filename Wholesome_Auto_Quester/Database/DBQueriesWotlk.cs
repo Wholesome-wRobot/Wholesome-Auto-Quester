@@ -46,6 +46,8 @@ namespace Wholesome_Auto_Quester.Database {
                 if (q.AllowableRaces > 0 && (q.AllowableRaces & myFaction) == 0) continue;
                 // Quest is not for my faction
                 if (!q.QuestGivers.Any(qg => qg.IsNeutralOrFriendly)) continue;
+                // Quest is Dungeon/Group/Raid/PvP etc..
+                if (q.QuestInfoID != 0) continue;
 
                 result.Add(q);
             }
@@ -81,7 +83,7 @@ namespace Wholesome_Auto_Quester.Database {
             Logger.Log($"Process time (Indices) : {(DateTime.Now.Ticks - dateBeginIndices.Ticks) / 10000} ms");
 
             string query = $@"
-                    SELECT qt.ID Id, qt.AllowableRaces, qt.QuestSortID, qt.QuestInfoID, qt.QuestType, qt.StartItem, qt.TimeAllowed,
+                    SELECT qt.ID Id, qt.AllowableRaces, qt.QuestSortID, qt.QuestInfoID, qt.QuestType, qt.StartItem, qt.TimeAllowed, qt.Flags,
                         qt.RequiredItemCount1, qt.RequiredItemCount2, qt.RequiredItemCount3, qt.RequiredItemCount4,
                         qt.RequiredItemId1, qt.RequiredItemId2, qt.RequiredItemId3, qt.RequiredItemId4, 
                         qt.RequiredNpcOrGo1, qt.RequiredNpcOrGo2, qt.RequiredNpcOrGo3, qt.RequiredNpcOrGo4, 
