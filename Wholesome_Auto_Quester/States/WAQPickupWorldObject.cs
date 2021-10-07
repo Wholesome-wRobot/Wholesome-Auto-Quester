@@ -66,7 +66,10 @@ namespace Wholesome_Auto_Quester.States {
                     Logger.Log(
                         $"We are close to {task.TaskName} position and no object to gather in sight. Time out for {task.GatherObject.SpawnTimeSecs}s");
                     task.PutTaskOnTimeout();
-                    MoveHelper.StopAllMove();
+                    // MoveHelper.StopAllMove();
+                } else if (ToolBox.DangerousEnemiesAtLocation(task.Location)) {
+                    Logger.Log($"We are close to {task.TaskName} position and found dangerous mobs. Time out for {task.Npc.SpawnTimeSecs}s");
+                    task.PutTaskOnTimeout();
                 }
             }
         }

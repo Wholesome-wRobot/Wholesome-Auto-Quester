@@ -390,6 +390,7 @@ namespace Wholesome_Auto_Quester.Helpers {
                         stream.CopyTo(entryStream);
                     }
                 }
+
                 /*
                 // Copy to Compiled folder
                 var compiledzip = @"F:\WoW\Dev\Wholesome-Auto-Quester\Wholesome_Auto_Quester\Compiled\WAQquests.zip";
@@ -541,12 +542,17 @@ namespace Wholesome_Auto_Quester.Helpers {
 
         public static bool DangerousEnemiesAtLocation(Vector3 location) {
             uint myLevel = ObjectManager.Me.Level;
-            return ObjectManager.GetWoWUnitHostile().Any(unit => {
+            var unitCounter = 0;
+            foreach (WoWUnit unit in ObjectManager.GetWoWUnitHostile()) {
                 float distance = unit.PositionWithoutType.DistanceTo(location);
-                if (distance > 40 || distance > unit.AggroDistance + 3) return false;
+                if (distance > 40 || distance > unit.AggroDistance + 3) continue;
                 uint unitLevel = unit.Level;
-                return unitLevel > myLevel + 2 || unitLevel > myLevel && unit.IsElite;
-            });
+                if (unitLevel > myLevel + 2 || unitLevel > myLevel && unit.IsElite) return true;
+                if (unitLevel > myLevel - 2) unitCounter++;
+                if (unitCounter > 3) break;
+            }
+
+            return unitCounter > 3;
         }
 
         // public static string GetTaskId(WAQTask task) => task.TaskId;

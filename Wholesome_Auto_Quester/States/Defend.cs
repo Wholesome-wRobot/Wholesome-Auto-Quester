@@ -76,7 +76,7 @@ namespace Wholesome_Auto_Quester.States {
                     foreach (Tuple<WoWUnit, Vector3, int> foundUnit in possiblePathUnits) {
                         (WoWUnit unit, Vector3 position, int aggroRange) = foundUnit;
                         float distance = myPos.DistanceTo(position);
-                        if(ToolBox.PointDistanceToLine(path[i], path[i + 1], position) < aggroRange + 3 &&
+                        if(ToolBox.PointDistanceToLine(path[i], path[i + 1], position) < aggroRange + 1 &&
                            unit.IsAttackable) {
                             // TODO: Use normal navigator for enemy avoidance to path after last enemy found if dangerous
                             // TODO: Add DangerousMob check to all States

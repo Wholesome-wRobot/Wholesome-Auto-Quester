@@ -65,16 +65,14 @@ namespace Wholesome_Auto_Quester.States {
             } else {
                 if (!MoveHelper.IsMovementThreadRunning ||
                     MoveHelper.CurrentMovementTarget.DistanceTo(task.Location) > 8) {
-                    if (task.GetDistance <= 12f) {
-                        Logger.Log(
-                            $"We are close to {task.TaskName} position and no NPC for pick-up in sight. Time out for {task.Npc.SpawnTimeSecs}s");
-                        task.PutTaskOnTimeout();
-                        MoveHelper.StopAllMove();
-                        return;
-                    }
-
                     Logger.Log($"Moving to QuestGiver for {task.Quest.LogTitle} (PickUp).");
                     MoveHelper.StartGoToThread(task.Location, randomizeEnd: 8f);
+                }
+                if (task.GetDistance <= 12f) {
+                    Logger.Log(
+                        $"We are close to {task.TaskName} position and no NPC for pick-up in sight. Time out for {task.Npc.SpawnTimeSecs}s");
+                    task.PutTaskOnTimeout();
+                    MoveHelper.StopAllMove();
                 }
             }
         }

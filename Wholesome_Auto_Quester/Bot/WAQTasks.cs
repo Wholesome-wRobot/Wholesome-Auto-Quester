@@ -139,10 +139,7 @@ namespace Wholesome_Auto_Quester.Bot {
             }
 
             TasksPile.AddRange(generatedTasks);
-            WAQTask.UpdatePriorityData();
-            TasksPile = TasksPile.Where(task => !wManagerSetting.IsBlackListedZone(task.Location))
-                .OrderBy(t => t.Priority).ToList();
-
+            
             // Filter far away new quests if we still have quests to turn in
             // if (TasksPile.Any(task => task.Quest.ShouldQuestBeFinished())) {
             //     TasksPile.RemoveAll(task => task.TaskType == TaskType.PickupQuest && !Quests
@@ -151,6 +148,10 @@ namespace Wholesome_Auto_Quester.Bot {
             //             .Any(questToFinishGiver => task.Quest.QuestGivers.Any(taskQuestGiver =>
             //                 taskQuestGiver.Position().DistanceTo(questToFinishGiver.Position()) < 250))));
             // }
+            
+            WAQTask.UpdatePriorityData();
+            TasksPile = TasksPile.Where(task => !wManagerSetting.IsBlackListedZone(task.Location))
+                .OrderBy(t => t.Priority).ToList();
 
             WAQTask closestTask = TasksPile.Find(t => !t.IsTimedOut);
 

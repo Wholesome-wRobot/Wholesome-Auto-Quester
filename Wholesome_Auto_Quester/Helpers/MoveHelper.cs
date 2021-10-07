@@ -80,7 +80,7 @@ namespace FlXProfiles {
                 Task goToTask = Task.Factory.StartNew(()
                     => Move.GoTo(target, face, precise, randomizeEnd, randomization, cts.Token,
                         precision: precision, shortCut: shortCut, jumpRareness: jumpRareness,
-                        showPath: showPath), cts.Token).ContinueWith(
+                        showPath: showPath, avoidDangerousEnemies: true), cts.Token).ContinueWith(
                     task => ResetCurrentMovementCache(), cts.Token);
 
                 if (abortIf != null)

@@ -4,10 +4,8 @@ using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.ObjectManager;
 
-namespace Wholesome_Auto_Quester.Bot
-{
-    public class WAQTask
-    {
+namespace Wholesome_Auto_Quester.Bot {
+    public class WAQTask {
         public ModelGatherObject GatherObject { get; }
         public Vector3 Location { get; }
         public int Map { get; }
@@ -22,8 +20,7 @@ namespace Wholesome_Auto_Quester.Bot
 
         private Timer _timeOutTimer = new Timer();
 
-        public WAQTask(TaskType taskType, ModelNpc npc, ModelQuest quest, int objectiveIndex)
-        {
+        public WAQTask(TaskType taskType, ModelNpc npc, ModelQuest quest, int objectiveIndex) {
             TaskType = taskType;
             Npc = npc;
             Location = npc.GetSpawnPosition;
@@ -43,8 +40,7 @@ namespace Wholesome_Auto_Quester.Bot
                 TaskName = $"Kill and Loot {npc.Name} for {quest.LogTitle}";
         }
 
-        public WAQTask(TaskType taskType, ModelGatherObject modelGatherObject, ModelQuest quest, int objectiveIndex)
-        {
+        public WAQTask(TaskType taskType, ModelGatherObject modelGatherObject, ModelQuest quest, int objectiveIndex) {
             TaskType = taskType;
             GatherObject = modelGatherObject;
             Location = modelGatherObject.GetSpawnPosition;
@@ -57,8 +53,7 @@ namespace Wholesome_Auto_Quester.Bot
             TaskName = $"Gather {modelGatherObject.Name} for {quest.LogTitle}";
         }
 
-        public WAQTask(TaskType taskType, ModelArea modelArea, ModelQuest quest, int objectiveIndex)
-        {
+        public WAQTask(TaskType taskType, ModelArea modelArea, ModelQuest quest, int objectiveIndex) {
             TaskType = taskType;
             Area = modelArea;
             Location = modelArea.GetPosition;
@@ -70,13 +65,12 @@ namespace Wholesome_Auto_Quester.Bot
             TaskName = $"Explore {modelArea.GetPosition} for {quest.LogTitle}";
         }
 
-        public void PutTaskOnTimeout()
-        {
+        public void PutTaskOnTimeout() {
             int timeInSecs = Npc?.SpawnTimeSecs ?? GatherObject.SpawnTimeSecs;
             _timeOutTimer = new Timer(timeInSecs * 1000);
             WAQTasks.UpdateTasks();
         }
-        
+
         public bool IsSameTask(TaskType taskType, int questEntry, int objIndex, Func<int> getUniqueId = null) {
             return TaskType == taskType && Quest.Id == questEntry && ObjectiveIndex == objIndex
                    && TargetGuid == (getUniqueId?.Invoke() ?? 0);
@@ -85,7 +79,7 @@ namespace Wholesome_Auto_Quester.Bot
         public bool IsTimedOut => !_timeOutTimer.IsReady;
         public string TrackerColor => GetTrackerColor();
         public float GetDistance => ObjectManager.Me.PositionWithoutType.DistanceTo(Location);
-        
+
         private static Vector3 _myPos = ObjectManager.Me.PositionWithoutType;
         private static uint _myLevel = ObjectManager.Me.Level;
 
@@ -93,7 +87,7 @@ namespace Wholesome_Auto_Quester.Bot
             _myPos = ObjectManager.Me.PositionWithoutType;
             _myLevel = ObjectManager.Me.Level;
         }
-        
+
         public int Priority {
             get {
                 // Lowest priority == do first
@@ -106,12 +100,11 @@ namespace Wholesome_Auto_Quester.Bot
                 if (Quest.AllowableClasses > 0) result /= 4;
                 if (Quest.TimeAllowed > 0 && TaskType != TaskType.PickupQuest) result = 0;
 
-                return (int)result;
+                return (int) result;
             }
         }
 
-        private string GetTrackerColor()
-        {
+        private string GetTrackerColor() {
             if (IsTimedOut)
                 return "Gray";
 
