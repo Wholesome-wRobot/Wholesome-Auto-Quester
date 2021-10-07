@@ -6,6 +6,7 @@ using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 using FlXProfiles;
 using wManager.Wow.Enums;
+using wManager.Wow.Bot.Tasks;
 
 namespace Wholesome_Auto_Quester.States {
     class WAQPickupQuest : State {
@@ -46,9 +47,10 @@ namespace Wholesome_Auto_Quester.States {
 
                 if (!pickUpTarget.InInteractDistance()) {
                     if(!MoveHelper.IsMovementThreadRunning
-                       || MoveHelper.CurrentMovementTarget.DistanceTo(pickUpTarget.PositionWithoutType) > 4) {
-                        MoveHelper.StartGoToThread(pickUpTarget.PositionWithoutType, randomizeEnd: 3f);
+                       || MoveHelper.CurrentMovementTarget.DistanceTo(pickUpTarget.PositionWithoutType) > 4)
+                    {
                         Logger.Log($"NPC found - Going to {pickUpTarget.Name} to pick up {task.Quest.LogTitle}.");
+                        MoveHelper.StartGoToThread(pickUpTarget.PositionWithoutType, randomizeEnd: 3f);
                     }
                     return;
                 }

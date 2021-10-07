@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using robotManager.Helpful;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Database.Models;
+using wManager;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
@@ -613,6 +614,24 @@ namespace Wholesome_Auto_Quester.Helpers {
             for (var i = 0; i < path.Count - 1; ++i) distance += path[i].DistanceTo(path[i + 1]);
 
             return distance;
+        }
+
+        public static void AddItemToDoNotSellList(string itemName)
+        {
+            if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains(itemName))
+            {
+                Logger.Log($"Added item {itemName} to Do not Sell List");
+                wManagerSetting.CurrentSetting.DoNotSellList.Add(itemName);
+            }
+        }
+
+        public static void RemoveItemFromDoNotSellList(string itemName)
+        {
+            if (wManagerSetting.CurrentSetting.DoNotSellList.Contains(itemName))
+            {
+                Logger.Log($"Removed item {itemName} from Do not Sell List");
+                wManagerSetting.CurrentSetting.DoNotSellList.RemoveAll(i => i == itemName);
+            }
         }
     }
 }
