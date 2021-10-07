@@ -241,6 +241,7 @@ namespace Wholesome_Auto_Quester.Database {
             {
                 DateTime dateBeginNJSON = DateTime.Now;
                 Logger.Log($"{result.Count} results. Building JSON. Please wait.");
+                ToolBox.UpdateCompletedQuests();
                 ToolBox.WriteJSONFromDBResult(result);
                 ToolBox.ZipJSONFile();
                 Logger.Log($"Process time (JSON processing) : {(DateTime.Now.Ticks - dateBeginNJSON.Ticks) / 10000} ms");

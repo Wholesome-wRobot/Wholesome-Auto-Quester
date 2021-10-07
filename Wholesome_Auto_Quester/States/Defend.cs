@@ -21,7 +21,7 @@ namespace Wholesome_Auto_Quester.States {
             if (_defendTarget == null) return;
             var stateName = $"Attacking {_defendTarget?.Name} to defend ourself.";
             DisplayName = stateName;
-            Logging.Write(stateName);
+            Logger.Log(stateName);
             MoveHelper.StopAllMove();
             Fight.StartFight(_defendTarget.Guid);
             _defendTarget = null;
@@ -31,20 +31,34 @@ namespace Wholesome_Auto_Quester.States {
             get {
                 // Check directly attacking units
                 Vector3 myPos = ObjectManager.Me.PositionWithoutType;
+                bool isMounted = ObjectManager.Me.IsMounted;
+                int myLevel = (int)ObjectManager.Me.Level;
                 List<WoWUnit> justUnits =
                     ObjectManager.GetObjectWoWUnit().ToList();
+                ulong myGuid = ObjectManager.Me.Guid;
+                ulong petGuid = ObjectManager.Pet?.Guid ?? 0U;
+                IOrderedEnumerable<WoWUnit> attackingMe = justUnits
+                    .Where(unit => {
+                        uint unitLevel = unit.Level;
+                        if (unitLevel < myLevel - 5 || unitLevel > myLevel + 2) return false;
+                        ulong unitTarget = unit.Target;
+                        return unitTarget != 0
+                               && (unitTarget == myGuid || petGuid != 0 && unitTarget == petGuid)
+                               && unit.IsAttackable;
+                    })
+                    .OrderBy(unit => unit.PositionWithoutType.DistanceTo(myPos));
+                _defendTarget = attackingMe.FirstOrDefault();
+                /*
                 IOrderedEnumerable<WoWUnit> attackingMe = ObjectManager.GetUnitAttackPlayer(justUnits)
                     .Where(unit => unit.IsAttackable)
                     .OrderBy(unit => unit.PositionWithoutType.DistanceTo(myPos));
 
-                bool isMounted = ObjectManager.Me.IsMounted;
                 if (MoveHelper.IsMovementThreadRunning) {
                     _defendTarget = attackingMe.FirstOrDefault(
                         unit => unit.PositionWithoutType
                             .DistanceTo(MoveHelper.CurrentMovementTarget) < (isMounted ? 26f : 100f));
-                } else {
-                    _defendTarget = attackingMe.FirstOrDefault();
-                }
+                } else {*/
+                //}
                 // if (isMounted && MoveHelper.IsMovementThreadRunning) {
                 //     _defendTarget = attackingMe.FirstOrDefault(unit =>
                 //         unit.PositionWithoutType.DistanceTo(MoveHelper.CurrentMovementTarget) < 26);

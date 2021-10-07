@@ -84,6 +84,18 @@ namespace Wholesome_Auto_Quester.Database.Models
             }
         }
 
+        public void AddQuestItemsToDoNotSellList()
+        {
+            CreaturesToLootObjectives.ForEach(o => ToolBox.AddItemToDoNotSellList(o.itemName));
+            GatherObjectsObjectives.ForEach(o => ToolBox.AddItemToDoNotSellList(o.itemName));
+        }
+
+        public void RemoveQuestItemsFromDoNotSellList()
+        {
+            CreaturesToLootObjectives.ForEach(o => ToolBox.RemoveItemFromDoNotSellList(o.itemName));
+            GatherObjectsObjectives.ForEach(o => ToolBox.RemoveItemFromDoNotSellList(o.itemName));
+        }
+
         public bool IsCompleted => ToolBox.IsQuestCompleted(Id);
         public string TrackerColor => WAQTasks.TaskInProgress?.Quest.Id == Id ? "White" : _trackerColorsDictionary[Status];
 
@@ -150,6 +162,7 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int amount;
         public List<ModelGatherObject> worldObjects;
         public int objectiveIndex;
+        public string itemName;
 
         public GatherObjectObjective(int amount, List<ModelGatherObject> worldObjects, int objectiveIndex)
         {
@@ -157,6 +170,7 @@ namespace Wholesome_Auto_Quester.Database.Models
             this.id = worldObjects[0].Entry;
             this.worldObjects = worldObjects;
             this.objectiveIndex = objectiveIndex;
+            this.itemName = worldObjects.Count > 0 ? worldObjects[0].Name : "N/A";
         }
 
         public string GetName => worldObjects?.Count > 0 ? worldObjects[0].Name : "N/A";

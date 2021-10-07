@@ -226,6 +226,7 @@ namespace Wholesome_Auto_Quester.Bot {
             foreach (ModelQuest quest in Quests) {
                 // Quest blacklisted
                 if (WholesomeAQSettings.CurrentSetting.BlacklistesQuests.Contains(quest.Id)) {
+                    quest.RemoveQuestItemsFromDoNotSellList();
                     quest.Status = QuestStatus.Blacklisted;
                     continue;
                 }
@@ -233,6 +234,7 @@ namespace Wholesome_Auto_Quester.Bot {
                 // Quest completed
                 if (quest.IsCompleted
                     || completedQuests.Any(q => q.PreviousQuestsIds.Contains(quest.Id))) {
+                    quest.RemoveQuestItemsFromDoNotSellList();
                     quest.Status = QuestStatus.Completed;
                     continue;
                 }
@@ -240,6 +242,7 @@ namespace Wholesome_Auto_Quester.Bot {
                 // Quest to pickup
                 if (quest.IsPickable()
                     && !currentQuests.ContainsKey(quest.Id)) {
+                    quest.AddQuestItemsToDoNotSellList();
                     quest.Status = QuestStatus.ToPickup;
                     continue;
                 }
@@ -249,18 +252,21 @@ namespace Wholesome_Auto_Quester.Bot {
                     // Quest to turn in
                     if (foundQuest.State == StateFlag.Complete) {
                         quest.Status = QuestStatus.ToTurnIn;
+                        quest.AddQuestItemsToDoNotSellList();
                         continue;
                     }
 
                     // Quest failed
                     if (foundQuest.State == StateFlag.Failed) {
                         quest.Status = QuestStatus.Failed;
+                        quest.RemoveQuestItemsFromDoNotSellList();
                         continue;
                     }
 
                     // Quest in progress
                     // if (Quest.HasQuest(quest.Id)) {
                     quest.Status = QuestStatus.InProgress;
+                    quest.AddQuestItemsToDoNotSellList();
                     continue;
                     // }
                 }
