@@ -1,5 +1,7 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
+using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.GUI
 {
@@ -11,6 +13,30 @@ namespace Wholesome_Auto_Quester.GUI
             LogDebug.IsChecked = WholesomeAQSettings.CurrentSetting.LogDebug;
             ActivateQuestsGUI.IsChecked = WholesomeAQSettings.CurrentSetting.ActivateQuestsGUI;
             DevMode.IsChecked = WholesomeAQSettings.CurrentSetting.DevMode;
+            LevelDeltaMinus.Value = WholesomeAQSettings.CurrentSetting.LevelDeltaMinus;
+            LevelDeltaPlus.Value = WholesomeAQSettings.CurrentSetting.LevelDeltaPlus;
+            DeltaDetails.Text = GetDeltaDetailsString();
+        }
+
+        private string GetDeltaDetailsString()
+        {
+            int deltaMinus = Math.Max((int)ObjectManager.Me.Level - WholesomeAQSettings.CurrentSetting.LevelDeltaMinus, 1);
+            int deltaPlus = Math.Max((int)ObjectManager.Me.Level + WholesomeAQSettings.CurrentSetting.LevelDeltaPlus, 1);
+            return $"You will do quests from level {deltaMinus} to level {deltaPlus}";
+        }
+
+        private void LevelDeltaMinusChanged(object sender, RoutedEventArgs e)
+        {
+            WholesomeAQSettings.CurrentSetting.LevelDeltaMinus = (int)LevelDeltaMinus.Value;
+            WholesomeAQSettings.CurrentSetting.Save();
+            DeltaDetails.Text = GetDeltaDetailsString();
+        }
+
+        private void LevelDeltaPlusChanged(object sender, RoutedEventArgs e)
+        {
+            WholesomeAQSettings.CurrentSetting.LevelDeltaPlus = (int)LevelDeltaPlus.Value;
+            WholesomeAQSettings.CurrentSetting.Save();
+            DeltaDetails.Text = GetDeltaDetailsString();
         }
 
         private void DevModeChanged(object sender, RoutedEventArgs e)

@@ -610,9 +610,7 @@ namespace Wholesome_Auto_Quester.Helpers {
         public static float CalculatePathTotalDistance(Vector3 from, Vector3 to) {
             var distance = 0.0f;
             List<Vector3> path = FindPath(from, to, false);
-
             for (var i = 0; i < path.Count - 1; ++i) distance += path[i].DistanceTo(path[i + 1]);
-
             return distance;
         }
 

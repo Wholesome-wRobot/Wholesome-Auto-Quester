@@ -19,6 +19,8 @@ namespace Wholesome_Auto_Quester
             ActivateQuestsGUI = false;
             DevMode = false;
             ListCompletedQuests = new List<int>();
+            LevelDeltaPlus = 2;
+            LevelDeltaMinus = 5;
 
             BlacklistesQuests = new List<int>()
             {
@@ -28,6 +30,8 @@ namespace Wholesome_Auto_Quester
             };
         }
 
+        public int LevelDeltaPlus { get; set; }
+        public int LevelDeltaMinus { get; set; }
         public bool LogDebug { get; set; }
         public bool DevMode { get; set; }
         public bool ActivateQuestsGUI { get; set; }

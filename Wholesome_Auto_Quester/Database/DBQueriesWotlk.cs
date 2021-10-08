@@ -34,12 +34,8 @@ namespace Wholesome_Auto_Quester.Database {
                 if (myLevel < q.MinLevel) continue;
                 // Repeatable/escort quest
                 if ((q.SpecialFlags & 1) != 0 || (q.SpecialFlags & 2) != 0) continue;
-                // Quest is too hard
-                if (myLevel + 2 < q.QuestLevel) continue;
                 // Remove -1 quests that are not Class quests
                 if (q.QuestLevel == -1 && q.AllowableClasses == 0) continue;
-                // Quest is too low level
-                if (q.QuestLevel <= myLevel - 5 && q.QuestLevel != -1) continue;
                 // Quest is not for my class
                 if (q.AllowableClasses > 0 && (q.AllowableClasses & myClass) == 0) continue;
                 // Quest is not for my race
@@ -82,6 +78,9 @@ namespace Wholesome_Auto_Quester.Database {
             CreateIndices();
             Logger.Log($"Process time (Indices) : {(DateTime.Now.Ticks - dateBeginIndices.Ticks) / 10000} ms");
 
+            int levelDeltaMinus = (int)ObjectManager.Me.Level - WholesomeAQSettings.CurrentSetting.LevelDeltaMinus;
+            int levelDeltaPlus = (int)ObjectManager.Me.Level + WholesomeAQSettings.CurrentSetting.LevelDeltaPlus;
+
             string query = $@"
                     SELECT qt.ID Id, qt.AllowableRaces, qt.QuestSortID, qt.QuestInfoID, qt.QuestType, qt.StartItem, qt.TimeAllowed, qt.Flags,
                         qt.RequiredItemCount1, qt.RequiredItemCount2, qt.RequiredItemCount3, qt.RequiredItemCount4,
@@ -95,7 +94,7 @@ namespace Wholesome_Auto_Quester.Database {
                     LEFT JOIN quest_template_addon qta
                     ON qt.ID = qta.ID
                     WHERE MinLevel <= {(int)ObjectManager.Me.Level}
-                    AND (QuestLevel <= {(int)ObjectManager.Me.Level + 2} AND QuestLevel > 0 AND QuestLevel > {(int)ObjectManager.Me.Level - 5})
+                    AND (QuestLevel <= {levelDeltaPlus} AND QuestLevel > 0 AND QuestLevel > {levelDeltaMinus})
                 ";
 
             DateTime dateBeginMain = DateTime.Now;

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using robotManager.Helpful;
+using System.Collections.Generic;
 using System.Linq;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
@@ -32,9 +33,10 @@ namespace Wholesome_Auto_Quester.Bot {
             //Logger.Log("Update tasks");
             var generatedTasks = new List<WAQTask>();
             int myContinent = Usefuls.ContinentId;
+            int myLevel = (int)ObjectManager.Me.Level;
+            Vector3 myPosition = ObjectManager.Me.Position;
             ToolBox.UpdateObjectiveCompletionDict(Quests.Where(quest => quest.Status == QuestStatus.InProgress)
                 .Select(quest => quest.Id).ToArray());
-            int myLevel = (int)ObjectManager.Me.Level;
             foreach (ModelQuest quest in Quests) {
                 // Completed
                 if (quest.Status == QuestStatus.Completed || quest.Status == QuestStatus.Blacklisted) {
@@ -154,6 +156,31 @@ namespace Wholesome_Auto_Quester.Bot {
                 .OrderBy(t => t.Priority).ToList();
 
             WAQTask closestTask = TasksPile.Find(t => !t.IsTimedOut);
+
+            // Check if pathing distance of first entries is not too far (big detour)
+            int nbTasks = TasksPile.Count;
+            //List<int> checkedQuests = new List<int>();
+            float lowestDistance = float.MaxValue;
+            for (int i = 0; i < nbTasks; i++)
+            {
+                if (i < nbTasks - 1 && !TasksPile[i].IsTimedOut /*&& !checkedQuests.Contains(TasksPile[i].Quest.Id)*/)
+                {
+                    //checkedQuests.Add(TasksPile[i].Quest.Id);
+                    float walkDistanceToTask = ToolBox.CalculatePathTotalDistance(myPosition, TasksPile[i].Location) * TasksPile[i].Priority;
+                    float nextFlyDistanceToTask = TasksPile[i + 1].GetDistance * TasksPile[i + 1].Priority;
+
+                    if (walkDistanceToTask < lowestDistance)
+                    {
+                        if (closestTask != TasksPile[i])
+                            Logger.LogError($"We switched to {TasksPile[i].TaskName} because it's actually closer"); // To Remove after test
+                        lowestDistance = walkDistanceToTask;
+                        closestTask = TasksPile[i];
+                    }
+
+                    if (lowestDistance < nextFlyDistanceToTask)
+                        break;
+                }
+            }
 
             // Get unique POIs
             var researchedTasks = new List<WAQTask>();
