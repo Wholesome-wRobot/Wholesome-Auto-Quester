@@ -84,7 +84,9 @@ namespace Wholesome_Auto_Quester.Database {
             string query = $@"
                     SELECT qt.ID Id, qt.AllowableRaces, qt.QuestSortID, qt.QuestInfoID, qt.QuestType, qt.StartItem, qt.TimeAllowed, qt.Flags,
                         qt.RequiredItemCount1, qt.RequiredItemCount2, qt.RequiredItemCount3, qt.RequiredItemCount4,
-                        qt.RequiredItemId1, qt.RequiredItemId2, qt.RequiredItemId3, qt.RequiredItemId4, 
+                        qt.RequiredItemId1, qt.RequiredItemId2, qt.RequiredItemId3, qt.RequiredItemId4,
+                        qt.ItemDrop1, qt.ItemDrop2, qt.ItemDrop3, qt.ItemDrop4, 
+                        qt.ItemDropQuantity1, qt.ItemDropQuantity2, qt.ItemDropQuantity3, qt.ItemDropQuantity4,
                         qt.RequiredNpcOrGo1, qt.RequiredNpcOrGo2, qt.RequiredNpcOrGo3, qt.RequiredNpcOrGo4, 
                         qt.RequiredNpcOrGoCount1, qt.RequiredNpcOrGoCount2, qt.RequiredNpcOrGoCount3, qt.RequiredNpcOrGoCount4,
                         qt.ObjectiveText1, qt.ObjectiveText2, qt.ObjectiveText3, qt.ObjectiveText4, qt.AreaDescription,

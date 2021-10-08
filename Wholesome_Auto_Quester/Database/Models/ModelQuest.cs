@@ -25,6 +25,14 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int AllowableRaces { get; set; }
         public string AreaDescription { get; set; }
         public int Flags { get; set; }
+        public int ItemDrop1 { get; set; }
+        public int ItemDrop2 { get; set; }
+        public int ItemDrop3 { get; set; }
+        public int ItemDrop4 { get; set; }
+        public int ItemDropQuantity1 { get; set; }
+        public int ItemDropQuantity2 { get; set; }
+        public int ItemDropQuantity3 { get; set; }
+        public int ItemDropQuantity4 { get; set; }
         public string LogTitle { get; set; }
         public int MinLevel { get; set; }
         public int NextQuestID { get; set; }

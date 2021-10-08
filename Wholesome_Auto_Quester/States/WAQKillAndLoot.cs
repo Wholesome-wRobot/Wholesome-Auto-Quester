@@ -36,15 +36,14 @@ namespace Wholesome_Auto_Quester.States
         public override void Run() {
             WoWObject npc = WAQTasks.TaskInProgressWoWObject;
             WAQTask task = WAQTasks.TaskInProgress;
-            //Logger.Log($"******** [{task.POIEntry}] RUNNING {task.TaskType} TASK {ToolBox.GetTaskId(task)}  ********");
 
             if (npc != null)
             {
-                if (WAQTasks.TaskInProgressWoWObject.Type != WoWObjectType.Unit) {
-                    Logger.LogError($"Expected a WoWUnit for Kill & Loot but got {WAQTasks.TaskInProgressWoWObject.Type} instead.");
+                if (npc.Type != WoWObjectType.Unit) {
+                    Logger.LogError($"Expected a WoWUnit for Kill & Loot but got {npc.Type} instead.");
                     return;
                 }
-                var killTarget = (WoWUnit) WAQTasks.TaskInProgressWoWObject;
+                var killTarget = (WoWUnit)npc;
                 if(MoveHelper.IsMovementThreadRunning) MoveHelper.StopAllMove();
                 MoveHelper.StopCurrentMovementThread();
                 if(killTarget.IsAlive) {
@@ -67,7 +66,6 @@ namespace Wholesome_Auto_Quester.States
                 if (task.GetDistance <= 12f) {
                     Logger.Log($"We are close to {task.TaskName} position and no npc to kill&loot in sight. Time out for {task.Npc.SpawnTimeSecs}s");
                     task.PutTaskOnTimeout();
-                    // MoveHelper.StopAllMove();
                 } else if (ToolBox.DangerousEnemiesAtLocation(task.Location)) {
                     Logger.Log($"We are close to {task.TaskName} position and found dangerous mobs. Time out for {task.Npc.SpawnTimeSecs}s");
                     task.PutTaskOnTimeout();
