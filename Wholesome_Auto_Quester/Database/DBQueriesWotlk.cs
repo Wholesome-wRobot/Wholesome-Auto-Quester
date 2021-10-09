@@ -175,9 +175,22 @@ namespace Wholesome_Auto_Quester.Database {
                         quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.RequiredItemCount6, lootItems6, nbObjective));
                 }
 
-                // Add creatures to kill
-                if (quest.RequiredNpcOrGoCount1 != 0)
+                /*
+                    KILL / INTERACT
+
+                    RequiredNpcOrGo
+                    Value > 0:required creature_template ID the player needs to kill/cast on in order to complete the quest.
+                    Value < 0:required gameobject_template ID the player needs to cast on in order to complete the quest.
+                    If*RequiredSpellCast*is != 0, the objective is to cast on target, else kill.
+                    NOTE: If RequiredSpellCast is != 0 and the spell has effects Send Event or Quest Complete, this field may be left empty.
+                */
+                if (quest.RequiredNpcOrGo1 > 0)
                     quest.CreaturesToKillObjectives.Add(new CreaturesToKillObjective(quest.RequiredNpcOrGoCount1, GetCreaturesToKill(quest.RequiredNpcOrGo1), ++nbObjective));
+                if (quest.RequiredNpcOrGo1 < 0)
+                {
+                    // interact
+                }
+
                 if (quest.RequiredNpcOrGoCount2 != 0)
                     quest.CreaturesToKillObjectives.Add(new CreaturesToKillObjective(quest.RequiredNpcOrGoCount2, GetCreaturesToKill(quest.RequiredNpcOrGo2), ++nbObjective));
                 if (quest.RequiredNpcOrGoCount3 != 0)

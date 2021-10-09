@@ -62,7 +62,7 @@ namespace Wholesome_Auto_Quester.States
                     Logger.Log($"We are close to {task.TaskName} position and no npc to kill in sight. Time out for {task.Npc.SpawnTimeSecs}s");
                     task.PutTaskOnTimeout();
                     // MoveHelper.StopAllMove();
-                } else if (ToolBox.DangerousEnemiesAtLocation(task.Location)) {
+                } else if (ToolBox.DangerousEnemiesAtLocation(task.Location) && WAQTasks.TasksPile.FindAll(t => t.POIEntry == task.Npc.Id).Count > 1) {
                     Logger.Log($"We are close to {task.TaskName} position and found dangerous mobs. Time out for {task.Npc.SpawnTimeSecs}s");
                     task.PutTaskOnTimeout();
                 }

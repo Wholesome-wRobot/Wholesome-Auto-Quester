@@ -26,9 +26,10 @@ namespace Wholesome_Auto_Quester.Bot {
         }
 
         public static void UpdateTasks() {
-            //Logger.Log($"Finished quests : {Quest.FinishedQuestSet.Count}");
-
-            if (Quests.Count <= 0)
+            if (Quests.Count <= 0 
+                || !ObjectManager.Me.IsAlive 
+                || !ObjectManager.Me.IsValid 
+                || Fight.InFight)
                 return;
 
             //Logger.Log("Update tasks");
@@ -163,19 +164,22 @@ namespace Wholesome_Auto_Quester.Bot {
 
             // Check if pathing distance of first entries is not too far (big detour)
             var watchTaskLong = Stopwatch.StartNew();
+            int nbPathFinds = 0;
             float closestTaskDistance = ToolBox.CalculatePathTotalDistance(myPosition, closestTask.Location);
+            nbPathFinds++;
             if (closestTaskDistance > closestTask.GetDistance * 2)
             {
-                Logger.Log($"Detour detected for task {closestTask.TaskName}");
+                Logger.LogError($"Detour detected for task {closestTask.TaskName}");
                 int nbTasks = TasksPile.Count;
                 for (int i = 0; i < nbTasks - 1; i++)
                 {
                     if (!TasksPile[i].IsTimedOut)
                     {
                         float walkDistanceToTask = ToolBox.CalculatePathTotalDistance(myPosition, TasksPile[i].Location);
+                        nbPathFinds++;
                         float nextFlyDistanceToTask = TasksPile[i + 1].GetDistance;
-                        Logger.Log($"Task {i} is {walkDistanceToTask} yards away (walk)");
-                        Logger.Log($"Task {i + 1} is {nextFlyDistanceToTask} yards away (fly)");
+                        //Logger.Log($"Task {i} is {walkDistanceToTask} yards away (walk)");
+                        //Logger.Log($"Task {i + 1} is {nextFlyDistanceToTask} yards away (fly)");
 
                         if (walkDistanceToTask < closestTaskDistance)
                         {
@@ -188,7 +192,7 @@ namespace Wholesome_Auto_Quester.Bot {
                     }
                 }
             }
-            //Logger.Log($"Getting closest task ({closestTaskDistance}) took {watchTaskLong.ElapsedMilliseconds}ms.");
+            //Logger.Log($"TASK: [{nbPathFinds}] [{watchTaskLong.ElapsedMilliseconds}ms] [{closestTask?.TaskName}]");
 
             // Get unique POIs
             var researchedTasks = new List<WAQTask>();
@@ -220,19 +224,23 @@ namespace Wholesome_Auto_Quester.Bot {
             }).OrderBy(o => o.GetDistance).ToList();
 
             // Get objects real distance
+            var watchObjectShort = Stopwatch.StartNew();
+            nbPathFinds = 0;
             if (filteredSurroundingObjects.Count > 0)
             {
                 WoWObject closestObject = filteredSurroundingObjects[0];
-
                 float closestObjectDistance = ToolBox.CalculatePathTotalDistance(myPosition, closestObject.Position);
+                nbPathFinds++;
+
                 if (closestObjectDistance > closestObject.GetDistance * 2)
                 {
-                    Logger.Log($"Detour detected for object {closestObject.Name}");
+                    Logger.LogError($"Detour detected for object {closestObject.Name}");
                     int nbObject = filteredSurroundingObjects.Count;
                     //Logger.Log($"There are {nbObject} objects");
                     for (int i = 0; i < nbObject - 1; i++)
                     {
                         float walkDistanceToObject = ToolBox.CalculatePathTotalDistance(myPosition, filteredSurroundingObjects[i].Position);
+                        nbPathFinds++;
                         float nextFlyDistanceToObject = filteredSurroundingObjects[i + 1].GetDistance;
                         //Logger.Log($"Object {i} is {walkDistanceToObject} yards away (walk)");
                         //Logger.Log($"Object {i + 1} is {nextFlyDistanceToObject} yards away (fly)");
@@ -249,22 +257,26 @@ namespace Wholesome_Auto_Quester.Bot {
                     /*
                     TaskInProgressWoWObject = filteredSurroundingObjects.TakeHighest(
                         o => (int) -o.GetRealDistance());*/
-                    if (closestObjectDistance < closestTaskDistance)
-                    {
-                        TaskInProgressWoWObject = closestObject;
-                        closestTask = researchedTasks.Find(task => task.POIEntry == TaskInProgressWoWObject.Entry);
-                    }
                 }
-                //Logger.Log($"Closest object = {TaskInProgressWoWObject?.Name} {closestObjectDistance}");
+
+                if (closestObjectDistance > closestTaskDistance + 20)
+                    TaskInProgressWoWObject = null;
+                else
+                {
+                    TaskInProgressWoWObject = closestObject;
+                    closestTask = researchedTasks.Find(task => task.POIEntry == TaskInProgressWoWObject.Entry);
+                }
             } else {
                 TaskInProgressWoWObject = null;
             }
-
-            //Logger.Log($"Closest task = {closestTask?.TaskName} {closestTaskDistance}");
-
-            //Logger.Log($"Getting closest object took {watchObjectsShort.ElapsedMilliseconds}ms.");
+            //Logger.Log($"OBJECT: [{nbPathFinds}] [{watchObjectsShort.ElapsedMilliseconds}ms] [{TaskInProgressWoWObject?.Name}]");
+            //Logger.Log($"**************************************");
 
             TaskInProgress = closestTask;
+
+            /*Logger.Log($"********************************************");
+            Logger.Log($"TaskInProgress: {TaskInProgress?.TaskName}");
+            Logger.Log($"TaskInProgressWoWObject: {TaskInProgressWoWObject?.Name}");*/
 
             if (_tick++ % 5 == 0) Main.QuestTrackerGui.UpdateTasksList();
         }
