@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Wholesome_Auto_Quester.Database.Models;
 
 namespace Wholesome_Auto_Quester.Database.Objectives

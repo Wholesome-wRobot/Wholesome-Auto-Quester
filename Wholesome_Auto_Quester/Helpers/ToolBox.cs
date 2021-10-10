@@ -511,6 +511,7 @@ namespace Wholesome_Auto_Quester.Helpers {
             	end
             end
             return unpack(outputTable)");
+
             if (outputTable.Length != questIds.Length * 6) {
                 Logging.Write(
                     $"Expected {questIds.Length * 6} entries in GetObjectiveCompletionArray but got {outputTable.Length} instead.");

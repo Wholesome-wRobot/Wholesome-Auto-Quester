@@ -112,6 +112,13 @@ namespace Wholesome_Auto_Quester.GUI {
                     explorationsObjectives += $"\n    [{selected.ExplorationObjectives.IndexOf(obje) + 1}] {obje.Area.GetPosition}";
                 explorations.Text = explorationsObjectives;
 
+                // Interact objectives
+                string interactString = "Interact: ";
+                foreach (InteractObjective obje in selected.InteractObjectives)
+                    interactString +=
+                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.ItemName} ({obje.WorldObjects.Count} found)";
+                interactObjectives.Text = interactString;
+
                 // gather objectives
                 string gatherObjectsString = "Gather: ";
                 foreach (GatherObjective obje in selected.GatherObjectives)
@@ -133,12 +140,19 @@ namespace Wholesome_Auto_Quester.GUI {
                         $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.ItemName} on {obje.CreatureName} ({obje.WorldCreatures.Count} found)";
                 questLootCreatures.Text = creaturesToLootString;
 
-                // Interact objectives
-                string interactString = "Interact: ";
-                foreach (InteractObjective obje in selected.InteractObjectives)
-                    interactString +=
+                // Prerequisite gathers
+                string prerequisiteGathersString = "Prerequisite Gathers: ";
+                foreach (GatherObjective obje in selected.PrerequisiteGatherItems)
+                    prerequisiteGathersString +=
                         $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.ItemName} ({obje.WorldObjects.Count} found)";
-                interactObjectives.Text = interactString;
+                prerequisiteGathers.Text = prerequisiteGathersString;
+
+                // Prerequisite loots
+                string prerequisiteLootsString = "Prerequisite Loots: ";
+                foreach (KillLootObjective obje in selected.PrerequisiteLootItems)
+                    prerequisiteLootsString +=
+                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.ItemName} on {obje.CreatureName} ({obje.WorldCreatures.Count} found)";
+                prerequisiteLoots.Text = prerequisiteLootsString;
 
                 if (WholesomeAQSettings.CurrentSetting.BlacklistesQuests.Contains(selected.Id)) {
                     ButtonAddToBl.IsEnabled = false;

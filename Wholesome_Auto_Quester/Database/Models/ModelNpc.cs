@@ -9,6 +9,7 @@ namespace Wholesome_Auto_Quester.Database.Models
     {
         public string Name { get; set; }
         public string ItemName { get; set; } // for loot lookup
+        public int ItemId { get; set; } // for loot lookup
         public int Id { get; set; }
         public int Guid { get; set; }
         public int Map { get; set; }

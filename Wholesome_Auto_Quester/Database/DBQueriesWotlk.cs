@@ -108,6 +108,17 @@ namespace Wholesome_Auto_Quester.Database {
                     });
                 }
 
+                // Prerequisite Items
+                List<ModelItem> prerequisiteGathers1 = quest.ItemDrop1 != 0 ? GetGatherObjects(quest.ItemDrop1) : null;
+                List<ModelNpc> prerequisiteLoots1 = quest.ItemDrop1 != 0 ? GetCreatureToLoot(quest.ItemDrop1) : null;
+                List<ModelItem> prerequisiteGathers2 = quest.ItemDrop2 != 0 ? GetGatherObjects(quest.ItemDrop2) : null;
+                List<ModelNpc> prerequisiteLoots2 = quest.ItemDrop2 != 0 ? GetCreatureToLoot(quest.ItemDrop2) : null;
+                List<ModelItem> prerequisiteGathers3 = quest.ItemDrop3 != 0 ? GetGatherObjects(quest.ItemDrop3) : null;
+                List<ModelNpc> prerequisiteLoots3 = quest.ItemDrop3 != 0 ? GetCreatureToLoot(quest.ItemDrop3) : null;
+                List<ModelItem> prerequisiteGathers4 = quest.ItemDrop4 != 0 ? GetGatherObjects(quest.ItemDrop4) : null;
+                List<ModelNpc> prerequisiteLoots4 = quest.ItemDrop4 != 0 ? GetCreatureToLoot(quest.ItemDrop4) : null;
+
+                // Gather / Loot
                 List<ModelItem> gatherItems1 = quest.RequiredItemId1 != 0 ? GetGatherObjects(quest.RequiredItemId1) : null;
                 List<ModelNpc> lootItems1 = quest.RequiredItemId1 != 0 ? GetCreatureToLoot(quest.RequiredItemId1) : null;
                 List<ModelItem> gatherItems2 = quest.RequiredItemId2 != 0 ? GetGatherObjects(quest.RequiredItemId2) : null;
@@ -121,7 +132,26 @@ namespace Wholesome_Auto_Quester.Database {
                 List<ModelItem> gatherItems6 = quest.RequiredItemId6 != 0 ? GetGatherObjects(quest.RequiredItemId6) : null;
                 List<ModelNpc> lootItems6 = quest.RequiredItemId6 != 0 ? GetCreatureToLoot(quest.RequiredItemId6) : null;
 
-                // Add gather world items
+                // Add prerequisite items
+                if (prerequisiteGathers1?.Count > 0)
+                    quest.PrerequisiteGatherItems.Add(new GatherObjective(quest.ItemDropQuantity1, gatherItems1, -1));
+                if (prerequisiteGathers2?.Count > 0)
+                    quest.PrerequisiteGatherItems.Add(new GatherObjective(quest.ItemDropQuantity2, gatherItems2, -2));
+                if (prerequisiteGathers3?.Count > 0)
+                    quest.PrerequisiteGatherItems.Add(new GatherObjective(quest.ItemDropQuantity3, gatherItems3, -3));
+                if (prerequisiteGathers4?.Count > 0)
+                    quest.PrerequisiteGatherItems.Add(new GatherObjective(quest.ItemDropQuantity4, gatherItems4, -4));
+
+                if (prerequisiteLoots1?.Count > 0)
+                    quest.PrerequisiteLootItems.Add(new KillLootObjective(quest.ItemDropQuantity1, prerequisiteLoots1, -1));
+                if (prerequisiteLoots2?.Count > 0)
+                    quest.PrerequisiteLootItems.Add(new KillLootObjective(quest.ItemDropQuantity2, prerequisiteLoots2, -2));
+                if (prerequisiteLoots3?.Count > 0)
+                    quest.PrerequisiteLootItems.Add(new KillLootObjective(quest.ItemDropQuantity3, prerequisiteLoots3, -3));
+                if (prerequisiteLoots4?.Count > 0)
+                    quest.PrerequisiteLootItems.Add(new KillLootObjective(quest.ItemDropQuantity4, prerequisiteLoots4, -4));
+
+                // Add gather world items / loots items
                 if (gatherItems1?.Count > 0)
                 {
                     if (gatherItems1.Count > 0)
@@ -364,7 +394,7 @@ namespace Wholesome_Auto_Quester.Database {
             string query = $@"
                 SELECT clt.entry Id, ct.name Name, c.guid Guid, c.map Map, c.position_x PositionX, 
                     c.position_y PositionY, c.position_z PositionZ, c.spawntimesecs SpawnTimeSecs,
-                    it.name ItemName, ct.minlevel MinLevel, ct.maxlevel MaxLevel,
+                    it.name ItemName, ct.minlevel MinLevel, ct.maxlevel MaxLevel, it.entry ItemId,
 	                ct.faction FactionTemplateID
                 FROM creature_loot_template clt
                 JOIN creature_template ct

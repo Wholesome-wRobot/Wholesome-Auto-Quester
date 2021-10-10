@@ -21,6 +21,8 @@ namespace Wholesome_Auto_Quester.Database.Models
         public List<KillObjective> KillObjectives { get; set; } = new List<KillObjective>();
         public List<KillLootObjective> KillLootObjectives { get; set; } = new List<KillLootObjective>();
         public List<InteractObjective> InteractObjectives { get; set; } = new List<InteractObjective>();
+        public List<GatherObjective> PrerequisiteGatherItems { get; set; } = new List<GatherObjective>();
+        public List<KillLootObjective> PrerequisiteLootItems { get; set; } = new List<KillLootObjective>();
         public List<int> NextQuestsIds { get; set; } = new List<int>();
         public List<int> PreviousQuestsIds { get; set; } = new List<int>();
 

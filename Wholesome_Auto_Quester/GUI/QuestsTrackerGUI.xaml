@@ -243,6 +243,14 @@
                             <TextBlock 
                                 Name="interactObjectives"
                                 TextWrapping="Wrap"/>
+
+                            <TextBlock 
+                                Name="prerequisiteGathers"
+                                TextWrapping="Wrap"/>
+
+                            <TextBlock 
+                                Name="prerequisiteLoots"
+                                TextWrapping="Wrap"/>
                         </StackPanel>
                     </Grid>
                 </Grid>

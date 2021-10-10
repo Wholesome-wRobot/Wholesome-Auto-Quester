@@ -38,8 +38,10 @@ namespace Wholesome_Auto_Quester.Bot {
             int myContinent = Usefuls.ContinentId;
             int myLevel = (int)ObjectManager.Me.Level;
             Vector3 myPosition = ObjectManager.Me.Position;
+
             ToolBox.UpdateObjectiveCompletionDict(Quests.Where(quest => quest.Status == QuestStatus.InProgress)
                 .Select(quest => quest.Id).ToArray());
+
             foreach (ModelQuest quest in Quests) {
                 // Completed
                 if (quest.Status == QuestStatus.Completed || quest.Status == QuestStatus.Blacklisted) {
@@ -88,24 +90,13 @@ namespace Wholesome_Auto_Quester.Bot {
                                              && (t.TaskType == TaskType.PickupQuestFromNpc ||
                                                  t.TaskType == TaskType.TurnInQuestToNpc));
 
-                    // Explore
-                    foreach (ExplorationObjective obje in quest.ExplorationObjectives)
-                        if (!ToolBox.GetObjectiveCompletion(obje.ObjectiveIndex, quest.Id)) {
-                            if (obje.Area.ContinentId == myContinent
-                                && !TasksPile.Exists(t =>
-                                    t.IsSameTask(TaskType.Explore, quest.Id,
-                                        obje.ObjectiveIndex)))
-                                generatedTasks.Add(new WAQTask(TaskType.Explore, obje.Area, quest,
-                                    obje.ObjectiveIndex));
-                        } else {
-                            TasksPile.RemoveAll(t => t.Quest.Id == quest.Id
-                                                     && t.ObjectiveIndex == obje.ObjectiveIndex
-                                                     && t.TaskType == TaskType.Explore);
-                        }
-
-                    // Kill & Loot
-                    foreach (KillLootObjective obje in quest.KillLootObjectives)
-                        if (!ToolBox.GetObjectiveCompletion(obje.ObjectiveIndex, quest.Id))
+                    // Prerequisite gathers & loots
+                    bool needsPrerequisite = false;
+                    foreach (KillLootObjective obje in quest.PrerequisiteLootItems)
+                    {
+                        if (ItemsManager.GetItemCountById((uint)obje.ItemId) <= 0)
+                        {
+                            needsPrerequisite = true;
                             obje.WorldCreatures.ForEach(wc => {
                                 if (wc.Map == myContinent
                                     && wc.MaxLevel <= myLevel + 2
@@ -115,31 +106,17 @@ namespace Wholesome_Auto_Quester.Bot {
                                     generatedTasks.Add(new WAQTask(TaskType.KillAndLoot, wc, null, quest,
                                         obje.ObjectiveIndex));
                             });
+                        }
                         else
                             TasksPile.RemoveAll(t => t.Quest.Id == quest.Id
                                                      && t.ObjectiveIndex == obje.ObjectiveIndex
                                                      && t.TaskType == TaskType.KillAndLoot);
+                    }
 
-                    // Kill
-                    foreach (KillObjective obje in quest.KillObjectives)
-                        if (!ToolBox.GetObjectiveCompletion(obje.ObjectiveIndex, quest.Id))
-                            obje.WorldCreatures.ForEach(wc => {
-                                if (wc.Map == myContinent
-                                    && wc.MaxLevel <= myLevel + 2
-                                    && !TasksPile.Exists(t =>
-                                        t.IsSameTask(TaskType.Kill, quest.Id,
-                                            obje.ObjectiveIndex, () => wc.Guid)))
-                                    generatedTasks.Add(new WAQTask(TaskType.Kill, wc, null, quest,
-                                        obje.ObjectiveIndex));
-                            });
-                        else
-                            TasksPile.RemoveAll(t => t.Quest.Id == quest.Id
-                                                     && t.ObjectiveIndex == obje.ObjectiveIndex
-                                                     && t.TaskType == TaskType.Kill);
-
-                    // Gather object
-                    foreach (GatherObjective obje in quest.GatherObjectives)
-                        if (!ToolBox.GetObjectiveCompletion(obje.ObjectiveIndex, quest.Id))
+                    foreach (GatherObjective obje in quest.PrerequisiteGatherItems)
+                        if (ItemsManager.GetItemCountById((uint)obje.ObjectId) <= 0)
+                        {
+                            needsPrerequisite = true;
                             obje.WorldObjects.ForEach(wo => {
                                 if (wo.Map == myContinent
                                     && !TasksPile.Exists(t =>
@@ -148,26 +125,98 @@ namespace Wholesome_Auto_Quester.Bot {
                                     generatedTasks.Add(new WAQTask(TaskType.GatherObject, wo, quest,
                                         obje.ObjectiveIndex));
                             });
+                        }
                         else
                             TasksPile.RemoveAll(t => t.Quest.Id == quest.Id
                                                      && t.ObjectiveIndex == obje.ObjectiveIndex
                                                      && t.TaskType == TaskType.GatherObject);
 
-                    // Interact with object
-                    foreach (InteractObjective obje in quest.InteractObjectives)
-                        if (!ToolBox.GetObjectiveCompletion(obje.ObjectiveIndex, quest.Id))
-                            obje.WorldObjects.ForEach(wo => {
-                                if (wo.Map == myContinent
+                    if (!needsPrerequisite)
+                    {
+                        // Explore
+                        foreach (ExplorationObjective obje in quest.ExplorationObjectives)
+                            if (!ToolBox.GetObjectiveCompletion(obje.ObjectiveIndex, quest.Id))
+                            {
+                                if (obje.Area.ContinentId == myContinent
                                     && !TasksPile.Exists(t =>
-                                        t.IsSameTask(TaskType.InteractWithWorldObject, quest.Id,
-                                            obje.ObjectiveIndex, () => wo.Guid)))
-                                    generatedTasks.Add(new WAQTask(TaskType.InteractWithWorldObject, wo, quest,
+                                        t.IsSameTask(TaskType.Explore, quest.Id,
+                                            obje.ObjectiveIndex)))
+                                    generatedTasks.Add(new WAQTask(TaskType.Explore, obje.Area, quest,
                                         obje.ObjectiveIndex));
-                            });
-                        else
-                            TasksPile.RemoveAll(t => t.Quest.Id == quest.Id
-                                                     && t.ObjectiveIndex == obje.ObjectiveIndex
-                                                     && t.TaskType == TaskType.GatherObject);
+                            }
+                            else
+                            {
+                                TasksPile.RemoveAll(t => t.Quest.Id == quest.Id
+                                                         && t.ObjectiveIndex == obje.ObjectiveIndex
+                                                         && t.TaskType == TaskType.Explore);
+                            }
+
+                        // Kill & Loot
+                        foreach (KillLootObjective obje in quest.KillLootObjectives)
+                            if (!ToolBox.GetObjectiveCompletion(obje.ObjectiveIndex, quest.Id))
+                                obje.WorldCreatures.ForEach(wc => {
+                                    if (wc.Map == myContinent
+                                        && wc.MaxLevel <= myLevel + 2
+                                        && !TasksPile.Exists(t =>
+                                            t.IsSameTask(TaskType.KillAndLoot, quest.Id,
+                                                obje.ObjectiveIndex, () => wc.Guid)))
+                                        generatedTasks.Add(new WAQTask(TaskType.KillAndLoot, wc, null, quest,
+                                            obje.ObjectiveIndex));
+                                });
+                            else
+                                TasksPile.RemoveAll(t => t.Quest.Id == quest.Id
+                                                         && t.ObjectiveIndex == obje.ObjectiveIndex
+                                                         && t.TaskType == TaskType.KillAndLoot);
+
+                        // Kill
+                        foreach (KillObjective obje in quest.KillObjectives)
+                            if (!ToolBox.GetObjectiveCompletion(obje.ObjectiveIndex, quest.Id))
+                                obje.WorldCreatures.ForEach(wc => {
+                                    if (wc.Map == myContinent
+                                        && wc.MaxLevel <= myLevel + 2
+                                        && !TasksPile.Exists(t =>
+                                            t.IsSameTask(TaskType.Kill, quest.Id,
+                                                obje.ObjectiveIndex, () => wc.Guid)))
+                                        generatedTasks.Add(new WAQTask(TaskType.Kill, wc, null, quest,
+                                            obje.ObjectiveIndex));
+                                });
+                            else
+                                TasksPile.RemoveAll(t => t.Quest.Id == quest.Id
+                                                         && t.ObjectiveIndex == obje.ObjectiveIndex
+                                                         && t.TaskType == TaskType.Kill);
+
+                        // Gather object
+                        foreach (GatherObjective obje in quest.GatherObjectives)
+                            if (!ToolBox.GetObjectiveCompletion(obje.ObjectiveIndex, quest.Id))
+                                obje.WorldObjects.ForEach(wo => {
+                                    if (wo.Map == myContinent
+                                        && !TasksPile.Exists(t =>
+                                            t.IsSameTask(TaskType.GatherObject, quest.Id,
+                                                obje.ObjectiveIndex, () => wo.Guid)))
+                                        generatedTasks.Add(new WAQTask(TaskType.GatherObject, wo, quest,
+                                            obje.ObjectiveIndex));
+                                });
+                            else
+                                TasksPile.RemoveAll(t => t.Quest.Id == quest.Id
+                                                         && t.ObjectiveIndex == obje.ObjectiveIndex
+                                                         && t.TaskType == TaskType.GatherObject);
+
+                        // Interact with object
+                        foreach (InteractObjective obje in quest.InteractObjectives)
+                            if (!ToolBox.GetObjectiveCompletion(obje.ObjectiveIndex, quest.Id))
+                                obje.WorldObjects.ForEach(wo => {
+                                    if (wo.Map == myContinent
+                                        && !TasksPile.Exists(t =>
+                                            t.IsSameTask(TaskType.InteractWithWorldObject, quest.Id,
+                                                obje.ObjectiveIndex, () => wo.Guid)))
+                                        generatedTasks.Add(new WAQTask(TaskType.InteractWithWorldObject, wo, quest,
+                                            obje.ObjectiveIndex));
+                                });
+                            else
+                                TasksPile.RemoveAll(t => t.Quest.Id == quest.Id
+                                                         && t.ObjectiveIndex == obje.ObjectiveIndex
+                                                         && t.TaskType == TaskType.GatherObject);
+                    }
                 }
             }
 
