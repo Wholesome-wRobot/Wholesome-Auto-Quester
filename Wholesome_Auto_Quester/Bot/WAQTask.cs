@@ -5,54 +5,79 @@ using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.Bot {
-    public class WAQTask {
-        public ModelGatherObject GatherObject { get; }
+    public class WAQTask
+    {
+        public ModelArea Area { get; }
+        public ModelItem Item { get; }
+        public ModelWorldObject WorldObject { get; }
         public Vector3 Location { get; }
         public int Map { get; }
         public ModelNpc Npc { get; }
-        public int TargetGuid { get; }
+        public int ObjectGuid { get; }
         public int ObjectiveIndex { get; }
         public int POIEntry { get; }
         public ModelQuest Quest { get; }
-        public ModelArea Area { get; }
         public string TaskName { get; }
         public TaskType TaskType { get; }
 
         private Timer _timeOutTimer = new Timer();
 
-        public WAQTask(TaskType taskType, ModelNpc npc, ModelQuest quest, int objectiveIndex) {
+        public WAQTask(TaskType taskType, ModelNpc npc, ModelWorldObject worldObject, ModelQuest quest, int objectiveIndex) {
             TaskType = taskType;
             Npc = npc;
-            Location = npc.GetSpawnPosition;
+            WorldObject = worldObject;
             Quest = quest;
             ObjectiveIndex = objectiveIndex;
-            POIEntry = npc.Id;
-            Map = npc.Map;
-            TargetGuid = Npc?.Guid ?? GatherObject?.Guid ?? 0;
 
-            if (taskType == TaskType.PickupQuest)
-                TaskName = $"Pick up {quest.LogTitle} from {npc.Name}";
-            if (taskType == TaskType.TurnInQuest)
-                TaskName = $"Turn in {quest.LogTitle} at {npc.Name}";
+            Map = npc?.Map ?? worldObject.Map;
+            Location = npc?.GetSpawnPosition ?? worldObject.GetSpawnPosition;
+            POIEntry = npc?.Id ?? worldObject.Entry;
+            ObjectGuid = npc?.Guid ?? worldObject.Guid;
+
+            if (taskType == TaskType.PickupQuestFromNpc)
+                TaskName = $"Pick up {quest.LogTitle} from {npc?.Name}";
+            if (taskType == TaskType.PickupQuestFromGameObject)
+                TaskName = $"Pick up {quest.LogTitle} from {worldObject?.Name}";
+            if (taskType == TaskType.TurnInQuestToNpc)
+                TaskName = $"Turn in {quest.LogTitle} at {npc?.Name}";
+            if (taskType == TaskType.TurnInQuestToGameObject)
+                TaskName = $"Turn in {quest.LogTitle} at {worldObject?.Name}";
             if (taskType == TaskType.Kill)
                 TaskName = $"Kill {npc.Name} for {quest.LogTitle}";
             if (taskType == TaskType.KillAndLoot)
                 TaskName = $"Kill and Loot {npc.Name} for {quest.LogTitle}";
         }
 
-        public WAQTask(TaskType taskType, ModelGatherObject modelGatherObject, ModelQuest quest, int objectiveIndex) {
+        // Gather world item
+        public WAQTask(TaskType taskType, ModelItem modelGatherObject, ModelQuest quest, int objectiveIndex) {
             TaskType = taskType;
-            GatherObject = modelGatherObject;
+            Item = modelGatherObject;
             Location = modelGatherObject.GetSpawnPosition;
             Quest = quest;
             ObjectiveIndex = objectiveIndex;
-            POIEntry = modelGatherObject.GameObjectEntry;
+            POIEntry = modelGatherObject.WorldObjectEntry;
             Map = modelGatherObject.Map;
-            TargetGuid = Npc?.Guid ?? GatherObject?.Guid ?? 0;
+            ObjectGuid = Npc?.Guid ?? Item?.Guid ?? 0;
 
-            TaskName = $"Gather {modelGatherObject.Name} for {quest.LogTitle}";
+            TaskName = $"Gather item {modelGatherObject.Name} for {quest.LogTitle}";
         }
 
+        // Interact with world object
+        public WAQTask(TaskType taskType, ModelWorldObject modelWorldObject, ModelQuest quest, int objectiveIndex)
+        {
+            TaskType = taskType;
+            WorldObject = modelWorldObject;
+            Location = modelWorldObject.GetSpawnPosition;
+            Quest = quest;
+            ObjectiveIndex = objectiveIndex;
+            POIEntry = modelWorldObject.Entry;
+            Map = modelWorldObject.Map;
+            ObjectGuid = WorldObject.Guid;
+
+            TaskName = $"Interact with object {modelWorldObject.Name} for {quest.LogTitle}";
+        }
+
+        // Explore
         public WAQTask(TaskType taskType, ModelArea modelArea, ModelQuest quest, int objectiveIndex) {
             TaskType = taskType;
             Area = modelArea;
@@ -60,20 +85,21 @@ namespace Wholesome_Auto_Quester.Bot {
             Quest = quest;
             ObjectiveIndex = objectiveIndex;
             Map = modelArea.ContinentId;
-            TargetGuid = Npc?.Guid ?? GatherObject?.Guid ?? 0;
+            ObjectGuid = Npc?.Guid ?? Item?.Guid ?? 0;
 
             TaskName = $"Explore {modelArea.GetPosition} for {quest.LogTitle}";
         }
 
         public void PutTaskOnTimeout() {
-            int timeInSecs = Npc?.SpawnTimeSecs ?? GatherObject.SpawnTimeSecs;
+            int timeInSecs = Npc?.SpawnTimeSecs ?? Item?.SpawnTimeSecs ?? WorldObject.SpawnTimeSecs;
+            if (timeInSecs < 30) timeInSecs = 120;
             _timeOutTimer = new Timer(timeInSecs * 1000);
             WAQTasks.UpdateTasks();
         }
 
         public bool IsSameTask(TaskType taskType, int questEntry, int objIndex, Func<int> getUniqueId = null) {
             return TaskType == taskType && Quest.Id == questEntry && ObjectiveIndex == objIndex
-                   && TargetGuid == (getUniqueId?.Invoke() ?? 0);
+                   && ObjectGuid == (getUniqueId?.Invoke() ?? 0);
         }
 
         public bool IsTimedOut => !_timeOutTimer.IsReady;
@@ -95,10 +121,10 @@ namespace Wholesome_Auto_Quester.Bot {
 
                 // var levelDiff = (int) (Quest.QuestLevel - _myLevel);
                 // result *= System.Math.Max(0.2f, (10f + levelDiff*2) / 10);
-                if (TaskType == TaskType.PickupQuest) result *= 2;
-                if (TaskType == TaskType.TurnInQuest) result *= 2;
+                if (TaskType == TaskType.PickupQuestFromNpc) result *= 2;
+                if (TaskType == TaskType.TurnInQuestToNpc) result *= 2;
                 if (Quest.AllowableClasses > 0) result /= 4;
-                if (Quest.TimeAllowed > 0 && TaskType != TaskType.PickupQuest) result = 0;
+                if (Quest.TimeAllowed > 0 && TaskType != TaskType.PickupQuestFromNpc) result = 0;
 
                 return (int) result;
             }

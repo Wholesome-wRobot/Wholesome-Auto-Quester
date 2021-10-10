@@ -7,6 +7,7 @@ using Wholesome_Auto_Quester.Bot;
 using System;
 using System.Diagnostics;
 using robotManager.Products;
+using Wholesome_Auto_Quester.Database.Objectives;
 
 namespace Wholesome_Auto_Quester.Database {
     public class DBQueriesWotlk {
@@ -41,9 +42,10 @@ namespace Wholesome_Auto_Quester.Database {
                 // Quest is not for my race
                 if (q.AllowableRaces > 0 && (q.AllowableRaces & myFaction) == 0) continue;
                 // Quest is not for my faction
-                if (!q.QuestGivers.Any(qg => qg.IsNeutralOrFriendly)) continue;
+                if (!q.NpcQuestGivers.Any(qg => qg.IsNeutralOrFriendly) && q.WorldObjectQuestGivers.Count <= 0) continue;
                 // Quest is Dungeon/Group/Raid/PvP etc..
                 if (q.QuestInfoID != 0) continue;
+
 
                 result.Add(q);
             }
@@ -53,18 +55,6 @@ namespace Wholesome_Auto_Quester.Database {
 
         public void GetAvailableQuests() {
             DateTime dateBegin = DateTime.Now;
-
-            /*Logger.Log($"Building quests from JSON");
-            var watch = Stopwatch.StartNew();
-            List<ModelQuest> questsFromJSON = ToolBox.GetAllQuestsFromJSON();
-            Logger.LogDebug($"Loading the JSON took {watch.ElapsedMilliseconds}ms.");
-
-            if (questsFromJSON != null) {
-                DisposeDb();
-                Logger.Log($"Building quests from JSON complete ({questsFromJSON.Count} quests)");
-                WAQTasks.AddQuests(FilterDBQuests(questsFromJSON));
-                return;
-            }*/
 
             if (!ToolBox.WoWDBFileIsPresent()) {
                 // DOWNLOAD ZIP ETC..
@@ -118,61 +108,61 @@ namespace Wholesome_Auto_Quester.Database {
                     });
                 }
 
-                List<ModelGatherObject> gatherItems1 = quest.RequiredItemId1 != 0 ? GetGatherObjects(quest.RequiredItemId1) : null;
+                List<ModelItem> gatherItems1 = quest.RequiredItemId1 != 0 ? GetGatherObjects(quest.RequiredItemId1) : null;
                 List<ModelNpc> lootItems1 = quest.RequiredItemId1 != 0 ? GetCreatureToLoot(quest.RequiredItemId1) : null;
-                List<ModelGatherObject> gatherItems2 = quest.RequiredItemId2 != 0 ? GetGatherObjects(quest.RequiredItemId2) : null;
+                List<ModelItem> gatherItems2 = quest.RequiredItemId2 != 0 ? GetGatherObjects(quest.RequiredItemId2) : null;
                 List<ModelNpc> lootItems2 = quest.RequiredItemId2 != 0 ? GetCreatureToLoot(quest.RequiredItemId2) : null;
-                List<ModelGatherObject> gatherItems3 = quest.RequiredItemId3 != 0 ? GetGatherObjects(quest.RequiredItemId3) : null;
+                List<ModelItem> gatherItems3 = quest.RequiredItemId3 != 0 ? GetGatherObjects(quest.RequiredItemId3) : null;
                 List<ModelNpc> lootItems3 = quest.RequiredItemId3 != 0 ? GetCreatureToLoot(quest.RequiredItemId3) : null;
-                List<ModelGatherObject> gatherItems4 = quest.RequiredItemId4 != 0 ? GetGatherObjects(quest.RequiredItemId4) : null;
+                List<ModelItem> gatherItems4 = quest.RequiredItemId4 != 0 ? GetGatherObjects(quest.RequiredItemId4) : null;
                 List<ModelNpc> lootItems4 = quest.RequiredItemId4 != 0 ? GetCreatureToLoot(quest.RequiredItemId4) : null;
-                List<ModelGatherObject> gatherItems5 = quest.RequiredItemId5 != 0 ? GetGatherObjects(quest.RequiredItemId5) : null;
+                List<ModelItem> gatherItems5 = quest.RequiredItemId5 != 0 ? GetGatherObjects(quest.RequiredItemId5) : null;
                 List<ModelNpc> lootItems5 = quest.RequiredItemId5 != 0 ? GetCreatureToLoot(quest.RequiredItemId5) : null;
-                List<ModelGatherObject> gatherItems6 = quest.RequiredItemId6 != 0 ? GetGatherObjects(quest.RequiredItemId6) : null;
+                List<ModelItem> gatherItems6 = quest.RequiredItemId6 != 0 ? GetGatherObjects(quest.RequiredItemId6) : null;
                 List<ModelNpc> lootItems6 = quest.RequiredItemId6 != 0 ? GetCreatureToLoot(quest.RequiredItemId6) : null;
 
                 // Add gather world items
                 if (gatherItems1?.Count > 0)
                 {
                     if (gatherItems1.Count > 0)
-                        quest.GatherObjectsObjectives.Add(new GatherObjectObjective(quest.RequiredItemCount1, gatherItems1, ++nbObjective));
+                        quest.GatherObjectives.Add(new GatherObjective(quest.RequiredItemCount1, gatherItems1, ++nbObjective));
                     if (lootItems1.Count > 0)
-                        quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.RequiredItemCount1, lootItems1, nbObjective));
+                        quest.KillLootObjectives.Add(new KillLootObjective(quest.RequiredItemCount1, lootItems1, nbObjective));
                 }
                 if (gatherItems2?.Count > 0)
                 {
                     if (gatherItems2.Count > 0)
-                        quest.GatherObjectsObjectives.Add(new GatherObjectObjective(quest.RequiredItemCount2, gatherItems2, ++nbObjective));
+                        quest.GatherObjectives.Add(new GatherObjective(quest.RequiredItemCount2, gatherItems2, ++nbObjective));
                     if (lootItems2.Count > 0)
-                        quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.RequiredItemCount2, lootItems2, nbObjective));
+                        quest.KillLootObjectives.Add(new KillLootObjective(quest.RequiredItemCount2, lootItems2, nbObjective));
                 }
                 if (gatherItems3?.Count > 0)
                 {
                     if (gatherItems3.Count > 0)
-                        quest.GatherObjectsObjectives.Add(new GatherObjectObjective(quest.RequiredItemCount3, gatherItems3, ++nbObjective));
+                        quest.GatherObjectives.Add(new GatherObjective(quest.RequiredItemCount3, gatherItems3, ++nbObjective));
                     if (lootItems3.Count > 0)
-                        quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.RequiredItemCount3, lootItems3, nbObjective));
+                        quest.KillLootObjectives.Add(new KillLootObjective(quest.RequiredItemCount3, lootItems3, nbObjective));
                 }
                 if (gatherItems4?.Count > 0)
                 {
                     if (gatherItems4.Count > 0)
-                        quest.GatherObjectsObjectives.Add(new GatherObjectObjective(quest.RequiredItemCount4, gatherItems4, ++nbObjective));
+                        quest.GatherObjectives.Add(new GatherObjective(quest.RequiredItemCount4, gatherItems4, ++nbObjective));
                     if (lootItems4.Count > 0)
-                        quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.RequiredItemCount4, lootItems4, nbObjective));
+                        quest.KillLootObjectives.Add(new KillLootObjective(quest.RequiredItemCount4, lootItems4, nbObjective));
                 }
                 if (gatherItems5?.Count > 0)
                 {
                     if (gatherItems5.Count > 0)
-                        quest.GatherObjectsObjectives.Add(new GatherObjectObjective(quest.RequiredItemCount5, gatherItems5, ++nbObjective));
+                        quest.GatherObjectives.Add(new GatherObjective(quest.RequiredItemCount5, gatherItems5, ++nbObjective));
                     if (lootItems5.Count > 0)
-                        quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.RequiredItemCount5, lootItems5, nbObjective));
+                        quest.KillLootObjectives.Add(new KillLootObjective(quest.RequiredItemCount5, lootItems5, nbObjective));
                 }
                 if (gatherItems6?.Count > 0)
                 {
                     if (gatherItems6.Count > 0)
-                        quest.GatherObjectsObjectives.Add(new GatherObjectObjective(quest.RequiredItemCount6, gatherItems6, ++nbObjective));
+                        quest.GatherObjectives.Add(new GatherObjective(quest.RequiredItemCount6, gatherItems6, ++nbObjective));
                     if (lootItems6.Count > 0)
-                        quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.RequiredItemCount6, lootItems6, nbObjective));
+                        quest.KillLootObjectives.Add(new KillLootObjective(quest.RequiredItemCount6, lootItems6, nbObjective));
                 }
 
                 /*
@@ -185,33 +175,39 @@ namespace Wholesome_Auto_Quester.Database {
                     NOTE: If RequiredSpellCast is != 0 and the spell has effects Send Event or Quest Complete, this field may be left empty.
                 */
                 if (quest.RequiredNpcOrGo1 > 0)
-                    quest.CreaturesToKillObjectives.Add(new CreaturesToKillObjective(quest.RequiredNpcOrGoCount1, GetCreaturesToKill(quest.RequiredNpcOrGo1), ++nbObjective));
+                    quest.KillObjectives.Add(new KillObjective(quest.RequiredNpcOrGoCount1, GetCreaturesToKill(quest.RequiredNpcOrGo1), ++nbObjective));
                 if (quest.RequiredNpcOrGo1 < 0)
-                {
-                    // interact
-                }
+                    quest.InteractObjectives.Add(new InteractObjective(quest.RequiredNpcOrGoCount1, GetInteractObjects(-quest.RequiredNpcOrGo1), ++nbObjective));
 
-                if (quest.RequiredNpcOrGoCount2 != 0)
-                    quest.CreaturesToKillObjectives.Add(new CreaturesToKillObjective(quest.RequiredNpcOrGoCount2, GetCreaturesToKill(quest.RequiredNpcOrGo2), ++nbObjective));
-                if (quest.RequiredNpcOrGoCount3 != 0)
-                    quest.CreaturesToKillObjectives.Add(new CreaturesToKillObjective(quest.RequiredNpcOrGoCount3, GetCreaturesToKill(quest.RequiredNpcOrGo3), ++nbObjective));
-                if (quest.RequiredNpcOrGoCount4 != 0)
-                    quest.CreaturesToKillObjectives.Add(new CreaturesToKillObjective(quest.RequiredNpcOrGoCount4, GetCreaturesToKill(quest.RequiredNpcOrGo4), ++nbObjective));
+                if (quest.RequiredNpcOrGo2 > 0)
+                    quest.KillObjectives.Add(new KillObjective(quest.RequiredNpcOrGoCount2, GetCreaturesToKill(quest.RequiredNpcOrGo2), ++nbObjective));
+                if (quest.RequiredNpcOrGo2 < 0)
+                    quest.InteractObjectives.Add(new InteractObjective(quest.RequiredNpcOrGoCount2, GetInteractObjects(-quest.RequiredNpcOrGo2), ++nbObjective));
+
+                if (quest.RequiredNpcOrGo3 > 0)
+                    quest.KillObjectives.Add(new KillObjective(quest.RequiredNpcOrGoCount3, GetCreaturesToKill(quest.RequiredNpcOrGo3), ++nbObjective));
+                if (quest.RequiredNpcOrGo3 < 0)
+                    quest.InteractObjectives.Add(new InteractObjective(quest.RequiredNpcOrGoCount3, GetInteractObjects(-quest.RequiredNpcOrGo3), ++nbObjective));
+
+                if (quest.RequiredNpcOrGo4 > 0)
+                    quest.KillObjectives.Add(new KillObjective(quest.RequiredNpcOrGoCount4, GetCreaturesToKill(quest.RequiredNpcOrGo4), ++nbObjective));
+                if (quest.RequiredNpcOrGo4 < 0)
+                    quest.InteractObjectives.Add(new InteractObjective(quest.RequiredNpcOrGoCount4, GetInteractObjects(-quest.RequiredNpcOrGo4), ++nbObjective));
 
 
                 // Add creature loot items
                 if ((gatherItems1 == null || gatherItems1.Count <= 0) && lootItems1?.Count > 0)
-                    quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.RequiredItemCount1, lootItems1, ++nbObjective));
+                    quest.KillLootObjectives.Add(new KillLootObjective(quest.RequiredItemCount1, lootItems1, ++nbObjective));
                 if ((gatherItems2 == null || gatherItems2.Count <= 0) && lootItems2?.Count > 0)
-                    quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.RequiredItemCount2, lootItems2, ++nbObjective));
+                    quest.KillLootObjectives.Add(new KillLootObjective(quest.RequiredItemCount2, lootItems2, ++nbObjective));
                 if ((gatherItems3 == null || gatherItems3.Count <= 0) && lootItems3?.Count > 0)
-                    quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.RequiredItemCount3, lootItems3, ++nbObjective));
+                    quest.KillLootObjectives.Add(new KillLootObjective(quest.RequiredItemCount3, lootItems3, ++nbObjective));
                 if ((gatherItems4 == null || gatherItems4.Count <= 0) && lootItems4?.Count > 0)
-                    quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.RequiredItemCount4, lootItems4, ++nbObjective));
+                    quest.KillLootObjectives.Add(new KillLootObjective(quest.RequiredItemCount4, lootItems4, ++nbObjective));
                 if ((gatherItems5 == null || gatherItems5.Count <= 0) && lootItems5?.Count > 0)
-                    quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.RequiredItemCount5, lootItems5, ++nbObjective));
+                    quest.KillLootObjectives.Add(new KillLootObjective(quest.RequiredItemCount5, lootItems5, ++nbObjective));
                 if ((gatherItems6 == null || gatherItems6.Count <= 0) && lootItems6?.Count > 0)
-                    quest.CreaturesToLootObjectives.Add(new CreatureToLootObjective(quest.RequiredItemCount6, lootItems6, ++nbObjective));
+                    quest.KillLootObjectives.Add(new KillLootObjective(quest.RequiredItemCount6, lootItems6, ++nbObjective));
             }
 
             Logger.Log($"Process time (Objectives) : {(DateTime.Now.Ticks - dateBeginObjectives.Ticks) / 10000} ms");
@@ -219,7 +215,8 @@ namespace Wholesome_Auto_Quester.Database {
             // Get quest givers
             DateTime dateBeginQuestGivers = DateTime.Now;
             foreach (ModelQuest quest in result) {
-                quest.QuestGivers = GetQuestGivers(quest.Id);
+                quest.NpcQuestGivers = GetNpcQuestGivers(quest.Id);
+                quest.WorldObjectQuestGivers = GetWorldObjectsQuestGivers(quest.Id);
             }
 
             Logger.Log($"Process time (Quest givers) : {(DateTime.Now.Ticks - dateBeginQuestGivers.Ticks) / 10000} ms");
@@ -227,7 +224,8 @@ namespace Wholesome_Auto_Quester.Database {
             // Get quest enders
             DateTime dateBeginQuestEnder = DateTime.Now;
             foreach (ModelQuest quest in result) {
-                quest.QuestTurners = GetQuestTurners(quest.Id);
+                quest.NpcQuestTurners = GetNpcQuestTurners(quest.Id);
+                quest.WorldObjectQuestTurners = GetWorldObjectsQuestTurners(quest.Id);
             }
 
             Logger.Log($"Process time (Quest enders) : {(DateTime.Now.Ticks - dateBeginQuestEnder.Ticks) / 10000} ms");
@@ -296,7 +294,7 @@ namespace Wholesome_Auto_Quester.Database {
             ");
         }
 
-        private List<ModelNpc> GetQuestGivers(int questId) {
+        private List<ModelNpc> GetNpcQuestGivers(int questId) {
             string query = $@"
                     SELECT cq.id Id, ct.name Name, c.guid Guid, c.map Map, c.spawntimesecs SpawnTimeSecs,
 	                    c.position_x PositionX, c.position_y PositionY, c.position_z PositionZ,
@@ -312,7 +310,7 @@ namespace Wholesome_Auto_Quester.Database {
             return _database.SafeQueryNpcs(query);
         }
 
-        private List<ModelNpc> GetQuestTurners(int questId) {
+        private List<ModelNpc> GetNpcQuestTurners(int questId) {
             string query = $@"
                     SELECT ci.id Id, ct.Name, c.guid Guid, c.map Map, c.position_x PositionX, 
                     c.position_y PositionY, c.position_z PositionZ, c.spawntimesecs SpawnTimeSecs,
@@ -326,6 +324,40 @@ namespace Wholesome_Auto_Quester.Database {
                 ";
 
             return _database.SafeQueryNpcs(query);
+        }
+
+        private List<ModelWorldObject> GetWorldObjectsQuestTurners(int questId)
+        {
+            string query = $@"
+                    SELECT gt.entry, gt.name, gt.""type"", g.guid, g.map, g.zoneId, g.areaId,
+                        g.position_x PositionX, g.position_y PositionY, g.position_z PositionZ,
+                        g.spawntimesecs
+                    FROM gameobject_questender gq
+                    JOIN gameobject_template gt
+                    ON gt.entry = gq.id
+                    JOIN gameobject g
+                    ON g.id = gq.id
+                    WHERE gq.quest = {questId}
+                ";
+
+            return _database.SafeQueryInteractObjects(query);
+        }
+
+        private List<ModelWorldObject> GetWorldObjectsQuestGivers(int questId)
+        {
+            string query = $@"
+                    SELECT gt.entry, gt.name, gt.""type"", g.guid, g.map, g.zoneId, g.areaId,
+                        g.position_x PositionX, g.position_y PositionY, g.position_z PositionZ,
+                        g.spawntimesecs
+                    FROM gameobject_queststarter gq
+                    JOIN gameobject_template gt
+                    ON gt.entry = gq.id
+                    JOIN gameobject g
+                    ON g.id = gq.id
+                    WHERE gq.quest = {questId}
+                ";
+
+            return _database.SafeQueryInteractObjects(query);
         }
 
         private List<ModelNpc> GetCreatureToLoot(int itemid) {
@@ -361,22 +393,37 @@ namespace Wholesome_Auto_Quester.Database {
             return _database.SafeQueryNpcs(query);
         }
 
-        private List<ModelGatherObject> GetGatherObjects(int objectId) {
+        private List<ModelItem> GetGatherObjects(int objectId) {
             string query = $@"
                 SELECT it.entry Entry, it.class Class, it.subclass SubClass, it.name Name, it.displayid DisplayId, 
-	                it.Quality, it.Flags, glt.Entry GOLootEntry, gt.entry GameObjectEntry, g.guid Guid, g.map Map, 
+	                it.Quality, it.Flags, glt.Entry WorldObjectEntry, gt.entry GameObjectEntry, g.guid Guid, g.map Map, 
 	                g.position_x PositionX, g.position_y PositionY, g.position_z PositionZ, g.spawntimesecs SpawnTimeSecs
                 FROM item_template it
                 JOIN gameobject_loot_template glt
                 ON glt.item = it.entry
                 JOIN gameobject_template gt
-                ON gt.data1 = GOLootEntry
+                ON gt.data1 = WorldObjectEntry
                 JOIN gameobject g
                 ON g.id = GameObjectEntry
                 WHERE it.entry == {objectId}
             ";
 
             return _database.SafeQueryGatherObjects(query);
+        }
+
+        private List<ModelWorldObject> GetInteractObjects(int objectId)
+        {
+            string query = $@"
+                Select gt.entry, gt.name, gt.""type"", g.guid, g.map, g.zoneId, g.areaId,
+                    g.position_x PositionX, g.position_y PositionY, g.position_z PositionZ,
+                    g.spawntimesecs
+                FROM gameobject_template gt
+                JOIN gameobject g
+                ON g.id = gt.entry
+                WHERE gt.entry = {objectId}
+            ";
+
+            return _database.SafeQueryInteractObjects(query);
         }
 
         private List<ModelArea> GetAreasToExplore(int questId)

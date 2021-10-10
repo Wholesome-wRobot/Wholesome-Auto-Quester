@@ -4,6 +4,7 @@ using System.Windows;
 using robotManager.Helpful;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Database.Models;
+using Wholesome_Auto_Quester.Database.Objectives;
 using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.GUI {
@@ -46,8 +47,8 @@ namespace Wholesome_Auto_Quester.GUI {
                 sourceQuestsList.ItemsSource = WAQTasks.Quests
                     .OrderBy(q => q.Status)
                     .ThenBy(q => {
-                        if (q.QuestGivers.Count <= 0) return float.PositiveInfinity;
-                        return q.QuestGivers.Min(qg =>
+                        if (q.NpcQuestGivers.Count <= 0) return float.PositiveInfinity;
+                        return q.NpcQuestGivers.Min(qg =>
                             new Vector3(qg.PositionX, qg.PositionY, qg.PositionZ).DistanceTo(myPos));
                     });
 
@@ -82,12 +83,14 @@ namespace Wholesome_Auto_Quester.GUI {
                 
                 // quest givers
                 string qg = "";
-                selected.QuestGivers.ForEach(q => qg += $"{q.Id} ({new Vector3(q.PositionX, q.PositionY, q.PositionZ).DistanceTo(myPos)}y) ");
+                selected.NpcQuestGivers.ForEach(q => qg += $"{q.Id}");
+                selected.WorldObjectQuestGivers.ForEach(q => qg += $"{q.Entry}");
                 questGivers.Text = $"Quest Givers: {qg}";
 
                 // quest turners
                 string qt = "";
-                selected.QuestTurners.ForEach(q => qt += $"{q.Id} ({new Vector3(q.PositionX, q.PositionY, q.PositionZ).DistanceTo(myPos)}y) ");
+                selected.NpcQuestTurners.ForEach(q => qt += $"{q.Id}");
+                selected.WorldObjectQuestTurners.ForEach(q => qt += $"{q.Entry}");
                 questTurners.Text = $"Quest Turners: {qt}";
 
                 // status
@@ -105,30 +108,37 @@ namespace Wholesome_Auto_Quester.GUI {
 
                 // exploration objectives
                 string explorationsObjectives = "Explore: ";
-                foreach (ExplorationObjective areaObj in selected.ExplorationObjectives)
-                    explorationsObjectives += $"\n    [{selected.ExplorationObjectives.IndexOf(areaObj) + 1}] {areaObj.area.GetPosition}";
+                foreach (ExplorationObjective obje in selected.ExplorationObjectives)
+                    explorationsObjectives += $"\n    [{selected.ExplorationObjectives.IndexOf(obje) + 1}] {obje.Area.GetPosition}";
                 explorations.Text = explorationsObjectives;
 
                 // gather objectives
                 string gatherObjectsString = "Gather: ";
-                foreach (GatherObjectObjective objGroup in selected.GatherObjectsObjectives)
+                foreach (GatherObjective obje in selected.GatherObjectives)
                     gatherObjectsString +=
-                        $"\n    [{objGroup.objectiveIndex}] {objGroup.amount} x {objGroup.GetName} ({objGroup.worldObjects.Count} found)";
+                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.ItemName} ({obje.WorldObjects.Count} found)";
                 questGatherObjects.Text = gatherObjectsString;
 
                 // kill objectives
                 string creaturesToKillString = "Kill: ";
-                foreach (CreaturesToKillObjective creaGroup in selected.CreaturesToKillObjectives)
+                foreach (KillObjective obje in selected.KillObjectives)
                     creaturesToKillString +=
-                        $"\n    [{creaGroup.objectiveIndex}] {creaGroup.amount} x {creaGroup.GetName} ({creaGroup.worldCreatures.Count} found)";
+                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.CreatureName} ({obje.WorldCreatures.Count} found)";
                 questKillCreatures.Text = creaturesToKillString;
 
                 // kill&loot objectives
                 string creaturesToLootString = "Kill & Loot: ";
-                foreach (CreatureToLootObjective creaGroup in selected.CreaturesToLootObjectives)
+                foreach (KillLootObjective obje in selected.KillLootObjectives)
                     creaturesToLootString +=
-                        $"\n    [{creaGroup.objectiveIndex}] {creaGroup.amount} x {creaGroup.itemName} on {creaGroup.GetName} ({creaGroup.worldCreatures.Count} found)";
+                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.ItemName} on {obje.CreatureName} ({obje.WorldCreatures.Count} found)";
                 questLootCreatures.Text = creaturesToLootString;
+
+                // Interact objectives
+                string interactString = "Interact: ";
+                foreach (InteractObjective obje in selected.InteractObjectives)
+                    interactString +=
+                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.ItemName} ({obje.WorldObjects.Count} found)";
+                interactObjectives.Text = interactString;
 
                 if (WholesomeAQSettings.CurrentSetting.BlacklistesQuests.Contains(selected.Id)) {
                     ButtonAddToBl.IsEnabled = false;

@@ -44,12 +44,15 @@ namespace Wholesome_Auto_Quester.Bot
                 Fsm.AddState(new ToTown { Priority = 25 });
 
                 // WAQ tasks
+                Fsm.AddState(new WAQInteractWorldObject { Priority = 16 });
                 Fsm.AddState(new WAQGoTo { Priority = 15 });
                 Fsm.AddState(new WAQKill { Priority = 14 });
                 Fsm.AddState(new WAQKillAndLoot { Priority = 13 });
-                Fsm.AddState(new WAQPickupWorldObject { Priority = 12 });
-                Fsm.AddState(new WAQPickupQuest { Priority = 11 });
-                Fsm.AddState(new WAQTurnInQuest { Priority = 10 });
+                Fsm.AddState(new WAQGatherWorldObject { Priority = 12 });
+                Fsm.AddState(new WAQPickupQuestFromNpc { Priority = 11 });
+                Fsm.AddState(new WAQPickupQuestFromGameObject { Priority = 10 });
+                Fsm.AddState(new WAQTurnInQuestToNpc { Priority = 9 });
+                Fsm.AddState(new WAQTurnInQuestToGameObject { Priority = 8 });
 
                 Fsm.AddState(new Grinding { Priority = 2 });
                 Fsm.AddState(new MovementLoop { Priority = 1 });

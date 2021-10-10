@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Wholesome_Auto_Quester.Bot;
+using Wholesome_Auto_Quester.Database.Objectives;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
@@ -11,12 +12,15 @@ namespace Wholesome_Auto_Quester.Database.Models
     public class ModelQuest
     {
         public QuestStatus Status { get; set; } = QuestStatus.None;
-        public List<ModelNpc> QuestGivers { get; set; } = new List<ModelNpc>();
-        public List<ModelNpc> QuestTurners { get; set; } = new List<ModelNpc>();
+        public List<ModelNpc> NpcQuestGivers { get; set; } = new List<ModelNpc>();
+        public List<ModelNpc> NpcQuestTurners { get; set; } = new List<ModelNpc>();
+        public List<ModelWorldObject> WorldObjectQuestGivers { get; set; } = new List<ModelWorldObject>();
+        public List<ModelWorldObject> WorldObjectQuestTurners { get; set; } = new List<ModelWorldObject>();
         public List<ExplorationObjective> ExplorationObjectives { get; set; } = new List<ExplorationObjective>();
-        public List<GatherObjectObjective> GatherObjectsObjectives { get; set; } = new List<GatherObjectObjective>();
-        public List<CreaturesToKillObjective> CreaturesToKillObjectives { get; set; } = new List<CreaturesToKillObjective>();
-        public List<CreatureToLootObjective> CreaturesToLootObjectives { get; set; } = new List<CreatureToLootObjective>();
+        public List<GatherObjective> GatherObjectives { get; set; } = new List<GatherObjective>();
+        public List<KillObjective> KillObjectives { get; set; } = new List<KillObjective>();
+        public List<KillLootObjective> KillLootObjectives { get; set; } = new List<KillLootObjective>();
+        public List<InteractObjective> InteractObjectives { get; set; } = new List<InteractObjective>();
         public List<int> NextQuestsIds { get; set; } = new List<int>();
         public List<int> PreviousQuestsIds { get; set; } = new List<int>();
 
@@ -95,14 +99,14 @@ namespace Wholesome_Auto_Quester.Database.Models
 
         public void AddQuestItemsToDoNotSellList()
         {
-            CreaturesToLootObjectives.ForEach(o => ToolBox.AddItemToDoNotSellList(o.itemName));
-            GatherObjectsObjectives.ForEach(o => ToolBox.AddItemToDoNotSellList(o.itemName));
+            KillLootObjectives.ForEach(o => ToolBox.AddItemToDoNotSellList(o.ItemName));
+            GatherObjectives.ForEach(o => ToolBox.AddItemToDoNotSellList(o.ItemName));
         }
 
         public void RemoveQuestItemsFromDoNotSellList()
         {
-            CreaturesToLootObjectives.ForEach(o => ToolBox.RemoveItemFromDoNotSellList(o.itemName));
-            GatherObjectsObjectives.ForEach(o => ToolBox.RemoveItemFromDoNotSellList(o.itemName));
+            KillLootObjectives.ForEach(o => ToolBox.RemoveItemFromDoNotSellList(o.ItemName));
+            GatherObjectives.ForEach(o => ToolBox.RemoveItemFromDoNotSellList(o.ItemName));
         }
 
         public bool IsCompleted => ToolBox.IsQuestCompleted(Id);
@@ -127,77 +131,5 @@ namespace Wholesome_Auto_Quester.Database.Models
             {  QuestStatus.ToTurnIn, "RoyalBlue"},
             {  QuestStatus.Blacklisted, "Red"}
         };
-    }
-
-    public struct CreaturesToKillObjective
-    {
-        public int id;
-        public int amount;
-        public List<ModelNpc> worldCreatures;
-        public int objectiveIndex;
-
-        public CreaturesToKillObjective(int amount, List<ModelNpc> worldCreatures, int objectiveIndex)
-        {
-            this.amount = amount;
-            this.id = worldCreatures.Count > 0 ? worldCreatures[0].Id : -1;
-            this.worldCreatures = worldCreatures;
-            this.objectiveIndex = objectiveIndex;
-        }
-
-        public string GetName => worldCreatures.Count > 0 ? worldCreatures[0].Name : "N/A";
-    }
-
-    public struct CreatureToLootObjective
-    {
-        public int amount;
-        public string itemName;
-        public List<ModelNpc> worldCreatures;
-        public int objectiveIndex;
-
-        public CreatureToLootObjective(int amount, List<ModelNpc> worldCreatures, int objectiveIndex)
-        {
-            this.amount = amount;
-            this.worldCreatures = worldCreatures;
-            this.itemName = worldCreatures.Count > 0 ? worldCreatures[0].ItemName : "N/A";
-            this.objectiveIndex = objectiveIndex;
-        }
-
-        public string GetName => worldCreatures.Count > 0 ? worldCreatures[0].Name : "N/A";
-    }
-
-    public struct GatherObjectObjective
-    {
-        public int id;
-        public int amount;
-        public List<ModelGatherObject> worldObjects;
-        public int objectiveIndex;
-        public string itemName;
-
-        public GatherObjectObjective(int amount, List<ModelGatherObject> worldObjects, int objectiveIndex)
-        {
-            this.amount = amount;
-            this.id = worldObjects[0].Entry;
-            this.worldObjects = worldObjects;
-            this.objectiveIndex = objectiveIndex;
-            this.itemName = worldObjects.Count > 0 ? worldObjects[0].Name : "N/A";
-        }
-
-        public string GetName => worldObjects?.Count > 0 ? worldObjects[0].Name : "N/A";
-    }
-
-    public struct ExplorationObjective
-    {
-        public int id;
-        public ModelArea area;
-        public int objectiveIndex;
-
-        public ExplorationObjective(int id, ModelArea area, int objectiveIndex)
-        {
-            this.id = id;
-            this.area = area;
-            this.objectiveIndex = objectiveIndex;
-        }
-
-        public string GetName => area.GetPosition.ToString();
     }
 }

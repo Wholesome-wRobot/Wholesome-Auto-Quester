@@ -1,17 +1,15 @@
 ﻿using robotManager.FiniteStateMachine;
 using System.Threading;
 using FlXProfiles;
-using robotManager.Helpful;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Helpers;
-using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.States {
-    class WAQPickupWorldObject : State {
-        public override string DisplayName { get; set; } = "Pick up object [SmoothMove - Q]";
+    class WAQGatherWorldObject : State {
+        public override string DisplayName { get; set; } = "Gather world object [SmoothMove - Q]";
 
         public override bool NeedToRun {
             get {
@@ -21,7 +19,7 @@ namespace Wholesome_Auto_Quester.States {
 
                 if (WAQTasks.TaskInProgress?.TaskType == TaskType.GatherObject) {
                     DisplayName =
-                        $"Gather {WAQTasks.TaskInProgress.GatherObject.Name} for {WAQTasks.TaskInProgress.Quest.LogTitle} [SmoothMove - Q]";
+                        $"Gather world object {WAQTasks.TaskInProgress.Item.Name} for {WAQTasks.TaskInProgress.Quest.LogTitle} [SmoothMove - Q]";
                     return true;
                 }
 
@@ -31,9 +29,8 @@ namespace Wholesome_Auto_Quester.States {
 
         public override void Run() {
             WAQTask task = WAQTasks.TaskInProgress;
-            //Logger.Log($"******** RUNNING {task.TaskType} TASK {ToolBox.GetTaskId(task)}  ********");
 
-            if (WAQTasks.TaskInProgressWoWObject != null) // && WAQTasks.TaskInProgressWoWObject.IsValid)
+            if (WAQTasks.TaskInProgressWoWObject != null)
             {
                 if (WAQTasks.TaskInProgressWoWObject.Type != WoWObjectType.GameObject) {
                     Logger.LogError(
@@ -64,11 +61,10 @@ namespace Wholesome_Auto_Quester.States {
                 
                 if (task.GetDistance <= 12f) {
                     Logger.Log(
-                        $"We are close to {task.TaskName} position and no object to gather in sight. Time out for {task.GatherObject.SpawnTimeSecs}s");
+                        $"We are close to {task.TaskName} position and no object to gather in sight. Time out for {task.Item.SpawnTimeSecs}s");
                     task.PutTaskOnTimeout();
-                    // MoveHelper.StopAllMove();
-                } else if (ToolBox.DangerousEnemiesAtLocation(task.Location) && WAQTasks.TasksPile.FindAll(t => t.POIEntry == task.GatherObject.Entry).Count > 1) {
-                    Logger.Log($"We are close to {task.TaskName} position and found dangerous mobs. Time out for {task.GatherObject.SpawnTimeSecs}s");
+                } else if (ToolBox.DangerousEnemiesAtLocation(task.Location) && WAQTasks.TasksPile.FindAll(t => t.POIEntry == task.Item.Entry).Count > 1) {
+                    Logger.Log($"We are close to {task.TaskName} position and found dangerous mobs. Time out for {task.Item.SpawnTimeSecs}s");
                     task.PutTaskOnTimeout();
                 }
             }

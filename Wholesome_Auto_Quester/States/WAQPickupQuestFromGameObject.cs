@@ -6,10 +6,9 @@ using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 using FlXProfiles;
 using wManager.Wow.Enums;
-using wManager.Wow.Bot.Tasks;
 
 namespace Wholesome_Auto_Quester.States {
-    class WAQPickupQuest : State {
+    class WAQPickupQuestFromGameObject : State {
         public override string DisplayName { get; set; } = "Pick up quest [SmoothMove - Q]";
 
         public override bool NeedToRun {
@@ -18,9 +17,9 @@ namespace Wholesome_Auto_Quester.States {
                     || !ObjectManager.Me.IsValid)
                     return false;
 
-                if (WAQTasks.TaskInProgress?.TaskType == TaskType.PickupQuest) {
+                if (WAQTasks.TaskInProgress?.TaskType == TaskType.PickupQuestFromGameObject) {
                     DisplayName =
-                        $"Pick up quest {WAQTasks.TaskInProgress.Quest.LogTitle} at {WAQTasks.TaskInProgress.Npc.Id} - {WAQTasks.TaskInProgress.Npc.Name} [SmoothMove - Q]";
+                        $"Pick up quest {WAQTasks.TaskInProgress.Quest.LogTitle} at {WAQTasks.TaskInProgress.WorldObject.Name} [SmoothMove - Q]";
                     return true;
                 }
 
@@ -30,27 +29,27 @@ namespace Wholesome_Auto_Quester.States {
 
         public override void Run() {
             WAQTask task = WAQTasks.TaskInProgress;
-            WoWObject npcObject = WAQTasks.TaskInProgressWoWObject;
+            WoWObject gameObject = WAQTasks.TaskInProgressWoWObject;
 
             if (Quest.GetQuestCompleted(task.Quest.Id)) {
                 task.Quest.MarkAsCompleted();
                 return;
             }
 
-            if (npcObject != null) {
-                if (npcObject.Type != WoWObjectType.Unit) {
-                    Logger.LogError($"Expected a WoWUnit for PickUp Quest but got {npcObject.Type} instead.");
+            if (gameObject != null) {
+                if (gameObject.Type != WoWObjectType.GameObject) {
+                    Logger.LogError($"Expected a GameObject for PickUp Quest but got {gameObject.Type} instead.");
                     return;
                 }
 
-                var pickUpTarget = (WoWUnit) npcObject;
+                var pickUpTarget = (WoWGameObject) gameObject;
 
-                if (!pickUpTarget.InInteractDistance()) {
+                if (pickUpTarget.GetDistance > 4) {
                     if(!MoveHelper.IsMovementThreadRunning
-                       || MoveHelper.CurrentMovementTarget.DistanceTo(pickUpTarget.PositionWithoutType) > 4)
+                       || MoveHelper.CurrentMovementTarget.DistanceTo(pickUpTarget.Position) > 4)
                     {
-                        Logger.Log($"NPC found - Going to {pickUpTarget.Name} to pick up {task.Quest.LogTitle}.");
-                        MoveHelper.StartGoToThread(pickUpTarget.PositionWithoutType, randomizeEnd: 3f);
+                        Logger.Log($"Game Object found - Going to {pickUpTarget.Name} to pick up {task.Quest.LogTitle}.");
+                        MoveHelper.StartGoToThread(pickUpTarget.Position, randomizeEnd: 3f);
                     }
                     return;
                 }
@@ -59,6 +58,7 @@ namespace Wholesome_Auto_Quester.States {
 
                 if (!ToolBox.IsNpcFrameActive()) {
                     Interact.InteractGameObject(pickUpTarget.GetBaseAddress);
+                    Usefuls.WaitIsCasting();
                 } else if (!ToolBox.GossipPickUpQuest(task.Quest.LogTitle)) {
                     Logger.LogError($"Failed PickUp Gossip for {task.Quest.LogTitle}. Timeout");
                     task.PutTaskOnTimeout();
@@ -67,12 +67,12 @@ namespace Wholesome_Auto_Quester.States {
             } else {
                 if (!MoveHelper.IsMovementThreadRunning ||
                     MoveHelper.CurrentMovementTarget.DistanceTo(task.Location) > 8) {
-                    Logger.Log($"Moving to QuestGiver for {task.Quest.LogTitle} (PickUp).");
+                    Logger.Log($"Moving to QuestGiver for {task.Quest.LogTitle}.");
                     MoveHelper.StartGoToThread(task.Location, randomizeEnd: 8f);
                 }
                 if (task.GetDistance <= 12f) {
                     Logger.Log(
-                        $"We are close to {task.TaskName} position and no NPC for pick-up in sight. Time out for {task.Npc.SpawnTimeSecs}s");
+                        $"We are close to {task.TaskName} position and no game object for pick-up in sight. Time out for {task.Npc.SpawnTimeSecs}s");
                     task.PutTaskOnTimeout();
                     MoveHelper.StopAllMove();
                 }

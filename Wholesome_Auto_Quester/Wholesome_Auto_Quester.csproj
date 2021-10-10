@@ -295,10 +295,16 @@
     <Compile Include="Database\DB.cs" />
     <Compile Include="Database\DBQueriesWotlk.cs" />
     <Compile Include="Database\DBQueriesTBC.cs" />
-    <Compile Include="Database\Models\ModelGatherObject.cs" />
+    <Compile Include="Database\Models\ModelWorldObject.cs" />
+    <Compile Include="Database\Models\ModelItem.cs" />
     <Compile Include="Database\Models\ModelArea.cs" />
     <Compile Include="Database\Models\ModelNpc.cs" />
     <Compile Include="Database\Models\ModelQuest.cs" />
+    <Compile Include="Database\Objectives\ExplorationObjective.cs" />
+    <Compile Include="Database\Objectives\GatherObjective.cs" />
+    <Compile Include="Database\Objectives\InteractObjective.cs" />
+    <Compile Include="Database\Objectives\KillLootObjective.cs" />
+    <Compile Include="Database\Objectives\KillObjective.cs" />
     <Compile Include="GUI\ProductSettingsControl.xaml.cs">
       <DependentUpon>ProductSettingsControl.xaml</DependentUpon>
     </Compile>
@@ -315,10 +321,13 @@
     <Compile Include="States\Defend.cs" />
     <Compile Include="States\WAQGoTo.cs" />
     <Compile Include="States\WAQKillAndLoot.cs" />
-    <Compile Include="States\WAQTurnInQuest.cs" />
-    <Compile Include="States\WAQPickupQuest.cs" />
+    <Compile Include="States\WAQInteractWorldObject.cs" />
+    <Compile Include="States\WAQPickupQuestFromGameObject.cs" />
+    <Compile Include="States\WAQTurnInQuestToGameObject.cs" />
+    <Compile Include="States\WAQTurnInQuestToNpc.cs" />
+    <Compile Include="States\WAQPickupQuestFromNpc.cs" />
     <Compile Include="States\WAQKill.cs" />
-    <Compile Include="States\WAQPickupWorldObject.cs" />
+    <Compile Include="States\WAQGatherWorldObject.cs" />
     <Compile Include="Helpers\ToolBox.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

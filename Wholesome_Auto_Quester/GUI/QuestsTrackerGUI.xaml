@@ -239,6 +239,10 @@
                             <TextBlock 
                                 Name="questLootCreatures"
                                 TextWrapping="Wrap"/>
+
+                            <TextBlock 
+                                Name="interactObjectives"
+                                TextWrapping="Wrap"/>
                         </StackPanel>
                     </Grid>
                 </Grid>

@@ -1,17 +1,14 @@
 ﻿using robotManager.FiniteStateMachine;
-using System.Collections.Generic;
 using System.Threading;
 using FlXProfiles;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Helpers;
-using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
-using robotManager.Helpful;
 
 namespace Wholesome_Auto_Quester.States {
-    class WAQTurnInQuest : State {
+    class WAQTurnInQuestToNpc : State {
         public override string DisplayName { get; set; } = "Turn in quest [SmoothMove - Q]";
 
         public override bool NeedToRun {
@@ -20,9 +17,9 @@ namespace Wholesome_Auto_Quester.States {
                     || !ObjectManager.Me.IsValid)
                     return false;
 
-                if (WAQTasks.TaskInProgress?.TaskType == TaskType.TurnInQuest) {
+                if (WAQTasks.TaskInProgress?.TaskType == TaskType.TurnInQuestToNpc) {
                     DisplayName =
-                        $"Turning in {WAQTasks.TaskInProgress.Quest.LogTitle} to {WAQTasks.TaskInProgress.Npc.Name} [SmoothMove - Q]";
+                        $"Turning in {WAQTasks.TaskInProgress.Quest.LogTitle} to NPC {WAQTasks.TaskInProgress.Npc?.Name} [SmoothMove - Q]";
                     return true;
                 }
 
@@ -66,7 +63,7 @@ namespace Wholesome_Auto_Quester.States {
             } else {
                 if (!MoveHelper.IsMovementThreadRunning ||
                     MoveHelper.CurrentMovementTarget.DistanceTo(task.Location) > 8) {
-                    Logger.Log($"Moving to QuestGiver for {task.Quest.LogTitle} (TurnIn).");
+                    Logger.Log($"Moving to QuestEnder for {task.Quest.LogTitle}.");
                     MoveHelper.StartGoToThread(task.Location, randomizeEnd: 8f);
                 }
                 if (task.GetDistance <= 12f) {

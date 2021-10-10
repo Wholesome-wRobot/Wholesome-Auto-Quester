@@ -44,9 +44,14 @@ namespace Wholesome_Auto_Quester.Database
             return _con.SafeQuery<ModelNpc>(query).ToList();
         }
 
-        public List<ModelGatherObject> SafeQueryGatherObjects(string query)
+        public List<ModelItem> SafeQueryGatherObjects(string query)
         {
-            return _con.SafeQuery<ModelGatherObject>(query).ToList();
+            return _con.SafeQuery<ModelItem>(query).ToList();
+        }
+
+        public List<ModelWorldObject> SafeQueryInteractObjects(string query)
+        {
+            return _con.SafeQuery<ModelWorldObject>(query).ToList();
         }
 
         public List<ModelArea> SafeQueryAreas(string query)
