@@ -137,7 +137,7 @@ namespace Wholesome_Auto_Quester.GUI {
                 string creaturesToLootString = "Kill & Loot: ";
                 foreach (KillLootObjective obje in selected.KillLootObjectives)
                     creaturesToLootString +=
-                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.ItemName} on {obje.CreatureName} ({obje.WorldCreatures.Count} found)";
+                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.ItemName} ({obje.WorldCreatures.Count} found)";
                 questLootCreatures.Text = creaturesToLootString;
 
                 // Prerequisite gathers
@@ -151,7 +151,7 @@ namespace Wholesome_Auto_Quester.GUI {
                 string prerequisiteLootsString = "Prerequisite Loots: ";
                 foreach (KillLootObjective obje in selected.PrerequisiteLootItems)
                     prerequisiteLootsString +=
-                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.ItemName} on {obje.CreatureName} ({obje.WorldCreatures.Count} found)";
+                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.ItemName} ({obje.WorldCreatures.Count} found)";
                 prerequisiteLoots.Text = prerequisiteLootsString;
 
                 if (WholesomeAQSettings.CurrentSetting.BlacklistesQuests.Contains(selected.Id)) {

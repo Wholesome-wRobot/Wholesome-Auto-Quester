@@ -27,6 +27,7 @@ namespace Wholesome_Auto_Quester
                 5441, // Lazy Peons
                 354, // Roaming mobs, hard to find in a hostile zone
                 887, // no path for pickup (house in ratchet)
+                11129, // Kyle's missing, smart AI
             };
         }
 

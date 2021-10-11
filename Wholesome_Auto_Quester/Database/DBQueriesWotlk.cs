@@ -394,6 +394,7 @@ namespace Wholesome_Auto_Quester.Database {
             string query = $@"
                 SELECT clt.entry Id, ct.name Name, c.guid Guid, c.map Map, c.position_x PositionX, 
                     c.position_y PositionY, c.position_z PositionZ, c.spawntimesecs SpawnTimeSecs,
+                    it.spellid_1 SpellId1, it.spellid_2 SpellId2, it.spellid_3 SpellId3, it.spellid_4 SpellId4, it.spellid_5 SpellId5, 
                     it.name ItemName, ct.minlevel MinLevel, ct.maxlevel MaxLevel, it.entry ItemId,
 	                ct.faction FactionTemplateID
                 FROM creature_loot_template clt
@@ -411,13 +412,13 @@ namespace Wholesome_Auto_Quester.Database {
 
         private List<ModelNpc> GetCreaturesToKill(int creatureId) {
             string query = $@"
-                SELECT c.Id, ct.Name, c.guid Guid, c.map Map, c.position_x PositionX, 
-                c.position_y PositionY, c.position_z PositionZ, c.spawntimesecs SpawnTimeSecs,
-	            ct.faction FactionTemplateID, ct.minlevel MinLevel, ct.maxlevel MaxLevel
-                FROM creature c
-                JOIN creature_template ct
-                ON ct.Entry = c.id
-                WHERE c.id = {creatureId}
+                SELECT ct.entry Id, ct.Name, c.guid Guid, c.map Map, c.position_x PositionX, 
+	                c.position_y PositionY, c.position_z PositionZ, c.spawntimesecs SpawnTimeSecs,
+	                ct.faction FactionTemplateID, ct.minlevel MinLevel, ct.maxlevel MaxLevel
+                FROM creature_template ct
+                LEFT JOIN creature c
+                ON c.id = ct.entry 
+                WHERE ct.entry = {creatureId}
             ";
 
             return _database.SafeQueryNpcs(query);
@@ -426,6 +427,7 @@ namespace Wholesome_Auto_Quester.Database {
         private List<ModelItem> GetGatherObjects(int objectId) {
             string query = $@"
                 SELECT it.entry Entry, it.class Class, it.subclass SubClass, it.name Name, it.displayid DisplayId, 
+                    it.spellid_1 SpellId1, it.spellid_2 SpellId2, it.spellid_3 SpellId3, it.spellid_4 SpellId4, it.spellid_5 SpellId5, 
 	                it.Quality, it.Flags, glt.Entry WorldObjectEntry, gt.entry GameObjectEntry, g.guid Guid, g.map Map, 
 	                g.position_x PositionX, g.position_y PositionY, g.position_z PositionZ, g.spawntimesecs SpawnTimeSecs
                 FROM item_template it

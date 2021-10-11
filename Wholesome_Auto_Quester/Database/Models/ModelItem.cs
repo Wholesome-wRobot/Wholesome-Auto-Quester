@@ -19,6 +19,11 @@ namespace Wholesome_Auto_Quester.Database.Models
         public float PositionZ { get; set; }
         public int Quality { get; set; }
         public int SpawnTimeSecs { get; set; }
+        public int SpellId1 { get; set; }
+        public int SpellId2 { get; set; }
+        public int SpellId3 { get; set; }
+        public int SpellId4 { get; set; }
+        public int SpellId5 { get; set; }
         public int SubClass { get; set; }
         public int ZoneId { get; set; }
 
