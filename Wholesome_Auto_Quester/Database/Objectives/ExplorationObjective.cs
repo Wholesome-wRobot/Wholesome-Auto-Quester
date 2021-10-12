@@ -5,11 +5,11 @@ namespace Wholesome_Auto_Quester.Database.Objectives
     public class ExplorationObjective
     {
         public int AreaId { get; }
-        public ModelArea Area { get; }
+        public ModelAreaTrigger Area { get; }
         public int ObjectiveIndex { get; }
         public string Name { get; }
 
-        public ExplorationObjective(int id, ModelArea area, int objectiveIndex)
+        public ExplorationObjective(int id, ModelAreaTrigger area, int objectiveIndex)
         {
             AreaId = id;
             Area = area;

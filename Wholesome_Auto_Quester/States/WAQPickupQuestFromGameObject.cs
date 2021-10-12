@@ -19,7 +19,7 @@ namespace Wholesome_Auto_Quester.States {
 
                 if (WAQTasks.TaskInProgress?.TaskType == TaskType.PickupQuestFromGameObject) {
                     DisplayName =
-                        $"Pick up quest {WAQTasks.TaskInProgress.Quest.LogTitle} at {WAQTasks.TaskInProgress.WorldObject.Name} [SmoothMove - Q]";
+                        $"Pick up quest {WAQTasks.TaskInProgress.Quest.LogTitle} at {WAQTasks.TaskInProgress.GameObjectTemplate.name} [SmoothMove - Q]";
                     return true;
                 }
 
@@ -72,7 +72,7 @@ namespace Wholesome_Auto_Quester.States {
                 }
                 if (task.GetDistance <= 12f) {
                     Logger.Log(
-                        $"We are close to {task.TaskName} position and no game object for pick-up in sight. Time out for {task.Npc.SpawnTimeSecs}s");
+                        $"We are close to {task.TaskName} position and no game object for pick-up in sight. Time out for {task.GameObject.spawntimesecs}s");
                     task.PutTaskOnTimeout();
                     MoveHelper.StopAllMove();
                 }

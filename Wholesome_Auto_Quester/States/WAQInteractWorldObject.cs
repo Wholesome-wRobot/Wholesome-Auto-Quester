@@ -19,7 +19,7 @@ namespace Wholesome_Auto_Quester.States {
 
                 if (WAQTasks.TaskInProgress?.TaskType == TaskType.InteractWithWorldObject) {
                     DisplayName =
-                        $"Interact with world object {WAQTasks.TaskInProgress.WorldObject.Name} for {WAQTasks.TaskInProgress.Quest.LogTitle} [SmoothMove - Q]";
+                        $"Interact with world object {WAQTasks.TaskInProgress.GameObjectTemplate.name} for {WAQTasks.TaskInProgress.Quest.LogTitle} [SmoothMove - Q]";
                     return true;
                 }
 
@@ -61,10 +61,10 @@ namespace Wholesome_Auto_Quester.States {
                 
                 if (task.GetDistance <= 12f) {
                     Logger.Log(
-                        $"We are close to {task.TaskName} position and no object to gather in sight. Time out for {task.WorldObject.SpawnTimeSecs}s");
+                        $"We are close to {task.TaskName} position and no object to gather in sight. Time out for {task.GameObject.spawntimesecs}s");
                     task.PutTaskOnTimeout();
-                } else if (ToolBox.DangerousEnemiesAtLocation(task.Location) && WAQTasks.TasksPile.FindAll(t => t.POIEntry == task.WorldObject.Entry).Count > 1) {
-                    Logger.Log($"We are close to {task.TaskName} position and found dangerous mobs. Time out for {task.WorldObject.SpawnTimeSecs}s");
+                } else if (ToolBox.DangerousEnemiesAtLocation(task.Location) && WAQTasks.TasksPile.FindAll(t => t.POIEntry == task.GameObjectTemplate.entry).Count > 1) {
+                    Logger.Log($"We are close to {task.TaskName} position and found dangerous mobs. Time out for {task.GameObject.spawntimesecs}s");
                     task.PutTaskOnTimeout();
                 }
             }

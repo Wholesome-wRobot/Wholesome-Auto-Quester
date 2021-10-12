@@ -2,7 +2,7 @@
 
 namespace Wholesome_Auto_Quester.Database.Models
 {
-    public class ModelArea
+    public class ModelAreaTrigger
     {
         public int ContinentId { get; set; }
         public float PositionX { get; set; }

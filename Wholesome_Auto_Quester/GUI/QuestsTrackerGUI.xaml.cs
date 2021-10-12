@@ -17,7 +17,7 @@ namespace Wholesome_Auto_Quester.GUI {
 
         public void AddToBLClicked(object sender, RoutedEventArgs e) {
             if (sourceQuestsList.SelectedItem != null) {
-                ModelQuest selected = (ModelQuest) sourceQuestsList.SelectedItem;
+                ModelQuestTemplate selected = (ModelQuestTemplate) sourceQuestsList.SelectedItem;
                 WholesomeAQSettings.AddQuestToBlackList(selected.Id);
                 UpdateQuestsList();
             }
@@ -25,7 +25,7 @@ namespace Wholesome_Auto_Quester.GUI {
 
         public void RmvFromBLClicked(object sender, RoutedEventArgs e) {
             if (sourceQuestsList.SelectedItem != null) {
-                ModelQuest selected = (ModelQuest) sourceQuestsList.SelectedItem;
+                ModelQuestTemplate selected = (ModelQuestTemplate) sourceQuestsList.SelectedItem;
                 WholesomeAQSettings.RemoveQuestFromBlackList(selected.Id);
                 UpdateQuestsList();
             }
@@ -47,9 +47,8 @@ namespace Wholesome_Auto_Quester.GUI {
                 sourceQuestsList.ItemsSource = WAQTasks.Quests
                     .OrderBy(q => q.Status)
                     .ThenBy(q => {
-                        if (q.NpcQuestGivers.Count <= 0) return float.PositiveInfinity;
-                        return q.NpcQuestGivers.Min(qg =>
-                            new Vector3(qg.PositionX, qg.PositionY, qg.PositionZ).DistanceTo(myPos));
+                        if (q.CreatureQuestGivers.Count <= 0) return float.PositiveInfinity;
+                        return q.GetClosestQuestGiverDistance(myPos);
                     });
 
                 if (selectedQuest != null && sourceQuestsList.Items.Contains(selectedQuest))
@@ -73,7 +72,7 @@ namespace Wholesome_Auto_Quester.GUI {
         }
 
         public void SelectQuest(object sender, RoutedEventArgs e) {
-            ModelQuest selected = (ModelQuest) sourceQuestsList.SelectedItem;
+            ModelQuestTemplate selected = (ModelQuestTemplate) sourceQuestsList.SelectedItem;
             if (selected != null) {
                 questTitle.Text = $"{selected.LogTitle}";
                 questId.Text = $"Entry: {selected.Id}";
@@ -83,14 +82,14 @@ namespace Wholesome_Auto_Quester.GUI {
                 
                 // quest givers
                 string qg = "";
-                selected.NpcQuestGivers.ForEach(q => qg += $"{q.Id}");
-                selected.WorldObjectQuestGivers.ForEach(q => qg += $"{q.Entry}");
+                selected.CreatureQuestGivers.ForEach(q => qg += $"{q.entry}");
+                selected.GameObjectQuestGivers.ForEach(q => qg += $"{q.entry}");
                 questGivers.Text = $"Quest Givers: {qg}";
 
                 // quest turners
                 string qt = "";
-                selected.NpcQuestTurners.ForEach(q => qt += $"{q.Id}");
-                selected.WorldObjectQuestTurners.ForEach(q => qt += $"{q.Entry}");
+                selected.CreatureQuestTurners.ForEach(q => qt += $"{q.entry}");
+                selected.GameObjectQuestTurners.ForEach(q => qt += $"{q.entry}");
                 questTurners.Text = $"Quest Turners: {qt}";
 
                 // status
@@ -116,42 +115,42 @@ namespace Wholesome_Auto_Quester.GUI {
                 string interactString = "Interact: ";
                 foreach (InteractObjective obje in selected.InteractObjectives)
                     interactString +=
-                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.ItemName} ({obje.WorldObjects.Count} found)";
+                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.GameObjectTemplate.name} ({obje.GameObjectTemplate.GameObjects.Count} found)";
                 interactObjectives.Text = interactString;
 
                 // gather objectives
                 string gatherObjectsString = "Gather: ";
                 foreach (GatherObjective obje in selected.GatherObjectives)
                     gatherObjectsString +=
-                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.ItemName} ({obje.WorldObjects.Count} found)";
+                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.GameObjectTemplate.name} ({obje.GameObjectTemplate.GameObjects.Count} found)";
                 questGatherObjects.Text = gatherObjectsString;
 
                 // kill objectives
                 string creaturesToKillString = "Kill: ";
                 foreach (KillObjective obje in selected.KillObjectives)
                     creaturesToKillString +=
-                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.CreatureName} ({obje.WorldCreatures.Count} found)";
+                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.CreatureTemplate.name} ({obje.CreatureTemplate.Creatures.Count} found)";
                 questKillCreatures.Text = creaturesToKillString;
 
                 // kill&loot objectives
                 string creaturesToLootString = "Kill & Loot: ";
                 foreach (KillLootObjective obje in selected.KillLootObjectives)
                     creaturesToLootString +=
-                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.ItemName} ({obje.WorldCreatures.Count} found)";
+                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.CreatureTemplate.Loot.Name} ({obje.CreatureTemplate.Creatures.Count} found)";
                 questLootCreatures.Text = creaturesToLootString;
 
                 // Prerequisite gathers
                 string prerequisiteGathersString = "Prerequisite Gathers: ";
                 foreach (GatherObjective obje in selected.PrerequisiteGatherItems)
                     prerequisiteGathersString +=
-                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.ItemName} ({obje.WorldObjects.Count} found)";
+                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.GameObjectTemplate.name} ({obje.GameObjectTemplate.GameObjects.Count} found)";
                 prerequisiteGathers.Text = prerequisiteGathersString;
 
                 // Prerequisite loots
                 string prerequisiteLootsString = "Prerequisite Loots: ";
                 foreach (KillLootObjective obje in selected.PrerequisiteLootItems)
                     prerequisiteLootsString +=
-                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.ItemName} ({obje.WorldCreatures.Count} found)";
+                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.CreatureTemplate.Loot.Name} ({obje.CreatureTemplate.Creatures.Count} found)";
                 prerequisiteLoots.Text = prerequisiteLootsString;
 
                 if (WholesomeAQSettings.CurrentSetting.BlacklistesQuests.Contains(selected.Id)) {

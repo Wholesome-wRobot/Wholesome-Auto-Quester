@@ -1,23 +1,18 @@
-﻿using System.Collections.Generic;
-using Wholesome_Auto_Quester.Database.Models;
+﻿using Wholesome_Auto_Quester.Database.Models;
 
 namespace Wholesome_Auto_Quester.Database.Objectives
 {
     public class KillLootObjective
     {
         public int Amount { get; }
-        public string ItemName { get; }
-        public List<ModelNpc> WorldCreatures { get; }
+        public ModelCreatureTemplate CreatureTemplate { get; }
         public int ObjectiveIndex { get; }
-        public int ItemId { get; }
 
-        public KillLootObjective(int amount, List<ModelNpc> worldCreatures, int objectiveIndex)
+        public KillLootObjective(int amount, ModelCreatureTemplate creatureTemplate, int objectiveIndex)
         {
             Amount = amount;
-            WorldCreatures = worldCreatures;
+            CreatureTemplate = creatureTemplate;
             ObjectiveIndex = objectiveIndex;
-            ItemName = worldCreatures.Count > 0 ? worldCreatures[0].ItemName : "N/A";
-            ItemId = worldCreatures.Count > 0 ? worldCreatures[0].ItemId : -1;
         }
     }
 }

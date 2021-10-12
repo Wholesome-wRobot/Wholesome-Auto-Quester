@@ -20,7 +20,7 @@ namespace Wholesome_Auto_Quester.States
 
                 if (WAQTasks.TaskInProgress?.TaskType == TaskType.TurnInQuestToGameObject) {
                     DisplayName =
-                        $"Turning in {WAQTasks.TaskInProgress.Quest.LogTitle} at game object {WAQTasks.TaskInProgress.WorldObject?.Name} [SmoothMove - Q]";
+                        $"Turning in {WAQTasks.TaskInProgress.Quest.LogTitle} at game object {WAQTasks.TaskInProgress.GameObjectTemplate.name} [SmoothMove - Q]";
                     return true;
                 }
 

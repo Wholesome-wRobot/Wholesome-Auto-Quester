@@ -17,9 +17,9 @@ namespace Wholesome_Auto_Quester.States {
                     || !ObjectManager.Me.IsValid)
                     return false;
 
-                if (WAQTasks.TaskInProgress?.TaskType == TaskType.TurnInQuestToNpc) {
+                if (WAQTasks.TaskInProgress?.TaskType == TaskType.TurnInQuestToCreature) {
                     DisplayName =
-                        $"Turning in {WAQTasks.TaskInProgress.Quest.LogTitle} to NPC {WAQTasks.TaskInProgress.Npc?.Name} [SmoothMove - Q]";
+                        $"Turning in {WAQTasks.TaskInProgress.Quest.LogTitle} to NPC {WAQTasks.TaskInProgress.CreatureTemplate.name} [SmoothMove - Q]";
                     return true;
                 }
 

@@ -295,11 +295,16 @@
     <Compile Include="Database\DB.cs" />
     <Compile Include="Database\DBQueriesWotlk.cs" />
     <Compile Include="Database\DBQueriesTBC.cs" />
+    <Compile Include="Database\Models\ModelCreature.cs" />
+    <Compile Include="Database\Models\ModelCreatureTemplate.cs" />
+    <Compile Include="Database\Models\ModelGameObject.cs" />
+    <Compile Include="Database\Models\ModelGameObjectTemplate.cs" />
+    <Compile Include="Database\Models\ModelQuestAddon.cs" />
     <Compile Include="Database\Models\ModelWorldObject.cs" />
     <Compile Include="Database\Models\ModelItem.cs" />
-    <Compile Include="Database\Models\ModelArea.cs" />
+    <Compile Include="Database\Models\ModelAreaTrigger.cs" />
     <Compile Include="Database\Models\ModelNpc.cs" />
-    <Compile Include="Database\Models\ModelQuest.cs" />
+    <Compile Include="Database\Models\ModelQuestTemplate.cs" />
     <Compile Include="Database\Objectives\ExplorationObjective.cs" />
     <Compile Include="Database\Objectives\GatherObjective.cs" />
     <Compile Include="Database\Objectives\InteractObjective.cs" />
@@ -313,10 +318,6 @@
     </Compile>
     <Compile Include="Helpers\Enums.cs" />
     <Compile Include="Helpers\Logger.cs" />
-    <Compile Include="Database\SafeDapper\ColumnAttributeTypeMapper.cs" />
-    <Compile Include="Database\SafeDapper\DapperExtensions.cs" />
-    <Compile Include="Database\SafeDapper\DapperObjectMappingException.cs" />
-    <Compile Include="Database\SafeDapper\ThrowWhenNullTypeMap.cs" />
     <Compile Include="Helpers\MoveHelper.cs" />
     <Compile Include="States\Defend.cs" />
     <Compile Include="States\WAQGoTo.cs" />
@@ -337,7 +338,6 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="Database\SafeDapper\SafeDapper.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="GUI\ProductSettingsControl.xaml">

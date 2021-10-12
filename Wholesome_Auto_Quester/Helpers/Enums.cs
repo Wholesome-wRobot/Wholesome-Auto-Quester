@@ -45,13 +45,13 @@
 
     public enum TaskType
     {
-        TurnInQuestToNpc,
+        TurnInQuestToCreature,
         TurnInQuestToGameObject,
-        PickupQuestFromNpc,
+        PickupQuestFromCreature,
         PickupQuestFromGameObject,
         Kill,
         KillAndLoot,
-        GatherObject,
+        GatherGameObject,
         Explore,
         InteractWithWorldObject
     }

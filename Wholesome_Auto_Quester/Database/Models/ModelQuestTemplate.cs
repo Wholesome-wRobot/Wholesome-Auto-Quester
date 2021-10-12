@@ -9,13 +9,16 @@ using wManager.Wow.Helpers;
 
 namespace Wholesome_Auto_Quester.Database.Models
 {
-    public class ModelQuest
+    public class ModelQuestTemplate
     {
+        public ModelQuestAddon QuestAddon { get; set; }
         public QuestStatus Status { get; set; } = QuestStatus.None;
-        public List<ModelNpc> NpcQuestGivers { get; set; } = new List<ModelNpc>();
-        public List<ModelNpc> NpcQuestTurners { get; set; } = new List<ModelNpc>();
-        public List<ModelWorldObject> WorldObjectQuestGivers { get; set; } = new List<ModelWorldObject>();
-        public List<ModelWorldObject> WorldObjectQuestTurners { get; set; } = new List<ModelWorldObject>();
+
+        public List<ModelCreatureTemplate> CreatureQuestGivers { get; set; } = new List<ModelCreatureTemplate>();
+        public List<ModelCreatureTemplate> CreatureQuestTurners { get; set; } = new List<ModelCreatureTemplate>();
+        public List<ModelGameObjectTemplate> GameObjectQuestGivers { get; set; } = new List<ModelGameObjectTemplate>();
+        public List<ModelGameObjectTemplate> GameObjectQuestTurners { get; set; } = new List<ModelGameObjectTemplate>();
+
         public List<ExplorationObjective> ExplorationObjectives { get; set; } = new List<ExplorationObjective>();
         public List<GatherObjective> GatherObjectives { get; set; } = new List<GatherObjective>();
         public List<KillObjective> KillObjectives { get; set; } = new List<KillObjective>();
@@ -23,11 +26,11 @@ namespace Wholesome_Auto_Quester.Database.Models
         public List<InteractObjective> InteractObjectives { get; set; } = new List<InteractObjective>();
         public List<GatherObjective> PrerequisiteGatherItems { get; set; } = new List<GatherObjective>();
         public List<KillLootObjective> PrerequisiteLootItems { get; set; } = new List<KillLootObjective>();
+
         public List<int> NextQuestsIds { get; set; } = new List<int>();
         public List<int> PreviousQuestsIds { get; set; } = new List<int>();
 
         public int Id { get; set; }
-        public int AllowableClasses { get; set; }
         public int AllowableRaces { get; set; }
         public string AreaDescription { get; set; }
         public int Flags { get; set; }
@@ -41,13 +44,11 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int ItemDropQuantity4 { get; set; }
         public string LogTitle { get; set; }
         public int MinLevel { get; set; }
-        public int NextQuestID { get; set; }
         public int NextQuestInChain { get; set; } // TBC DB Only
         public string ObjectiveText1 { get; set; }
         public string ObjectiveText2 { get; set; }
         public string ObjectiveText3 { get; set; }
         public string ObjectiveText4 { get; set; }
-        public int PrevQuestID { get; set; }
         public int QuestLevel { get; set; }
         public int QuestSortID { get; set; }
         public int QuestInfoID { get; set; }
@@ -72,9 +73,6 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int RequiredNpcOrGoCount2 { get; set; }
         public int RequiredNpcOrGoCount3 { get; set; }
         public int RequiredNpcOrGoCount4 { get; set; }
-        public int RequiredSkillID { get; set; }
-        public int RequiredSkillPoints { get; set; }
-        public int SpecialFlags { get; set; }
         public int StartItem { get; set; }
         public int TimeAllowed { get; set; }
 
@@ -83,12 +81,24 @@ namespace Wholesome_Auto_Quester.Database.Models
             if (PreviousQuestsIds.Count > 0 && !PreviousQuestsIds.Any(ToolBox.IsQuestCompleted))
                 return false;
 
-            if (RequiredSkillID > 0 && Skill.GetValue((SkillLine)RequiredSkillID) < RequiredSkillPoints)
+            if (QuestAddon.RequiredSkillID > 0 && Skill.GetValue((SkillLine)QuestAddon.RequiredSkillID) < QuestAddon.RequiredSkillPoints)
                 return false;
 
             // Add reputation req
 
             return true;
+        }
+
+        public float GetClosestQuestGiverDistance(Vector3 myPosition)
+        {
+            List<float> closestsQg = new List<float>();
+            CreatureQuestGivers.ForEach(cqg =>
+                closestsQg.Add(cqg.Creatures.Min(c => c.GetSpawnPosition.DistanceTo(myPosition)))
+            );
+            GameObjectQuestGivers.ForEach(goqg =>
+                closestsQg.Add(goqg.GameObjects.Min(c => c.GetSpawnPosition.DistanceTo(myPosition)))
+            );
+            return closestsQg.Min();
         }
 
         public void MarkAsCompleted()
@@ -101,14 +111,14 @@ namespace Wholesome_Auto_Quester.Database.Models
 
         public void AddQuestItemsToDoNotSellList()
         {
-            KillLootObjectives.ForEach(o => ToolBox.AddItemToDoNotSellList(o.ItemName));
-            GatherObjectives.ForEach(o => ToolBox.AddItemToDoNotSellList(o.ItemName));
+            KillLootObjectives.ForEach(o => ToolBox.AddItemToDoNotSellList(o.CreatureTemplate.Loot.Name));
+            GatherObjectives.ForEach(o => ToolBox.AddItemToDoNotSellList(o.GameObjectTemplate.name));
         }
 
         public void RemoveQuestItemsFromDoNotSellList()
         {
-            KillLootObjectives.ForEach(o => ToolBox.RemoveItemFromDoNotSellList(o.ItemName));
-            GatherObjectives.ForEach(o => ToolBox.RemoveItemFromDoNotSellList(o.ItemName));
+            KillLootObjectives.ForEach(o => ToolBox.RemoveItemFromDoNotSellList(o.CreatureTemplate.Loot.Name));
+            GatherObjectives.ForEach(o => ToolBox.RemoveItemFromDoNotSellList(o.GameObjectTemplate.name));
         }
 
         public bool IsCompleted => ToolBox.IsQuestCompleted(Id);

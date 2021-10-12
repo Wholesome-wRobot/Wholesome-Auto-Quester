@@ -340,7 +340,7 @@ namespace Wholesome_Auto_Quester.Helpers {
 
         public static bool IsQuestCompleted(int questId) => _completeQuests.Contains(questId);
 
-        public static bool ShouldQuestBeFinished(this ModelQuest quest) => quest.Status == QuestStatus.InProgress
+        public static bool ShouldQuestBeFinished(this ModelQuestTemplate quest) => quest.Status == QuestStatus.InProgress
                                                                            || quest.Status == QuestStatus.ToTurnIn;
 
         public static Vector3 Position(this ModelNpc npc) => new Vector3(npc.PositionX, npc.PositionY, npc.PositionZ);
@@ -354,7 +354,7 @@ namespace Wholesome_Auto_Quester.Helpers {
 
         public static bool ZippedJSONIsPresent() => File.Exists(Others.GetCurrentDirectory + @"\Data\WAQquests.zip");
 
-        public static List<ModelQuest> GetAllQuestsFromJSON() {
+        public static List<ModelQuestTemplate> GetAllQuestsFromJSON() {
             try {
                 if (!JSONFileIsPresent()) {
                     Logger.LogError("The JSON file is not present.");
@@ -363,7 +363,7 @@ namespace Wholesome_Auto_Quester.Helpers {
 
                 using (StreamReader file = File.OpenText(Others.GetCurrentDirectory + @"\Data\WAQquests.json")) {
                     var serializer = new JsonSerializer();
-                    return (List<ModelQuest>) serializer.Deserialize(file, typeof(List<ModelQuest>));
+                    return (List<ModelQuestTemplate>) serializer.Deserialize(file, typeof(List<ModelQuestTemplate>));
                 }
             } catch (Exception e) {
                 Logger.LogError(e.Message);
@@ -404,7 +404,7 @@ namespace Wholesome_Auto_Quester.Helpers {
             }
         }
 
-        public static void WriteJSONFromDBResult(List<ModelQuest> resultFromDB) {
+        public static void WriteJSONFromDBResult(List<ModelQuestTemplate> resultFromDB) {
             try {
                 if (File.Exists(Others.GetCurrentDirectory + @"\Data\WAQquests.json"))
                     File.Delete(Others.GetCurrentDirectory + @"\Data\WAQquests.json");

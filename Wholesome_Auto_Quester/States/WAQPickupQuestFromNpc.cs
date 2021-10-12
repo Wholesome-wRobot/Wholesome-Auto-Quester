@@ -6,7 +6,6 @@ using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 using FlXProfiles;
 using wManager.Wow.Enums;
-using wManager.Wow.Bot.Tasks;
 
 namespace Wholesome_Auto_Quester.States {
     class WAQPickupQuestFromNpc : State {
@@ -18,9 +17,9 @@ namespace Wholesome_Auto_Quester.States {
                     || !ObjectManager.Me.IsValid)
                     return false;
 
-                if (WAQTasks.TaskInProgress?.TaskType == TaskType.PickupQuestFromNpc) {
+                if (WAQTasks.TaskInProgress?.TaskType == TaskType.PickupQuestFromCreature) {
                     DisplayName =
-                        $"Pick up quest {WAQTasks.TaskInProgress.Quest.LogTitle} at {WAQTasks.TaskInProgress.Npc.Id} - {WAQTasks.TaskInProgress.Npc.Name} [SmoothMove - Q]";
+                        $"Pick up quest {WAQTasks.TaskInProgress.Quest.LogTitle} at {WAQTasks.TaskInProgress.CreatureTemplate.name} [SmoothMove - Q]";
                     return true;
                 }
 
@@ -72,7 +71,7 @@ namespace Wholesome_Auto_Quester.States {
                 }
                 if (task.GetDistance <= 12f) {
                     Logger.Log(
-                        $"We are close to {task.TaskName} position and no NPC for pick-up in sight. Time out for {task.Npc.SpawnTimeSecs}s");
+                        $"We are close to {task.TaskName} position and no NPC for pick-up in sight. Time out for {task.Creature.spawnTimeSecs}s");
                     task.PutTaskOnTimeout();
                     MoveHelper.StopAllMove();
                 }

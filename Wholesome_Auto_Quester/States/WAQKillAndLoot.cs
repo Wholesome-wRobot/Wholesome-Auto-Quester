@@ -25,7 +25,7 @@ namespace Wholesome_Auto_Quester.States
 
                 if (WAQTasks.TaskInProgress?.TaskType == TaskType.KillAndLoot)
                 {
-                    DisplayName = $"Kill and Loot {WAQTasks.TaskInProgress.Npc.Name} for {WAQTasks.TaskInProgress.Quest.LogTitle} [SmoothMove - Q]";
+                    DisplayName = $"Kill and Loot {WAQTasks.TaskInProgress.CreatureTemplate.name} for {WAQTasks.TaskInProgress.Quest.LogTitle} [SmoothMove - Q]";
                     return true;
                 }
 
@@ -64,10 +64,10 @@ namespace Wholesome_Auto_Quester.States
                     MoveHelper.StartGoToThread(task.Location, face: !MoveHelper.IsMovementThreadRunning, randomizeEnd: 8f);
                 }
                 if (task.GetDistance <= 12f) {
-                    Logger.Log($"We are close to {task.TaskName} position and no npc to kill&loot in sight. Time out for {task.Npc.SpawnTimeSecs}s");
+                    Logger.Log($"We are close to {task.TaskName} position and no npc to kill&loot in sight. Time out for {task.Creature.spawnTimeSecs}s");
                     task.PutTaskOnTimeout();
-                } else if (ToolBox.DangerousEnemiesAtLocation(task.Location) && WAQTasks.TasksPile.FindAll(t => t.POIEntry == task.Npc.Id).Count > 1) {
-                    Logger.Log($"We are close to {task.TaskName} position and found dangerous mobs. Time out for {task.Npc.SpawnTimeSecs}s");
+                } else if (ToolBox.DangerousEnemiesAtLocation(task.Location) && WAQTasks.TasksPile.FindAll(t => t.POIEntry == task.CreatureTemplate.entry).Count > 1) {
+                    Logger.Log($"We are close to {task.TaskName} position and found dangerous mobs. Time out for {task.Creature.spawnTimeSecs}s");
                     task.PutTaskOnTimeout();
                 }
             }
