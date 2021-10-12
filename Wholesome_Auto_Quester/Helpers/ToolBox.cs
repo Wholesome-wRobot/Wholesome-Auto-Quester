@@ -343,7 +343,7 @@ namespace Wholesome_Auto_Quester.Helpers {
         public static bool ShouldQuestBeFinished(this ModelQuestTemplate quest) => quest.Status == QuestStatus.InProgress
                                                                            || quest.Status == QuestStatus.ToTurnIn;
 
-        public static Vector3 Position(this ModelNpc npc) => new Vector3(npc.PositionX, npc.PositionY, npc.PositionZ);
+        public static Vector3 Position(this ModelCreature npc) => npc.GetSpawnPosition;
 
         public static bool WoWDBFileIsPresent() => File.Exists(Others.GetCurrentDirectory + @"\Data\WoWDb335");
 

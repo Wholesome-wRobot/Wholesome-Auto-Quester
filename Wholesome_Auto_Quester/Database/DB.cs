@@ -173,7 +173,7 @@ namespace Wholesome_Auto_Quester.Database
                 WHERE clt.item = {itemid}
             ";
 
-            List<ModelCreatureTemplate> creaturesToLoot = _con.Query<ModelCreatureTemplate, ModelCreature, ModelItem, ModelCreatureTemplate>(
+            List<ModelCreatureTemplate> creaturesToLoot = _con.Query<ModelCreatureTemplate, ModelCreature, ModelItemTemplate, ModelCreatureTemplate>(
                 query, (creatureTemplate, creature, item) =>
                 {
                     creatureTemplate.Loot = item;

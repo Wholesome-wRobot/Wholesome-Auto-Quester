@@ -300,10 +300,8 @@
     <Compile Include="Database\Models\ModelGameObject.cs" />
     <Compile Include="Database\Models\ModelGameObjectTemplate.cs" />
     <Compile Include="Database\Models\ModelQuestAddon.cs" />
-    <Compile Include="Database\Models\ModelWorldObject.cs" />
-    <Compile Include="Database\Models\ModelItem.cs" />
+    <Compile Include="Database\Models\ModelItemTemplate.cs" />
     <Compile Include="Database\Models\ModelAreaTrigger.cs" />
-    <Compile Include="Database\Models\ModelNpc.cs" />
     <Compile Include="Database\Models\ModelQuestTemplate.cs" />
     <Compile Include="Database\Objectives\ExplorationObjective.cs" />
     <Compile Include="Database\Objectives\GatherObjective.cs" />
