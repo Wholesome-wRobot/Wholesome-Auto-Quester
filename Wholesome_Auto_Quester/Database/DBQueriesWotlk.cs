@@ -48,7 +48,6 @@ namespace Wholesome_Auto_Quester.Database {
                 // Quest is Dungeon/Group/Raid/PvP etc..
                 if (q.QuestInfoID != 0) continue;
 
-
                 result.Add(q);
             }
 

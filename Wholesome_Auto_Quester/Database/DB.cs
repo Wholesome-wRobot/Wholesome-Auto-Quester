@@ -290,16 +290,17 @@ namespace Wholesome_Auto_Quester.Database
         public List<ModelQuestTemplate> QueryQuests()
         {
             Stopwatch stopwatch = Stopwatch.StartNew();
-            int levelDeltaMinus = (int)ObjectManager.Me.Level - WholesomeAQSettings.CurrentSetting.LevelDeltaMinus;
+            int levelDeltaMinus = System.Math.Max((int)ObjectManager.Me.Level - WholesomeAQSettings.CurrentSetting.LevelDeltaMinus, 1);
             int levelDeltaPlus = (int)ObjectManager.Me.Level + WholesomeAQSettings.CurrentSetting.LevelDeltaPlus;
+            var myClass = (int)ToolBox.GetClass();
 
             string queryQuest = $@"
                     SELECT * 
                     FROM quest_template qt
                     LEFT JOIN quest_template_addon qta
                     ON qt.ID = qta.ID
-                    WHERE MinLevel <= {(int)ObjectManager.Me.Level}
-                    AND (QuestLevel <= {levelDeltaPlus} AND QuestLevel > 0 AND QuestLevel > {levelDeltaMinus});
+                    WHERE qt.MinLevel <= {(int)ObjectManager.Me.Level}
+                    AND ((qt.QuestLevel <= {levelDeltaPlus} AND  qt.QuestLevel >= {levelDeltaMinus}) OR (qt.QuestLevel = -1 AND (qta.AllowableClasses <> 0 OR qt.AllowableRaces <> 0)));
                 ";
 
             List<ModelQuestTemplate> result = _con.Query<ModelQuestTemplate, ModelQuestAddon, ModelQuestTemplate>(
