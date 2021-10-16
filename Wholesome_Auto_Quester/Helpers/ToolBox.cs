@@ -607,11 +607,13 @@ namespace Wholesome_Auto_Quester.Helpers {
                 _ => Classes.Unknown
             };
 
-        // Calculate real walking distance
+        // Calculate real walking distance, returns 0 is path is broken
         public static float CalculatePathTotalDistance(Vector3 from, Vector3 to) {
-            var distance = 0.0f;
-            List<Vector3> path = FindPath(from, to, false);
-            for (var i = 0; i < path.Count - 1; ++i) distance += path[i].DistanceTo(path[i + 1]);
+            var distance = 0f;
+            bool isReachable;
+            List<Vector3> path = FindPath(from, to, skipIfPartiel: true, resultSuccess: out isReachable);
+            if (isReachable)
+                for (var i = 0; i < path.Count - 1; ++i) distance += path[i].DistanceTo(path[i + 1]);
             return distance;
         }
 

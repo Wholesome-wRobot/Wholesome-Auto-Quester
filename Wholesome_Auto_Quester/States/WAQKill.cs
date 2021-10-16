@@ -46,6 +46,16 @@ namespace Wholesome_Auto_Quester.States
                 var killTarget = (WoWUnit) WAQTasks.TaskInProgressWoWObject;
                 Logger.Log($"Unit found - Fighting {killTarget.Name}");
                 MoveHelper.StopCurrentMovementThread();
+                /*Logger.LogError("START");
+                bool resultSuccess = true;
+                var path = PathFinder.FindPath(ObjectManager.Me.Position, killTarget.Position, resultSuccess: out resultSuccess, skipIfPartiel: true);
+                if (!resultSuccess || path.Count <= 0)
+                {
+                    task.PutTaskOnTimeout();
+                    Logger.LogError("TIMEOUT");
+                    return;
+                }
+                Logger.LogError("END");*/
                 Fight.StartFight(killTarget.Guid);
                 Thread.Sleep(200);
             }
