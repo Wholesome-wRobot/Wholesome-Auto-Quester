@@ -55,8 +55,7 @@ namespace Wholesome_Auto_Quester.States
                     Interact.InteractGameObject(turnInTarget.GetBaseAddress);
                     Usefuls.WaitIsCasting();
                 } else if (!ToolBox.GossipTurnInQuest(task.Quest.LogTitle)) {
-                    Logger.LogError($"Failed PickUp Gossip for {task.Quest.LogTitle}. Timeout");
-                    task.PutTaskOnTimeout();
+                    task.PutTaskOnTimeout("Failed PickUp Gossip");
                 } else {
                     Thread.Sleep(1000);
                     if (!Quest.HasQuest(task.Quest.Id))
@@ -69,9 +68,7 @@ namespace Wholesome_Auto_Quester.States
                     MoveHelper.StartGoToThread(task.Location, randomizeEnd: 8f);
                 }
                 if (task.GetDistance <= 12f) {
-                    Logger.Log(
-                        $"We are close to {task.TaskName} position and no NPC for turn-in in sight. Time out");
-                    task.PutTaskOnTimeout();
+                    task.PutTaskOnTimeout("No Object in sight for quest turn-in");
                     MoveHelper.StopAllMove();
                 }
             }

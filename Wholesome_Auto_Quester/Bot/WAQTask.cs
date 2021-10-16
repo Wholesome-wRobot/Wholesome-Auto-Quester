@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using robotManager.Helpful;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
+using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.Bot {
@@ -85,11 +87,19 @@ namespace Wholesome_Auto_Quester.Bot {
             TaskName = $"Explore {modelArea.GetPosition} for {quest.LogTitle}";
         }
 
-        public void PutTaskOnTimeout() {
-            int timeInSecs = Creature?.spawnTimeSecs ?? GameObject.spawntimesecs;
-            if (timeInSecs < 30) timeInSecs = 120;
-            _timeOutTimer = new Timer(timeInSecs * 1000);
-            WAQTasks.UpdateTasks();
+        public void PutTaskOnTimeout(string reason) {
+            int timeInSeconds = Creature?.spawnTimeSecs ?? GameObject.spawntimesecs;
+            if (timeInSeconds < 30) timeInSeconds = 120;
+            Logger.LogError($"Putting task {TaskName} on time out for {timeInSeconds} seconds. Raason: {reason}");
+            _timeOutTimer = new Timer(timeInSeconds * 1000);
+            //WAQTasks.UpdateTasks();
+        }
+
+        public void PutTaskOnTimeout(int timeInSeconds, string reason)
+        {
+            Logger.LogError($"Putting task {TaskName} on time out for {timeInSeconds} seconds. Raason: {reason}");
+            _timeOutTimer = new Timer(timeInSeconds * 1000);
+            //WAQTasks.UpdateTasks();
         }
 
         public bool IsSameTask(TaskType taskType, int questEntry, int objIndex, Func<int> getUniqueId = null) {
@@ -112,17 +122,21 @@ namespace Wholesome_Auto_Quester.Bot {
         public int Priority {
             get {
                 // Lowest priority == do first
-                float result = _myPos.DistanceTo(Location);
-
-                // var levelDiff = (int) (Quest.QuestLevel - _myLevel);
-                // result *= System.Math.Max(0.2f, (10f + levelDiff*2) / 10);
-                if (TaskType == TaskType.PickupQuestFromCreature) result *= 2;
-                if (TaskType == TaskType.TurnInQuestToCreature) result *= 2;
-                if (Quest.QuestAddon.AllowableClasses > 0) result /= 4;
-                if (Quest.TimeAllowed > 0 && TaskType != TaskType.PickupQuestFromCreature) result = 0;
-
-                return (int) result;
+                return CalculatePriority(_myPos.DistanceTo(Location));
             }
+        }
+
+        public int CalculatePriority(float taskDistance)
+        {
+            if (taskDistance > 0) // path not found
+            {
+                if (TaskType == TaskType.PickupQuestFromCreature) taskDistance *= 2;
+                if (TaskType == TaskType.TurnInQuestToCreature) taskDistance *= 2;
+                if (Quest.QuestAddon.AllowableClasses > 0) taskDistance /= 5;
+                if (Quest.TimeAllowed > 0 && TaskType != TaskType.PickupQuestFromCreature) taskDistance /= 100;
+            }
+
+            return (int)taskDistance;
         }
 
         private string GetTrackerColor() {

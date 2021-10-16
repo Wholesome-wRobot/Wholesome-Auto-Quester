@@ -60,8 +60,7 @@ namespace Wholesome_Auto_Quester.States {
                     Interact.InteractGameObject(pickUpTarget.GetBaseAddress);
                     Usefuls.WaitIsCasting();
                 } else if (!ToolBox.GossipPickUpQuest(task.Quest.LogTitle)) {
-                    Logger.LogError($"Failed PickUp Gossip for {task.Quest.LogTitle}. Timeout");
-                    task.PutTaskOnTimeout();
+                    task.PutTaskOnTimeout("Failed pickup gossip");
                 }
                 Thread.Sleep(1000);
             } else {
@@ -71,9 +70,7 @@ namespace Wholesome_Auto_Quester.States {
                     MoveHelper.StartGoToThread(task.Location, randomizeEnd: 8f);
                 }
                 if (task.GetDistance <= 12f) {
-                    Logger.Log(
-                        $"We are close to {task.TaskName} position and no game object for pick-up in sight. Time out for {task.GameObject.spawntimesecs}s");
-                    task.PutTaskOnTimeout();
+                    task.PutTaskOnTimeout("No object in sight for quest pickup");
                     MoveHelper.StopAllMove();
                 }
             }

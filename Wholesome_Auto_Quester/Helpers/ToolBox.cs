@@ -609,7 +609,7 @@ namespace Wholesome_Auto_Quester.Helpers {
 
         // Calculate real walking distance, returns 0 is path is broken
         public static float CalculatePathTotalDistance(Vector3 from, Vector3 to) {
-            var distance = 0f;
+            float distance = 0f;
             bool isReachable;
             List<Vector3> path = FindPath(from, to, skipIfPartiel: true, resultSuccess: out isReachable);
             if (isReachable)

@@ -64,11 +64,9 @@ namespace Wholesome_Auto_Quester.States
                     MoveHelper.StartGoToThread(task.Location, face: !MoveHelper.IsMovementThreadRunning, randomizeEnd: 8f);
                 }
                 if (task.GetDistance <= 12f) {
-                    Logger.Log($"We are close to {task.TaskName} position and no npc to kill&loot in sight. Time out for {task.Creature.spawnTimeSecs}s");
-                    task.PutTaskOnTimeout();
+                    task.PutTaskOnTimeout("No creature to Kill&Loot in sight");
                 } else if (ToolBox.DangerousEnemiesAtLocation(task.Location) && WAQTasks.TasksPile.FindAll(t => t.POIEntry == task.CreatureTemplate.entry).Count > 1) {
-                    Logger.Log($"We are close to {task.TaskName} position and found dangerous mobs. Time out for {task.Creature.spawnTimeSecs}s");
-                    task.PutTaskOnTimeout();
+                    task.PutTaskOnTimeout("Dangerous mobs in the area");
                 }
             }
         }

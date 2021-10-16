@@ -260,8 +260,7 @@ namespace Wholesome_Auto_Quester.Bot {
 
             if (!isTaskReachable)
             {
-                Logger.LogError($"Timing out {closestTask.TaskName}  because it's unreachable");
-                closestTask.PutTaskOnTimeout();
+                closestTask.PutTaskOnTimeout(600, "Unreachable");
                 closestTask = null;
             }
 
@@ -269,20 +268,29 @@ namespace Wholesome_Auto_Quester.Bot {
             {
                 Logger.LogError($"Detour detected for task {closestTask.TaskName}");
                 int nbTasks = TasksPile.Count;
-                for (int i = 0; i < nbTasks - 1; i++)
+                int closestTaskPriorityScore = closestTask.CalculatePriority(closestTaskDistance);
+
+                for (int i = 0; i <= nbTasks; i++)
                 {
                     if (!TasksPile[i].IsTimedOut)
                     {
                         float walkDistanceToTask = ToolBox.CalculatePathTotalDistance(myPosition, TasksPile[i].Location);
-                        float nextFlyDistanceToTask = TasksPile[i + 1].GetDistance;
-
-                        if (walkDistanceToTask > 0 && walkDistanceToTask < closestTaskDistance)
+                        if (walkDistanceToTask <= 0)
                         {
-                            closestTaskDistance = walkDistanceToTask;
+                            TasksPile[i].PutTaskOnTimeout(600, "Unreachable");
+                            continue;
+                        }
+
+                        int taskPriority = TasksPile[i].CalculatePriority(walkDistanceToTask);
+                        int nextTaskPriority = TasksPile[i + 1].Priority;
+
+                        if (taskPriority < closestTaskPriorityScore)
+                        {
+                            closestTaskPriorityScore = taskPriority;
                             closestTask = TasksPile[i];
                         }
 
-                        if (closestTaskDistance < nextFlyDistanceToTask)
+                        if (closestTaskPriorityScore < nextTaskPriority)
                             break;
                     }
                 }
@@ -330,7 +338,7 @@ namespace Wholesome_Auto_Quester.Bot {
                 if (!isObjectReachable)
                 {
                     Logger.LogError($"Blacklisting {closestObject.Name} {closestObject.Guid} because it's unreachable");
-                    wManagerSetting.AddBlackList(closestObject.Guid, 1000 * 60, true);
+                    wManagerSetting.AddBlackList(closestObject.Guid, 1000 * 600, true);
                 }
 
                 if (isObjectReachable && distance > closestObject.GetDistance * 2)
@@ -340,6 +348,13 @@ namespace Wholesome_Auto_Quester.Bot {
                     for (int i = 0; i < nbObject - 1; i++)
                     {
                         float walkDistanceToObject = ToolBox.CalculatePathTotalDistance(myPosition, filteredSurroundingObjects[i].Position);
+
+                        if (walkDistanceToObject <= 0)
+                        {
+                            Logger.LogError($"Blacklisting {filteredSurroundingObjects[i].Name} {filteredSurroundingObjects[i].Guid} because it's unreachable");
+                            wManagerSetting.AddBlackList(filteredSurroundingObjects[i].Guid, 1000 * 600, true);
+                        }
+
                         float nextFlyDistanceToObject = filteredSurroundingObjects[i + 1].GetDistance;
 
                         if (walkDistanceToObject > 0 && walkDistanceToObject < distance)
