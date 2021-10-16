@@ -84,7 +84,8 @@ namespace Wholesome_Auto_Quester.Database
             List<ModelGameObjectTemplate> gameObjects = _con.Query<ModelGameObjectTemplate, ModelGameObject, ModelGameObjectTemplate>(
                 query, (gameObjectTemplate, gameObject) =>
                 {
-                    gameObjectTemplate.GameObjects.Add(gameObject);
+                    if (gameObject != null)
+                        gameObjectTemplate.GameObjects.Add(gameObject);
                     return gameObjectTemplate;
                 }, splitOn: "guid")
             .ToList();
@@ -92,7 +93,8 @@ namespace Wholesome_Auto_Quester.Database
             var result = gameObjects.GroupBy(c => c.entry).Select(g =>
             {
                 var groupedResult = g.First();
-                groupedResult.GameObjects = g.Select(p => p.GameObjects.Single()).ToList();
+                if (groupedResult.GameObjects.Count > 0)
+                    groupedResult.GameObjects = g.Select(p => p.GameObjects.Single()).ToList();
                 return groupedResult;
             });
 
@@ -109,18 +111,20 @@ namespace Wholesome_Auto_Quester.Database
                 WHERE ct.entry = {creatureId}
             ";
 
-            List<ModelCreatureTemplate> creature = _con.Query<ModelCreatureTemplate, ModelCreature, ModelCreatureTemplate>(
+            List<ModelCreatureTemplate> creatureTemplates = _con.Query<ModelCreatureTemplate, ModelCreature, ModelCreatureTemplate>(
                 query, (creatureTemplate, creature) =>
                 {
-                    creatureTemplate.Creatures.Add(creature);
+                    if (creature != null)
+                        creatureTemplate.Creatures.Add(creature);
                     return creatureTemplate;
                 }, splitOn: "guid")
             .ToList();
 
-            var result = creature.GroupBy(c => c.entry).Select(g =>
+            var result = creatureTemplates.GroupBy(c => c.entry).Select(g =>
             {
-                var groupedResult = g.First();
-                groupedResult.Creatures = g.Select(p => p.Creatures.Single()).ToList();
+                ModelCreatureTemplate groupedResult = g.First();
+                if (groupedResult.Creatures.Count > 0)
+                    groupedResult.Creatures = g.Select(p => p.Creatures.Single()).ToList();
                 return groupedResult;
             });
 
@@ -144,7 +148,8 @@ namespace Wholesome_Auto_Quester.Database
             List<ModelGameObjectTemplate> gatherObjects = _con.Query<ModelGameObjectTemplate, ModelGameObject, ModelGameObjectTemplate>(
                 query, (gameObjectTemplate, gameObject) =>
                 {
-                    gameObjectTemplate.GameObjects.Add(gameObject);
+                    if (gameObject != null)
+                        gameObjectTemplate.GameObjects.Add(gameObject);
                     return gameObjectTemplate;
                 }, splitOn: "Entry,entry,guid")
             .ToList();
@@ -152,7 +157,8 @@ namespace Wholesome_Auto_Quester.Database
             var result = gatherObjects.GroupBy(c => c.entry).Select(g =>
             {
                 var groupedResult = g.First();
-                groupedResult.GameObjects = g.Select(p => p.GameObjects.Single()).ToList();
+                if (groupedResult.GameObjects.Count > 0)
+                    groupedResult.GameObjects = g.Select(p => p.GameObjects.Single()).ToList();
                 return groupedResult;
             });
 
@@ -177,7 +183,8 @@ namespace Wholesome_Auto_Quester.Database
                 query, (creatureTemplate, creature, item) =>
                 {
                     creatureTemplate.Loot = item;
-                    creatureTemplate.Creatures.Add(creature);
+                    if (creature != null)
+                        creatureTemplate.Creatures.Add(creature);
                     return creatureTemplate;
                 }, splitOn: "entry,guid,entry")
             .ToList();
@@ -185,7 +192,8 @@ namespace Wholesome_Auto_Quester.Database
             var result = creaturesToLoot.GroupBy(c => c.entry).Select(g =>
             {
                 var groupedResult = g.First();
-                groupedResult.Creatures = g.Select(p => p.Creatures.Single()).ToList();
+                if (groupedResult.Creatures.Count > 0)
+                    groupedResult.Creatures = g.Select(p => p.Creatures.Single()).ToList();
                 return groupedResult;
             });
 
@@ -207,7 +215,8 @@ namespace Wholesome_Auto_Quester.Database
             List<ModelGameObjectTemplate> questGiverObjects = _con.Query<ModelGameObjectTemplate, ModelGameObject, ModelGameObjectTemplate>(
                 query, (gameObjectTemplate, gameObject) =>
                 {
-                    gameObjectTemplate.GameObjects.Add(gameObject);
+                    if (gameObject != null)
+                        gameObjectTemplate.GameObjects.Add(gameObject);
                     return gameObjectTemplate;
                 }, splitOn: "guid")
             .Distinct().ToList();

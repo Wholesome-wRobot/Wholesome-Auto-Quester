@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using FlXProfiles;
 using robotManager.FiniteStateMachine;
 using robotManager.Helpful;
 using Wholesome_Auto_Quester.Helpers;
 using wManager;
-using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
@@ -90,7 +88,7 @@ namespace Wholesome_Auto_Quester.States {
                     foreach (Tuple<WoWUnit, Vector3, int> foundUnit in possiblePathUnits) {
                         (WoWUnit unit, Vector3 position, int aggroRange) = foundUnit;
                         float distance = myPos.DistanceTo(position);
-                        if(ToolBox.PointDistanceToLine(path[i], path[i + 1], position) < aggroRange + 1 &&
+                        if (ToolBox.PointDistanceToLine(path[i], path[i + 1], position) < aggroRange + 1 &&
                            unit.IsAttackable) {
                             // TODO: Use normal navigator for enemy avoidance to path after last enemy found if dangerous
                             // TODO: Add DangerousMob check to all States
@@ -121,8 +119,17 @@ namespace Wholesome_Auto_Quester.States {
                     _defendTarget = target;
                 }
 
-                if (_defendTarget != null) {
+                if (_defendTarget != null && !wManager.wManagerSetting.IsBlackListed(_defendTarget.Guid)) {
                     Logging.Write($"Found {_defendTarget.Name} on path.");
+
+                    float defendTargetDistance = ToolBox.CalculatePathTotalDistance(myPos, _defendTarget.Position);
+                    if (defendTargetDistance <= 0 || defendTargetDistance > _defendTarget.GetDistance * 2)
+                    {
+                        Logger.LogError($"Blacklisting {_defendTarget.Name} {_defendTarget.Guid} for 10 seconds because it's unreachable/too far");
+                        wManagerSetting.AddBlackList(_defendTarget.Guid, 1000 * 10, true);
+                        return false;
+                    }
+
                     return true;
                 }
 
