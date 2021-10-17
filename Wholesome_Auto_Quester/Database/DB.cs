@@ -36,7 +36,7 @@ namespace Wholesome_Auto_Quester.Database
             _con?.Close();
         }
 
-        public List<int> GetPreviousQuestsIds(int questId)
+        public List<int> QueryPreviousQuestsIds(int questId)
         {
             string query = $@"
                     SELECT ID FROM quest_template_addon
@@ -47,7 +47,7 @@ namespace Wholesome_Auto_Quester.Database
             return result;
         }
 
-        public List<int> GetNextQuestsIds(int questId)
+        public List<int> QueryNextQuestsIds(int questId)
         {
             string query = $@"
                     SELECT ID FROM quest_template_addon
@@ -58,39 +58,66 @@ namespace Wholesome_Auto_Quester.Database
             return result;
         }
 
-        public List<ModelAreaTrigger> GetAreasToExplore(int questId)
+        public ModelItemTemplate QueryItemTemplate(int itemId)
         {
-            string query = $@"
-                SELECT a.ContinentID, a.x PositionX, a.y PositionY, a.z PositionZ, a.radius Radius
-                FROM areatrigger_involvedrelation ai
-                JOIN areatrigger a 
-                ON a.ID = ai.id
-                WHERE ai.quest = {questId}
-            ";
-            List<ModelAreaTrigger> result = _con.Query<ModelAreaTrigger>(query).ToList();
-            return result;
-        }
+            if (itemId == 0) return null;
 
-        public ModelGameObjectTemplate QueryGameObjectsInteract(int objectId)
-        {
-            string query = $@"
-                Select *
-                FROM gameobject_template gt
-                JOIN gameobject g
-                ON g.id = gt.entry
-                WHERE gt.entry = {objectId}
+            string queryItemTemplate = $@"
+                SELECT * 
+                FROM item_template it
+                WHERE it.entry = {itemId}
+            ";
+            ModelItemTemplate result = _con.Query<ModelItemTemplate>(queryItemTemplate).FirstOrDefault();
+            if (result == null) return result;
+
+            string queryDroppedBy = $@"
+                SELECT *
+                FROM creature_loot_template clt
+                JOIN creature_template ct
+                ON clt.entry = ct.entry
+                JOIN creature c
+                ON c.id = ct.entry
+                WHERE clt.item = {itemId}
             ";
 
-            List<ModelGameObjectTemplate> gameObjects = _con.Query<ModelGameObjectTemplate, ModelGameObject, ModelGameObjectTemplate>(
-                query, (gameObjectTemplate, gameObject) =>
+            List<ModelCreatureTemplate> creaturesToLoot = _con.Query<ModelCreatureTemplate, ModelCreature, ModelCreatureTemplate>(
+                queryDroppedBy, (creatureTemplate, creature) =>
+                {
+                    if (creature != null) creatureTemplate.Creatures.Add(creature);
+                    return creatureTemplate;
+                }, splitOn: "entry,guid")
+            .ToList();
+
+            var droppedBy = creaturesToLoot.GroupBy(c => c.entry).Select(g =>
+            {
+                var groupedResult = g.First();
+                if (groupedResult.Creatures.Count > 0)
+                    groupedResult.Creatures = g.Select(p => p.Creatures.Single()).ToList();
+                return groupedResult;
+            });
+
+            result.DroppedBy = droppedBy.ToList();
+
+            string gatheredOn = $@"
+                SELECT gt.*, g.* 
+                FROM gameobject_loot_template glt
+                INNER JOIN gameobject_template gt
+                ON gt.data1 = glt.entry
+                INNER JOIN gameobject g
+                ON g.id = gt.Entry
+                WHERE glt.item = {itemId}
+            ";
+
+            List<ModelGameObjectTemplate> gatherObjects = _con.Query<ModelGameObjectTemplate, ModelGameObject, ModelGameObjectTemplate>(
+                gatheredOn, (gameObjectTemplate, gameObject) =>
                 {
                     if (gameObject != null)
                         gameObjectTemplate.GameObjects.Add(gameObject);
                     return gameObjectTemplate;
-                }, splitOn: "guid")
+                }, splitOn: "Entry,guid")
             .ToList();
 
-            var result = gameObjects.GroupBy(c => c.entry).Select(g =>
+            var gameObjects = gatherObjects.GroupBy(c => c.entry).Select(g =>
             {
                 var groupedResult = g.First();
                 if (groupedResult.GameObjects.Count > 0)
@@ -98,10 +125,12 @@ namespace Wholesome_Auto_Quester.Database
                 return groupedResult;
             });
 
-            return result.FirstOrDefault();
+            result.GatheredOn = gameObjects.ToList();
+
+            return result;
         }
 
-        public ModelCreatureTemplate QueryCreaturesToKill(int creatureId)
+        public ModelCreatureTemplate QueryCreatureTemplate(int creatureId)
         {
             string query = $@"
                 SELECT *
@@ -131,69 +160,43 @@ namespace Wholesome_Auto_Quester.Database
             return result.FirstOrDefault();
         }
 
-        public ModelGameObjectTemplate QueryGameObjectsToGather(int objectId)
+        public List<ModelAreaTrigger> QueryAreasToExplore(int questId)
         {
             string query = $@"
-                SELECT * 
-                FROM item_template it
-                INNER JOIN gameobject_loot_template glt
-                ON glt.item = it.entry
-                INNER JOIN gameobject_template gt
-                ON gt.data1 = glt.entry
-                INNER JOIN gameobject g
-                ON g.id = gt.Entry
-                WHERE it.entry = {objectId}
+                SELECT a.ContinentID, a.x PositionX, a.y PositionY, a.z PositionZ, a.radius Radius
+                FROM areatrigger_involvedrelation ai
+                JOIN areatrigger a 
+                ON a.ID = ai.id
+                WHERE ai.quest = {questId}
+            ";
+            List<ModelAreaTrigger> result = _con.Query<ModelAreaTrigger>(query).ToList();
+            return result;
+        }
+
+        public ModelGameObjectTemplate QueryGameObjectTemplate(int objectId)
+        {
+            string query = $@"
+                Select *
+                FROM gameobject_template gt
+                JOIN gameobject g
+                ON g.id = gt.entry
+                WHERE gt.entry = {objectId}
             ";
 
-            List<ModelGameObjectTemplate> gatherObjects = _con.Query<ModelGameObjectTemplate, ModelGameObject, ModelGameObjectTemplate>(
+            List<ModelGameObjectTemplate> gameObjects = _con.Query<ModelGameObjectTemplate, ModelGameObject, ModelGameObjectTemplate>(
                 query, (gameObjectTemplate, gameObject) =>
                 {
                     if (gameObject != null)
                         gameObjectTemplate.GameObjects.Add(gameObject);
                     return gameObjectTemplate;
-                }, splitOn: "Entry,entry,guid")
+                }, splitOn: "guid")
             .ToList();
 
-            var result = gatherObjects.GroupBy(c => c.entry).Select(g =>
+            var result = gameObjects.GroupBy(c => c.entry).Select(g =>
             {
                 var groupedResult = g.First();
                 if (groupedResult.GameObjects.Count > 0)
                     groupedResult.GameObjects = g.Select(p => p.GameObjects.Single()).ToList();
-                return groupedResult;
-            });
-
-            return result.FirstOrDefault();
-        }
-
-        public ModelCreatureTemplate QueryCreaturesToLoot(int itemid)
-        {
-            string query = $@"
-                SELECT *
-                FROM creature_loot_template clt
-                JOIN creature_template ct
-                ON clt.entry = ct.entry
-                JOIN creature c
-                ON id = ct.entry
-                JOIN item_template it
-                ON it.entry = clt.item
-                WHERE clt.item = {itemid}
-            ";
-
-            List<ModelCreatureTemplate> creaturesToLoot = _con.Query<ModelCreatureTemplate, ModelCreature, ModelItemTemplate, ModelCreatureTemplate>(
-                query, (creatureTemplate, creature, item) =>
-                {
-                    creatureTemplate.Loot = item;
-                    if (creature != null)
-                        creatureTemplate.Creatures.Add(creature);
-                    return creatureTemplate;
-                }, splitOn: "entry,guid,entry")
-            .ToList();
-
-            var result = creaturesToLoot.GroupBy(c => c.entry).Select(g =>
-            {
-                var groupedResult = g.First();
-                if (groupedResult.Creatures.Count > 0)
-                    groupedResult.Creatures = g.Select(p => p.Creatures.Single()).ToList();
                 return groupedResult;
             });
 

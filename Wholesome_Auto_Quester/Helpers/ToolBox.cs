@@ -529,7 +529,10 @@ namespace Wholesome_Auto_Quester.Helpers {
             return resultDict;
         }
 
-        public static bool GetObjectiveCompletion(int objectiveId, int questId) {
+        public static bool IsObjectiveCompleted(int objectiveId, int questId) {
+            if (objectiveId == -1)
+                return false;
+
             if (objectiveId < 1 || objectiveId > 6) {
                 Logging.WriteError($"Tried to call GetObjectiveCompletion with objectiveId: {objectiveId}");
                 return false;
@@ -623,6 +626,7 @@ namespace Wholesome_Auto_Quester.Helpers {
             {
                 Logger.Log($"Added item {itemName} to Do not Sell List");
                 wManagerSetting.CurrentSetting.DoNotSellList.Add(itemName);
+                wManagerSetting.CurrentSetting.Save();
             }
         }
 
@@ -632,6 +636,7 @@ namespace Wholesome_Auto_Quester.Helpers {
             {
                 Logger.Log($"Removed item {itemName} from Do not Sell List");
                 wManagerSetting.CurrentSetting.DoNotSellList.RemoveAll(i => i == itemName);
+                wManagerSetting.CurrentSetting.Save();
             }
         }
     }

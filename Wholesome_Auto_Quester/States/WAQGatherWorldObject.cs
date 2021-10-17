@@ -46,6 +46,7 @@ namespace Wholesome_Auto_Quester.States {
                     Interact.InteractGameObject(gameObject.GetBaseAddress);
                     Usefuls.WaitIsCastingAndLooting();
                     Thread.Sleep(100);
+                    WAQTasks.TaskInProgressWoWObject = null;
                 } else if (!MoveHelper.IsMovementThreadRunning ||
                               MoveHelper.CurrentMovementTarget.DistanceTo(gameObject.Position) > 4) {
                     Logger.Log($"Moving to {gameObject.Name} (Gathering).");

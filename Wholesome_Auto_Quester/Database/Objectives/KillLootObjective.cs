@@ -2,17 +2,17 @@
 
 namespace Wholesome_Auto_Quester.Database.Objectives
 {
-    public class KillLootObjective
+    public class KillLootObjective : Objective
     {
-        public int Amount { get; }
         public ModelCreatureTemplate CreatureTemplate { get; }
-        public int ObjectiveIndex { get; }
+        public ModelItemTemplate ItemToLoot { get; }
 
-        public KillLootObjective(int amount, ModelCreatureTemplate creatureTemplate, int objectiveIndex)
+        public KillLootObjective(int amount, ModelCreatureTemplate creatureTemplate, ModelItemTemplate itemToLoot, string objectiveName = null)
         {
+            ItemToLoot = itemToLoot;
             Amount = amount;
             CreatureTemplate = creatureTemplate;
-            ObjectiveIndex = objectiveIndex;
+            ObjectiveName = objectiveName == null ? ItemToLoot.Name : objectiveName;
         }
     }
 }

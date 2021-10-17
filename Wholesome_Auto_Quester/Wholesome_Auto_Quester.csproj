@@ -308,6 +308,7 @@
     <Compile Include="Database\Objectives\InteractObjective.cs" />
     <Compile Include="Database\Objectives\KillLootObjective.cs" />
     <Compile Include="Database\Objectives\KillObjective.cs" />
+    <Compile Include="Database\Objectives\Objective.cs" />
     <Compile Include="GUI\ProductSettingsControl.xaml.cs">
       <DependentUpon>ProductSettingsControl.xaml</DependentUpon>
     </Compile>

@@ -18,14 +18,36 @@ namespace Wholesome_Auto_Quester.Database.Models
         public List<ModelCreatureTemplate> CreatureQuestTurners { get; set; } = new List<ModelCreatureTemplate>();
         public List<ModelGameObjectTemplate> GameObjectQuestGivers { get; set; } = new List<ModelGameObjectTemplate>();
         public List<ModelGameObjectTemplate> GameObjectQuestTurners { get; set; } = new List<ModelGameObjectTemplate>();
+        public List<ModelAreaTrigger> ModelAreasTriggers { get; set; } = new List<ModelAreaTrigger>();
 
+        public ModelItemTemplate ItemDrop1Template { get; set; }
+        public ModelItemTemplate ItemDrop2Template { get; set; }
+        public ModelItemTemplate ItemDrop3Template { get; set; }
+        public ModelItemTemplate ItemDrop4Template { get; set; }
+        public ModelItemTemplate RequiredItem1Template { get; set; }
+        public ModelItemTemplate RequiredItem2Template { get; set; }
+        public ModelItemTemplate RequiredItem3Template { get; set; }
+        public ModelItemTemplate RequiredItem4Template { get; set; }
+        public ModelItemTemplate RequiredItem5Template { get; set; }
+        public ModelItemTemplate RequiredItem6Template { get; set; }
+        public ModelCreatureTemplate RequiredNPC1Template { get; set; }
+        public ModelCreatureTemplate RequiredNPC2Template { get; set; }
+        public ModelCreatureTemplate RequiredNPC3Template { get; set; }
+        public ModelCreatureTemplate RequiredNPC4Template { get; set; }
+        public ModelGameObjectTemplate RequiredGO1Template { get; set; }
+        public ModelGameObjectTemplate RequiredGO2Template { get; set; }
+        public ModelGameObjectTemplate RequiredGO3Template { get; set; }
+        public ModelGameObjectTemplate RequiredGO4Template { get; set; }
+
+        // Objectives
+        public List<Objective> AllObjectives = new List<Objective>();
         public List<ExplorationObjective> ExplorationObjectives { get; set; } = new List<ExplorationObjective>();
         public List<GatherObjective> GatherObjectives { get; set; } = new List<GatherObjective>();
         public List<KillObjective> KillObjectives { get; set; } = new List<KillObjective>();
         public List<KillLootObjective> KillLootObjectives { get; set; } = new List<KillLootObjective>();
         public List<InteractObjective> InteractObjectives { get; set; } = new List<InteractObjective>();
-        public List<GatherObjective> PrerequisiteGatherItems { get; set; } = new List<GatherObjective>();
-        public List<KillLootObjective> PrerequisiteLootItems { get; set; } = new List<KillLootObjective>();
+        public List<GatherObjective> PrerequisiteGatherObjectives { get; set; } = new List<GatherObjective>();
+        public List<KillLootObjective> PrerequisiteLootObjectives { get; set; } = new List<KillLootObjective>();
 
         public List<int> NextQuestsIds { get; set; } = new List<int>();
         public List<int> PreviousQuestsIds { get; set; } = new List<int>();
@@ -111,14 +133,14 @@ namespace Wholesome_Auto_Quester.Database.Models
 
         public void AddQuestItemsToDoNotSellList()
         {
-            KillLootObjectives.ForEach(o => ToolBox.AddItemToDoNotSellList(o.CreatureTemplate.Loot.Name));
-            GatherObjectives.ForEach(o => ToolBox.AddItemToDoNotSellList(o.GameObjectTemplate.name));
+            KillLootObjectives.ForEach(o => ToolBox.AddItemToDoNotSellList(o.ItemToLoot.Name));
+            GatherObjectives.ForEach(o => ToolBox.AddItemToDoNotSellList(o.GameObjectToGather.name));
         }
 
         public void RemoveQuestItemsFromDoNotSellList()
         {
-            KillLootObjectives.ForEach(o => ToolBox.RemoveItemFromDoNotSellList(o.CreatureTemplate.Loot.Name));
-            GatherObjectives.ForEach(o => ToolBox.RemoveItemFromDoNotSellList(o.GameObjectTemplate.name));
+            KillLootObjectives.ForEach(o => ToolBox.RemoveItemFromDoNotSellList(o.ItemToLoot.Name));
+            GatherObjectives.ForEach(o => ToolBox.RemoveItemFromDoNotSellList(o.GameObjectToGather.name));
         }
 
         public bool IsCompleted => ToolBox.IsQuestCompleted(Id);
@@ -143,5 +165,42 @@ namespace Wholesome_Auto_Quester.Database.Models
             {  QuestStatus.ToTurnIn, "RoyalBlue"},
             {  QuestStatus.Blacklisted, "Red"}
         };
+
+        public void RecordObjectiveIndices()
+        {
+            string[] objectives = Lua.LuaDoString<string[]>(@$"local numEntries, numQuests = GetNumQuestLogEntries()
+                            local objectivesTable = {{}}
+                            for i=1, numEntries do
+                                local questLogTitleText, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(i)
+                                if questID == {Id} then
+                                    local numObjectives = GetNumQuestLeaderBoards(i)
+                                    for j=1, numObjectives do
+                                        local text, objetype, finished = GetQuestLogLeaderBoard(j, i)
+                                        table.insert(objectivesTable, text)
+                                    end
+                                end
+                            end
+                            return unpack(objectivesTable)");
+
+            AllObjectives.ForEach(ob =>
+            {
+                for (int i = 0; i < objectives.Length; i++)
+                {
+                    if (objectives[i].StartsWith(ob.ObjectiveName))
+                        ob.ObjectiveIndex = i + 1;
+                }
+            });
+
+        }
+
+        public void AddObjective(Objective objective)
+        {
+            AllObjectives.Add(objective);
+            if (objective is ExplorationObjective) ExplorationObjectives.Add((ExplorationObjective)objective);
+            if (objective is GatherObjective) GatherObjectives.Add((GatherObjective)objective);
+            if (objective is InteractObjective) InteractObjectives.Add((InteractObjective)objective);
+            if (objective is KillLootObjective) KillLootObjectives.Add((KillLootObjective)objective);
+            if (objective is KillObjective) KillObjectives.Add((KillObjective)objective);
+        }
     }
 }

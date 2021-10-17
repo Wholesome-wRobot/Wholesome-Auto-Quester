@@ -2,17 +2,15 @@
 
 namespace Wholesome_Auto_Quester.Database.Objectives
 {
-    public class InteractObjective
+    public class InteractObjective : Objective
     {
-        public int Amount { get; }
         public ModelGameObjectTemplate GameObjectTemplate { get; }
-        public int ObjectiveIndex { get; }
 
-        public InteractObjective(int amount, ModelGameObjectTemplate gameObjectTemplate, int objectiveIndex)
+        public InteractObjective(int amount, ModelGameObjectTemplate gameObjectTemplate, string objectiveName)
         {
             Amount = amount;
             GameObjectTemplate = gameObjectTemplate;
-            ObjectiveIndex = objectiveIndex;
+            ObjectiveName = objectiveName;
         }
     }
 }

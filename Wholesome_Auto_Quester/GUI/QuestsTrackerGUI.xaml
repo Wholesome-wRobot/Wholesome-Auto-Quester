@@ -109,6 +109,7 @@
                              HorizontalContentAlignment="Stretch"
                              Height="475"
                              Grid.ColumnSpan="2"
+                             ScrollViewer.VerticalScrollBarVisibility="Visible"
                              SelectionChanged="SelectQuest"
                              Grid.Row="2">
                         <ListBox.ItemTemplate>
@@ -184,74 +185,125 @@
                                 Width="100"
                                 FontSize="10"
                                 HorizontalAlignment="Right"/>
-                    
-                        <StackPanel
-                            Grid.Row="4"
-                            Orientation="Vertical"
-                            Margin="5">
+                        
+                        <ScrollViewer 
+                            VerticalScrollBarVisibility="Visible"
+                            Height="390"
+                            Grid.Row="4">
+                            <StackPanel
+                                Grid.Row="4"
+                                Orientation="Vertical"
+                                CanVerticallyScroll="True"
+                                ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                Margin="5">
 
-                            <StackPanel.Resources>
-                                <Style TargetType="{x:Type TextBlock}">
-                                    <Setter Property="Margin" Value="0,3,0,0"/>
-                                </Style>
-                            </StackPanel.Resources>
-                            
-                            <TextBlock 
-                                Name="questId"
-                                TextWrapping="Wrap"/>
+                                <StackPanel.Resources>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="Margin" Value="0,3,0,0"/>
+                                    </Style>
+                                </StackPanel.Resources>
 
-                            <TextBlock 
-                                Name="questLevel"
-                                TextWrapping="Wrap"/>
+                                <TextBlock 
+                                    Name="questId"
+                                    TextWrapping="Wrap"/>
 
-                            <TextBlock 
-                                Name="questGivers"
-                                TextWrapping="Wrap"/>
+                                <TextBlock                                     
+                                    Name="questStatus"
+                                    TextWrapping="Wrap"/>
 
-                            <TextBlock 
-                                Name="questTurners"
-                                TextWrapping="Wrap"/>
+                                <TextBlock 
+                                    Name="questLevel"
+                                    TextWrapping="Wrap"/>
 
-                            <TextBlock 
-                                Name="questStatus"
-                                TextWrapping="Wrap"/>
+                                <TextBlock 
+                                    Name="questGivers"
+                                    TextWrapping="Wrap"/>
 
-                            <TextBlock 
-                                Name="questPrevious"
-                                TextWrapping="Wrap"/>
+                                <TextBlock 
+                                    Name="questTurners"
+                                    TextWrapping="Wrap"/>
 
-                            <TextBlock 
-                                Name="questNext"
-                                TextWrapping="Wrap"/>
+                                <TextBlock 
+                                    Name="questPrevious"
+                                    TextWrapping="Wrap"/>
 
-                            <TextBlock 
-                                Name="explorations"
-                                TextWrapping="Wrap"/>
+                                <TextBlock 
+                                    Name="questNext"
+                                    TextWrapping="Wrap"/>
 
-                            <TextBlock 
-                                Name="questGatherObjects"
-                                TextWrapping="Wrap"/>
+                                <StackPanel
+                                    Name="explorations">
+                                    <TextBlock 
+                                        Text="Explorations:"
+                                        Foreground="Aquamarine"
+                                        FontWeight="Bold"
+                                        TextWrapping="Wrap"/>
+                                </StackPanel>
 
-                            <TextBlock 
-                                Name="questKillCreatures"
-                                TextWrapping="Wrap"/>
+                                <StackPanel
+                                    Name="questGatherObjects">
+                                    <TextBlock 
+                                        Text="Gather:"
+                                        Foreground="Aquamarine"
+                                        FontWeight="Bold"
+                                        TextWrapping="Wrap"/>
+                                </StackPanel>
 
-                            <TextBlock 
-                                Name="questLootCreatures"
-                                TextWrapping="Wrap"/>
+                                <StackPanel
+                                    Name="questKillCreatures">
+                                    <TextBlock 
+                                        Text="Kill:"
+                                        Foreground="Aquamarine"
+                                        FontWeight="Bold"
+                                        TextWrapping="Wrap"/>
+                                </StackPanel>
 
-                            <TextBlock 
-                                Name="interactObjectives"
-                                TextWrapping="Wrap"/>
+                                <StackPanel
+                                    Name="questLootCreatures">
+                                    <TextBlock 
+                                        Text="Kill and Loot:"
+                                        Foreground="Aquamarine"
+                                        FontWeight="Bold"
+                                        TextWrapping="Wrap"/>
+                                </StackPanel>
 
-                            <TextBlock 
-                                Name="prerequisiteGathers"
-                                TextWrapping="Wrap"/>
+                                <StackPanel
+                                    Name="interactObjectives">
+                                    <TextBlock 
+                                        Text="Interactions:"
+                                        Foreground="Aquamarine"
+                                        FontWeight="Bold"
+                                        TextWrapping="Wrap"/>
+                                </StackPanel>
 
-                            <TextBlock 
-                                Name="prerequisiteLoots"
-                                TextWrapping="Wrap"/>
-                        </StackPanel>
+                                <StackPanel
+                                    Name="prerequisiteGathers">
+                                    <TextBlock 
+                                        Text="Prerequisite Gathers:"
+                                        Foreground="Aquamarine"
+                                        FontWeight="Bold"
+                                        TextWrapping="Wrap"/>
+                                </StackPanel>
+
+                                <StackPanel
+                                    Name="prerequisiteLoots">
+                                    <TextBlock 
+                                        Text="Prerequisite Loots:"
+                                        Foreground="Aquamarine"
+                                        FontWeight="Bold"
+                                        TextWrapping="Wrap"/>
+                                </StackPanel>
+
+                                <StackPanel
+                                    Name="objectiveStack">
+                                    <TextBlock 
+                                        Text="Objectives:"
+                                        Foreground="Aquamarine"
+                                        FontWeight="Bold"
+                                        TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </ScrollViewer>
                     </Grid>
                 </Grid>
             </TabItem>
@@ -291,8 +343,7 @@
                                            HorizontalAlignment="Left"
                                            Margin="0,0,10,0"
                                            Grid.Column="0"
-                                           TextWrapping="Wrap"/>
-                                    
+                                           TextWrapping="Wrap"/>                                  
                                     <TextBlock Text="{Binding TaskName}"
                                            Foreground="{Binding TrackerColor}"
                                            HorizontalAlignment="Left"

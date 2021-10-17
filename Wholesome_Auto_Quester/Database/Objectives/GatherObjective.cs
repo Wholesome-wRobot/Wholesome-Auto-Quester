@@ -2,17 +2,17 @@
 
 namespace Wholesome_Auto_Quester.Database.Objectives
 {
-    public class GatherObjective
+    public class GatherObjective : Objective
     {
-        public int Amount { get; }
-        public ModelGameObjectTemplate GameObjectTemplate { get; }
-        public int ObjectiveIndex { get; }
+        public ModelGameObjectTemplate GameObjectToGather { get; }
+        public ModelItemTemplate ItemToObtain { get; }
 
-        public GatherObjective(int amount, ModelGameObjectTemplate gameObjectTemplate, int objectiveIndex)
+        public GatherObjective(int amount, ModelGameObjectTemplate gameObjectToGather, ModelItemTemplate itemToObtain, string objectiveName = null)
         {
+            GameObjectToGather = gameObjectToGather;
+            ItemToObtain = itemToObtain;
             Amount = amount;
-            GameObjectTemplate = gameObjectTemplate;
-            ObjectiveIndex = objectiveIndex;
+            ObjectiveName = objectiveName == null ? ItemToObtain.Name : objectiveName;
         }
     }
 }

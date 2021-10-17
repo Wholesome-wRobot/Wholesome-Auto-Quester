@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using robotManager.Helpful;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
-using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.Bot {
     public class WAQTask
     {
         public ModelAreaTrigger Area { get; }
-        //public ModelItem Item { get; }
-        //public ModelWorldObject WorldObject { get; }
         public ModelGameObjectTemplate GameObjectTemplate { get; }
         public ModelGameObject GameObject { get; }
         public ModelCreatureTemplate CreatureTemplate { get; }
@@ -90,16 +86,16 @@ namespace Wholesome_Auto_Quester.Bot {
         public void PutTaskOnTimeout(string reason) {
             int timeInSeconds = Creature?.spawnTimeSecs ?? GameObject.spawntimesecs;
             if (timeInSeconds < 30) timeInSeconds = 120;
-            Logger.LogError($"Putting task {TaskName} on time out for {timeInSeconds} seconds. Raason: {reason}");
+            Logger.Log($"Putting task {TaskName} on time out for {timeInSeconds} seconds. Raason: {reason}");
             _timeOutTimer = new Timer(timeInSeconds * 1000);
-            //WAQTasks.UpdateTasks();
+            WAQTasks.UpdateTasks();
         }
 
         public void PutTaskOnTimeout(int timeInSeconds, string reason)
         {
-            Logger.LogError($"Putting task {TaskName} on time out for {timeInSeconds} seconds. Raason: {reason}");
+            Logger.Log($"Putting task {TaskName} on time out for {timeInSeconds} seconds. Raason: {reason}");
             _timeOutTimer = new Timer(timeInSeconds * 1000);
-            //WAQTasks.UpdateTasks();
+            WAQTasks.UpdateTasks();
         }
 
         public bool IsSameTask(TaskType taskType, int questEntry, int objIndex, Func<int> getUniqueId = null) {
@@ -128,10 +124,10 @@ namespace Wholesome_Auto_Quester.Bot {
 
         public int CalculatePriority(float taskDistance)
         {
-            if (taskDistance > 0) // path not found
+            if (taskDistance > 0) // path found
             {
-                if (TaskType == TaskType.PickupQuestFromCreature) taskDistance *= 2;
-                if (TaskType == TaskType.TurnInQuestToCreature) taskDistance *= 2;
+                if (TaskType == TaskType.PickupQuestFromCreature) taskDistance *= 2.5f;
+                if (TaskType == TaskType.TurnInQuestToCreature) taskDistance *= 1.5f;
                 if (Quest.QuestAddon.AllowableClasses > 0) taskDistance /= 5;
                 if (Quest.TimeAllowed > 0 && TaskType != TaskType.PickupQuestFromCreature) taskDistance /= 100;
             }

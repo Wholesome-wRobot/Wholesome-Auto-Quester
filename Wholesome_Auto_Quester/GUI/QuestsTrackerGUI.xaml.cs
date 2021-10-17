@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 using robotManager.Helpful;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Database.Objectives;
+using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.GUI {
@@ -79,79 +83,169 @@ namespace Wholesome_Auto_Quester.GUI {
                 questLevel.Text = $"Level: {selected.QuestLevel}";
 
                 Vector3 myPos = ObjectManager.Me.PositionWithoutType;
-                
+
                 // quest givers
-                string qg = "";
-                selected.CreatureQuestGivers.ForEach(q => qg += $"{q.entry}");
-                selected.GameObjectQuestGivers.ForEach(q => qg += $"{q.entry}");
-                questGivers.Text = $"Quest Givers: {qg}";
+                if (selected.CreatureQuestGivers.Count > 0)
+                {
+                    string qg = "";
+                    selected.CreatureQuestGivers.ForEach(q => qg += $"{q.entry}");
+                    selected.GameObjectQuestGivers.ForEach(q => qg += $"{q.entry}");
+                    questGivers.Text = $"Quest Givers: {qg}";
+                    questGivers.Visibility = Visibility.Visible;
+                }
+                else
+                    questGivers.Visibility = Visibility.Collapsed;
 
                 // quest turners
-                string qt = "";
-                selected.CreatureQuestTurners.ForEach(q => qt += $"{q.entry}");
-                selected.GameObjectQuestTurners.ForEach(q => qt += $"{q.entry}");
-                questTurners.Text = $"Quest Turners: {qt}";
+                if (selected.CreatureQuestTurners.Count > 0)
+                {
+                    string qt = "";
+                    selected.CreatureQuestTurners.ForEach(q => qt += $"{q.entry}");
+                    selected.GameObjectQuestTurners.ForEach(q => qt += $"{q.entry}");
+                    questTurners.Text = $"Quest Turners: {qt}";
+                    questTurners.Visibility = Visibility.Visible;
+                }
+                else
+                    questTurners.Visibility = Visibility.Collapsed;
 
                 // status
                 questStatus.Text = $"Status: {selected.Status}";
 
                 // previous quests
-                string qp = "";
-                selected.PreviousQuestsIds.ForEach(q => qp += q + " ");
-                questPrevious.Text = $"Previous quests: {qp}";
+                if (selected.PreviousQuestsIds.Count > 0)
+                {
+                    string qp = "";
+                    selected.PreviousQuestsIds.ForEach(q => qp += q + " ");
+                    questPrevious.Text = $"Previous quests: {qp}";
+                    questPrevious.Visibility = Visibility.Visible;
+                }
+                else
+                    questPrevious.Visibility = Visibility.Collapsed;
 
                 // next quests
-                string qn = "";
-                selected.NextQuestsIds.ForEach(q => qn += q + " ");
-                questNext.Text = $"Next quests: {qn}";
+                if (selected.NextQuestsIds.Count > 0)
+                {
+                    string qn = "";
+                    selected.NextQuestsIds.ForEach(q => qn += q + " ");
+                    questNext.Text = $"Next quests: {qn}";
+                    questNext.Visibility = Visibility.Visible;
+                }
+                else
+                    questNext.Visibility = Visibility.Collapsed;
 
                 // exploration objectives
-                string explorationsObjectives = "Explore: ";
-                foreach (ExplorationObjective obje in selected.ExplorationObjectives)
-                    explorationsObjectives += $"\n    [{selected.ExplorationObjectives.IndexOf(obje) + 1}] {obje.Area.GetPosition}";
-                explorations.Text = explorationsObjectives;
-
-                // Interact objectives
-                string interactString = "Interact: ";
-                foreach (InteractObjective obje in selected.InteractObjectives)
-                    interactString +=
-                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.GameObjectTemplate.name} ({obje.GameObjectTemplate.GameObjects.Count} found)";
-                interactObjectives.Text = interactString;
+                if (selected.ExplorationObjectives.Count > 0)
+                {
+                    explorations.Visibility = Visibility.Visible;
+                    explorations.Children.RemoveRange(1, explorations.Children.Count - 1);
+                    foreach (ExplorationObjective obje in selected.ExplorationObjectives)
+                        if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, selected.Id))
+                            explorations.Children.Add(CreateListTextBlock(
+                                $"[{selected.ExplorationObjectives.IndexOf(obje) + 1}] {obje.Area.GetPosition}"));
+                }
+                else
+                    explorations.Visibility = Visibility.Collapsed;
 
                 // gather objectives
-                string gatherObjectsString = "Gather: ";
-                foreach (GatherObjective obje in selected.GatherObjectives)
-                    gatherObjectsString +=
-                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.GameObjectTemplate.name} ({obje.GameObjectTemplate.GameObjects.Count} found)";
-                questGatherObjects.Text = gatherObjectsString;
+                if (selected.GatherObjectives.Count > 0)
+                {
+                    questGatherObjects.Visibility = Visibility.Visible;
+                    questGatherObjects.Children.RemoveRange(1, questGatherObjects.Children.Count - 1);
+                    foreach (GatherObjective obje in selected.GatherObjectives)
+                        if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, selected.Id))
+                            questGatherObjects.Children.Add(CreateListTextBlock(
+                                $"[{obje.ObjectiveIndex}] {obje.GameObjectToGather.name} ({obje.GameObjectToGather.GameObjects.Count} found)"));
+                }
+                else
+                    questGatherObjects.Visibility = Visibility.Collapsed;
 
                 // kill objectives
-                string creaturesToKillString = "Kill: ";
-                foreach (KillObjective obje in selected.KillObjectives)
-                    creaturesToKillString +=
-                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.CreatureTemplate.name} ({obje.CreatureTemplate.Creatures.Count} found)";
-                questKillCreatures.Text = creaturesToKillString;
+                if (selected.KillObjectives.Count > 0)
+                {
+                    questKillCreatures.Visibility = Visibility.Visible;
+                    questKillCreatures.Children.RemoveRange(1, questKillCreatures.Children.Count - 1);
+                    foreach (KillObjective obje in selected.KillObjectives)
+                        if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, selected.Id))
+                            questKillCreatures.Children.Add(CreateListTextBlock(
+                                $"[{obje.ObjectiveIndex}] {obje.CreatureTemplate.name} ({obje.CreatureTemplate.Creatures.Count} found)"));
+                }
+                else
+                    questKillCreatures.Visibility = Visibility.Collapsed;
 
                 // kill&loot objectives
-                string creaturesToLootString = "Kill & Loot: ";
-                foreach (KillLootObjective obje in selected.KillLootObjectives)
-                    creaturesToLootString +=
-                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.CreatureTemplate.Loot.Name} ({obje.CreatureTemplate.Creatures.Count} found)";
-                questLootCreatures.Text = creaturesToLootString;
+                if (selected.KillLootObjectives.Count > 0)
+                {
+                    questLootCreatures.Visibility = Visibility.Visible;
+                    questLootCreatures.Children.RemoveRange(1, questLootCreatures.Children.Count - 1);
+                    foreach (KillLootObjective obje in selected.KillLootObjectives)
+                        if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, selected.Id))
+                            questLootCreatures.Children.Add(CreateListTextBlock(
+                                $"[{obje.ObjectiveIndex}] {obje.CreatureTemplate.name} ({obje.CreatureTemplate.Creatures.Count} found)"));
+                }
+                else
+                    questLootCreatures.Visibility = Visibility.Collapsed;
+
+                // Interact objectives
+                if (selected.InteractObjectives.Count > 0)
+                {
+                    interactObjectives.Visibility = Visibility.Visible;
+                    interactObjectives.Children.RemoveRange(1, interactObjectives.Children.Count - 1);
+                    foreach (InteractObjective obje in selected.InteractObjectives)
+                        if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, selected.Id))
+                            interactObjectives.Children.Add(CreateListTextBlock(
+                                $"[{obje.ObjectiveIndex}] {obje.GameObjectTemplate.name} ({obje.GameObjectTemplate.GameObjects.Count} found)"));
+                }
+                else
+                    interactObjectives.Visibility = Visibility.Collapsed;
 
                 // Prerequisite gathers
-                string prerequisiteGathersString = "Prerequisite Gathers: ";
-                foreach (GatherObjective obje in selected.PrerequisiteGatherItems)
-                    prerequisiteGathersString +=
-                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.GameObjectTemplate.name} ({obje.GameObjectTemplate.GameObjects.Count} found)";
-                prerequisiteGathers.Text = prerequisiteGathersString;
+                if (selected.PrerequisiteGatherObjectives.Count > 0)
+                {
+                    prerequisiteGathers.Visibility = Visibility.Visible;
+                    prerequisiteGathers.Children.RemoveRange(1, prerequisiteGathers.Children.Count - 1);
+                    foreach (GatherObjective obje in selected.PrerequisiteGatherObjectives)
+                        prerequisiteGathers.Children.Add(CreateListTextBlock(
+                            $"[{obje.ObjectiveIndex}] {obje.GameObjectToGather.name} ({obje.GameObjectToGather.GameObjects.Count} found)"));
+                }
+                else
+                    prerequisiteGathers.Visibility = Visibility.Collapsed;
 
                 // Prerequisite loots
-                string prerequisiteLootsString = "Prerequisite Loots: ";
-                foreach (KillLootObjective obje in selected.PrerequisiteLootItems)
-                    prerequisiteLootsString +=
-                        $"\n    [{obje.ObjectiveIndex}] {obje.Amount} x {obje.CreatureTemplate.Loot.Name} ({obje.CreatureTemplate.Creatures.Count} found)";
-                prerequisiteLoots.Text = prerequisiteLootsString;
+                if (selected.PrerequisiteLootObjectives.Count > 0)
+                {
+                    prerequisiteLoots.Visibility = Visibility.Visible;
+                    prerequisiteLoots.Children.RemoveRange(1, prerequisiteLoots.Children.Count - 1);
+                    foreach (KillLootObjective obje in selected.PrerequisiteLootObjectives)
+                        prerequisiteLoots.Children.Add(CreateListTextBlock(
+                            $"[{obje.ObjectiveIndex}] {obje.Amount} x {obje.ItemToLoot.Name} ({obje.CreatureTemplate.Creatures.Count} found)"));
+                }
+                else
+                    prerequisiteLoots.Visibility = Visibility.Collapsed;
+
+                // objectives
+                if (selected.AllObjectives.Count > 0)
+                {
+                    objectiveStack.Visibility = Visibility.Visible;
+                    objectiveStack.Children.RemoveRange(1, objectiveStack.Children.Count - 1);
+                    List<ObjectiveDisplay> objDisplays = new List<ObjectiveDisplay>();
+                    selected.AllObjectives.ForEach(obj =>
+                    {
+                        if (!objDisplays.Exists(o => o.Name == obj.ObjectiveName))
+                            objDisplays.Add(new ObjectiveDisplay(obj.ObjectiveIndex, obj.ObjectiveName, obj.Amount));
+                    });
+                    objDisplays.ForEach(od =>
+                    {
+                        TextBlock objTextBlock = CreateListTextBlock($"[{od.Index}] {od.Name} (x{od.Amount})");
+                        if (ToolBox.IsObjectiveCompleted(od.Index, selected.Id))
+                        {
+                            objTextBlock.Foreground = Brushes.LightGray;
+                            objTextBlock.TextDecorations = TextDecorations.Strikethrough;
+                        }
+                        objectiveStack.Children.Add(objTextBlock);
+                    });
+                }
+                else
+                    objectiveStack.Visibility = Visibility.Collapsed;
 
                 if (WholesomeAQSettings.CurrentSetting.BlacklistesQuests.Contains(selected.Id)) {
                     ButtonAddToBl.IsEnabled = false;
@@ -162,6 +256,28 @@ namespace Wholesome_Auto_Quester.GUI {
                 }
 
                 detailsPanel.Visibility = Visibility.Visible;
+            }
+        }
+
+        private TextBlock CreateListTextBlock(string text)
+        {
+            TextBlock objTextBlock = new TextBlock();
+            objTextBlock.Text = text;
+            objTextBlock.Margin = new Thickness(15, 0, 0, 0);
+            objTextBlock.TextWrapping = TextWrapping.Wrap;
+            return objTextBlock;
+        }
+
+        private struct ObjectiveDisplay
+        {
+            public int Index;
+            public string Name;
+            public int Amount;
+            public ObjectiveDisplay(int index, string name, int amount)
+            {
+                Index = index;
+                Name = name;
+                Amount = amount;
             }
         }
     }

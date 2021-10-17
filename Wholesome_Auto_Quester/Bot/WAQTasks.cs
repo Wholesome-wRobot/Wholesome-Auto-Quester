@@ -105,9 +105,9 @@ namespace Wholesome_Auto_Quester.Bot {
 
                     // Prerequisite gathers & loots
                     bool needsPrerequisite = false;
-                    foreach (KillLootObjective obje in quest.PrerequisiteLootItems)
+                    foreach (KillLootObjective obje in quest.PrerequisiteLootObjectives)
                     {
-                        if (ItemsManager.GetItemCountById((uint)obje.CreatureTemplate.Loot.Entry) <= 0)
+                        if (ItemsManager.GetItemCountById((uint)obje.ItemToLoot.Entry) <= 0)
                         {
                             needsPrerequisite = true;
                             obje.CreatureTemplate.Creatures.ForEach(creature => {
@@ -126,29 +126,32 @@ namespace Wholesome_Auto_Quester.Bot {
                                                      && t.TaskType == TaskType.KillAndLoot);
                     }
 
-                    foreach (GatherObjective obje in quest.PrerequisiteGatherItems)
-                        if (ItemsManager.GetItemCountById((uint)obje.GameObjectTemplate.entry) <= 0)
+                    // Gather
+                    foreach (GatherObjective obje in quest.PrerequisiteGatherObjectives)
+                    {
+                        if (ItemsManager.GetItemCountById((uint)obje.GameObjectToGather.entry) <= 0)
                         {
                             needsPrerequisite = true;
-                            obje.GameObjectTemplate.GameObjects.ForEach(gameObject => {
+                            obje.GameObjectToGather.GameObjects.ForEach(gameObject => {
                                 if (gameObject.map == myContinent
                                     && !TasksPile.Exists(t =>
                                         t.IsSameTask(TaskType.GatherGameObject, quest.Id,
                                             obje.ObjectiveIndex, () => (int)gameObject.guid)))
-                                    generatedTasks.Add(new WAQTask(TaskType.GatherGameObject, obje.GameObjectTemplate, gameObject, quest,
+                                    generatedTasks.Add(new WAQTask(TaskType.GatherGameObject, obje.GameObjectToGather, gameObject, quest,
                                         obje.ObjectiveIndex));
                             });
                         }
                         else
                             TasksPile.RemoveAll(t => t.Quest.Id == quest.Id
-                                                     && t.ObjectiveIndex == obje.ObjectiveIndex
-                                                     && t.TaskType == TaskType.GatherGameObject);
+                                                        && t.ObjectiveIndex == obje.ObjectiveIndex
+                                                        && t.TaskType == TaskType.GatherGameObject);
+                    }
 
                     if (!needsPrerequisite)
                     {
                         // Explore
                         foreach (ExplorationObjective obje in quest.ExplorationObjectives)
-                            if (!ToolBox.GetObjectiveCompletion(obje.ObjectiveIndex, quest.Id))
+                            if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, quest.Id))
                             {
                                 if (obje.Area.ContinentId == myContinent
                                     && !TasksPile.Exists(t =>
@@ -166,7 +169,7 @@ namespace Wholesome_Auto_Quester.Bot {
 
                         // Kill & Loot
                         foreach (KillLootObjective obje in quest.KillLootObjectives)
-                            if (!ToolBox.GetObjectiveCompletion(obje.ObjectiveIndex, quest.Id))
+                            if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, quest.Id))
                                 obje.CreatureTemplate.Creatures.ForEach(creature => {
                                     if (creature.map == myContinent
                                         && obje.CreatureTemplate.maxLevel <= myLevel + 2
@@ -183,7 +186,7 @@ namespace Wholesome_Auto_Quester.Bot {
 
                         // Kill
                         foreach (KillObjective obje in quest.KillObjectives)
-                            if (!ToolBox.GetObjectiveCompletion(obje.ObjectiveIndex, quest.Id))
+                            if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, quest.Id))
                                 obje.CreatureTemplate.Creatures.ForEach(creature => {
                                     if (creature.map == myContinent
                                         && obje.CreatureTemplate.maxLevel <= myLevel + 2
@@ -200,13 +203,13 @@ namespace Wholesome_Auto_Quester.Bot {
 
                         // Gather object
                         foreach (GatherObjective obje in quest.GatherObjectives)
-                            if (!ToolBox.GetObjectiveCompletion(obje.ObjectiveIndex, quest.Id))
-                                obje.GameObjectTemplate.GameObjects.ForEach(gameObject => {
+                            if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, quest.Id))
+                                obje.GameObjectToGather.GameObjects.ForEach(gameObject => {
                                     if (gameObject.map == myContinent
                                         && !TasksPile.Exists(t =>
                                             t.IsSameTask(TaskType.GatherGameObject, quest.Id,
                                                 obje.ObjectiveIndex, () => (int)gameObject.guid)))
-                                        generatedTasks.Add(new WAQTask(TaskType.GatherGameObject, obje.GameObjectTemplate, gameObject, quest,
+                                        generatedTasks.Add(new WAQTask(TaskType.GatherGameObject, obje.GameObjectToGather, gameObject, quest,
                                             obje.ObjectiveIndex));
                                 });
                             else
@@ -216,7 +219,7 @@ namespace Wholesome_Auto_Quester.Bot {
 
                         // Interact with object
                         foreach (InteractObjective obje in quest.InteractObjectives)
-                            if (!ToolBox.GetObjectiveCompletion(obje.ObjectiveIndex, quest.Id))
+                            if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, quest.Id))
                                 obje.GameObjectTemplate.GameObjects.ForEach(gameObject => {
                                     if (gameObject.map == myContinent
                                         && !TasksPile.Exists(t =>
@@ -228,7 +231,7 @@ namespace Wholesome_Auto_Quester.Bot {
                             else
                                 TasksPile.RemoveAll(t => t.Quest.Id == quest.Id
                                                          && t.ObjectiveIndex == obje.ObjectiveIndex
-                                                         && t.TaskType == TaskType.GatherGameObject);
+                                                         && t.TaskType == TaskType.InteractWithWorldObject);
                     }
                 }
             }
@@ -378,14 +381,8 @@ namespace Wholesome_Auto_Quester.Bot {
             } else {
                 TaskInProgressWoWObject = null;
             }
-            //Logger.Log($"OBJECT: [{nbPathFinds}] [{watchObjectsShort.ElapsedMilliseconds}ms] [{TaskInProgressWoWObject?.Name}]");
-            //Logger.Log($"**************************************");
 
             TaskInProgress = closestTask;
-
-            /*Logger.Log($"********************************************");
-            Logger.Log($"TaskInProgress: {TaskInProgress?.TaskName}");
-            Logger.Log($"TaskInProgressWoWObject: {TaskInProgressWoWObject?.Name}");*/
 
             if (_tick++ % 5 == 0) Main.QuestTrackerGui.UpdateTasksList();
         }
@@ -454,11 +451,14 @@ namespace Wholesome_Auto_Quester.Bot {
                     }
 
                     // Quest in progress
-                    // if (Quest.HasQuest(quest.Id)) {
-                    quest.Status = QuestStatus.InProgress;
-                    quest.AddQuestItemsToDoNotSellList();
+                    if (quest.Status != QuestStatus.InProgress)
+                    {
+                        Logger.Log($"Recording {quest.LogTitle}");
+                        quest.RecordObjectiveIndices();
+                        quest.Status = QuestStatus.InProgress;
+                        quest.AddQuestItemsToDoNotSellList();
+                    }
                     continue;
-                    // }
                 }
 
                 quest.Status = QuestStatus.None;

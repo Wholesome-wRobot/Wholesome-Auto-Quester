@@ -2,7 +2,6 @@
 {
     public class ModelQuestAddon
     {
-        public int ID { get; set; }
         public int AllowableClasses { get; set; }
         public int PrevQuestID { get; set; }
         public int NextQuestID { get; set; }
