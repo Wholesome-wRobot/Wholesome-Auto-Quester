@@ -406,20 +406,22 @@ namespace Wholesome_Auto_Quester.Database {
 
             DisposeDb();
 
+            List<ModelQuestTemplate> allFilteredQuests = FilterDBQuests(quests);
+
             // Write JSON
             if (WholesomeAQSettings.CurrentSetting.DevMode)
             {
                 Stopwatch stopwatchJSON = Stopwatch.StartNew();
-                Logger.Log($"{quests.Count} results. Building JSON. Please wait.");
+                Logger.Log($"{allFilteredQuests.Count} results. Building JSON. Please wait.");
                 ToolBox.UpdateCompletedQuests();
-                ToolBox.WriteJSONFromDBResult(quests);
+                ToolBox.WriteJSONFromDBResult(allFilteredQuests);
                 ToolBox.ZipJSONFile();
                 Logger.Log($"Process time (JSON processing) : {stopwatchJSON.ElapsedMilliseconds} ms");
             }
 
             Logger.Log($"DONE! Process time (TOTAL) : {stopwatch.ElapsedMilliseconds} ms");
 
-            WAQTasks.AddQuests(FilterDBQuests(quests));
+            WAQTasks.AddQuests(allFilteredQuests);
         }
     }
 }
