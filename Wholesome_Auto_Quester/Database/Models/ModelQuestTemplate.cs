@@ -13,6 +13,7 @@ namespace Wholesome_Auto_Quester.Database.Models
     {
         public ModelQuestAddon QuestAddon { get; set; }
         public QuestStatus Status { get; set; } = QuestStatus.None;
+        public bool AreObjectivesRecorded { get; set; }
 
         public List<ModelCreatureTemplate> CreatureQuestGivers { get; set; } = new List<ModelCreatureTemplate>();
         public List<ModelCreatureTemplate> CreatureQuestTurners { get; set; } = new List<ModelCreatureTemplate>();
@@ -168,6 +169,7 @@ namespace Wholesome_Auto_Quester.Database.Models
 
         public void RecordObjectiveIndices()
         {
+            Logger.Log($"Recording objective indices for {LogTitle}");
             string[] objectives = Lua.LuaDoString<string[]>(@$"local numEntries, numQuests = GetNumQuestLogEntries()
                             local objectivesTable = {{}}
                             for i=1, numEntries do
@@ -187,10 +189,12 @@ namespace Wholesome_Auto_Quester.Database.Models
                 for (int i = 0; i < objectives.Length; i++)
                 {
                     if (objectives[i].StartsWith(ob.ObjectiveName))
+                    {
                         ob.ObjectiveIndex = i + 1;
+                        AreObjectivesRecorded = true;
+                    }
                 }
             });
-
         }
 
         public void AddObjective(Objective objective)

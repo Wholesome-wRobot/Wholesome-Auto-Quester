@@ -238,7 +238,7 @@ namespace Wholesome_Auto_Quester.Bot {
 
             TasksPile.AddRange(generatedTasks);
 
-            if (TasksPile.Count <= 0)
+            if (TasksPile.Count <= 0 || !TasksPile.Exists(t => !t.IsTimedOut))
                 return;
             
             // Filter far away new quests if we still have quests to turn in
@@ -265,6 +265,7 @@ namespace Wholesome_Auto_Quester.Bot {
             {
                 closestTask.PutTaskOnTimeout(600, "Unreachable");
                 closestTask = null;
+                return;
             }
 
             if (isTaskReachable && closestTaskDistance > closestTask.GetDistance * 2)
@@ -273,7 +274,7 @@ namespace Wholesome_Auto_Quester.Bot {
                 int nbTasks = TasksPile.Count;
                 int closestTaskPriorityScore = closestTask.CalculatePriority(closestTaskDistance);
 
-                for (int i = 0; i <= nbTasks; i++)
+                for (int i = 0; i < nbTasks - 1; i++)
                 {
                     if (!TasksPile[i].IsTimedOut)
                     {
@@ -451,11 +452,10 @@ namespace Wholesome_Auto_Quester.Bot {
                     }
 
                     // Quest in progress
-                    if (quest.Status != QuestStatus.InProgress)
+                    quest.Status = QuestStatus.InProgress;
+                    if (!quest.AreObjectivesRecorded)
                     {
-                        Logger.Log($"Recording {quest.LogTitle}");
                         quest.RecordObjectiveIndices();
-                        quest.Status = QuestStatus.InProgress;
                         quest.AddQuestItemsToDoNotSellList();
                     }
                     continue;
