@@ -315,11 +315,11 @@ namespace Wholesome_Auto_Quester.Database
                     AND ((qt.QuestLevel <= {levelDeltaPlus} AND  qt.QuestLevel >= {levelDeltaMinus}) OR (qt.QuestLevel = -1 AND (qta.AllowableClasses <> 0 OR qt.AllowableRaces <> 0)));
                 ";
 
-            List<ModelQuestTemplate> result = _con.Query<ModelQuestTemplate, ModelQuestAddon, ModelQuestTemplate>(
+            List<ModelQuestTemplate> result = _con.Query<ModelQuestTemplate, ModelQuestTemplateAddon, ModelQuestTemplate>(
                 queryQuest,
                 (quest, questAddon) =>
                 {
-                    quest.QuestAddon = questAddon == null ? new ModelQuestAddon() : questAddon;
+                    quest.QuestAddon = questAddon == null ? new ModelQuestTemplateAddon() : questAddon;
                     return quest;
                 },
                 splitOn: "ID")

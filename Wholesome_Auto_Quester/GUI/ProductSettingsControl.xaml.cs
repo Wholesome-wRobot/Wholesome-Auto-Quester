@@ -16,6 +16,13 @@ namespace Wholesome_Auto_Quester.GUI
             LevelDeltaMinus.Value = WholesomeAQSettings.CurrentSetting.LevelDeltaMinus;
             LevelDeltaPlus.Value = WholesomeAQSettings.CurrentSetting.LevelDeltaPlus;
             DeltaDetails.Text = GetDeltaDetailsString();
+            SmoothMove.IsChecked = WholesomeAQSettings.CurrentSetting.SmoothMove;
+        }
+
+        private void SmoothMoveChanged(object sender, RoutedEventArgs e)
+        {
+            WholesomeAQSettings.CurrentSetting.SmoothMove = (bool)SmoothMove.IsChecked;
+            WholesomeAQSettings.CurrentSetting.Save();
         }
 
         private string GetDeltaDetailsString()

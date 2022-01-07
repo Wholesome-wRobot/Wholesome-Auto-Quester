@@ -21,6 +21,7 @@ namespace Wholesome_Auto_Quester
             ListCompletedQuests = new List<int>();
             LevelDeltaPlus = 2;
             LevelDeltaMinus = 5;
+            SmoothMove = false;
 
             BlacklistesQuests = new List<int>()
             {
@@ -38,6 +39,7 @@ namespace Wholesome_Auto_Quester
         public bool ActivateQuestsGUI { get; set; }
         public List<int> ListCompletedQuests { get; set; }
         public List<int> BlacklistesQuests { get; set; }
+        public bool SmoothMove { get; set; }
 
         public static void AddQuestToBlackList(int questId)
         {

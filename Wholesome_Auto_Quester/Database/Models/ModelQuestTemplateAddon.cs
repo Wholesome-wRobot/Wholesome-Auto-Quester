@@ -1,6 +1,6 @@
 ﻿namespace Wholesome_Auto_Quester.Database.Models
 {
-    public class ModelQuestAddon
+    public class ModelQuestTemplateAddon
     {
         public int AllowableClasses { get; set; }
         public int PrevQuestID { get; set; }

@@ -6,6 +6,9 @@ using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 using FlXProfiles;
 using wManager.Wow.Enums;
+using robotManager.Helpful;
+using System.Collections.Generic;
+using static wManager.Wow.Helpers.PathFinder;
 
 namespace Wholesome_Auto_Quester.States {
     class WAQPickupQuestFromNpc : State {
@@ -45,11 +48,11 @@ namespace Wholesome_Auto_Quester.States {
                 var pickUpTarget = (WoWUnit) npcObject;
 
                 if (!pickUpTarget.InInteractDistance()) {
-                    if(!MoveHelper.IsMovementThreadRunning
+                    if (!MoveHelper.IsMovementThreadRunning
                        || MoveHelper.CurrentMovementTarget.DistanceTo(pickUpTarget.PositionWithoutType) > 4)
                     {
                         Logger.Log($"NPC found - Going to {pickUpTarget.Name} to pick up {task.Quest.LogTitle}.");
-                        MoveHelper.StartGoToThread(pickUpTarget.PositionWithoutType, randomizeEnd: 3f);
+                        MoveHelper.StartGoToThread(pickUpTarget.PositionWithoutType);
                     }
                     return;
                 }
@@ -66,7 +69,7 @@ namespace Wholesome_Auto_Quester.States {
                 if (!MoveHelper.IsMovementThreadRunning ||
                     MoveHelper.CurrentMovementTarget.DistanceTo(task.Location) > 8) {
                     Logger.Log($"Moving to QuestGiver for {task.Quest.LogTitle} (PickUp).");
-                    MoveHelper.StartGoToThread(task.Location, randomizeEnd: 8f);
+                    MoveHelper.StartGoToThread(task.Location);
                 }
                 if (task.GetDistance <= 12f) {
                     task.PutTaskOnTimeout("No NPC in sight for quest pickup");

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Threading;
@@ -101,6 +102,7 @@ public class Main : IProduct {
             });
 
             FiniteStateMachineEvents.OnRunState += SmoothMoveKiller;
+            LoggingEvents.OnAddLog += AddLogHandler;
 
             if (Bot.Pulse()) {
                 if (WholesomeAQSettings.CurrentSetting.ActivateQuestsGUI)
@@ -128,7 +130,6 @@ public class Main : IProduct {
         try {
             Lua.RunMacroText("/stopcasting");
             MoveHelper.StopAllMove();
-            MovementManager.StopMove();
 
             Radar3D.OnDrawEvent -= Radar3DOnDrawEvent;
             // Radar3D.Stop();
@@ -136,6 +137,7 @@ public class Main : IProduct {
             QuestTrackerGui.HideWindow();
 
             FiniteStateMachineEvents.OnRunState -= SmoothMoveKiller;
+            LoggingEvents.OnAddLog -= AddLogHandler;
 
             Bot.Dispose();
             IsStarted = false;
@@ -144,6 +146,16 @@ public class Main : IProduct {
             Logging.Write("Stop Product Complete");
         } catch (Exception e) {
             Logging.WriteError("Main > Stop(): " + e);
+        }
+    }
+
+    // LOG EVENTS
+    private void AddLogHandler(Logging.Log log)
+    {
+        if (log.Text == "[Fight] Mob seem bugged" && ObjectManager.Target.Guid > 0)
+        {
+            Logger.Log($"{ObjectManager.Target.Guid} is bugged. Blacklisting.");
+            wManagerSetting.AddBlackList(ObjectManager.Target.Guid, isSessionBlacklist: true);
         }
     }
 

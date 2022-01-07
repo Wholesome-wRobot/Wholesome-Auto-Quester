@@ -34,7 +34,6 @@ namespace Wholesome_Auto_Quester.States
         public override void Run()
         {
             WAQTask task = WAQTasks.TaskInProgress;
-            //Logger.Log($"******** RUNNING KILL TASK {ToolBox.GetTaskId(task)}  ********");
 
             if (WAQTasks.TaskInProgressWoWObject != null)
             {
@@ -44,20 +43,13 @@ namespace Wholesome_Auto_Quester.States
                 }
 
                 var killTarget = (WoWUnit) WAQTasks.TaskInProgressWoWObject;
-                Logger.Log($"Unit found - Fighting {killTarget.Name}");
-                MoveHelper.StopCurrentMovementThread();
-                /*Logger.LogError("START");
-                bool resultSuccess = true;
-                var path = PathFinder.FindPath(ObjectManager.Me.Position, killTarget.Position, resultSuccess: out resultSuccess, skipIfPartiel: true);
-                if (!resultSuccess || path.Count <= 0)
+                if(!wManager.wManagerSetting.IsBlackListed(killTarget.Guid))
                 {
-                    task.PutTaskOnTimeout();
-                    Logger.LogError("TIMEOUT");
-                    return;
+                    Logger.Log($"Unit found - Fighting {killTarget.Name}");
+                    MoveHelper.StopCurrentMovementThread();
+                    Fight.StartFight(killTarget.Guid);
+                    Thread.Sleep(200);
                 }
-                Logger.LogError("END");*/
-                Fight.StartFight(killTarget.Guid);
-                Thread.Sleep(200);
             }
             else
             {

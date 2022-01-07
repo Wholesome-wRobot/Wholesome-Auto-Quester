@@ -5,7 +5,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using robotManager.Helpful;
+using Wholesome_Auto_Quester;
 using Wholesome_Auto_Quester.Helpers;
+using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 using Move = SmoothMove.Move;
@@ -19,7 +21,9 @@ namespace FlXProfiles {
         private static Vector3 _currentMovementTarget;
 
         public static bool IsMovementThreadRunning {
-            get {
+            get
+            {
+                if (MovementManager.InMovement) return true;
                 lock (Lock) {
                     return !_currentMovementTask?.Finished() ?? false;
                 }
@@ -47,7 +51,7 @@ namespace FlXProfiles {
                     if (!_currentMovementTask?.Wait(5000, _currentMovementToken?.Token ?? CancellationToken.None) ??
                         false)
                         Logger.LogError("Unable to end movement thread.");
-                    // ResetCurrentMovementCache();
+                    ResetCurrentMovementCache();
                 }
             } catch {
                 // We can safely ignore this
@@ -66,28 +70,26 @@ namespace FlXProfiles {
             bool face = true, bool precise = false, Func<bool> abortIf = null, float randomizeEnd = 0,
             float randomization = 0, bool checkCurrent = true, float precision = 1,
             bool shortCut = false, int jumpRareness = 2, bool showPath = false) {
-            if (MovementManager.InMovement)
-                MovementManager.StopMove();
 
             lock (Lock) {
-                if (IsMovementThreadRunning) {
-                    if (checkCurrent && CurrentMovementTarget.DistanceTo(target) < 2)
-                        return null;
-                    StopCurrentMovementThread();
-                }
-
                 var cts = new CancellationTokenSource();
-                Task goToTask = Task.Factory.StartNew(()
-                    => Move.GoTo(target, face, precise, randomizeEnd, randomization, cts.Token,
+                Action goToAction = WholesomeAQSettings.CurrentSetting.SmoothMove ?
+                    new Action(() => Move.GoTo(target, face, precise, randomizeEnd, randomization, cts.Token,
                         precision: precision, shortCut: shortCut, jumpRareness: jumpRareness,
-                        showPath: showPath, avoidDangerousEnemies: true), cts.Token).ContinueWith(
-                    task => ResetCurrentMovementCache(), cts.Token);
+                        showPath: showPath, avoidDangerousEnemies: true))
+                    :
+                    new Action(() => GoToTask.ToPosition(target));
+
+                Task goToTask = Task.Factory.StartNew(goToAction, cts.Token)
+                    .ContinueWith(task => ResetCurrentMovementCache(), cts.Token);
 
                 if (abortIf != null)
                     Task.Factory.StartNew(() => {
                         while (!goToTask.IsCompleted && !goToTask.IsCanceled && !goToTask.IsFaulted
-                               && !cts.Token.IsCancellationRequested) {
-                            if (abortIf()) {
+                               && !cts.Token.IsCancellationRequested && IsMovementThreadRunning)
+                        {
+                            if (abortIf())
+                            {
                                 cts.Cancel();
                                 StopAllMove();
                                 break;
@@ -106,53 +108,50 @@ namespace FlXProfiles {
 
         private static bool Finished(this Task task) => task.IsCompleted || task.IsCanceled || task.IsFaulted;
 
-        public static CancellationTokenSource StartMoveAlongThread(List<Vector3> pathRaw,
+        public static CancellationTokenSource StartMoveAlongThread(List<Vector3> path,
             bool face = true, bool precise = false, Func<bool> abortIf = null, float randomization = 0,
             bool checkCurrent = true, float precision = 1, List<byte> customRadius = null, bool shortCut = false,
-            int jumpRareness = 2, bool showPath = false) {
-            // var path = new List<Vector3>(pathRaw.Count) {ObjectManager.Me.PositionWithoutType};
-            // path.AddRange(pathRaw);
-            if (pathRaw.Count <= 0) {
+            int jumpRareness = 2, bool showPath = false)
+        {
+            if (path.Count <= 0)
+            {
                 Logger.LogError("Called MoveAlongThread without a path.");
                 return null;
             }
 
-            List<Vector3> path = pathRaw;
+            lock (Lock)
+            {
+                var cts = new CancellationTokenSource();
+                Action moveAlongAction = WholesomeAQSettings.CurrentSetting.SmoothMove ?
+                    new Action(() => Move.MoveAlong(path, face, precise, randomization, cts.Token, customRadius: customRadius,
+                            shortCut: shortCut, precision: precision, jumpRareness: jumpRareness, showPath: showPath))
+                    :
+                    new Action(() => MovementManager.Go(path));
 
-            if (IsMovementThreadRunning) {
-                if (checkCurrent && CurrentMovementTarget.DistanceTo(path.LastOrDefault()) < 2)
-                    return null;
-                StopCurrentMovementThread();
-            }
+                Task moveAlongTask = Task.Factory.StartNew(moveAlongAction, cts.Token)
+                    .ContinueWith(task => ResetCurrentMovementCache(), cts.Token);
 
-            if (MovementManager.InMovement)
-                MovementManager.StopMove();
+                if (abortIf != null)
+                    Task.Factory.StartNew(() => {
+                        while (!moveAlongTask.IsCompleted && !moveAlongTask.IsCanceled && !moveAlongTask.IsFaulted
+                               && !cts.Token.IsCancellationRequested && IsMovementThreadRunning)
+                        {
+                            if (abortIf())
+                            {
+                                cts.Cancel();
+                                StopAllMove();
+                                break;
+                            }
 
-            var cts = new CancellationTokenSource();
-            Task moveAlongTask = Task.Factory.StartNew(()
-                        => Move.MoveAlong(path, face, precise, randomization, cts.Token, customRadius: customRadius,
-                            shortCut: shortCut, precision: precision, jumpRareness: jumpRareness, showPath: showPath),
-                    cts.Token)
-                .ContinueWith(task => ResetCurrentMovementCache(), cts.Token);
-
-            if (abortIf != null)
-                Task.Factory.StartNew(() => {
-                    while (!moveAlongTask.IsCompleted && !moveAlongTask.IsCanceled && !moveAlongTask.IsFaulted
-                           && !cts.Token.IsCancellationRequested) {
-                        if (abortIf()) {
-                            cts.Cancel();
-                            StopAllMove();
-                            break;
+                            Thread.Sleep(100);
                         }
+                    }, cts.Token);
 
-                        Thread.Sleep(100);
-                    }
-                }, cts.Token);
-
-            _currentMovementToken = cts;
-            _currentMovementTarget = path.LastOrDefault();
-            _currentMovementTask = moveAlongTask;
-            return cts;
+                _currentMovementTask = moveAlongTask;
+                _currentMovementToken = cts;
+                _currentMovementTarget = path.LastOrDefault();
+                return cts;
+            }
         }
 
         public static (List<Vector3>, List<byte>) SplitPathData(this List<(Vector3, byte)> pathWithData) {
@@ -233,17 +232,6 @@ namespace FlXProfiles {
                     Logger.Log($"Failed to find NPC #{npcEntry} after {timeout / 1000}s.");
                     return false;
                 }
-
-                // StartGoToThread(expectedPosition, randomizeEnd: 3f);
-                // while (foundNpc == null) {
-                //     if (!IsMovementThreadRunning && ToolBox.CurTime >= timeoutTime) {
-                //         Logger.Log($"Failed to find NPC #{npcEntry} after {timeout / 1000}s.");
-                //         return false;
-                //     }
-                //
-                //     Thread.Sleep(50);
-                //     foundNpc = ToolBox.FindClosestUnitByEntry(npcEntry);
-                // }
             }
 
             Logger.LogDebug($"Found NPC {foundNpc.Name} to interact with! Moving to him.");
@@ -268,18 +256,6 @@ namespace FlXProfiles {
                     Logger.Log($"Failed to find GameObject #{foundObject} after {timeout / 1000}s.");
                     return false;
                 }
-
-                // StartGoToThread(expectedPosition, randomizeEnd: 3f);
-                // long timeoutTime = ToolBox.CurTime + timeout;
-                // while (foundObject == null) {
-                //     if (!IsMovementThreadRunning && ToolBox.CurTime >= timeoutTime) {
-                //         Logger.Log($"Failed to find GameObject #{objectEntry} after {timeout / 1000}s.");
-                //         return false;
-                //     }
-                //
-                //     Thread.Sleep(50);
-                //     foundObject = ToolBox.FindClosestGameObjectByEntry(objectEntry);
-                // }
             }
 
             Logger.LogDebug($"Found GameObject {foundObject.Name} to interact with! Moving to it.");

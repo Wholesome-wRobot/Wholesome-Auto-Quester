@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Wholesome_Auto_Quester.Bot;
+using Wholesome_Auto_Quester.Database.Models.Flags;
 using Wholesome_Auto_Quester.Database.Objectives;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Enums;
@@ -11,9 +12,29 @@ namespace Wholesome_Auto_Quester.Database.Models
 {
     public class ModelQuestTemplate
     {
-        public ModelQuestAddon QuestAddon { get; set; }
+        public ModelQuestTemplateAddon QuestAddon { get; set; }
         public QuestStatus Status { get; set; } = QuestStatus.None;
         public bool AreObjectivesRecorded { get; set; }
+
+        private DBQuestFlags _questFLags;
+        public DBQuestFlags DBQuestFlags
+        {
+            get
+            {
+                if (_questFLags == null) _questFLags = new DBQuestFlags(Flags);
+                return _questFLags;
+            }
+        }
+
+        private DBQuestSpecialFlags _questSpecialFLags;
+        public DBQuestSpecialFlags DBQuestSpecialFlags
+        {
+            get
+            {
+                if (_questSpecialFLags == null) _questSpecialFLags = new DBQuestSpecialFlags(QuestAddon.SpecialFlags);
+                return _questSpecialFLags;
+            }
+        }
 
         public List<ModelCreatureTemplate> CreatureQuestGivers { get; set; } = new List<ModelCreatureTemplate>();
         public List<ModelCreatureTemplate> CreatureQuestTurners { get; set; } = new List<ModelCreatureTemplate>();
@@ -56,7 +77,7 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int Id { get; set; }
         public int AllowableRaces { get; set; }
         public string AreaDescription { get; set; }
-        public int Flags { get; set; }
+        public long Flags { get; set; }
         public int ItemDrop1 { get; set; }
         public int ItemDrop2 { get; set; }
         public int ItemDrop3 { get; set; }
@@ -199,12 +220,13 @@ namespace Wholesome_Auto_Quester.Database.Models
 
         public void AddObjective(Objective objective)
         {
-            AllObjectives.Add(objective);
             if (objective is ExplorationObjective) ExplorationObjectives.Add((ExplorationObjective)objective);
             if (objective is GatherObjective) GatherObjectives.Add((GatherObjective)objective);
             if (objective is InteractObjective) InteractObjectives.Add((InteractObjective)objective);
             if (objective is KillLootObjective) KillLootObjectives.Add((KillLootObjective)objective);
             if (objective is KillObjective) KillObjectives.Add((KillObjective)objective);
+            
+            AllObjectives.Add(objective);
         }
     }
 }

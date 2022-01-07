@@ -1,4 +1,5 @@
-﻿using robotManager.Helpful;
+﻿using FlXProfiles;
+using robotManager.Helpful;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -326,8 +327,8 @@ namespace Wholesome_Auto_Quester.Bot {
                 return (type == WoWObjectType.Unit && wantedUnitEntries.Contains(entry)
                         || type == WoWObjectType.GameObject && wantedObjectEntries.Contains(entry))
                         && !wManagerSetting.IsBlackListed(o.Guid)
-                       && o.GetRealDistance() < 60
-                       && IsObjectValidForTask(o, researchedTasks.Find(task => task.POIEntry == entry));
+                        && o.GetRealDistance() < 60
+                        && IsObjectValidForTask(o, researchedTasks.Find(task => task.POIEntry == entry));
             }).OrderBy(o => o.GetDistance).ToList();
 
             // Get objects real distance
@@ -343,6 +344,7 @@ namespace Wholesome_Auto_Quester.Bot {
                 {
                     Logger.LogError($"Blacklisting {closestObject.Name} {closestObject.Guid} because it's unreachable");
                     wManagerSetting.AddBlackList(closestObject.Guid, 1000 * 600, true);
+                    return;
                 }
 
                 if (isObjectReachable && distance > closestObject.GetDistance * 2)

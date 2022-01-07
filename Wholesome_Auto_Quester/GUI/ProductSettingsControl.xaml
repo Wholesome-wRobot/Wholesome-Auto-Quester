@@ -55,21 +55,21 @@
 
         <Controls:ToggleSwitch Grid.Row="2" Grid.Column="1"  Margin="10,10,10,10"
                    HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="True" 
-                               MouseLeave="LogDebugChanged" Name="LogDebug" OnLabel="" OffLabel="" />
+                   Click="LogDebugChanged" Name="LogDebug" OnLabel="" OffLabel="" />
 
         <TextBlock Grid.Row="3" Grid.Column="0" Margin="10" 
                    HorizontalAlignment="Right" VerticalAlignment="Center"  Text="Quests GUI :" FontSize="13"  />
 
         <Controls:ToggleSwitch Grid.Row="3" Grid.Column="1"  Margin="10,10,10,10"
                    HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="True" 
-                               MouseLeave="ActivateQuestsGUIChanged" Name="ActivateQuestsGUI" OnLabel="" OffLabel="" />
+                   Click="ActivateQuestsGUIChanged" Name="ActivateQuestsGUI" OnLabel="" OffLabel="" />
 
         <TextBlock Grid.Row="4" Grid.Column="0" Margin="10" 
                    HorizontalAlignment="Right" VerticalAlignment="Center"  Text="Dev Mode :" FontSize="13"  />
 
         <Controls:ToggleSwitch Grid.Row="4" Grid.Column="1"  Margin="10,10,10,10"
                    HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="True" 
-                   MouseLeave="DevModeChanged" Name="DevMode" OnLabel="" OffLabel="" />
+                   Click="DevModeChanged" Name="DevMode" OnLabel="" OffLabel="" />
 
         <TextBlock Grid.Row="5" 
                     Grid.Column="0" 
@@ -111,6 +111,17 @@
                     VerticalAlignment="Center" 
                     Name="DeltaDetails"
                     FontSize="13" />
+
+        <TextBlock Grid.Row="8" 
+                    Grid.Column="0" 
+                    Margin="10" 
+                    HorizontalAlignment="Right" 
+                    VerticalAlignment="Center"  
+                    Text="SmoothMove :" 
+                    FontSize="13"  />
+        <Controls:ToggleSwitch Grid.Row="8" Grid.Column="1"  Margin="10,10,10,10"
+                   HorizontalAlignment="Left"  VerticalAlignment="Center"
+                   Click="SmoothMoveChanged" Name="SmoothMove" OnLabel="" OffLabel="" />
 
     </Grid>
 </UserControl>

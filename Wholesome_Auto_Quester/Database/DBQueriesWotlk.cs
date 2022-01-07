@@ -236,13 +236,13 @@ namespace Wholesome_Auto_Quester.Database {
                 */
 
                 // Kill
-                if (quest.RequiredNPC1Template != null)
+                if (quest.RequiredNPC1Template != null && !quest.RequiredNPC1Template.IsFriendly)
                     quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount1, quest.RequiredNPC1Template, quest.ObjectiveText1));
-                if (quest.RequiredNPC2Template != null)
+                if (quest.RequiredNPC2Template != null && !quest.RequiredNPC2Template.IsFriendly)
                     quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount2, quest.RequiredNPC2Template, quest.ObjectiveText2));
-                if (quest.RequiredNPC3Template != null)
+                if (quest.RequiredNPC3Template != null && !quest.RequiredNPC3Template.IsFriendly)
                     quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount3, quest.RequiredNPC3Template, quest.ObjectiveText3));
-                if (quest.RequiredNPC4Template != null)
+                if (quest.RequiredNPC4Template != null && !quest.RequiredNPC4Template.IsFriendly)
                     quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount4, quest.RequiredNPC4Template, quest.ObjectiveText4));
 
                 // Interact
@@ -255,154 +255,6 @@ namespace Wholesome_Auto_Quester.Database {
                 if (quest.RequiredGO4Template != null)
                     quest.AddObjective(new InteractObjective(quest.RequiredNpcOrGoCount4, quest.RequiredGO4Template, quest.ObjectiveText4));
             }                
-
-            /*
-            foreach (ModelQuestTemplate quest in quests)
-            {
-                int nbObjective = 0;
-                // Add explore objectives
-                if ((resultListArea = _database.QueryAreasToExplore(quest.Id)).Count > 0)
-                {
-                    resultListArea.ForEach(area =>
-                    {
-                        quest.ExplorationObjectives.Add(new ExplorationObjective((int)area.PositionX, area, ++nbObjective));
-                    });
-                }
-
-                // Prerequisite Items
-                ModelGameObjectTemplate prerequisiteGathers1 = quest.ItemDrop1 != 0 ? _database.QueryGameObjectsToGather(quest.ItemDrop1) : null;
-                ModelCreatureTemplate prerequisiteLoots1 = quest.ItemDrop1 != 0 ? _database.QueryCreaturesToLoot(quest.ItemDrop1) : null;
-                ModelGameObjectTemplate prerequisiteGathers2 = quest.ItemDrop2 != 0 ? _database.QueryGameObjectsToGather(quest.ItemDrop2) : null;
-                ModelCreatureTemplate prerequisiteLoots2 = quest.ItemDrop2 != 0 ? _database.QueryCreaturesToLoot(quest.ItemDrop2) : null;
-                ModelGameObjectTemplate prerequisiteGathers3 = quest.ItemDrop3 != 0 ? _database.QueryGameObjectsToGather(quest.ItemDrop3) : null;
-                ModelCreatureTemplate prerequisiteLoots3 = quest.ItemDrop3 != 0 ? _database.QueryCreaturesToLoot(quest.ItemDrop3) : null;
-                ModelGameObjectTemplate prerequisiteGathers4 = quest.ItemDrop4 != 0 ? _database.QueryGameObjectsToGather(quest.ItemDrop4) : null;
-                ModelCreatureTemplate prerequisiteLoots4 = quest.ItemDrop4 != 0 ? _database.QueryCreaturesToLoot(quest.ItemDrop4) : null;
-
-                // Gather / Loot
-                ModelGameObjectTemplate gatherItems1 = quest.RequiredItemId1 != 0 ? _database.QueryGameObjectsToGather(quest.RequiredItemId1) : null;
-                ModelCreatureTemplate lootItems1 = quest.RequiredItemId1 != 0 ? _database.QueryCreaturesToLoot(quest.RequiredItemId1) : null;
-                ModelGameObjectTemplate gatherItems2 = quest.RequiredItemId2 != 0 ? _database.QueryGameObjectsToGather(quest.RequiredItemId2) : null;
-                ModelCreatureTemplate lootItems2 = quest.RequiredItemId2 != 0 ? _database.QueryCreaturesToLoot(quest.RequiredItemId2) : null;
-                ModelGameObjectTemplate gatherItems3 = quest.RequiredItemId3 != 0 ? _database.QueryGameObjectsToGather(quest.RequiredItemId3) : null;
-                ModelCreatureTemplate lootItems3 = quest.RequiredItemId3 != 0 ? _database.QueryCreaturesToLoot(quest.RequiredItemId3) : null;
-                ModelGameObjectTemplate gatherItems4 = quest.RequiredItemId4 != 0 ? _database.QueryGameObjectsToGather(quest.RequiredItemId4) : null;
-                ModelCreatureTemplate lootItems4 = quest.RequiredItemId4 != 0 ? _database.QueryCreaturesToLoot(quest.RequiredItemId4) : null;
-                ModelGameObjectTemplate gatherItems5 = quest.RequiredItemId5 != 0 ? _database.QueryGameObjectsToGather(quest.RequiredItemId5) : null;
-                ModelCreatureTemplate lootItems5 = quest.RequiredItemId5 != 0 ? _database.QueryCreaturesToLoot(quest.RequiredItemId5) : null;
-                ModelGameObjectTemplate gatherItems6 = quest.RequiredItemId6 != 0 ? _database.QueryGameObjectsToGather(quest.RequiredItemId6) : null;
-                ModelCreatureTemplate lootItems6 = quest.RequiredItemId6 != 0 ? _database.QueryCreaturesToLoot(quest.RequiredItemId6) : null;
-
-                // Add prerequisite items
-                if (prerequisiteGathers1?.GameObjects.Count > 0)
-                    quest.PrerequisiteGatherItems.Add(new GatherObjective(quest.ItemDropQuantity1, prerequisiteGathers1, -1));
-                if (prerequisiteGathers2?.GameObjects.Count > 0)
-                    quest.PrerequisiteGatherItems.Add(new GatherObjective(quest.ItemDropQuantity2, prerequisiteGathers2, -2));
-                if (prerequisiteGathers3?.GameObjects.Count > 0)
-                    quest.PrerequisiteGatherItems.Add(new GatherObjective(quest.ItemDropQuantity3, prerequisiteGathers3, -3));
-                if (prerequisiteGathers4?.GameObjects.Count > 0)
-                    quest.PrerequisiteGatherItems.Add(new GatherObjective(quest.ItemDropQuantity4, prerequisiteGathers4, -4));
-
-                if (prerequisiteLoots1?.Creatures.Count > 0)
-                    quest.PrerequisiteLootItems.Add(new KillLootObjective(quest.ItemDropQuantity1, prerequisiteLoots1, -1));
-                if (prerequisiteLoots2?.Creatures.Count > 0)
-                    quest.PrerequisiteLootItems.Add(new KillLootObjective(quest.ItemDropQuantity2, prerequisiteLoots2, -2));
-                if (prerequisiteLoots3?.Creatures.Count > 0)
-                    quest.PrerequisiteLootItems.Add(new KillLootObjective(quest.ItemDropQuantity3, prerequisiteLoots3, -3));
-                if (prerequisiteLoots4?.Creatures.Count > 0)
-                    quest.PrerequisiteLootItems.Add(new KillLootObjective(quest.ItemDropQuantity4, prerequisiteLoots4, -4));
-
-                // Add gather world items / loots items
-                if (gatherItems1?.GameObjects.Count > 0)
-                {
-                    if (gatherItems1.GameObjects.Count > 0)
-                        quest.GatherObjectives.Add(new GatherObjective(quest.RequiredItemCount1, gatherItems1, ++nbObjective));
-                    if (lootItems1?.Creatures.Count > 0)
-                        quest.KillLootObjectives.Add(new KillLootObjective(quest.RequiredItemCount1, lootItems1, nbObjective));
-                }
-                if (gatherItems2?.GameObjects.Count > 0)
-                {
-                    if (gatherItems2.GameObjects.Count > 0)
-                        quest.GatherObjectives.Add(new GatherObjective(quest.RequiredItemCount2, gatherItems2, ++nbObjective));
-                    if (lootItems2?.Creatures.Count > 0)
-                        quest.KillLootObjectives.Add(new KillLootObjective(quest.RequiredItemCount2, lootItems2, nbObjective));
-                }
-                if (gatherItems3?.GameObjects.Count > 0)
-                {
-                    if (gatherItems3.GameObjects.Count > 0)
-                        quest.GatherObjectives.Add(new GatherObjective(quest.RequiredItemCount3, gatherItems3, ++nbObjective));
-                    if (lootItems3?.Creatures.Count > 0)
-                        quest.KillLootObjectives.Add(new KillLootObjective(quest.RequiredItemCount3, lootItems3, nbObjective));
-                }
-                if (gatherItems4?.GameObjects.Count > 0)
-                {
-                    if (gatherItems4.GameObjects.Count > 0)
-                        quest.GatherObjectives.Add(new GatherObjective(quest.RequiredItemCount4, gatherItems4, ++nbObjective));
-                    if (lootItems4?.Creatures.Count > 0)
-                        quest.KillLootObjectives.Add(new KillLootObjective(quest.RequiredItemCount4, lootItems4, nbObjective));
-                }
-                if (gatherItems5?.GameObjects.Count > 0)
-                {
-                    if (gatherItems5.GameObjects.Count > 0)
-                        quest.GatherObjectives.Add(new GatherObjective(quest.RequiredItemCount5, gatherItems5, ++nbObjective));
-                    if (lootItems5?.Creatures.Count > 0)
-                        quest.KillLootObjectives.Add(new KillLootObjective(quest.RequiredItemCount5, lootItems5, nbObjective));
-                }
-                if (gatherItems6?.GameObjects.Count > 0)
-                {
-                    if (gatherItems6.GameObjects.Count > 0)
-                        quest.GatherObjectives.Add(new GatherObjective(quest.RequiredItemCount6, gatherItems6, ++nbObjective));
-                    if (lootItems6?.Creatures.Count > 0)
-                        quest.KillLootObjectives.Add(new KillLootObjective(quest.RequiredItemCount6, lootItems6, nbObjective));
-                }
-
-                /*
-                    KILL / INTERACT
-
-                    RequiredNpcOrGo
-                    Value > 0:required creature_template ID the player needs to kill/cast on in order to complete the quest.
-                    Value < 0:required gameobject_template ID the player needs to cast on in order to complete the quest.
-                    If*RequiredSpellCast*is != 0, the objective is to cast on target, else kill.
-                    NOTE: If RequiredSpellCast is != 0 and the spell has effects Send Event or Quest Complete, this field may be left empty.
-                */
-            /*
-            if (quest.RequiredNpcOrGo1 > 0)
-                quest.KillObjectives.Add(new KillObjective(quest.RequiredNpcOrGoCount1, _database.QueryCreaturesToKill(quest.RequiredNpcOrGo1), ++nbObjective));
-            if (quest.RequiredNpcOrGo1 < 0)
-                quest.InteractObjectives.Add(new InteractObjective(quest.RequiredNpcOrGoCount1, _database.QueryGameObjectsInteract(-quest.RequiredNpcOrGo1), ++nbObjective));
-
-            if (quest.RequiredNpcOrGo2 > 0)
-                quest.KillObjectives.Add(new KillObjective(quest.RequiredNpcOrGoCount2, _database.QueryCreaturesToKill(quest.RequiredNpcOrGo2), ++nbObjective));
-            if (quest.RequiredNpcOrGo2 < 0)
-                quest.InteractObjectives.Add(new InteractObjective(quest.RequiredNpcOrGoCount2, _database.QueryGameObjectsInteract(-quest.RequiredNpcOrGo2), ++nbObjective));
-
-            if (quest.RequiredNpcOrGo3 > 0)
-                quest.KillObjectives.Add(new KillObjective(quest.RequiredNpcOrGoCount3, _database.QueryCreaturesToKill(quest.RequiredNpcOrGo3), ++nbObjective));
-            if (quest.RequiredNpcOrGo3 < 0)
-                quest.InteractObjectives.Add(new InteractObjective(quest.RequiredNpcOrGoCount3, _database.QueryGameObjectsInteract(-quest.RequiredNpcOrGo3), ++nbObjective));
-
-            if (quest.RequiredNpcOrGo4 > 0)
-                quest.KillObjectives.Add(new KillObjective(quest.RequiredNpcOrGoCount4, _database.QueryCreaturesToKill(quest.RequiredNpcOrGo4), ++nbObjective));
-            if (quest.RequiredNpcOrGo4 < 0)
-                quest.InteractObjectives.Add(new InteractObjective(quest.RequiredNpcOrGoCount4, _database.QueryGameObjectsInteract(-quest.RequiredNpcOrGo4), ++nbObjective));
-
-
-            // Add creature loot items
-            if ((gatherItems1 == null || gatherItems1.GameObjects.Count <= 0) && lootItems1?.Creatures.Count > 0)
-                quest.KillLootObjectives.Add(new KillLootObjective(quest.RequiredItemCount1, lootItems1, ++nbObjective));
-            if ((gatherItems2 == null || gatherItems2.GameObjects.Count <= 0) && lootItems2?.Creatures.Count > 0)
-                quest.KillLootObjectives.Add(new KillLootObjective(quest.RequiredItemCount2, lootItems2, ++nbObjective));
-            if ((gatherItems3 == null || gatherItems3.GameObjects.Count <= 0) && lootItems3?.Creatures.Count > 0)
-                quest.KillLootObjectives.Add(new KillLootObjective(quest.RequiredItemCount3, lootItems3, ++nbObjective));
-            if ((gatherItems4 == null || gatherItems4.GameObjects.Count <= 0) && lootItems4?.Creatures.Count > 0)
-                quest.KillLootObjectives.Add(new KillLootObjective(quest.RequiredItemCount4, lootItems4, ++nbObjective));
-            if ((gatherItems5 == null || gatherItems5.GameObjects.Count <= 0) && lootItems5?.Creatures.Count > 0)
-                quest.KillLootObjectives.Add(new KillLootObjective(quest.RequiredItemCount5, lootItems5, ++nbObjective));
-            if ((gatherItems6 == null || gatherItems6.GameObjects.Count <= 0) && lootItems6?.Creatures.Count > 0)
-                quest.KillLootObjectives.Add(new KillLootObjective(quest.RequiredItemCount6, lootItems6, ++nbObjective));
-
-        }*/
-
 
             DisposeDb();
 
