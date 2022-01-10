@@ -11,7 +11,7 @@ using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.States {
-    internal class Defend : State {
+    internal class WAQDefend : State {
         private WoWUnit _defendTarget;
         public override string DisplayName { get; set; } = "Defend";
 
@@ -31,42 +31,25 @@ namespace Wholesome_Auto_Quester.States {
                 Vector3 myPos = ObjectManager.Me.PositionWithoutType;
                 bool isMounted = ObjectManager.Me.IsMounted;
                 int myLevel = (int)ObjectManager.Me.Level;
-                List<WoWUnit> justUnits =
-                    ObjectManager.GetObjectWoWUnit().ToList();
+                List<WoWUnit> justUnits = ObjectManager.GetObjectWoWUnit().ToList();
                 ulong myGuid = ObjectManager.Me.Guid;
                 ulong petGuid = ObjectManager.Pet?.Guid ?? 0U;
+
                 IOrderedEnumerable<WoWUnit> attackingMe = justUnits
                     .Where(unit => {
                         uint unitLevel = unit.Level;
-                        if (unitLevel < myLevel - 5 || unitLevel > myLevel + 2) return false;
-                        ulong unitTarget = unit.Target;
-                        return unitTarget != 0
-                               && (unitTarget == myGuid || petGuid != 0 && unitTarget == petGuid)
-                               && unit.IsAttackable;
+                        if (MoveHelper.CurrentMovementTarget != null && (unitLevel < myLevel - 5 || unitLevel > myLevel + 2)) return false;
+                        return unit.IsAttackable && unit.IsTargetingMeOrMyPet;
                     })
                     .OrderBy(unit => unit.PositionWithoutType.DistanceTo(myPos));
-                _defendTarget = attackingMe.FirstOrDefault();
-                /*
-                IOrderedEnumerable<WoWUnit> attackingMe = ObjectManager.GetUnitAttackPlayer(justUnits)
-                    .Where(unit => unit.IsAttackable)
-                    .OrderBy(unit => unit.PositionWithoutType.DistanceTo(myPos));
 
-                if (MoveHelper.IsMovementThreadRunning) {
-                    _defendTarget = attackingMe.FirstOrDefault(
-                        unit => unit.PositionWithoutType
-                            .DistanceTo(MoveHelper.CurrentMovementTarget) < (isMounted ? 26f : 100f));
-                } else {*/
-                //}
-                // if (isMounted && MoveHelper.IsMovementThreadRunning) {
-                //     _defendTarget = attackingMe.FirstOrDefault(unit =>
-                //         unit.PositionWithoutType.DistanceTo(MoveHelper.CurrentMovementTarget) < 26);
-                // } else {
-                //     _defendTarget = attackingMe.FirstOrDefault();
-                // }
+                if (attackingMe.Count() <= 0) return false;
+
+                _defendTarget = attackingMe.FirstOrDefault();
+
+                if (isMounted && myPos.DistanceTo(MoveHelper.CurrentMovementTarget) > 26) return false;
 
                 if (_defendTarget != null) return true;
-                if (!MoveHelper.IsMovementThreadRunning
-                    || isMounted && myPos.DistanceTo(MoveHelper.CurrentMovementTarget) > 26) return false;
 
                 // Check possible units on path
                 List<Vector3> path = SmoothMove.Move.LatestPath;

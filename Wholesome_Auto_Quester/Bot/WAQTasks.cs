@@ -111,13 +111,13 @@ namespace Wholesome_Auto_Quester.Bot {
                         if (ItemsManager.GetItemCountById((uint)obje.ItemToLoot.Entry) <= 0)
                         {
                             needsPrerequisite = true;
-                            obje.CreatureTemplate.Creatures.ForEach(creature => {
+                            obje.CreatureLootTemplate.CreatureTemplate.Creatures.ForEach(creature => {
                                 if (creature.map == myContinent
-                                    && obje.CreatureTemplate.maxLevel <= myLevel + 2
+                                    && obje.CreatureLootTemplate.CreatureTemplate.maxLevel <= myLevel + 2
                                     && !TasksPile.Exists(t =>
                                         t.IsSameTask(TaskType.KillAndLoot, quest.Id,
                                             obje.ObjectiveIndex, () => (int)creature.guid)))
-                                    generatedTasks.Add(new WAQTask(TaskType.KillAndLoot, obje.CreatureTemplate, creature, quest,
+                                    generatedTasks.Add(new WAQTask(TaskType.KillAndLoot, obje.CreatureLootTemplate.CreatureTemplate, creature, quest,
                                         obje.ObjectiveIndex));
                             });
                         }
@@ -130,15 +130,15 @@ namespace Wholesome_Auto_Quester.Bot {
                     // Gather
                     foreach (GatherObjective obje in quest.PrerequisiteGatherObjectives)
                     {
-                        if (ItemsManager.GetItemCountById((uint)obje.GameObjectToGather.entry) <= 0)
+                        if (ItemsManager.GetItemCountById((uint)obje.GameObjectLootTemplate.GameObjectTemplate.entry) <= 0)
                         {
                             needsPrerequisite = true;
-                            obje.GameObjectToGather.GameObjects.ForEach(gameObject => {
+                            obje.GameObjectLootTemplate.GameObjectTemplate.GameObjects.ForEach(gameObject => {
                                 if (gameObject.map == myContinent
                                     && !TasksPile.Exists(t =>
                                         t.IsSameTask(TaskType.GatherGameObject, quest.Id,
                                             obje.ObjectiveIndex, () => (int)gameObject.guid)))
-                                    generatedTasks.Add(new WAQTask(TaskType.GatherGameObject, obje.GameObjectToGather, gameObject, quest,
+                                    generatedTasks.Add(new WAQTask(TaskType.GatherGameObject, obje.GameObjectLootTemplate.GameObjectTemplate, gameObject, quest,
                                         obje.ObjectiveIndex));
                             });
                         }
@@ -171,13 +171,13 @@ namespace Wholesome_Auto_Quester.Bot {
                         // Kill & Loot
                         foreach (KillLootObjective obje in quest.KillLootObjectives)
                             if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, quest.Id))
-                                obje.CreatureTemplate.Creatures.ForEach(creature => {
+                                obje.CreatureLootTemplate.CreatureTemplate.Creatures.ForEach(creature => {
                                     if (creature.map == myContinent
-                                        && obje.CreatureTemplate.maxLevel <= myLevel + 2
+                                        && obje.CreatureLootTemplate.CreatureTemplate.maxLevel <= myLevel + 2
                                         && !TasksPile.Exists(t =>
                                             t.IsSameTask(TaskType.KillAndLoot, quest.Id,
                                                 obje.ObjectiveIndex, () => (int)creature.guid)))
-                                        generatedTasks.Add(new WAQTask(TaskType.KillAndLoot, obje.CreatureTemplate, creature, quest,
+                                        generatedTasks.Add(new WAQTask(TaskType.KillAndLoot, obje.CreatureLootTemplate.CreatureTemplate, creature, quest,
                                             obje.ObjectiveIndex));
                                 });
                             else
@@ -205,12 +205,12 @@ namespace Wholesome_Auto_Quester.Bot {
                         // Gather object
                         foreach (GatherObjective obje in quest.GatherObjectives)
                             if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, quest.Id))
-                                obje.GameObjectToGather.GameObjects.ForEach(gameObject => {
+                                obje.GameObjectLootTemplate.GameObjectTemplate.GameObjects.ForEach(gameObject => {
                                     if (gameObject.map == myContinent
                                         && !TasksPile.Exists(t =>
                                             t.IsSameTask(TaskType.GatherGameObject, quest.Id,
                                                 obje.ObjectiveIndex, () => (int)gameObject.guid)))
-                                        generatedTasks.Add(new WAQTask(TaskType.GatherGameObject, obje.GameObjectToGather, gameObject, quest,
+                                        generatedTasks.Add(new WAQTask(TaskType.GatherGameObject, obje.GameObjectLootTemplate.GameObjectTemplate, gameObject, quest,
                                             obje.ObjectiveIndex));
                                 });
                             else
@@ -264,7 +264,7 @@ namespace Wholesome_Auto_Quester.Bot {
 
             if (!isTaskReachable)
             {
-                closestTask.PutTaskOnTimeout(600, "Unreachable");
+                closestTask.PutTaskOnTimeout(600, "Unreachable (1)");
                 closestTask = null;
                 return;
             }
@@ -282,7 +282,7 @@ namespace Wholesome_Auto_Quester.Bot {
                         float walkDistanceToTask = ToolBox.CalculatePathTotalDistance(myPosition, TasksPile[i].Location);
                         if (walkDistanceToTask <= 0)
                         {
-                            TasksPile[i].PutTaskOnTimeout(600, "Unreachable");
+                            TasksPile[i].PutTaskOnTimeout(600, "Unreachable (2)");
                             continue;
                         }
 
@@ -455,7 +455,7 @@ namespace Wholesome_Auto_Quester.Bot {
 
                     // Quest in progress
                     quest.Status = QuestStatus.InProgress;
-                    if (!quest.AreObjectivesRecorded)
+                    if (!quest.AreObjectivesRecorded && quest.AllObjectives.Count > 0)
                     {
                         quest.RecordObjectiveIndices();
                         quest.AddQuestItemsToDoNotSellList();

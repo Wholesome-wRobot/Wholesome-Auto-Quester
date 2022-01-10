@@ -49,6 +49,7 @@ namespace Wholesome_Auto_Quester.States
                     MoveHelper.StopCurrentMovementThread();
                     Fight.StartFight(killTarget.Guid);
                     Thread.Sleep(200);
+                    if (killTarget.IsDead) task.PutTaskOnTimeout("Completed");
                 }
             }
             else

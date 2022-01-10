@@ -27,26 +27,21 @@ namespace Wholesome_Auto_Quester.Database {
         {
             List<ModelQuestTemplate> result = new List<ModelQuestTemplate>();
 
-            var myClass = (int)ToolBox.GetClass();
-            var myFaction = (int)ToolBox.GetFaction();
-            var myLevel = (int)ObjectManager.Me.Level;
+            int myClass = (int)ToolBox.GetClass();
+            int myFaction = (int)ToolBox.GetFaction();
+            int myLevel = (int)ObjectManager.Me.Level;
 
             foreach (ModelQuestTemplate q in dbResult)
             {
-                // Our level is too low
-                if (myLevel < q.MinLevel) continue;
-                // Repeatable/escort quest
-                if ((q.QuestAddon.SpecialFlags & 1) != 0 || (q.QuestAddon.SpecialFlags & 2) != 0) continue;
-                // Remove -1 quests that are not Class quests
-                if (q.QuestLevel == -1 && q.QuestAddon.AllowableClasses == 0) continue;
-                // Quest is not for my class
-                if (q.QuestAddon.AllowableClasses > 0 && (q.QuestAddon.AllowableClasses & myClass) == 0) continue;
-                // Quest is not for my race
-                if (q.AllowableRaces > 0 && (q.AllowableRaces & myFaction) == 0) continue;
                 // Quest is not for my faction
-                if (!q.CreatureQuestGivers.Any(qg => qg.IsNeutralOrFriendly) && q.GameObjectQuestGivers.Count <= 0) continue;
-                // Quest is Dungeon/Group/Raid/PvP etc..
-                if (q.QuestInfoID != 0) continue;
+                if (!q.CreatureQuestGivers.Any(qg => qg.IsNeutralOrFriendly) && q.GameObjectQuestGivers.Count <= 0) 
+                    continue;
+                // Quest requires to use an active item
+                if (q.StartItemTemplate?.Spell1 != null
+                    || q.StartItemTemplate?.Spell2 != null
+                    || q.StartItemTemplate?.Spell3 != null
+                    || q.StartItemTemplate?.Spell4 != null) 
+                    continue;
 
                 result.Add(q);
             }
@@ -66,7 +61,7 @@ namespace Wholesome_Auto_Quester.Database {
                 Products.ProductStop();
                 return;
             }
-
+            
             _database.CreateIndices();
 
             List<ModelQuestTemplate> quests = _database.QueryQuests();
@@ -93,7 +88,7 @@ namespace Wholesome_Auto_Quester.Database {
             Stopwatch stopwatchPrevQuests = Stopwatch.StartNew();
             foreach (ModelQuestTemplate quest in quests)
             {
-                quest.PreviousQuestsIds = _database.QueryPreviousQuestsIds(quest.Id);
+                quest.PreviousQuestsIds = _database.QueryPreviousQuestsIdsByQuestId(quest.Id);
                 if (quest.QuestAddon.PrevQuestID != 0
                     && !quest.PreviousQuestsIds.Contains(quest.QuestAddon.PrevQuestID))
                     quest.PreviousQuestsIds.Add(quest.QuestAddon.PrevQuestID);
@@ -104,7 +99,7 @@ namespace Wholesome_Auto_Quester.Database {
             Stopwatch stopwatchNextQuests = Stopwatch.StartNew();
             foreach (ModelQuestTemplate quest in quests)
             {
-                quest.NextQuestsIds = _database.QueryNextQuestsIds(quest.Id);
+                quest.NextQuestsIds = _database.QueryNextQuestsIdsByQuestId(quest.Id);
                 if (quest.QuestAddon.NextQuestID != 0
                     && !quest.NextQuestsIds.Contains(quest.QuestAddon.NextQuestID))
                     quest.NextQuestsIds.Add(quest.QuestAddon.NextQuestID);
@@ -121,10 +116,10 @@ namespace Wholesome_Auto_Quester.Database {
             Stopwatch stopwatchItemDrops = Stopwatch.StartNew();
             foreach (ModelQuestTemplate quest in quests)
             {
-                quest.ItemDrop1Template = _database.QueryItemTemplate(quest.ItemDrop1);
-                quest.ItemDrop2Template = _database.QueryItemTemplate(quest.ItemDrop2);
-                quest.ItemDrop3Template = _database.QueryItemTemplate(quest.ItemDrop3);
-                quest.ItemDrop4Template = _database.QueryItemTemplate(quest.ItemDrop4);
+                quest.ItemDrop1Template = _database.QueryItemTemplateByItemEntry(quest.ItemDrop1);
+                quest.ItemDrop2Template = _database.QueryItemTemplateByItemEntry(quest.ItemDrop2);
+                quest.ItemDrop3Template = _database.QueryItemTemplateByItemEntry(quest.ItemDrop3);
+                quest.ItemDrop4Template = _database.QueryItemTemplateByItemEntry(quest.ItemDrop4);
             }
             Logger.Log($"Process time (ItemDrops) : {stopwatchItemDrops.ElapsedMilliseconds} ms");
 
@@ -132,14 +127,34 @@ namespace Wholesome_Auto_Quester.Database {
             Stopwatch stopwatchRequiredItem = Stopwatch.StartNew();
             foreach (ModelQuestTemplate quest in quests)
             {
-                quest.RequiredItem1Template = _database.QueryItemTemplate(quest.RequiredItemId1);
-                quest.RequiredItem2Template = _database.QueryItemTemplate(quest.RequiredItemId2);
-                quest.RequiredItem3Template = _database.QueryItemTemplate(quest.RequiredItemId3);
-                quest.RequiredItem4Template = _database.QueryItemTemplate(quest.RequiredItemId4);
-                quest.RequiredItem5Template = _database.QueryItemTemplate(quest.RequiredItemId5);
-                quest.RequiredItem6Template = _database.QueryItemTemplate(quest.RequiredItemId6);
+                quest.RequiredItem1Template = _database.QueryItemTemplateByItemEntry(quest.RequiredItemId1);
+                if (quest.RequiredItem1Template?.CreatureLootTemplates.Count > 10)
+                    Logger.LogError($"quest: {quest.Id} => entry: {quest.RequiredItem1Template.Entry} => count: {quest.RequiredItem1Template.CreatureLootTemplates.Count}");
+                quest.RequiredItem2Template = _database.QueryItemTemplateByItemEntry(quest.RequiredItemId2);
+                if (quest.RequiredItem2Template?.CreatureLootTemplates.Count > 10)
+                    Logger.LogError($"quest: {quest.Id} => entry: {quest.RequiredItem2Template.Entry} => count: {quest.RequiredItem2Template.CreatureLootTemplates.Count}");
+                quest.RequiredItem3Template = _database.QueryItemTemplateByItemEntry(quest.RequiredItemId3);
+                if (quest.RequiredItem3Template?.CreatureLootTemplates.Count > 10)
+                    Logger.LogError($"quest: {quest.Id} => entry: {quest.RequiredItem3Template.Entry} => count: {quest.RequiredItem3Template.CreatureLootTemplates.Count}");
+                quest.RequiredItem4Template = _database.QueryItemTemplateByItemEntry(quest.RequiredItemId4);
+                if (quest.RequiredItem4Template?.CreatureLootTemplates.Count > 10)
+                    Logger.LogError($"quest: {quest.Id} => entry: {quest.RequiredItem4Template.Entry} => count: {quest.RequiredItem4Template.CreatureLootTemplates.Count}");
+                quest.RequiredItem5Template = _database.QueryItemTemplateByItemEntry(quest.RequiredItemId5);
+                if (quest.RequiredItem5Template?.CreatureLootTemplates.Count > 10)
+                    Logger.LogError($"quest: {quest.Id} => entry: {quest.RequiredItem5Template.Entry} => count: {quest.RequiredItem5Template.CreatureLootTemplates.Count}");
+                quest.RequiredItem6Template = _database.QueryItemTemplateByItemEntry(quest.RequiredItemId6);
+                if (quest.RequiredItem6Template?.CreatureLootTemplates.Count > 10)
+                    Logger.LogError($"quest: {quest.Id} => entry: {quest.RequiredItem6Template.Entry} => count: {quest.RequiredItem6Template.CreatureLootTemplates.Count}");
             }
             Logger.Log($"Process time (RequiredItems) : {stopwatchRequiredItem.ElapsedMilliseconds} ms");
+
+            // Query Start Item
+            Stopwatch stopwatchStartItem = Stopwatch.StartNew();
+            foreach (ModelQuestTemplate quest in quests)
+            {
+                quest.StartItemTemplate = _database.QueryItemTemplateByItemEntry(quest.StartItem);
+            }
+            Logger.Log($"Process time (StartItem) : {stopwatchStartItem.ElapsedMilliseconds} ms");
 
             // Query required Npcs/Interacts
             Stopwatch stopwatchRequiredNPC = Stopwatch.StartNew();
@@ -147,23 +162,23 @@ namespace Wholesome_Auto_Quester.Database {
             {
                 // NPCs
                 if (quest.RequiredNpcOrGo1 > 0)
-                    quest.RequiredNPC1Template = _database.QueryCreatureTemplate(quest.RequiredNpcOrGo1);
+                    quest.RequiredNPC1Template = _database.QueryCreatureTemplateByEntry(quest.RequiredNpcOrGo1);
                 if (quest.RequiredNpcOrGo2 > 0)
-                    quest.RequiredNPC2Template = _database.QueryCreatureTemplate(quest.RequiredNpcOrGo2);
+                    quest.RequiredNPC2Template = _database.QueryCreatureTemplateByEntry(quest.RequiredNpcOrGo2);
                 if (quest.RequiredNpcOrGo3 > 0)
-                    quest.RequiredNPC3Template = _database.QueryCreatureTemplate(quest.RequiredNpcOrGo3);
+                    quest.RequiredNPC3Template = _database.QueryCreatureTemplateByEntry(quest.RequiredNpcOrGo3);
                 if (quest.RequiredNpcOrGo4 > 0)
-                    quest.RequiredNPC4Template = _database.QueryCreatureTemplate(quest.RequiredNpcOrGo4);
+                    quest.RequiredNPC4Template = _database.QueryCreatureTemplateByEntry(quest.RequiredNpcOrGo4);
 
                 // Interacts
                 if (quest.RequiredNpcOrGo1 < 0)
-                    quest.RequiredGO1Template = _database.QueryGameObjectTemplate(-quest.RequiredNpcOrGo1);
+                    quest.RequiredGO1Template = _database.QueryGameObjectTemplateByEntry(-quest.RequiredNpcOrGo1);
                 if (quest.RequiredNpcOrGo2 < 0)
-                    quest.RequiredGO2Template = _database.QueryGameObjectTemplate(-quest.RequiredNpcOrGo2);
+                    quest.RequiredGO2Template = _database.QueryGameObjectTemplateByEntry(-quest.RequiredNpcOrGo2);
                 if (quest.RequiredNpcOrGo3 < 0)
-                    quest.RequiredGO3Template = _database.QueryGameObjectTemplate(-quest.RequiredNpcOrGo3);
+                    quest.RequiredGO3Template = _database.QueryGameObjectTemplateByEntry(-quest.RequiredNpcOrGo3);
                 if (quest.RequiredNpcOrGo4 < 0)
-                    quest.RequiredGO4Template = _database.QueryGameObjectTemplate(-quest.RequiredNpcOrGo4);
+                    quest.RequiredGO4Template = _database.QueryGameObjectTemplateByEntry(-quest.RequiredNpcOrGo4);
             }
             Logger.Log($"Process time (RequiredNpcs) : {stopwatchRequiredNPC.ElapsedMilliseconds} ms");
 
@@ -175,55 +190,55 @@ namespace Wholesome_Auto_Quester.Database {
                     quest.AddObjective(new ExplorationObjective((int)modelArea.PositionX, modelArea, quest.AreaDescription)));
 
                 // Prerequisite objectives Gather
-                quest.ItemDrop1Template?.GatheredOn.ForEach(goTemplate =>
-                    quest.AddObjective(new GatherObjective(quest.ItemDropQuantity1, goTemplate, quest.ItemDrop1Template)));
-                quest.ItemDrop2Template?.GatheredOn.ForEach(goTemplate =>
-                    quest.AddObjective(new GatherObjective(quest.ItemDropQuantity2, goTemplate, quest.ItemDrop2Template)));
-                quest.ItemDrop3Template?.GatheredOn.ForEach(goTemplate =>
-                    quest.AddObjective(new GatherObjective(quest.ItemDropQuantity3, goTemplate, quest.ItemDrop3Template)));
-                quest.ItemDrop4Template?.GatheredOn.ForEach(goTemplate =>
-                    quest.AddObjective(new GatherObjective(quest.ItemDropQuantity4, goTemplate, quest.ItemDrop4Template)));
+                quest.ItemDrop1Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
+                    quest.AddObjective(new GatherObjective(quest.ItemDropQuantity1, goLootTemplate, quest.ItemDrop1Template)));
+                quest.ItemDrop2Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
+                    quest.AddObjective(new GatherObjective(quest.ItemDropQuantity2, goLootTemplate, quest.ItemDrop2Template)));
+                quest.ItemDrop3Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
+                    quest.AddObjective(new GatherObjective(quest.ItemDropQuantity3, goLootTemplate, quest.ItemDrop3Template)));
+                quest.ItemDrop4Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
+                    quest.AddObjective(new GatherObjective(quest.ItemDropQuantity4, goLootTemplate, quest.ItemDrop4Template)));
 
                 // Prerequisite objectives Kill&Loot
-                quest.ItemDrop1Template?.DroppedBy.ForEach(creaTemplate =>
-                    quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity1, creaTemplate, quest.ItemDrop1Template)));
-                quest.ItemDrop2Template?.DroppedBy.ForEach(creaTemplate =>
-                    quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity2, creaTemplate, quest.ItemDrop2Template)));
-                quest.ItemDrop3Template?.DroppedBy.ForEach(creaTemplate =>
-                    quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity3, creaTemplate, quest.ItemDrop3Template)));
-                quest.ItemDrop4Template?.DroppedBy.ForEach(creaTemplate =>
-                    quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity4, creaTemplate, quest.ItemDrop4Template)));
+                quest.ItemDrop1Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                    quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity1, creaLootTemplate, quest.ItemDrop1Template)));
+                quest.ItemDrop2Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                    quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity2, creaLootTemplate, quest.ItemDrop2Template)));
+                quest.ItemDrop3Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                    quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity3, creaLootTemplate, quest.ItemDrop3Template)));
+                quest.ItemDrop4Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                    quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity4, creaLootTemplate, quest.ItemDrop4Template)));
 
                 // Required items Gather/Loot
-                quest.RequiredItem1Template?.GatheredOn.ForEach(goTemplate =>
-                    quest.AddObjective(new GatherObjective(quest.RequiredItemCount1, goTemplate, quest.RequiredItem1Template)));                
-                quest.RequiredItem1Template?.DroppedBy.ForEach(creaTemplate =>
-                    quest.AddObjective(new KillLootObjective(quest.RequiredItemCount1, creaTemplate, quest.RequiredItem1Template)));
+                quest.RequiredItem1Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
+                    quest.AddObjective(new GatherObjective(quest.RequiredItemCount1, goLootTemplate, quest.RequiredItem1Template)));                
+                quest.RequiredItem1Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                    quest.AddObjective(new KillLootObjective(quest.RequiredItemCount1, creaLootTemplate, quest.RequiredItem1Template)));
 
-                quest.RequiredItem2Template?.GatheredOn.ForEach(goTemplate =>
-                    quest.AddObjective(new GatherObjective(quest.RequiredItemCount2, goTemplate, quest.RequiredItem2Template)));
-                quest.RequiredItem2Template?.DroppedBy.ForEach(creaTemplate =>
-                    quest.AddObjective(new KillLootObjective(quest.RequiredItemCount2, creaTemplate, quest.RequiredItem2Template)));
+                quest.RequiredItem2Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
+                    quest.AddObjective(new GatherObjective(quest.RequiredItemCount2, goLootTemplate, quest.RequiredItem2Template)));
+                quest.RequiredItem2Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                    quest.AddObjective(new KillLootObjective(quest.RequiredItemCount2, creaLootTemplate, quest.RequiredItem2Template)));
 
-                quest.RequiredItem3Template?.GatheredOn.ForEach(goTemplate =>
-                    quest.AddObjective(new GatherObjective(quest.RequiredItemCount3, goTemplate, quest.RequiredItem3Template)));
-                quest.RequiredItem3Template?.DroppedBy.ForEach(creaTemplate =>
-                    quest.AddObjective(new KillLootObjective(quest.RequiredItemCount3, creaTemplate, quest.RequiredItem3Template)));
+                quest.RequiredItem3Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
+                    quest.AddObjective(new GatherObjective(quest.RequiredItemCount3, goLootTemplate, quest.RequiredItem3Template)));
+                quest.RequiredItem3Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                    quest.AddObjective(new KillLootObjective(quest.RequiredItemCount3, creaLootTemplate, quest.RequiredItem3Template)));
 
-                quest.RequiredItem4Template?.GatheredOn.ForEach(goTemplate =>
-                    quest.AddObjective(new GatherObjective(quest.RequiredItemCount4, goTemplate, quest.RequiredItem4Template)));
-                quest.RequiredItem4Template?.DroppedBy.ForEach(creaTemplate =>
-                    quest.AddObjective(new KillLootObjective(quest.RequiredItemCount4, creaTemplate, quest.RequiredItem4Template)));
+                quest.RequiredItem4Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
+                    quest.AddObjective(new GatherObjective(quest.RequiredItemCount4, goLootTemplate, quest.RequiredItem4Template)));
+                quest.RequiredItem4Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                    quest.AddObjective(new KillLootObjective(quest.RequiredItemCount4, creaLootTemplate, quest.RequiredItem4Template)));
 
-                quest.RequiredItem5Template?.GatheredOn.ForEach(goTemplate =>
-                    quest.AddObjective(new GatherObjective(quest.RequiredItemCount5, goTemplate, quest.RequiredItem5Template)));
-                quest.RequiredItem5Template?.DroppedBy.ForEach(creaTemplate =>
-                    quest.AddObjective(new KillLootObjective(quest.RequiredItemCount5, creaTemplate, quest.RequiredItem5Template)));
+                quest.RequiredItem5Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
+                    quest.AddObjective(new GatherObjective(quest.RequiredItemCount5, goLootTemplate, quest.RequiredItem5Template)));
+                quest.RequiredItem5Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                    quest.AddObjective(new KillLootObjective(quest.RequiredItemCount5, creaLootTemplate, quest.RequiredItem5Template)));
 
-                quest.RequiredItem6Template?.GatheredOn.ForEach(goTemplate =>
-                    quest.AddObjective(new GatherObjective(quest.RequiredItemCount6, goTemplate, quest.RequiredItem6Template)));
-                quest.RequiredItem6Template?.DroppedBy.ForEach(creaTemplate =>
-                    quest.AddObjective(new KillLootObjective(quest.RequiredItemCount6, creaTemplate, quest.RequiredItem6Template)));
+                quest.RequiredItem6Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
+                    quest.AddObjective(new GatherObjective(quest.RequiredItemCount6, goLootTemplate, quest.RequiredItem6Template)));
+                quest.RequiredItem6Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                    quest.AddObjective(new KillLootObjective(quest.RequiredItemCount6, creaLootTemplate, quest.RequiredItem6Template)));
 
                 /*
                     KILL / INTERACT
@@ -234,7 +249,7 @@ namespace Wholesome_Auto_Quester.Database {
                     If*RequiredSpellCast*is != 0, the objective is to cast on target, else kill.
                     NOTE: If RequiredSpellCast is != 0 and the spell has effects Send Event or Quest Complete, this field may be left empty.
                 */
-
+            
                 // Kill
                 if (quest.RequiredNPC1Template != null && !quest.RequiredNPC1Template.IsFriendly)
                     quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount1, quest.RequiredNPC1Template, quest.ObjectiveText1));
@@ -257,7 +272,7 @@ namespace Wholesome_Auto_Quester.Database {
             }                
 
             DisposeDb();
-
+            
             List<ModelQuestTemplate> allFilteredQuests = FilterDBQuests(quests);
 
             // Write JSON
@@ -270,7 +285,7 @@ namespace Wholesome_Auto_Quester.Database {
                 ToolBox.ZipJSONFile();
                 Logger.Log($"Process time (JSON processing) : {stopwatchJSON.ElapsedMilliseconds} ms");
             }
-
+            
             Logger.Log($"DONE! Process time (TOTAL) : {stopwatch.ElapsedMilliseconds} ms");
 
             WAQTasks.AddQuests(allFilteredQuests);

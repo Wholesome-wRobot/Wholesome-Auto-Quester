@@ -44,22 +44,22 @@ namespace Wholesome_Auto_Quester.States
                     return;
                 }
                 var killTarget = (WoWUnit)npc;
-                if(MoveHelper.IsMovementThreadRunning) MoveHelper.StopAllMove();
+                if (MoveHelper.IsMovementThreadRunning) MoveHelper.StopAllMove();
                 MoveHelper.StopCurrentMovementThread();
-                if(killTarget.IsAlive) {
+                if (killTarget.IsAlive) {
                     Logger.Log($"Unit found - Fighting {killTarget.Name}");
                     Fight.StartFight(killTarget.Guid);
                 }
                 Thread.Sleep(200);
-                if (killTarget.IsLootable) {
+                if (killTarget.IsDead) task.PutTaskOnTimeout("Completed");
+                if (killTarget.IsLootable && !ObjectManager.Me.InCombatFlagOnly) {
                     Logger.Log($"Looting {killTarget.Name}");
                     LootingTask.Pulse(new List<WoWUnit> { killTarget });
                 }
             }
             else
             {
-                if (!MoveHelper.IsMovementThreadRunning ||
-                    MoveHelper.CurrentMovementTarget.DistanceTo(task.Location) > 8) {
+                if (!MoveHelper.IsMovementThreadRunning || MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 8) {
                     Logger.Log($"Moving to Hotspot for {task.Quest.LogTitle} (Kill&Loot).");
                     MoveHelper.StartGoToThread(task.Location, face: !MoveHelper.IsMovementThreadRunning, randomizeEnd: 8f);
                 }

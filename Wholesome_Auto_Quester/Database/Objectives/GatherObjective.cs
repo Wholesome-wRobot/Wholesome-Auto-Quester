@@ -4,12 +4,12 @@ namespace Wholesome_Auto_Quester.Database.Objectives
 {
     public class GatherObjective : Objective
     {
-        public ModelGameObjectTemplate GameObjectToGather { get; }
+        public ModelGameObjectLootTemplate GameObjectLootTemplate { get; }
         public ModelItemTemplate ItemToObtain { get; }
 
-        public GatherObjective(int amount, ModelGameObjectTemplate gameObjectToGather, ModelItemTemplate itemToObtain, string objectiveName = null)
+        public GatherObjective(int amount, ModelGameObjectLootTemplate gameObjectLootTemplate, ModelItemTemplate itemToObtain, string objectiveName = null)
         {
-            GameObjectToGather = gameObjectToGather;
+            GameObjectLootTemplate = gameObjectLootTemplate;
             ItemToObtain = itemToObtain;
             Amount = amount;
             ObjectiveName = objectiveName == null ? ItemToObtain.Name : objectiveName;

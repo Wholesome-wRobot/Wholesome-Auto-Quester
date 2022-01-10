@@ -36,7 +36,7 @@ namespace Wholesome_Auto_Quester.Database
             _con?.Close();
         }
 
-        public List<int> QueryPreviousQuestsIds(int questId)
+        public List<int> QueryPreviousQuestsIdsByQuestId(int questId)
         {
             string query = $@"
                     SELECT ID FROM quest_template_addon
@@ -47,7 +47,7 @@ namespace Wholesome_Auto_Quester.Database
             return result;
         }
 
-        public List<int> QueryNextQuestsIds(int questId)
+        public List<int> QueryNextQuestsIdsByQuestId(int questId)
         {
             string query = $@"
                     SELECT ID FROM quest_template_addon
@@ -58,106 +58,105 @@ namespace Wholesome_Auto_Quester.Database
             return result;
         }
 
-        public ModelItemTemplate QueryItemTemplate(int itemId)
+        public List<ModelCreatureLootTemplate> QueryCreatureLootTemplatesByItemId(int itemId)
         {
-            if (itemId == 0) return null;
-
-            string queryItemTemplate = $@"
-                SELECT * 
-                FROM item_template it
-                WHERE it.entry = {itemId}
-            ";
-            ModelItemTemplate result = _con.Query<ModelItemTemplate>(queryItemTemplate).FirstOrDefault();
-            if (result == null) return result;
-
-            string queryDroppedBy = $@"
+            string queryLootTemplate = $@"
                 SELECT *
-                FROM creature_loot_template clt
-                JOIN creature_template ct
-                ON clt.entry = ct.entry
-                JOIN creature c
-                ON c.id = ct.entry
-                WHERE clt.item = {itemId}
+                FROM creature_loot_template
+                WHERE item = {itemId}
             ";
+            List<ModelCreatureLootTemplate> result = _con.Query<ModelCreatureLootTemplate>(queryLootTemplate).ToList();
 
-            List<ModelCreatureTemplate> creaturesToLoot = _con.Query<ModelCreatureTemplate, ModelCreature, ModelCreatureTemplate>(
-                queryDroppedBy, (creatureTemplate, creature) =>
-                {
-                    if (creature != null) creatureTemplate.Creatures.Add(creature);
-                    return creatureTemplate;
-                }, splitOn: "entry,guid")
-            .ToList();
-
-            var droppedBy = creaturesToLoot.GroupBy(c => c.entry).Select(g =>
-            {
-                var groupedResult = g.First();
-                if (groupedResult.Creatures.Count > 0)
-                    groupedResult.Creatures = g.Select(p => p.Creatures.Single()).ToList();
-                return groupedResult;
-            });
-
-            result.DroppedBy = droppedBy.ToList();
-
-            string gatheredOn = $@"
-                SELECT gt.*, g.* 
-                FROM gameobject_loot_template glt
-                INNER JOIN gameobject_template gt
-                ON gt.data1 = glt.entry
-                INNER JOIN gameobject g
-                ON g.id = gt.Entry
-                WHERE glt.item = {itemId}
-            ";
-
-            List<ModelGameObjectTemplate> gatherObjects = _con.Query<ModelGameObjectTemplate, ModelGameObject, ModelGameObjectTemplate>(
-                gatheredOn, (gameObjectTemplate, gameObject) =>
-                {
-                    if (gameObject != null)
-                        gameObjectTemplate.GameObjects.Add(gameObject);
-                    return gameObjectTemplate;
-                }, splitOn: "Entry,guid")
-            .ToList();
-
-            var gameObjects = gatherObjects.GroupBy(c => c.entry).Select(g =>
-            {
-                var groupedResult = g.First();
-                if (groupedResult.GameObjects.Count > 0)
-                    groupedResult.GameObjects = g.Select(p => p.GameObjects.Single()).ToList();
-                return groupedResult;
-            });
-
-            result.GatheredOn = gameObjects.ToList();
+            result.ForEach(clt => clt.CreatureTemplate = QueryCreatureTemplateByEntry(clt.Entry));
 
             return result;
         }
 
-        public ModelCreatureTemplate QueryCreatureTemplate(int creatureId)
+        public List<ModelGameObjectLootTemplate> QueryGameObjectLootTemplateByEntry(int entry)
         {
+            string queryLootTemplate = $@"
+                SELECT *
+                FROM gameobject_loot_template
+                WHERE entry = {entry}
+            ";
+            List<ModelGameObjectLootTemplate> result = _con.Query<ModelGameObjectLootTemplate>(queryLootTemplate).ToList();
+            result.ForEach(golt => golt.GameObjectTemplate = QueryGameObjectTemplateByLoot(golt.Entry));
+            return result;
+        }
+
+        public List<ModelGameObjectLootTemplate> QueryGameObjectLootTemplateByItem(int itemId)
+        {
+            string queryLootTemplate = $@"
+                SELECT *
+                FROM gameobject_loot_template
+                WHERE Item = {itemId}
+            ";
+            List<ModelGameObjectLootTemplate> result = _con.Query<ModelGameObjectLootTemplate>(queryLootTemplate).ToList();
+            result.ForEach(golt => golt.GameObjectTemplate = QueryGameObjectTemplateByLoot(golt.Entry));
+            return result;
+        }
+
+        public ModelItemTemplate QueryItemTemplateByItemEntry(int itemEntry)
+        {
+            if (itemEntry == 0) return null;
+
+            string queryItemTemplate = $@"
+                SELECT * 
+                FROM item_template
+                WHERE entry = {itemEntry}
+            ";
+            ModelItemTemplate result = _con.Query<ModelItemTemplate>(queryItemTemplate).FirstOrDefault();
+            if (result == null) return null;
+            
+            result.CreatureLootTemplates = QueryCreatureLootTemplatesByItemId(itemEntry);
+            result.GameObjectLootTemplates = QueryGameObjectLootTemplateByItem(itemEntry);
+            result.Spell1 = QuerySpellById(result.spellid_1);
+            result.Spell2 = QuerySpellById(result.spellid_2);
+            result.Spell3 = QuerySpellById(result.spellid_3);
+            result.Spell4 = QuerySpellById(result.spellid_4);
+
+            return result;
+        }
+
+        public ModelSpell QuerySpellById(int spellID)
+        {
+            if (spellID == 0) return null;
+
             string query = $@"
                 SELECT *
-                FROM creature_template ct
-                LEFT JOIN creature c
-                ON c.id = ct.entry 
-                WHERE ct.entry = {creatureId}
+                FROM spell
+                WHERE ID = {spellID}
             ";
-
-            List<ModelCreatureTemplate> creatureTemplates = _con.Query<ModelCreatureTemplate, ModelCreature, ModelCreatureTemplate>(
-                query, (creatureTemplate, creature) =>
-                {
-                    if (creature != null)
-                        creatureTemplate.Creatures.Add(creature);
-                    return creatureTemplate;
-                }, splitOn: "guid")
-            .ToList();
-
-            var result = creatureTemplates.GroupBy(c => c.entry).Select(g =>
-            {
-                ModelCreatureTemplate groupedResult = g.First();
-                if (groupedResult.Creatures.Count > 0)
-                    groupedResult.Creatures = g.Select(p => p.Creatures.Single()).ToList();
-                return groupedResult;
-            });
-
+            List<ModelSpell> result = _con.Query<ModelSpell>(query).ToList();
             return result.FirstOrDefault();
+        }
+
+        public ModelCreatureTemplate QueryCreatureTemplateByEntry(int creatureEntry)
+        {
+            string queryTemplate = $@"
+                SELECT *
+                FROM creature_template
+                WHERE entry = {creatureEntry}
+            ";
+            ModelCreatureTemplate result = _con.Query<ModelCreatureTemplate>(queryTemplate).FirstOrDefault();
+
+            result.Creatures = QueryCreaturesById(creatureEntry);
+
+            return result;
+        }
+
+        public List<ModelCreature> QueryCreaturesById(int creatureId)
+        {
+            string queryCreature = $@"
+                SELECT *
+                FROM creature
+                WHERE id = {creatureId}
+            ";
+            List<ModelCreature> result = _con.Query<ModelCreature>(queryCreature).ToList();
+            if (result.Count > 0)
+                return result;
+            else
+                return new List<ModelCreature>();
         }
 
         public List<ModelAreaTrigger> QueryAreasToExplore(int questId)
@@ -173,130 +172,108 @@ namespace Wholesome_Auto_Quester.Database
             return result;
         }
 
-        public ModelGameObjectTemplate QueryGameObjectTemplate(int objectId)
+        public ModelGameObjectTemplate QueryGameObjectTemplateByLoot(int itemId)
+        {
+            string queryGOTemplate = $@"
+                Select *
+                FROM gameobject_template
+                WHERE data1 = {itemId}
+            ";
+            ModelGameObjectTemplate result = _con.Query<ModelGameObjectTemplate>(queryGOTemplate).FirstOrDefault();
+            if (result == null) return null;
+
+            result.GameObjects = QueryGameObjectByEntry(result.entry);
+
+            return result;
+        }
+
+        public ModelGameObjectTemplate QueryGameObjectTemplateByEntry(int objectEntry)
+        {
+            string queryGOTemplate = $@"
+                Select *
+                FROM gameobject_template
+                WHERE entry = {objectEntry}
+            ";
+            ModelGameObjectTemplate result = _con.Query<ModelGameObjectTemplate>(queryGOTemplate).FirstOrDefault();
+            if (result == null) return null;
+
+            result.GameObjects = QueryGameObjectByEntry(result.entry);
+
+            return result;
+        }
+
+        public List<ModelGameObject> QueryGameObjectByEntry(int gameObjectId)
         {
             string query = $@"
                 Select *
-                FROM gameobject_template gt
-                JOIN gameobject g
-                ON g.id = gt.entry
-                WHERE gt.entry = {objectId}
+                FROM gameobject
+                WHERE id = {gameObjectId}
             ";
-
-            List<ModelGameObjectTemplate> gameObjects = _con.Query<ModelGameObjectTemplate, ModelGameObject, ModelGameObjectTemplate>(
-                query, (gameObjectTemplate, gameObject) =>
-                {
-                    if (gameObject != null)
-                        gameObjectTemplate.GameObjects.Add(gameObject);
-                    return gameObjectTemplate;
-                }, splitOn: "guid")
-            .ToList();
-
-            var result = gameObjects.GroupBy(c => c.entry).Select(g =>
-            {
-                var groupedResult = g.First();
-                if (groupedResult.GameObjects.Count > 0)
-                    groupedResult.GameObjects = g.Select(p => p.GameObjects.Single()).ToList();
-                return groupedResult;
-            });
-
-            return result.FirstOrDefault();
+            List<ModelGameObject> result = _con.Query<ModelGameObject>(query).ToList();
+            if (result.Count > 0)
+                return result;
+            else
+                return new List<ModelGameObject>();
         }
 
         public List<ModelGameObjectTemplate> QueryGameObjectQuestGivers(int questId)
         {
-            string query = $@"
-                    SELECT got.*, go.*
-                    FROM gameobject_template got
-                    LEFT JOIN gameobject go
-                    ON go.id = got.entry 
-                    LEFT JOIN gameobject_queststarter goq
-                    ON goq.id = got.entry
-                    WHERE goq.quest = {questId}
+            string queryGOGiverssIds = $@"
+                    SELECT id
+                    FROM gameobject_queststarter
+                    WHERE quest = {questId}
                 ";
+            List<int> ids = _con.Query<int>(queryGOGiverssIds).ToList();
 
-            List<ModelGameObjectTemplate> questGiverObjects = _con.Query<ModelGameObjectTemplate, ModelGameObject, ModelGameObjectTemplate>(
-                query, (gameObjectTemplate, gameObject) =>
-                {
-                    if (gameObject != null)
-                        gameObjectTemplate.GameObjects.Add(gameObject);
-                    return gameObjectTemplate;
-                }, splitOn: "guid")
-            .Distinct().ToList();
+            List<ModelGameObjectTemplate> result = new List<ModelGameObjectTemplate>();
+            ids.ForEach(id => { result.Add(QueryGameObjectTemplateByEntry(id)); });
 
-            return questGiverObjects;
+            return result;
         }
 
         public List<ModelGameObjectTemplate> QueryGameObjectQuestEnders(int questId)
         {
-            string query = $@"
-                    SELECT got.*, go.*
-                    FROM gameobject_template got
-                    LEFT JOIN gameobject go
-                    ON go.id = got.entry 
-                    LEFT JOIN gameobject_questender goq
-                    ON goq.id = got.entry
-                    WHERE goq.quest = {questId}
+            string queryGOEndersIds = $@"
+                    SELECT id
+                    FROM gameobject_questender
+                    WHERE quest = {questId}
                 ";
+            List<int> ids = _con.Query<int>(queryGOEndersIds).ToList();
 
-            List<ModelGameObjectTemplate> questGiverObjects = _con.Query<ModelGameObjectTemplate, ModelGameObject, ModelGameObjectTemplate>(
-                query, (gameObjectTemplate, gameObject) =>
-                {
-                    if (gameObject != null)
-                        gameObjectTemplate.GameObjects.Add(gameObject);
-                    return gameObjectTemplate;
-                }, splitOn: "guid")
-            .Distinct().ToList();
+            List<ModelGameObjectTemplate> result = new List<ModelGameObjectTemplate>();
+            ids.ForEach(id => { result.Add(QueryGameObjectTemplateByEntry(id)); });
 
-            return questGiverObjects;
+            return result;
         }
 
         public List<ModelCreatureTemplate> QueryCreatureQuestEnders(int questId)
         {
-            string query = $@"
-                    SELECT ct.*, c.*
-                    FROM creature_template ct
-                    LEFT JOIN creature c
-                    ON c.id = ct.entry 
-                    LEFT JOIN creature_questender cq
-                    ON cq.id = ct.entry
-                    WHERE cq.quest = {questId}
+            string queryQuestEndersIds = $@"
+                    SELECT id
+                    FROM creature_questender
+                    WHERE quest = {questId}
                 ";
+            List<int> questEndersIds = _con.Query<int>(queryQuestEndersIds).ToList();
 
-            List<ModelCreatureTemplate> questGivers = _con.Query<ModelCreatureTemplate, ModelCreature, ModelCreatureTemplate>(
-                query, (creatureTemplate, creature) =>
-                {
-                    if (creature != null)
-                        creatureTemplate.Creatures.Add(creature);
-                    return creatureTemplate;
-                }, splitOn: "guid")
-            .Distinct().ToList();
+            List<ModelCreatureTemplate> result = new List<ModelCreatureTemplate>();
+            questEndersIds.ForEach(id => { result.Add(QueryCreatureTemplateByEntry(id)); });
 
-            return questGivers;
+            return result;
         }
 
         public List<ModelCreatureTemplate> QueryCreatureQuestGiver(int questId)
         {
-            string query = $@"
-                    SELECT ct.*, c.*
-                    FROM creature_template ct
-                    LEFT JOIN creature c
-                    ON c.id = ct.entry 
-                    LEFT JOIN creature_queststarter cq
-                    ON cq.id = ct.entry
-                    WHERE cq.quest = {questId}
+            string queryQuestGiversIds = $@"
+                    SELECT id
+                    FROM creature_queststarter
+                    WHERE quest = {questId}
                 ";
+            List<int> questGiversIds = _con.Query<int>(queryQuestGiversIds).ToList();
 
-            List<ModelCreatureTemplate> questGivers = _con.Query<ModelCreatureTemplate, ModelCreature, ModelCreatureTemplate>(
-                query, (creatureTemplate, creature) =>
-                {
-                    if (creature != null)
-                        creatureTemplate.Creatures.Add(creature);
-                    return creatureTemplate;
-                }, splitOn: "guid")
-            .Distinct().ToList();
+            List<ModelCreatureTemplate> result = new List<ModelCreatureTemplate>();
+            questGiversIds.ForEach(id => { result.Add(QueryCreatureTemplateByEntry(id)); });
 
-            return questGivers;
+            return result;
         }
 
         public List<ModelQuestTemplate> QueryQuests()
@@ -304,28 +281,47 @@ namespace Wholesome_Auto_Quester.Database
             Stopwatch stopwatch = Stopwatch.StartNew();
             int levelDeltaMinus = System.Math.Max((int)ObjectManager.Me.Level - WholesomeAQSettings.CurrentSetting.LevelDeltaMinus, 1);
             int levelDeltaPlus = (int)ObjectManager.Me.Level + WholesomeAQSettings.CurrentSetting.LevelDeltaPlus;
-            var myClass = (int)ToolBox.GetClass();
+
+            int myClass = (int)ToolBox.GetClass();
+            int myFaction = (int)ToolBox.GetFaction();
+            int myLevel = (int)ObjectManager.Me.Level;
 
             string queryQuest = $@"
                     SELECT * 
-                    FROM quest_template qt
-                    LEFT JOIN quest_template_addon qta
-                    ON qt.ID = qta.ID
-                    WHERE qt.MinLevel <= {(int)ObjectManager.Me.Level}
-                    AND ((qt.QuestLevel <= {levelDeltaPlus} AND  qt.QuestLevel >= {levelDeltaMinus}) OR (qt.QuestLevel = -1 AND (qta.AllowableClasses <> 0 OR qt.AllowableRaces <> 0)));
+                    FROM quest_template
+                    WHERE MinLevel <= {(int)ObjectManager.Me.Level}
+                    AND ((QuestLevel <= {levelDeltaPlus} AND  QuestLevel >= {levelDeltaMinus}) OR (QuestLevel = -1));
                 ";
+            List<ModelQuestTemplate> result = _con.Query<ModelQuestTemplate>(queryQuest).ToList();
 
-            List<ModelQuestTemplate> result = _con.Query<ModelQuestTemplate, ModelQuestTemplateAddon, ModelQuestTemplate>(
-                queryQuest,
-                (quest, questAddon) =>
-                {
-                    quest.QuestAddon = questAddon == null ? new ModelQuestTemplateAddon() : questAddon;
-                    return quest;
-                },
-                splitOn: "ID")
-            .Distinct().ToList();
+            result.ForEach(questTemplate =>
+            {
+                string queryQuestAddon = $@"
+                    SELECT * 
+                    FROM quest_template_addon
+                    WHERE ID = {questTemplate.Id}
+                ";
+                ModelQuestTemplateAddon addon = _con.Query<ModelQuestTemplateAddon>(queryQuestAddon).FirstOrDefault();
+                questTemplate.QuestAddon = addon;
+            });
 
-            Logger.Log($"Process time (Quests) : {stopwatch.ElapsedMilliseconds} ms");
+            // Race/class specific?
+            //result.RemoveAll(q => q.QuestLevel == -1 && (q.AllowableRaces != 0 || q.QuestAddon?.AllowableClasses != 0));
+            // Our level is too low
+            result.RemoveAll(q => myLevel < q.MinLevel);
+            // Repeatable/escort quest
+            result.RemoveAll(q => (q.QuestAddon?.SpecialFlags & 1) != 0 || (q.QuestAddon?.SpecialFlags & 2) != 0);
+            // Remove -1 quests that are not Class quests
+            result.RemoveAll(q => q.QuestLevel == -1 && q.QuestAddon?.AllowableClasses == 0);
+            // Quest is not for my class
+            result.RemoveAll(q => q.QuestAddon?.AllowableClasses > 0 && (q.QuestAddon?.AllowableClasses & myClass) == 0);
+            // Quest is not for my race
+            result.RemoveAll(q => q.AllowableRaces > 0 && (q.AllowableRaces & myFaction) == 0);
+            // Quest is Dungeon/Group/Raid/PvP etc..
+            result.RemoveAll(q => q.QuestInfoID != 0);
+            // Quest requires to gain reputation with a faction
+            result.RemoveAll(q => q.RequiredFactionId1 != 0 || q.RequiredFactionId2 != 0);
+
             return result;
         }
 
@@ -355,6 +351,7 @@ namespace Wholesome_Auto_Quester.Database
                 CREATE UNIQUE INDEX IF NOT EXISTS `idx_quest_template_addon_id` ON `quest_template_addon` (`ID`);
                 CREATE INDEX IF NOT EXISTS `idx_quest_template_addon_nextquestid` ON `quest_template_addon` (`NextQuestId`);
                 CREATE INDEX IF NOT EXISTS `idx_quest_template_addon_prevquestid` ON `quest_template_addon` (`PrevQuestId`);
+                CREATE UNIQUE INDEX IF NOT EXISTS `idx_spell_id` ON `spell` (`id`);
             ");
             Logger.Log($"Process time (Indices) : {stopwatchIndices.ElapsedMilliseconds} ms");
         }

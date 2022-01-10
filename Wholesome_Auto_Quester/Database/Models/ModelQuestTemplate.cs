@@ -1,8 +1,8 @@
 ﻿using robotManager.Helpful;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Wholesome_Auto_Quester.Bot;
-using Wholesome_Auto_Quester.Database.Models.Flags;
 using Wholesome_Auto_Quester.Database.Objectives;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Enums;
@@ -16,32 +16,32 @@ namespace Wholesome_Auto_Quester.Database.Models
         public QuestStatus Status { get; set; } = QuestStatus.None;
         public bool AreObjectivesRecorded { get; set; }
 
-        private DBQuestFlags _questFLags;
-        public DBQuestFlags DBQuestFlags
+        private List<string> _questFlags;
+        public List<string> QuestFlags
         {
             get
             {
-                if (_questFLags == null) _questFLags = new DBQuestFlags(Flags);
-                return _questFLags;
+                if (_questFlags == null) _questFlags = GetMatchingQuestFlags(Flags);
+                return _questFlags;
             }
         }
 
-        private DBQuestSpecialFlags _questSpecialFLags;
-        public DBQuestSpecialFlags DBQuestSpecialFlags
+        private List<string> _questSpecialFlags;
+        public List<string> QuestSpecialFlags
         {
             get
             {
-                if (_questSpecialFLags == null) _questSpecialFLags = new DBQuestSpecialFlags(QuestAddon.SpecialFlags);
-                return _questSpecialFLags;
+                if (_questSpecialFlags == null) _questSpecialFlags = GetMatchingQuestSpecialFlags(QuestAddon.SpecialFlags);
+                return _questSpecialFlags;
             }
         }
-
         public List<ModelCreatureTemplate> CreatureQuestGivers { get; set; } = new List<ModelCreatureTemplate>();
         public List<ModelCreatureTemplate> CreatureQuestTurners { get; set; } = new List<ModelCreatureTemplate>();
         public List<ModelGameObjectTemplate> GameObjectQuestGivers { get; set; } = new List<ModelGameObjectTemplate>();
         public List<ModelGameObjectTemplate> GameObjectQuestTurners { get; set; } = new List<ModelGameObjectTemplate>();
         public List<ModelAreaTrigger> ModelAreasTriggers { get; set; } = new List<ModelAreaTrigger>();
 
+        public ModelItemTemplate StartItemTemplate { get; set; }
         public ModelItemTemplate ItemDrop1Template { get; set; }
         public ModelItemTemplate ItemDrop2Template { get; set; }
         public ModelItemTemplate ItemDrop3Template { get; set; }
@@ -62,7 +62,7 @@ namespace Wholesome_Auto_Quester.Database.Models
         public ModelGameObjectTemplate RequiredGO4Template { get; set; }
 
         // Objectives
-        public List<Objective> AllObjectives = new List<Objective>();
+        public List<Objective> AllObjectives { get; set; } = new List<Objective>();
         public List<ExplorationObjective> ExplorationObjectives { get; set; } = new List<ExplorationObjective>();
         public List<GatherObjective> GatherObjectives { get; set; } = new List<GatherObjective>();
         public List<KillObjective> KillObjectives { get; set; } = new List<KillObjective>();
@@ -97,6 +97,10 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int QuestSortID { get; set; }
         public int QuestInfoID { get; set; }
         public int QuestType { get; set; }
+        public int RequiredFactionId1 { get; set; }
+        public int RequiredFactionId2 { get; set; }
+        public int RequiredFactionValue1 { get; set; }
+        public int RequiredFactionValue2 { get; set; }
         public int RequiredItemCount1 { get; set; }
         public int RequiredItemCount2 { get; set; }
         public int RequiredItemCount3 { get; set; }
@@ -156,13 +160,13 @@ namespace Wholesome_Auto_Quester.Database.Models
         public void AddQuestItemsToDoNotSellList()
         {
             KillLootObjectives.ForEach(o => ToolBox.AddItemToDoNotSellList(o.ItemToLoot.Name));
-            GatherObjectives.ForEach(o => ToolBox.AddItemToDoNotSellList(o.GameObjectToGather.name));
+            GatherObjectives.ForEach(o => ToolBox.AddItemToDoNotSellList(o.ItemToObtain.Name));
         }
 
         public void RemoveQuestItemsFromDoNotSellList()
         {
             KillLootObjectives.ForEach(o => ToolBox.RemoveItemFromDoNotSellList(o.ItemToLoot.Name));
-            GatherObjectives.ForEach(o => ToolBox.RemoveItemFromDoNotSellList(o.GameObjectToGather.name));
+            GatherObjectives.ForEach(o => ToolBox.RemoveItemFromDoNotSellList(o.ItemToObtain.Name));
         }
 
         public bool IsCompleted => ToolBox.IsQuestCompleted(Id);
@@ -228,5 +232,74 @@ namespace Wholesome_Auto_Quester.Database.Models
             
             AllObjectives.Add(objective);
         }
+
+        public List<string> GetMatchingQuestFlags(long flag)
+        {
+            List<string> result = new List<string>();
+            foreach (long i in Enum.GetValues(typeof(QUEST_FLAGS)))
+            {
+                if ((flag & i) != 0)
+                    result.Add(Enum.GetName(typeof(QUEST_FLAGS), i));
+            }
+            return result;
+        }
+
+        public List<string> GetMatchingQuestSpecialFlags(long flag)
+        {
+            List<string> result = new List<string>();
+            foreach (long i in Enum.GetValues(typeof(QUEST_SPECIAL_FLAGS)))
+            {
+                if ((flag & i) != 0)
+                    result.Add(Enum.GetName(typeof(QUEST_SPECIAL_FLAGS), i));
+            }
+            return result;
+        }
     }
+}
+
+public enum QUEST_SPECIAL_FLAGS : long
+{
+    QUEST_REPEATABLE = 1,
+    QUEST_EXTERNAL_EVENTS = 2,
+    QUEST_AUTO_ACCEPT = 4,
+    QUEST_DUNGEON_FINDER = 8,
+    QUEST_MONTHLY = 16,
+    QUEST_KILL_BUNNY_NPC = 32,
+}
+
+public enum QUEST_FLAGS : long
+{
+    QUEST_FLAGS_NONE = 0,
+    QUEST_FLAGS_STAY_ALIVE = 1,
+    QUEST_FLAGS_PARTY_ACCEPT = 2,
+    QUEST_FLAGS_EXPLORATION = 4,
+    QUEST_FLAGS_SHARABLE = 8,
+    QUEST_FLAGS_HAS_CONDITION = 16,
+    QUEST_FLAGS_HIDE_REWARD_POI = 32,
+    QUEST_FLAGS_RAID = 64,
+    QUEST_FLAGS_TBC = 128,
+    QUEST_FLAGS_NO_MONEY_FROM_XP = 256,
+    QUEST_FLAGS_HIDDEN_REWARDS = 512,
+    QUEST_FLAGS_TRACKING = 1024,
+    QUEST_FLAGS_DEPRECATE_REPUTATION = 2048,
+    QUEST_FLAGS_DAILY = 4096,
+    QUEST_FLAGS_FLAGS_PVP = 8192,
+    QUEST_FLAGS_UNAVAILABLE = 16384,
+    QUEST_FLAGS_WEEKLY = 32768,
+    QUEST_FLAGS_AUTOCOMPLETE = 65536,
+    QUEST_FLAGS_DISPLAY_ITEM_IN_TRACKER = 131072,
+    QUEST_FLAGS_OBJ_TEXT = 262144,
+    QUEST_FLAGS_AUTO_ACCEPT = 524288,
+    QUEST_FLAGS_PLAYER_CAST_ON_ACCEPT = 1048576,
+    QUEST_FLAGS_PLAYER_CAST_ON_COMPLETE = 2097152,
+    QUEST_FLAGS_UPDATE_PHASE_SHIFT = 4194304,
+    QUEST_FLAGS_SOR_WHITELIST = 8388608,
+    QUEST_FLAGS_LAUNCH_GOSSIP_COMPLETE = 16777216,
+    QUEST_FLAGS_REMOVE_EXTRA_GET_ITEMS = 33554432,
+    QUEST_FLAGS_HIDE_UNTIL_DISCOVERED = 67108864,
+    QUEST_FLAGS_PORTRAIT_IN_QUEST_LOG = 134217728,
+    QUEST_FLAGS_SHOW_ITEM_WHEN_COMPLETED = 268435456,
+    QUEST_FLAGS_LAUNCH_GOSSIP_ACCEPT = 536870912,
+    QUEST_FLAGS_ITEMS_GLOW_WHEN_DONE = 1073741824,
+    QUEST_FLAGS_FAIL_ON_LOGOUT = 2147483648,
 }

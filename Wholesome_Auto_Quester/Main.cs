@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Threading;
@@ -27,7 +26,6 @@ public class Main : IProduct {
     private ProductSettingsControl _settingsUserControl;
 
     public string version = "0.0.01"; // Must match version in Version.txt
-
 
     public bool IsStarted { get; private set; }
 
@@ -60,9 +58,10 @@ public class Main : IProduct {
 
     public void Start() {
         IsStarted = true;
+        
         try {
             //AutoUpdater.CheckUpdate(version);
-
+            
             if (ToolBox.GetWoWVersion() == "3.3.5") {
                 var dbWotlk = new DBQueriesWotlk();
                 dbWotlk.GetAvailableQuests();
@@ -71,11 +70,13 @@ public class Main : IProduct {
                     return;
                 }
             }
-
+            
             Task.Factory.StartNew(() => {
                 while (IsStarted) {
                     try {
-                        if (Conditions.InGameAndConnectedAndProductStartedNotInPause) {
+                        if (Conditions.InGameAndConnectedAndProductStartedNotInPause
+                                && !ObjectManager.Me.IsOnTaxi
+                                && ObjectManager.Me.IsAlive) {
                             WAQTasks.UpdateStatuses();
                             WAQTasks.UpdateTasks();
                         }
@@ -100,14 +101,14 @@ public class Main : IProduct {
                     Thread.Sleep(1000 * 60 * 15);
                 }
             });
-
+            
             FiniteStateMachineEvents.OnRunState += SmoothMoveKiller;
             LoggingEvents.OnAddLog += AddLogHandler;
-
-            if (Bot.Pulse()) {
+            
+            if (Bot.Pulse()) {                
                 if (WholesomeAQSettings.CurrentSetting.ActivateQuestsGUI)
                     QuestTrackerGui.ShowWindow();
-
+                
                 Radar3D.OnDrawEvent += Radar3DOnDrawEvent;
                 Radar3D.Pulse();
 

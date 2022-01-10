@@ -84,11 +84,14 @@ namespace Wholesome_Auto_Quester.Bot {
         }
 
         public void PutTaskOnTimeout(string reason) {
-            int timeInSeconds = Creature?.spawnTimeSecs ?? GameObject.spawntimesecs;
-            if (timeInSeconds < 30) timeInSeconds = 120;
-            Logger.Log($"Putting task {TaskName} on time out for {timeInSeconds} seconds. Reason: {reason}");
-            _timeOutTimer = new Timer(timeInSeconds * 1000);
-            WAQTasks.UpdateTasks();
+            if (!IsTimedOut)
+            {
+                int timeInSeconds = Creature?.spawnTimeSecs ?? GameObject.spawntimesecs;
+                if (timeInSeconds < 30) timeInSeconds = 120;
+                Logger.Log($"Putting task {TaskName} on time out for {timeInSeconds} seconds. Reason: {reason}");
+                _timeOutTimer = new Timer(timeInSeconds * 1000);
+                WAQTasks.UpdateTasks();
+            }
         }
 
         public void PutTaskOnTimeout(int timeInSeconds, string reason)

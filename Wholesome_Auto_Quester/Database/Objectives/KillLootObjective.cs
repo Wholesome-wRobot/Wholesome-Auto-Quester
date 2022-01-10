@@ -4,14 +4,14 @@ namespace Wholesome_Auto_Quester.Database.Objectives
 {
     public class KillLootObjective : Objective
     {
-        public ModelCreatureTemplate CreatureTemplate { get; }
+        public ModelCreatureLootTemplate CreatureLootTemplate { get; }
         public ModelItemTemplate ItemToLoot { get; }
 
-        public KillLootObjective(int amount, ModelCreatureTemplate creatureTemplate, ModelItemTemplate itemToLoot, string objectiveName = null)
+        public KillLootObjective(int amount, ModelCreatureLootTemplate creatureLootTemplate, ModelItemTemplate itemToLoot, string objectiveName = null)
         {
             ItemToLoot = itemToLoot;
             Amount = amount;
-            CreatureTemplate = creatureTemplate;
+            CreatureLootTemplate = creatureLootTemplate;
             ObjectiveName = objectiveName == null ? ItemToLoot.Name : objectiveName;
         }
     }

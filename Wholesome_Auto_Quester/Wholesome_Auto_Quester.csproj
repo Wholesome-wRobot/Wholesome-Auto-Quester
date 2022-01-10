@@ -295,13 +295,9 @@
     <Compile Include="Database\DB.cs" />
     <Compile Include="Database\DBQueriesWotlk.cs" />
     <Compile Include="Database\DBQueriesTBC.cs" />
-    <Compile Include="Database\Models\Flags\CreatureTemplate\DBUnitDynamicFlags.cs" />
-    <Compile Include="Database\Models\Flags\CreatureTemplate\DBUnitFlagsExtra.cs" />
-    <Compile Include="Database\Models\Flags\CreatureTemplate\DBUnitTypeFlags.cs" />
-    <Compile Include="Database\Models\Flags\CreatureTemplate\DBUnitFlags2.cs" />
-    <Compile Include="Database\Models\Flags\CreatureTemplate\DBUnitFlags.cs" />
-    <Compile Include="Database\Models\Flags\QuestTemplate\DBQuestSpecialFlags.cs" />
     <Compile Include="Database\Models\ModelCreature.cs" />
+    <Compile Include="Database\Models\ModelGameObjectLootTemplate.cs" />
+    <Compile Include="Database\Models\ModelCreatureLootTemplate.cs" />
     <Compile Include="Database\Models\ModelCreatureTemplate.cs" />
     <Compile Include="Database\Models\ModelGameObject.cs" />
     <Compile Include="Database\Models\ModelGameObjectTemplate.cs" />
@@ -309,7 +305,7 @@
     <Compile Include="Database\Models\ModelItemTemplate.cs" />
     <Compile Include="Database\Models\ModelAreaTrigger.cs" />
     <Compile Include="Database\Models\ModelQuestTemplate.cs" />
-    <Compile Include="Database\Models\Flags\QuestTemplate\DBQuestFlags.cs" />
+    <Compile Include="Database\Models\ModelSpell.cs" />
     <Compile Include="Database\Objectives\ExplorationObjective.cs" />
     <Compile Include="Database\Objectives\GatherObjective.cs" />
     <Compile Include="Database\Objectives\InteractObjective.cs" />
@@ -325,7 +321,7 @@
     <Compile Include="Helpers\Enums.cs" />
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Helpers\MoveHelper.cs" />
-    <Compile Include="States\Defend.cs" />
+    <Compile Include="States\WAQDefend.cs" />
     <Compile Include="States\WAQGoTo.cs" />
     <Compile Include="States\WAQKillAndLoot.cs" />
     <Compile Include="States\WAQInteractWorldObject.cs" />
