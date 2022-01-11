@@ -41,7 +41,7 @@ namespace Wholesome_Auto_Quester.States {
 
                 var gameObject = (WoWGameObject) WAQTasks.TaskInProgressWoWObject;
                 if (gameObject.IsGoodInteractDistance) {
-                    if(MoveHelper.IsMovementThreadRunning) MoveHelper.StopAllMove();
+                    if (MoveHelper.IsMovementThreadRunning) MoveHelper.StopAllMove();
                     Logger.Log($"Interacting with {gameObject.Name} to pick it up. (Gathering)");
                     Interact.InteractGameObject(gameObject.GetBaseAddress);
                     Usefuls.WaitIsCastingAndLooting();
@@ -53,8 +53,7 @@ namespace Wholesome_Auto_Quester.States {
                     MoveHelper.StartGoToThread(gameObject.Position, randomizeEnd: 3f);
                 }
             } else {
-                if (!MoveHelper.IsMovementThreadRunning ||
-                    MoveHelper.CurrentMovementTarget.DistanceTo(task.Location) > 8) {
+                if (!MoveHelper.IsMovementThreadRunning || MoveHelper.CurrentMovementTarget.DistanceTo(task.Location) > 8) {
 
                     Logger.Log($"Moving to Hotspot for {task.Quest.LogTitle} (Gather).");
                     MoveHelper.StartGoToThread(task.Location, randomizeEnd: 8f);

@@ -80,7 +80,7 @@ namespace Wholesome_Auto_Quester.Database
                 WHERE entry = {entry}
             ";
             List<ModelGameObjectLootTemplate> result = _con.Query<ModelGameObjectLootTemplate>(queryLootTemplate).ToList();
-            result.ForEach(golt => golt.GameObjectTemplate = QueryGameObjectTemplateByLoot(golt.Entry));
+            result.ForEach(golt => golt.GameObjectTemplate = QueryGameObjectTemplateByLootEntry(golt.Entry));
             return result;
         }
 
@@ -92,7 +92,7 @@ namespace Wholesome_Auto_Quester.Database
                 WHERE Item = {itemId}
             ";
             List<ModelGameObjectLootTemplate> result = _con.Query<ModelGameObjectLootTemplate>(queryLootTemplate).ToList();
-            result.ForEach(golt => golt.GameObjectTemplate = QueryGameObjectTemplateByLoot(golt.Entry));
+            result.ForEach(golt => golt.GameObjectTemplate = QueryGameObjectTemplateByLootEntry(golt.Entry));
             return result;
         }
 
@@ -172,17 +172,23 @@ namespace Wholesome_Auto_Quester.Database
             return result;
         }
 
-        public ModelGameObjectTemplate QueryGameObjectTemplateByLoot(int itemId)
+        public ModelGameObjectTemplate QueryGameObjectTemplateByLootEntry(int lootEntry)
         {
             string queryGOTemplate = $@"
                 Select *
                 FROM gameobject_template
-                WHERE data1 = {itemId}
+                WHERE data1 = {lootEntry}
             ";
-            ModelGameObjectTemplate result = _con.Query<ModelGameObjectTemplate>(queryGOTemplate).FirstOrDefault();
-            if (result == null) return null;
-
-            result.GameObjects = QueryGameObjectByEntry(result.entry);
+            List<ModelGameObjectTemplate> gots = _con.Query<ModelGameObjectTemplate>(queryGOTemplate).ToList(); // it is possible to have multiple identical templates
+            ModelGameObjectTemplate result = gots[0];
+            gots.ForEach(got => {
+                List<ModelGameObject> gos = QueryGameObjectByEntry(got.entry);
+                if (gos.Count > 0)
+                {
+                    result.GameObjects.AddRange(gos);
+                    result.entry = got.entry;
+                }
+            }); // record only the 1 with gos
 
             return result;
         }
@@ -289,7 +295,7 @@ namespace Wholesome_Auto_Quester.Database
             string queryQuest = $@"
                     SELECT * 
                     FROM quest_template
-                    WHERE MinLevel <= {(int)ObjectManager.Me.Level}
+                    WHERE MinLevel <= {myLevel}
                     AND ((QuestLevel <= {levelDeltaPlus} AND  QuestLevel >= {levelDeltaMinus}) OR (QuestLevel = -1));
                 ";
             List<ModelQuestTemplate> result = _con.Query<ModelQuestTemplate>(queryQuest).ToList();
@@ -302,25 +308,8 @@ namespace Wholesome_Auto_Quester.Database
                     WHERE ID = {questTemplate.Id}
                 ";
                 ModelQuestTemplateAddon addon = _con.Query<ModelQuestTemplateAddon>(queryQuestAddon).FirstOrDefault();
-                questTemplate.QuestAddon = addon;
+                questTemplate.QuestAddon = addon ?? new ModelQuestTemplateAddon();
             });
-
-            // Race/class specific?
-            //result.RemoveAll(q => q.QuestLevel == -1 && (q.AllowableRaces != 0 || q.QuestAddon?.AllowableClasses != 0));
-            // Our level is too low
-            result.RemoveAll(q => myLevel < q.MinLevel);
-            // Repeatable/escort quest
-            result.RemoveAll(q => (q.QuestAddon?.SpecialFlags & 1) != 0 || (q.QuestAddon?.SpecialFlags & 2) != 0);
-            // Remove -1 quests that are not Class quests
-            result.RemoveAll(q => q.QuestLevel == -1 && q.QuestAddon?.AllowableClasses == 0);
-            // Quest is not for my class
-            result.RemoveAll(q => q.QuestAddon?.AllowableClasses > 0 && (q.QuestAddon?.AllowableClasses & myClass) == 0);
-            // Quest is not for my race
-            result.RemoveAll(q => q.AllowableRaces > 0 && (q.AllowableRaces & myFaction) == 0);
-            // Quest is Dungeon/Group/Raid/PvP etc..
-            result.RemoveAll(q => q.QuestInfoID != 0);
-            // Quest requires to gain reputation with a faction
-            result.RemoveAll(q => q.RequiredFactionId1 != 0 || q.RequiredFactionId2 != 0);
 
             return result;
         }

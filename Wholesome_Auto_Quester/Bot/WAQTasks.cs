@@ -455,7 +455,7 @@ namespace Wholesome_Auto_Quester.Bot {
 
                     // Quest in progress
                     quest.Status = QuestStatus.InProgress;
-                    if (!quest.AreObjectivesRecorded && quest.AllObjectives.Count > 0)
+                    if (!quest.AreObjectivesRecorded && quest.GetAllObjectives().Count > 0)
                     {
                         quest.RecordObjectiveIndices();
                         quest.AddQuestItemsToDoNotSellList();

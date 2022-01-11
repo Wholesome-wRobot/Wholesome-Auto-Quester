@@ -62,7 +62,6 @@ namespace Wholesome_Auto_Quester.Database.Models
         public ModelGameObjectTemplate RequiredGO4Template { get; set; }
 
         // Objectives
-        public List<Objective> AllObjectives { get; set; } = new List<Objective>();
         public List<ExplorationObjective> ExplorationObjectives { get; set; } = new List<ExplorationObjective>();
         public List<GatherObjective> GatherObjectives { get; set; } = new List<GatherObjective>();
         public List<KillObjective> KillObjectives { get; set; } = new List<KillObjective>();
@@ -123,6 +122,7 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int RequiredNpcOrGoCount4 { get; set; }
         public int StartItem { get; set; }
         public int TimeAllowed { get; set; }
+        public int Unknown0 { get; set; }
 
         public bool IsPickable()
         {
@@ -209,7 +209,7 @@ namespace Wholesome_Auto_Quester.Database.Models
                             end
                             return unpack(objectivesTable)");
 
-            AllObjectives.ForEach(ob =>
+            GetAllObjectives().ForEach(ob =>
             {
                 for (int i = 0; i < objectives.Length; i++)
                 {
@@ -222,6 +222,17 @@ namespace Wholesome_Auto_Quester.Database.Models
             });
         }
 
+        public List<Objective> GetAllObjectives()
+        {
+            List<Objective> result = new List<Objective>();
+            result.AddRange(ExplorationObjectives);
+            result.AddRange(GatherObjectives);
+            result.AddRange(InteractObjectives);
+            result.AddRange(KillLootObjectives);
+            result.AddRange(KillObjectives);
+            return result;
+        }
+
         public void AddObjective(Objective objective)
         {
             if (objective is ExplorationObjective) ExplorationObjectives.Add((ExplorationObjective)objective);
@@ -229,8 +240,6 @@ namespace Wholesome_Auto_Quester.Database.Models
             if (objective is InteractObjective) InteractObjectives.Add((InteractObjective)objective);
             if (objective is KillLootObjective) KillLootObjectives.Add((KillLootObjective)objective);
             if (objective is KillObjective) KillObjectives.Add((KillObjective)objective);
-            
-            AllObjectives.Add(objective);
         }
 
         public List<string> GetMatchingQuestFlags(long flag)

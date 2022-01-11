@@ -23,7 +23,7 @@ namespace Wholesome_Auto_Quester.Database {
             _database.Dispose();
         }
 
-        private static List<ModelQuestTemplate> FilterDBQuests(List<ModelQuestTemplate> dbResult)
+        private static List<ModelQuestTemplate> FilterDBQuestsBeforeFills(List<ModelQuestTemplate> dbResult)
         {
             List<ModelQuestTemplate> result = new List<ModelQuestTemplate>();
 
@@ -33,19 +33,81 @@ namespace Wholesome_Auto_Quester.Database {
 
             foreach (ModelQuestTemplate q in dbResult)
             {
-                // Quest is not for my faction
-                if (!q.CreatureQuestGivers.Any(qg => qg.IsNeutralOrFriendly) && q.GameObjectQuestGivers.Count <= 0) 
+                if ((q.QuestAddon?.SpecialFlags & 1) != 0)
+                {
+                    //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Repeatable)");
                     continue;
-                // Quest requires to use an active item
-                if (q.StartItemTemplate?.Spell1 != null
-                    || q.StartItemTemplate?.Spell2 != null
-                    || q.StartItemTemplate?.Spell3 != null
-                    || q.StartItemTemplate?.Spell4 != null) 
+                }
+                if ((q.QuestAddon?.SpecialFlags & 2) != 0)
+                {
+                    //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Escort?)");
                     continue;
+                }
+                if (q.QuestLevel == -1 && q.QuestAddon?.AllowableClasses == 0)
+                {
+                    //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (-1, not class quest)");
+                    continue;
+                }
+                if (q.QuestAddon?.AllowableClasses > 0 && (q.QuestAddon?.AllowableClasses & myClass) == 0)
+                {
+                    //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Not for my class)");
+                    continue;
+                }
+                if (q.AllowableRaces > 0 && (q.AllowableRaces & myFaction) == 0)
+                {
+                    //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Not for my race)");
+                    continue;
+                }
+                if (q.QuestInfoID != 0)
+                {
+                    //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Dungeon/Group/Raid/PvP)");
+                    continue;
+                }
+                if (q.RequiredFactionId1 != 0 || q.RequiredFactionId2 != 0)
+                {
+                    //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Reputation quest)");
+                    continue;
+                }
 
                 result.Add(q);
             }
+            return result;
+        }
 
+        private static List<ModelQuestTemplate> FilterDBQuestsAfterFills(List<ModelQuestTemplate> dbResult)
+        {
+            List<ModelQuestTemplate> result = new List<ModelQuestTemplate>();
+
+            int myClass = (int)ToolBox.GetClass();
+            int myFaction = (int)ToolBox.GetFaction();
+            int myLevel = (int)ObjectManager.Me.Level;
+
+            foreach (ModelQuestTemplate q in dbResult)
+            {
+                if (!q.CreatureQuestGivers.Any(qg => qg.IsNeutralOrFriendly) && q.GameObjectQuestGivers.Count <= 0)
+                {
+                    //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Not for my faction)");
+                    continue;
+                }
+                if (q.StartItemTemplate?.Spell1 != null
+                    || q.StartItemTemplate?.Spell2 != null
+                    || q.StartItemTemplate?.Spell3 != null
+                    || q.StartItemTemplate?.Spell4 != null)
+                {
+                    //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Active item)");
+                    continue;
+                }
+                if (q.KillLootObjectives.Any(klo => klo.ItemToLoot.Spell1 != null)
+                    || q.KillLootObjectives.Any(klo => klo.ItemToLoot.Spell2 != null)
+                    || q.KillLootObjectives.Any(klo => klo.ItemToLoot.Spell3 != null)
+                    || q.KillLootObjectives.Any(klo => klo.ItemToLoot.Spell4 != null))
+                {
+                    //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Active loot item)");
+                    continue;
+                }
+
+                result.Add(q);
+            }
             return result;
         }
 
@@ -64,8 +126,8 @@ namespace Wholesome_Auto_Quester.Database {
             
             _database.CreateIndices();
 
-            List<ModelQuestTemplate> quests = _database.QueryQuests();
-
+            List<ModelQuestTemplate> quests = FilterDBQuestsBeforeFills(_database.QueryQuests());
+            
             // Query quest givers
             Stopwatch stopwatchQuestGivers = Stopwatch.StartNew();
             foreach (ModelQuestTemplate quest in quests)
@@ -75,7 +137,7 @@ namespace Wholesome_Auto_Quester.Database {
             }
             Logger.Log($"Process time (Quest givers) : {stopwatchQuestGivers.ElapsedMilliseconds} ms");
 
-            // Query quest enders
+            // Query quest enders 420ko / 21k
             Stopwatch stopwatchQuestEnders = Stopwatch.StartNew();
             foreach (ModelQuestTemplate quest in quests)
             {
@@ -83,8 +145,8 @@ namespace Wholesome_Auto_Quester.Database {
                 quest.GameObjectQuestTurners = _database.QueryGameObjectQuestEnders(quest.Id);
             }
             Logger.Log($"Process time (Quest enders) : {stopwatchQuestEnders.ElapsedMilliseconds} ms");
-
-            // Query previous quests Ids
+            
+            // Query previous quests Ids 
             Stopwatch stopwatchPrevQuests = Stopwatch.StartNew();
             foreach (ModelQuestTemplate quest in quests)
             {
@@ -95,7 +157,7 @@ namespace Wholesome_Auto_Quester.Database {
             }
             Logger.Log($"Process time (Previous quests) : {stopwatchPrevQuests.ElapsedMilliseconds} ms");
 
-            // Query next quests ids
+            // Query next quests ids 420ko / 21k
             Stopwatch stopwatchNextQuests = Stopwatch.StartNew();
             foreach (ModelQuestTemplate quest in quests)
             {
@@ -106,13 +168,13 @@ namespace Wholesome_Auto_Quester.Database {
             }
             Logger.Log($"Process time (Next quests) : {stopwatchNextQuests.ElapsedMilliseconds} ms");
 
-            // Query Areas
+            // Query Areas 420ko / 21k
             Stopwatch stopwatchAreas = Stopwatch.StartNew();
             foreach (ModelQuestTemplate quest in quests)
                 quest.ModelAreasTriggers = _database.QueryAreasToExplore(quest.Id);
             Logger.Log($"Process time (Areas) : {stopwatchAreas.ElapsedMilliseconds} ms");
 
-            // Query Item drops (prerequisites)
+            // Query Item drops (prerequisites) 435ko / 22k
             Stopwatch stopwatchItemDrops = Stopwatch.StartNew();
             foreach (ModelQuestTemplate quest in quests)
             {
@@ -122,8 +184,8 @@ namespace Wholesome_Auto_Quester.Database {
                 quest.ItemDrop4Template = _database.QueryItemTemplateByItemEntry(quest.ItemDrop4);
             }
             Logger.Log($"Process time (ItemDrops) : {stopwatchItemDrops.ElapsedMilliseconds} ms");
-
-            // Query required Items
+            
+            // Query required Items 2Mo / 130k
             Stopwatch stopwatchRequiredItem = Stopwatch.StartNew();
             foreach (ModelQuestTemplate quest in quests)
             {
@@ -147,16 +209,16 @@ namespace Wholesome_Auto_Quester.Database {
                     Logger.LogError($"quest: {quest.Id} => entry: {quest.RequiredItem6Template.Entry} => count: {quest.RequiredItem6Template.CreatureLootTemplates.Count}");
             }
             Logger.Log($"Process time (RequiredItems) : {stopwatchRequiredItem.ElapsedMilliseconds} ms");
-
-            // Query Start Item
+            
+            // Query Start Item 2mo / 126k
             Stopwatch stopwatchStartItem = Stopwatch.StartNew();
             foreach (ModelQuestTemplate quest in quests)
             {
                 quest.StartItemTemplate = _database.QueryItemTemplateByItemEntry(quest.StartItem);
             }
             Logger.Log($"Process time (StartItem) : {stopwatchStartItem.ElapsedMilliseconds} ms");
-
-            // Query required Npcs/Interacts
+            
+            // Query required Npcs/Interacts 2mo / 133k
             Stopwatch stopwatchRequiredNPC = Stopwatch.StartNew();
             foreach (ModelQuestTemplate quest in quests)
             {
@@ -181,15 +243,15 @@ namespace Wholesome_Auto_Quester.Database {
                     quest.RequiredGO4Template = _database.QueryGameObjectTemplateByEntry(-quest.RequiredNpcOrGo4);
             }
             Logger.Log($"Process time (RequiredNpcs) : {stopwatchRequiredNPC.ElapsedMilliseconds} ms");
-
+            
             // Add all objectives
             foreach (ModelQuestTemplate quest in quests)
             {
-                // Exploration objectives
+                // Exploration objectives 2mo/133k
                 quest.ModelAreasTriggers.ForEach(modelArea =>
                     quest.AddObjective(new ExplorationObjective((int)modelArea.PositionX, modelArea, quest.AreaDescription)));
-
-                // Prerequisite objectives Gather
+                
+                // Prerequisite objectives Gather 2mo/134k
                 quest.ItemDrop1Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
                     quest.AddObjective(new GatherObjective(quest.ItemDropQuantity1, goLootTemplate, quest.ItemDrop1Template)));
                 quest.ItemDrop2Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
@@ -198,8 +260,8 @@ namespace Wholesome_Auto_Quester.Database {
                     quest.AddObjective(new GatherObjective(quest.ItemDropQuantity3, goLootTemplate, quest.ItemDrop3Template)));
                 quest.ItemDrop4Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
                     quest.AddObjective(new GatherObjective(quest.ItemDropQuantity4, goLootTemplate, quest.ItemDrop4Template)));
-
-                // Prerequisite objectives Kill&Loot
+                
+                // Prerequisite objectives Kill&Loot 2mo/134k
                 quest.ItemDrop1Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
                     quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity1, creaLootTemplate, quest.ItemDrop1Template)));
                 quest.ItemDrop2Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
@@ -209,47 +271,42 @@ namespace Wholesome_Auto_Quester.Database {
                 quest.ItemDrop4Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
                     quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity4, creaLootTemplate, quest.ItemDrop4Template)));
 
-                // Required items Gather/Loot
+                // Required items Gather/Loot 5mo/327k
                 quest.RequiredItem1Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
-                    quest.AddObjective(new GatherObjective(quest.RequiredItemCount1, goLootTemplate, quest.RequiredItem1Template)));                
-                quest.RequiredItem1Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
-                    quest.AddObjective(new KillLootObjective(quest.RequiredItemCount1, creaLootTemplate, quest.RequiredItem1Template)));
-
+                    quest.AddObjective(new GatherObjective(quest.RequiredItemCount1, goLootTemplate, quest.RequiredItem1Template)));
                 quest.RequiredItem2Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
                     quest.AddObjective(new GatherObjective(quest.RequiredItemCount2, goLootTemplate, quest.RequiredItem2Template)));
-                quest.RequiredItem2Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
-                    quest.AddObjective(new KillLootObjective(quest.RequiredItemCount2, creaLootTemplate, quest.RequiredItem2Template)));
-
                 quest.RequiredItem3Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
                     quest.AddObjective(new GatherObjective(quest.RequiredItemCount3, goLootTemplate, quest.RequiredItem3Template)));
-                quest.RequiredItem3Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
-                    quest.AddObjective(new KillLootObjective(quest.RequiredItemCount3, creaLootTemplate, quest.RequiredItem3Template)));
-
                 quest.RequiredItem4Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
                     quest.AddObjective(new GatherObjective(quest.RequiredItemCount4, goLootTemplate, quest.RequiredItem4Template)));
-                quest.RequiredItem4Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
-                    quest.AddObjective(new KillLootObjective(quest.RequiredItemCount4, creaLootTemplate, quest.RequiredItem4Template)));
-
                 quest.RequiredItem5Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
                     quest.AddObjective(new GatherObjective(quest.RequiredItemCount5, goLootTemplate, quest.RequiredItem5Template)));
-                quest.RequiredItem5Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
-                    quest.AddObjective(new KillLootObjective(quest.RequiredItemCount5, creaLootTemplate, quest.RequiredItem5Template)));
-
                 quest.RequiredItem6Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
                     quest.AddObjective(new GatherObjective(quest.RequiredItemCount6, goLootTemplate, quest.RequiredItem6Template)));
+
+                // Required items Gather/Loot 300mo/20M                             
+                quest.RequiredItem1Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                    quest.AddObjective(new KillLootObjective(quest.RequiredItemCount1, creaLootTemplate, quest.RequiredItem1Template)));
+                quest.RequiredItem2Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                    quest.AddObjective(new KillLootObjective(quest.RequiredItemCount2, creaLootTemplate, quest.RequiredItem2Template)));
+                quest.RequiredItem3Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                    quest.AddObjective(new KillLootObjective(quest.RequiredItemCount3, creaLootTemplate, quest.RequiredItem3Template)));
+                quest.RequiredItem4Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                    quest.AddObjective(new KillLootObjective(quest.RequiredItemCount4, creaLootTemplate, quest.RequiredItem4Template)));
+                quest.RequiredItem5Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                    quest.AddObjective(new KillLootObjective(quest.RequiredItemCount5, creaLootTemplate, quest.RequiredItem5Template)));
                 quest.RequiredItem6Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
                     quest.AddObjective(new KillLootObjective(quest.RequiredItemCount6, creaLootTemplate, quest.RequiredItem6Template)));
+               
+                // KILL / INTERACT
 
-                /*
-                    KILL / INTERACT
+                // RequiredNpcOrGo
+                // Value > 0:required creature_template ID the player needs to kill/cast on in order to complete the quest.
+                // Value < 0:required gameobject_template ID the player needs to cast on in order to complete the quest.
+                // If*RequiredSpellCast*is != 0, the objective is to cast on target, else kill.
+                // NOTE: If RequiredSpellCast is != 0 and the spell has effects Send Event or Quest Complete, this field may be left empty.
 
-                    RequiredNpcOrGo
-                    Value > 0:required creature_template ID the player needs to kill/cast on in order to complete the quest.
-                    Value < 0:required gameobject_template ID the player needs to cast on in order to complete the quest.
-                    If*RequiredSpellCast*is != 0, the objective is to cast on target, else kill.
-                    NOTE: If RequiredSpellCast is != 0 and the spell has effects Send Event or Quest Complete, this field may be left empty.
-                */
-            
                 // Kill
                 if (quest.RequiredNPC1Template != null && !quest.RequiredNPC1Template.IsFriendly)
                     quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount1, quest.RequiredNPC1Template, quest.ObjectiveText1));
@@ -270,10 +327,10 @@ namespace Wholesome_Auto_Quester.Database {
                 if (quest.RequiredGO4Template != null)
                     quest.AddObjective(new InteractObjective(quest.RequiredNpcOrGoCount4, quest.RequiredGO4Template, quest.ObjectiveText4));
             }                
-
+            
             DisposeDb();
             
-            List<ModelQuestTemplate> allFilteredQuests = FilterDBQuests(quests);
+            List<ModelQuestTemplate> allFilteredQuests = FilterDBQuestsAfterFills(quests);
 
             // Write JSON
             if (WholesomeAQSettings.CurrentSetting.DevMode)
@@ -282,7 +339,7 @@ namespace Wholesome_Auto_Quester.Database {
                 Logger.Log($"{allFilteredQuests.Count} results. Building JSON. Please wait.");
                 ToolBox.UpdateCompletedQuests();
                 ToolBox.WriteJSONFromDBResult(allFilteredQuests);
-                ToolBox.ZipJSONFile();
+                //ToolBox.ZipJSONFile();
                 Logger.Log($"Process time (JSON processing) : {stopwatchJSON.ElapsedMilliseconds} ms");
             }
             

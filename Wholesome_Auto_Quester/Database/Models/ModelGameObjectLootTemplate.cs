@@ -1,9 +1,11 @@
-﻿namespace Wholesome_Auto_Quester.Database.Models
+﻿using System.Collections.Generic;
+
+namespace Wholesome_Auto_Quester.Database.Models
 {
     public class ModelGameObjectLootTemplate
     {
         public ModelGameObjectTemplate GameObjectTemplate { get; set; }
-
+    
         public int Entry { get; set; }
         public int Item { get; set; }
         public int Reference { get; set; }

@@ -223,12 +223,12 @@ namespace Wholesome_Auto_Quester.GUI {
                     prerequisiteLoots.Visibility = Visibility.Collapsed;
 
                 // objectives
-                if (selected.AllObjectives.Count > 0)
+                if (selected.GetAllObjectives().Count > 0)
                 {
                     objectiveStack.Visibility = Visibility.Visible;
                     objectiveStack.Children.RemoveRange(1, objectiveStack.Children.Count - 1);
                     List<ObjectiveDisplay> objDisplays = new List<ObjectiveDisplay>();
-                    selected.AllObjectives.ForEach(obj =>
+                    selected.GetAllObjectives().ForEach(obj =>
                     {
                         if (!objDisplays.Exists(o => o.Name == obj.ObjectiveName))
                             objDisplays.Add(new ObjectiveDisplay(obj.ObjectiveIndex, obj.ObjectiveName, obj.Amount));
