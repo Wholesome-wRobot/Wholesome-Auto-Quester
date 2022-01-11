@@ -24,7 +24,7 @@ namespace Wholesome_Auto_Quester.Bot {
         public string QuestTitle { get; }
         public int QuestId { get; }
 
-        private Timer _timeOutTimer = new Timer();
+        public Timer _timeOutTimer = new Timer();
 
         // Creatures
         public WAQTask(TaskType taskType, string creatureName, int creatureEntry, string questTitle, int questId, 
@@ -99,15 +99,18 @@ namespace Wholesome_Auto_Quester.Bot {
                 if (timeInSeconds < 30) timeInSeconds = 120;
                 Logger.Log($"Putting task {TaskName} on time out for {timeInSeconds} seconds. Reason: {reason}");
                 _timeOutTimer = new Timer(timeInSeconds * 1000);
-                WAQTasks.UpdateTasks();
+                //WAQTasks.UpdateTasks();
             }
         }
 
         public void PutTaskOnTimeout(int timeInSeconds, string reason)
         {
-            Logger.Log($"Putting task {TaskName} on time out for {timeInSeconds} seconds. Reason: {reason}");
-            _timeOutTimer = new Timer(timeInSeconds * 1000);
-            WAQTasks.UpdateTasks();
+            if (!IsTimedOut)
+            {
+                Logger.Log($"Putting task {TaskName} on time out for {timeInSeconds} seconds. Reason: {reason}");
+                _timeOutTimer = new Timer(timeInSeconds * 1000);
+                //WAQTasks.UpdateTasks();
+            }
         }
 
         public bool IsSameTask(TaskType taskType, int questEntry, int objIndex, Func<int> getUniqueId = null) 

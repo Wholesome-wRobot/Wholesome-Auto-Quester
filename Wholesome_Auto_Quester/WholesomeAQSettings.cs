@@ -25,10 +25,8 @@ namespace Wholesome_Auto_Quester
 
             BlacklistesQuests = new List<int>()
             {
-                5441, // Lazy Peons
                 354, // Roaming mobs, hard to find in a hostile zone
-                887, // no path for pickup (house in ratchet)
-                11129, // Kyle's missing, smart AI
+                1202, // Theramore docks
             };
         }
 
