@@ -152,9 +152,11 @@ namespace Wholesome_Auto_Quester.GUI {
                     questGatherObjects.Visibility = Visibility.Visible;
                     questGatherObjects.Children.RemoveRange(1, questGatherObjects.Children.Count - 1);
                     foreach (GatherObjective obje in selected.GatherObjectives)
+                    {
                         if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, selected.Id))
                             questGatherObjects.Children.Add(CreateListTextBlock(
-                                $"[{obje.ObjectiveIndex}] {obje.GameObjectName} ({obje.GameObjects.Count} found)"));
+                                $"[{obje.ObjectiveIndex}] {obje.ObjGOTemplates[0].GameObjectName} ({obje.GetAllGameObjects().Count} found)"));
+                    }
                 }
                 else
                     questGatherObjects.Visibility = Visibility.Collapsed;
@@ -205,7 +207,7 @@ namespace Wholesome_Auto_Quester.GUI {
                     prerequisiteGathers.Children.RemoveRange(1, prerequisiteGathers.Children.Count - 1);
                     foreach (GatherObjective obje in selected.PrerequisiteGatherObjectives)
                         prerequisiteGathers.Children.Add(CreateListTextBlock(
-                            $"[{obje.ObjectiveIndex}] {obje.GameObjectName} ({obje.GameObjects.Count} found)"));
+                                $"[{obje.ObjectiveIndex}] {obje.ObjGOTemplates[0].GameObjectName} ({obje.GetAllGameObjects().Count} found)"));
                 }
                 else
                     prerequisiteGathers.Visibility = Visibility.Collapsed;

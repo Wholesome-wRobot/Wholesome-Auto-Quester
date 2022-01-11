@@ -4,7 +4,7 @@ namespace Wholesome_Auto_Quester.Database.Models
 {
     public class ModelGameObjectLootTemplate
     {
-        public ModelGameObjectTemplate GameObjectTemplate { get; set; }
+        public List<ModelGameObjectTemplate> GameObjectTemplates { get; set; }
     
         public int Entry { get; set; }
         public int Item { get; set; }

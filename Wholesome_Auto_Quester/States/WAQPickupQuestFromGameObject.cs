@@ -37,15 +37,17 @@ namespace Wholesome_Auto_Quester.States {
             }
 
             if (gameObject != null) {
-                if (gameObject.Type != WoWObjectType.GameObject) {
+                if (gameObject.Type != WoWObjectType.GameObject) 
+                {
                     Logger.LogError($"Expected a GameObject for PickUp Quest but got {gameObject.Type} instead.");
                     return;
                 }
 
-                var pickUpTarget = (WoWGameObject) gameObject;
+                WoWGameObject pickUpTarget = (WoWGameObject)gameObject;
 
-                if (pickUpTarget.GetDistance > 4) {
-                    if(!MoveHelper.IsMovementThreadRunning
+                if (pickUpTarget.GetDistance > 4) 
+                {
+                    if (!MoveHelper.IsMovementThreadRunning
                        || MoveHelper.CurrentMovementTarget?.DistanceTo(pickUpTarget.Position) > 4)
                     {
                         Logger.Log($"Game Object found - Going to {pickUpTarget.Name} to pick up {task.QuestTitle}.");

@@ -134,22 +134,25 @@ namespace Wholesome_Auto_Quester.Bot {
                     // Gather
                     foreach (GatherObjective obje in quest.PrerequisiteGatherObjectives)
                     {
-                        if (ItemsManager.GetItemCountById((uint)obje.GameObjectEntry) <= 0)
+                        foreach (ObjGOTemplate got in obje.ObjGOTemplates)
                         {
-                            needsPrerequisite = true;
-                            obje.GameObjects.ForEach(gameObject => {
-                                if (gameObject.map == myContinent
-                                    && !TasksPile.Exists(t =>
-                                        t.IsSameTask(TaskType.GatherGameObject, quest.Id,
-                                            obje.ObjectiveIndex, () => (int)gameObject.guid)))
-                                    generatedTasks.Add(new WAQTask(TaskType.GatherGameObject, obje.GameObjectName, obje.GameObjectEntry,
-                                        quest.LogTitle, quest.Id, gameObject, obje.ObjectiveIndex));
-                            });
+                            if (ItemsManager.GetItemCountById((uint)got.GameObjectEntry) <= 0)
+                            {
+                                needsPrerequisite = true;
+                                got.GameObjects.ForEach(gameObject => {
+                                    if (gameObject.map == myContinent
+                                        && !TasksPile.Exists(t =>
+                                            t.IsSameTask(TaskType.GatherGameObject, quest.Id,
+                                                obje.ObjectiveIndex, () => (int)gameObject.guid)))
+                                        generatedTasks.Add(new WAQTask(TaskType.GatherGameObject, got.GameObjectName, got.GameObjectEntry,
+                                            quest.LogTitle, quest.Id, gameObject, obje.ObjectiveIndex));
+                                });
+                            }
+                            else
+                                TasksPile.RemoveAll(t => t.QuestId == quest.Id
+                                                            && t.ObjectiveIndex == obje.ObjectiveIndex
+                                                            && t.TaskType == TaskType.GatherGameObject);
                         }
-                        else
-                            TasksPile.RemoveAll(t => t.QuestId == quest.Id
-                                                        && t.ObjectiveIndex == obje.ObjectiveIndex
-                                                        && t.TaskType == TaskType.GatherGameObject);
                     }
 
                     if (!needsPrerequisite)
@@ -209,19 +212,24 @@ namespace Wholesome_Auto_Quester.Bot {
 
                         // Gather object
                         foreach (GatherObjective obje in quest.GatherObjectives)
-                            if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, quest.Id))
-                                obje.GameObjects.ForEach(gameObject => {
-                                    if (gameObject.map == myContinent
-                                        && !TasksPile.Exists(t =>
-                                            t.IsSameTask(TaskType.GatherGameObject, quest.Id,
-                                                obje.ObjectiveIndex, () => (int)gameObject.guid)))
-                                        generatedTasks.Add(new WAQTask(TaskType.GatherGameObject, obje.GameObjectName, obje.GameObjectEntry,
-                                        quest.LogTitle, quest.Id, gameObject, obje.ObjectiveIndex));
-                                });
-                            else
-                                TasksPile.RemoveAll(t => t.QuestId == quest.Id
-                                                         && t.ObjectiveIndex == obje.ObjectiveIndex
-                                                         && t.TaskType == TaskType.GatherGameObject);
+                        {
+                            foreach (ObjGOTemplate got in obje.ObjGOTemplates)
+                            {
+                                if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, quest.Id))
+                                    got.GameObjects.ForEach(gameObject => {
+                                        if (gameObject.map == myContinent
+                                            && !TasksPile.Exists(t =>
+                                                t.IsSameTask(TaskType.GatherGameObject, quest.Id,
+                                                    obje.ObjectiveIndex, () => (int)gameObject.guid)))
+                                            generatedTasks.Add(new WAQTask(TaskType.GatherGameObject, got.GameObjectName, got.GameObjectEntry,
+                                            quest.LogTitle, quest.Id, gameObject, obje.ObjectiveIndex));
+                                    });
+                                else
+                                    TasksPile.RemoveAll(t => t.QuestId == quest.Id
+                                                             && t.ObjectiveIndex == obje.ObjectiveIndex
+                                                             && t.TaskType == TaskType.GatherGameObject);
+                            }
+                        }
 
                         // Interact with object
                         foreach (InteractObjective obje in quest.InteractObjectives)
@@ -311,7 +319,7 @@ namespace Wholesome_Auto_Quester.Bot {
             var wantedUnitEntries = new List<int>();
             var wantedObjectEntries = new List<int>();
             TasksPile.ForEach(pileTask => {
-                if (!researchedTasks.Exists(poiTasks => poiTasks.TargetEntry == pileTask.TargetEntry) &&
+                if (!researchedTasks.Exists(poiTasks => poiTasks.ObjectGuid == pileTask.ObjectGuid) &&
                     !pileTask.IsTimedOut) {
                     if (pileTask.Creature != null)
                         wantedUnitEntries.Add(pileTask.TargetEntry);
@@ -327,13 +335,13 @@ namespace Wholesome_Auto_Quester.Bot {
 
             var watchObjectsShort = Stopwatch.StartNew();
             List<WoWObject> filteredSurroundingObjects = surroundingWoWObjects.FindAll(o => {
-                int entry = o.Entry;
+                int objectEntry = o.Entry;
                 WoWObjectType type = o.Type;
-                return (type == WoWObjectType.Unit && wantedUnitEntries.Contains(entry)
-                        || type == WoWObjectType.GameObject && wantedObjectEntries.Contains(entry))
+                return (type == WoWObjectType.Unit && wantedUnitEntries.Contains(objectEntry)
+                        || type == WoWObjectType.GameObject && wantedObjectEntries.Contains(objectEntry))
                         && !wManagerSetting.IsBlackListed(o.Guid)
                         && o.GetRealDistance() < 60
-                        && IsObjectValidForTask(o, researchedTasks.Find(task => task.TargetEntry == entry));
+                        && IsObjectValidForTask(o, researchedTasks.Find(task => task.TargetEntry == objectEntry));
             }).OrderBy(o => o.GetDistance).ToList();
 
             // Get objects real distance

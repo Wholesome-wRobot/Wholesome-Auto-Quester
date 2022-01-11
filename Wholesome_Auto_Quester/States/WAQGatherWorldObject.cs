@@ -29,29 +29,38 @@ namespace Wholesome_Auto_Quester.States {
 
         public override void Run() {
             WAQTask task = WAQTasks.TaskInProgress;
+            WoWObject gameObject = WAQTasks.TaskInProgressWoWObject;
 
-            if (WAQTasks.TaskInProgressWoWObject != null)
+            if (gameObject != null)
             {
-                if (WAQTasks.TaskInProgressWoWObject.Type != WoWObjectType.GameObject) {
-                    Logger.LogError(
-                        $"Found object ({WAQTasks.TaskInProgressWoWObject.Entry}) for {WAQTasks.TaskInProgress.TaskName} is not a GameObject! " +
-                        $"This should not happen. We got {WAQTasks.TaskInProgressWoWObject.Type} instead.");
+                if (WAQTasks.TaskInProgressWoWObject.Type != WoWObjectType.GameObject)
+                {
+                    Logger.LogError($"Expected a GameObject for PickUp Quest but got {gameObject.Type} instead.");
                     return;
                 }
 
-                var gameObject = (WoWGameObject) WAQTasks.TaskInProgressWoWObject;
-                if (gameObject.IsGoodInteractDistance) {
-                    if (MoveHelper.IsMovementThreadRunning) MoveHelper.StopAllMove();
+                WoWGameObject gatherTarget = (WoWGameObject)gameObject;
+
+                if (gatherTarget.GetDistance > 4)
+                {
+                    if (!MoveHelper.IsMovementThreadRunning
+                       || MoveHelper.CurrentMovementTarget?.DistanceTo(gatherTarget.Position) > 4)
+                    {
+                        Logger.Log($"Game Object found - Going to {gatherTarget.Name} to gather.");
+                        MoveHelper.StartGoToThread(gatherTarget.Position, randomizeEnd: 3f);
+                    }
+                    return;
+                }
+
+                if (MoveHelper.IsMovementThreadRunning) MoveHelper.StopAllMove();
+
+                if (gatherTarget.IsGoodInteractDistance) 
+                {
                     Logger.Log($"Interacting with {gameObject.Name} to pick it up. (Gathering)");
                     Interact.InteractGameObject(gameObject.GetBaseAddress);
                     Usefuls.WaitIsCastingAndLooting();
-                    Thread.Sleep(100);
-                    WAQTasks.TaskInProgressWoWObject = null;
-                } else if (!MoveHelper.IsMovementThreadRunning ||
-                              MoveHelper.CurrentMovementTarget?.DistanceTo(gameObject.Position) > 4) {
-                    Logger.Log($"Moving to {gameObject.Name} (Gathering).");
-                    MoveHelper.StartGoToThread(gameObject.Position, randomizeEnd: 3f);
                 }
+                Thread.Sleep(1000);
             } else {
                 if (!MoveHelper.IsMovementThreadRunning || MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 8) {
 

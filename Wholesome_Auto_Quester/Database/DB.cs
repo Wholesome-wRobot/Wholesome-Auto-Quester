@@ -80,7 +80,7 @@ namespace Wholesome_Auto_Quester.Database
                 WHERE entry = {entry}
             ";
             List<ModelGameObjectLootTemplate> result = _con.Query<ModelGameObjectLootTemplate>(queryLootTemplate).ToList();
-            result.ForEach(golt => golt.GameObjectTemplate = QueryGameObjectTemplateByLootEntry(golt.Entry));
+            result.ForEach(golt => golt.GameObjectTemplates = QueryGameObjectTemplatesByLootEntry(golt.Entry));
             return result;
         }
 
@@ -92,7 +92,7 @@ namespace Wholesome_Auto_Quester.Database
                 WHERE Item = {itemId}
             ";
             List<ModelGameObjectLootTemplate> result = _con.Query<ModelGameObjectLootTemplate>(queryLootTemplate).ToList();
-            result.ForEach(golt => golt.GameObjectTemplate = QueryGameObjectTemplateByLootEntry(golt.Entry));
+            result.ForEach(golt => golt.GameObjectTemplates = QueryGameObjectTemplatesByLootEntry(golt.Entry));
             return result;
         }
 
@@ -172,23 +172,15 @@ namespace Wholesome_Auto_Quester.Database
             return result;
         }
 
-        public ModelGameObjectTemplate QueryGameObjectTemplateByLootEntry(int lootEntry)
+        public List<ModelGameObjectTemplate> QueryGameObjectTemplatesByLootEntry(int lootEntry)
         {
             string queryGOTemplate = $@"
                 Select *
                 FROM gameobject_template
                 WHERE data1 = {lootEntry}
             ";
-            List<ModelGameObjectTemplate> gots = _con.Query<ModelGameObjectTemplate>(queryGOTemplate).ToList(); // it is possible to have multiple identical templates
-            ModelGameObjectTemplate result = gots[0];
-            gots.ForEach(got => {
-                List<ModelGameObject> gos = QueryGameObjectByEntry(got.entry);
-                if (gos.Count > 0)
-                {
-                    result.GameObjects.AddRange(gos);
-                    result.entry = got.entry;
-                }
-            }); // record only the 1 with gos
+            List<ModelGameObjectTemplate> result = _con.Query<ModelGameObjectTemplate>(queryGOTemplate).ToList();
+            result.ForEach(got => { got.GameObjects = QueryGameObjectByEntry(got.entry); });
 
             return result;
         }

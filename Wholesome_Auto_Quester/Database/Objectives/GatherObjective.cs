@@ -5,21 +5,17 @@ namespace Wholesome_Auto_Quester.Database.Objectives
 {
     public class GatherObjective : Objective
     {
-        public List<ModelGameObject> GameObjects { get; }
         public string ItemName { get; }
         public ModelSpell ItemSpell1 { get; }
         public ModelSpell ItemSpell2 { get; }
         public ModelSpell ItemSpell3 { get; }
         public ModelSpell ItemSpell4 { get; }
         public int ItemEntry { get; }
-        public int GameObjectEntry { get; }
-        public string GameObjectName { get; }
+        public List<ObjGOTemplate> ObjGOTemplates { get; } = new List<ObjGOTemplate>();
 
         public GatherObjective(int amount, ModelGameObjectLootTemplate gameObjectLootTemplate, ModelItemTemplate itemToObtain, string objectiveName = null)
         {
-            GameObjects = gameObjectLootTemplate.GameObjectTemplate.GameObjects;
-            GameObjectEntry = gameObjectLootTemplate.GameObjectTemplate.entry;
-            GameObjectName = gameObjectLootTemplate.GameObjectTemplate.name;
+            gameObjectLootTemplate.GameObjectTemplates.ForEach(got => ObjGOTemplates.Add(new ObjGOTemplate(got)));
             ItemName = itemToObtain.Name;
             ItemSpell1 = itemToObtain.Spell1;
             ItemSpell2 = itemToObtain.Spell2;
@@ -28,6 +24,27 @@ namespace Wholesome_Auto_Quester.Database.Objectives
             ItemEntry = itemToObtain.Entry;
             Amount = amount;
             ObjectiveName = objectiveName == null ? ItemName : objectiveName;
+        }
+
+        public List<ModelGameObject> GetAllGameObjects()
+        {
+            List<ModelGameObject> result = new List<ModelGameObject>();
+            ObjGOTemplates.ForEach(got => result.AddRange(got.GameObjects));
+            return result;
+        }
+    }
+
+    public class ObjGOTemplate
+    {
+        public int GameObjectEntry { get; }
+        public string GameObjectName { get; }
+        public List<ModelGameObject> GameObjects { get; }
+
+        public ObjGOTemplate(ModelGameObjectTemplate template)
+        {
+            GameObjectEntry = template.entry;
+            GameObjectName = template.name;
+            GameObjects = template.GameObjects;
         }
     }
 }

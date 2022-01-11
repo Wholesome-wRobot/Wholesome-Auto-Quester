@@ -190,23 +190,11 @@ namespace Wholesome_Auto_Quester.Database {
             foreach (ModelQuestTemplate quest in quests)
             {
                 quest.RequiredItem1Template = _database.QueryItemTemplateByItemEntry(quest.RequiredItemId1);
-                if (quest.RequiredItem1Template?.CreatureLootTemplates.Count > 10)
-                    Logger.LogError($"quest: {quest.Id} => entry: {quest.RequiredItem1Template.Entry} => count: {quest.RequiredItem1Template.CreatureLootTemplates.Count}");
                 quest.RequiredItem2Template = _database.QueryItemTemplateByItemEntry(quest.RequiredItemId2);
-                if (quest.RequiredItem2Template?.CreatureLootTemplates.Count > 10)
-                    Logger.LogError($"quest: {quest.Id} => entry: {quest.RequiredItem2Template.Entry} => count: {quest.RequiredItem2Template.CreatureLootTemplates.Count}");
                 quest.RequiredItem3Template = _database.QueryItemTemplateByItemEntry(quest.RequiredItemId3);
-                if (quest.RequiredItem3Template?.CreatureLootTemplates.Count > 10)
-                    Logger.LogError($"quest: {quest.Id} => entry: {quest.RequiredItem3Template.Entry} => count: {quest.RequiredItem3Template.CreatureLootTemplates.Count}");
                 quest.RequiredItem4Template = _database.QueryItemTemplateByItemEntry(quest.RequiredItemId4);
-                if (quest.RequiredItem4Template?.CreatureLootTemplates.Count > 10)
-                    Logger.LogError($"quest: {quest.Id} => entry: {quest.RequiredItem4Template.Entry} => count: {quest.RequiredItem4Template.CreatureLootTemplates.Count}");
                 quest.RequiredItem5Template = _database.QueryItemTemplateByItemEntry(quest.RequiredItemId5);
-                if (quest.RequiredItem5Template?.CreatureLootTemplates.Count > 10)
-                    Logger.LogError($"quest: {quest.Id} => entry: {quest.RequiredItem5Template.Entry} => count: {quest.RequiredItem5Template.CreatureLootTemplates.Count}");
                 quest.RequiredItem6Template = _database.QueryItemTemplateByItemEntry(quest.RequiredItemId6);
-                if (quest.RequiredItem6Template?.CreatureLootTemplates.Count > 10)
-                    Logger.LogError($"quest: {quest.Id} => entry: {quest.RequiredItem6Template.Entry} => count: {quest.RequiredItem6Template.CreatureLootTemplates.Count}");
             }
             Logger.Log($"Process time (RequiredItems) : {stopwatchRequiredItem.ElapsedMilliseconds} ms");
             
