@@ -19,6 +19,7 @@ namespace Wholesome_Auto_Quester.Bot {
         public string TargetName { get; }
         public string TaskName { get; }
         public TaskType TaskType { get; }
+        public float GameObjectSize { get; }
 
         public string QuestTitle { get; }
         public int QuestId { get; }

@@ -37,6 +37,7 @@ namespace Wholesome_Auto_Quester.Database.Objectives
     public class ObjGOTemplate
     {
         public int GameObjectEntry { get; }
+        public float GameObjectSize { get; }
         public string GameObjectName { get; }
         public List<ModelGameObject> GameObjects { get; }
 

@@ -41,10 +41,10 @@ namespace Wholesome_Auto_Quester.States {
 
                 WoWGameObject gatherTarget = (WoWGameObject)gameObject;
 
-                if (gatherTarget.GetDistance > 4)
+                if (gatherTarget.GetDistance > 3 + gatherTarget.Scale)
                 {
                     if (!MoveHelper.IsMovementThreadRunning
-                       || MoveHelper.CurrentMovementTarget?.DistanceTo(gatherTarget.Position) > 4)
+                       || MoveHelper.CurrentMovementTarget?.DistanceTo(gatherTarget.Position) > 3 + gatherTarget.Scale)
                     {
                         Logger.Log($"Game Object found - Going to {gatherTarget.Name} to gather.");
                         MoveHelper.StartGoToThread(gatherTarget.Position, randomizeEnd: 3f);
@@ -54,7 +54,7 @@ namespace Wholesome_Auto_Quester.States {
 
                 if (MoveHelper.IsMovementThreadRunning) MoveHelper.StopAllMove();
 
-                if (gatherTarget.IsGoodInteractDistance) 
+                if (ObjectManager.Me.Position.DistanceTo(gatherTarget.Position) <= 3 + gatherTarget.Scale)  
                 {
                     Logger.Log($"Interacting with {gameObject.Name} to pick it up. (Gathering)");
                     Interact.InteractGameObject(gameObject.GetBaseAddress);

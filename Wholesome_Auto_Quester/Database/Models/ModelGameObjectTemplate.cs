@@ -7,5 +7,6 @@ namespace Wholesome_Auto_Quester.Database.Models
         public List<ModelGameObject> GameObjects { get; set; } = new List<ModelGameObject>();
         public string name { get; }
         public int entry { get; set; }
+        public float size { get; set; }
     }
 }
