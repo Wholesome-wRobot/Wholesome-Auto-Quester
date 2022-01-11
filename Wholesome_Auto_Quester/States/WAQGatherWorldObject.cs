@@ -19,7 +19,7 @@ namespace Wholesome_Auto_Quester.States {
 
                 if (WAQTasks.TaskInProgress?.TaskType == TaskType.GatherGameObject) {
                     DisplayName =
-                        $"Gather world object {WAQTasks.TaskInProgress.GameObjectTemplate.name} for {WAQTasks.TaskInProgress.Quest.LogTitle} [SmoothMove - Q]";
+                        $"Gather world object {WAQTasks.TaskInProgress.TargetName} for {WAQTasks.TaskInProgress.QuestTitle} [SmoothMove - Q]";
                     return true;
                 }
 
@@ -48,20 +48,20 @@ namespace Wholesome_Auto_Quester.States {
                     Thread.Sleep(100);
                     WAQTasks.TaskInProgressWoWObject = null;
                 } else if (!MoveHelper.IsMovementThreadRunning ||
-                              MoveHelper.CurrentMovementTarget.DistanceTo(gameObject.Position) > 4) {
+                              MoveHelper.CurrentMovementTarget?.DistanceTo(gameObject.Position) > 4) {
                     Logger.Log($"Moving to {gameObject.Name} (Gathering).");
                     MoveHelper.StartGoToThread(gameObject.Position, randomizeEnd: 3f);
                 }
             } else {
-                if (!MoveHelper.IsMovementThreadRunning || MoveHelper.CurrentMovementTarget.DistanceTo(task.Location) > 8) {
+                if (!MoveHelper.IsMovementThreadRunning || MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 8) {
 
-                    Logger.Log($"Moving to Hotspot for {task.Quest.LogTitle} (Gather).");
+                    Logger.Log($"Moving to Hotspot for {task.QuestTitle} (Gather).");
                     MoveHelper.StartGoToThread(task.Location, randomizeEnd: 8f);
                 }
                 
                 if (task.GetDistance <= 12f) {
                     task.PutTaskOnTimeout("No Object to gather in sight");
-                } else if (ToolBox.DangerousEnemiesAtLocation(task.Location) && WAQTasks.TasksPile.FindAll(t => t.POIEntry == task.GameObjectTemplate.entry).Count > 1) {
+                } else if (ToolBox.DangerousEnemiesAtLocation(task.Location) && WAQTasks.TasksPile.FindAll(t => t.TargetEntry == task.TargetEntry).Count > 1) {
                     task.PutTaskOnTimeout("Dangerous mobs in the area");
                 }
             }

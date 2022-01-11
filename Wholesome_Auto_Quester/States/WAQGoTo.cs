@@ -21,7 +21,7 @@ namespace Wholesome_Auto_Quester.States
 
                 if (WAQTasks.TaskInProgress?.TaskType == TaskType.Explore)
                 {
-                    DisplayName = $"Explore {WAQTasks.TaskInProgress.Location} for {WAQTasks.TaskInProgress.Quest.LogTitle} [SmoothMove - Q]";
+                    DisplayName = $"Explore {WAQTasks.TaskInProgress.Location} for {WAQTasks.TaskInProgress.QuestTitle} [SmoothMove - Q]";
                     return true;
                 }
 
@@ -36,13 +36,13 @@ namespace Wholesome_Auto_Quester.States
 
             if (task.GetDistance < 2f) {
                 MoveHelper.StopAllMove();
-                Logger.Log($"Reached exploration hotspot for {task.Quest.LogTitle}");
+                Logger.Log($"Reached exploration hotspot for {task.QuestTitle}");
                 return;
             }
             
             if (!MoveHelper.IsMovementThreadRunning ||
-                MoveHelper.CurrentMovementTarget.DistanceTo(task.Location) > 8) {
-                Logger.Log($"Moving to Hotspot for {task.Quest.LogTitle} (Explore).");
+                MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 8) {
+                Logger.Log($"Moving to Hotspot for {task.QuestTitle} (Explore).");
                 MoveHelper.StartGoToThread(task.Location, precise: true);
             }
         }

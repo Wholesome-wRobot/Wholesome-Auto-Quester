@@ -154,7 +154,7 @@ namespace Wholesome_Auto_Quester.GUI {
                     foreach (GatherObjective obje in selected.GatherObjectives)
                         if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, selected.Id))
                             questGatherObjects.Children.Add(CreateListTextBlock(
-                                $"[{obje.ObjectiveIndex}] {obje.GameObjectLootTemplate.GameObjectTemplate.name} ({obje.GameObjectLootTemplate.GameObjectTemplate.GameObjects.Count} found)"));
+                                $"[{obje.ObjectiveIndex}] {obje.GameObjectName} ({obje.GameObjects.Count} found)"));
                 }
                 else
                     questGatherObjects.Visibility = Visibility.Collapsed;
@@ -167,7 +167,7 @@ namespace Wholesome_Auto_Quester.GUI {
                     foreach (KillObjective obje in selected.KillObjectives)
                         if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, selected.Id))
                             questKillCreatures.Children.Add(CreateListTextBlock(
-                                $"[{obje.ObjectiveIndex}] {obje.CreatureTemplate.name} ({obje.CreatureTemplate.Creatures.Count} found)"));
+                                $"[{obje.ObjectiveIndex}] {obje.CreatureName} ({obje.Creatures.Count} found)"));
                 }
                 else
                     questKillCreatures.Visibility = Visibility.Collapsed;
@@ -180,7 +180,7 @@ namespace Wholesome_Auto_Quester.GUI {
                     foreach (KillLootObjective obje in selected.KillLootObjectives)
                         if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, selected.Id))
                             questLootCreatures.Children.Add(CreateListTextBlock(
-                                $"[{obje.ObjectiveIndex}] {obje.CreatureLootTemplate.CreatureTemplate.name} ({obje.CreatureLootTemplate.CreatureTemplate.Creatures.Count} found)"));
+                                $"[{obje.ObjectiveIndex}] {obje.CreatureName} ({obje.Creatures.Count} found)"));
                 }
                 else
                     questLootCreatures.Visibility = Visibility.Collapsed;
@@ -193,7 +193,7 @@ namespace Wholesome_Auto_Quester.GUI {
                     foreach (InteractObjective obje in selected.InteractObjectives)
                         if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, selected.Id))
                             interactObjectives.Children.Add(CreateListTextBlock(
-                                $"[{obje.ObjectiveIndex}] {obje.GameObjectTemplate.name} ({obje.GameObjectTemplate.GameObjects.Count} found)"));
+                                $"[{obje.ObjectiveIndex}] {obje.GameObjectName} ({obje.GameObjects.Count} found)"));
                 }
                 else
                     interactObjectives.Visibility = Visibility.Collapsed;
@@ -205,7 +205,7 @@ namespace Wholesome_Auto_Quester.GUI {
                     prerequisiteGathers.Children.RemoveRange(1, prerequisiteGathers.Children.Count - 1);
                     foreach (GatherObjective obje in selected.PrerequisiteGatherObjectives)
                         prerequisiteGathers.Children.Add(CreateListTextBlock(
-                            $"[{obje.ObjectiveIndex}] {obje.GameObjectLootTemplate.GameObjectTemplate.name} ({obje.GameObjectLootTemplate.GameObjectTemplate.GameObjects.Count} found)"));
+                            $"[{obje.ObjectiveIndex}] {obje.GameObjectName} ({obje.GameObjects.Count} found)"));
                 }
                 else
                     prerequisiteGathers.Visibility = Visibility.Collapsed;
@@ -217,7 +217,7 @@ namespace Wholesome_Auto_Quester.GUI {
                     prerequisiteLoots.Children.RemoveRange(1, prerequisiteLoots.Children.Count - 1);
                     foreach (KillLootObjective obje in selected.PrerequisiteLootObjectives)
                         prerequisiteLoots.Children.Add(CreateListTextBlock(
-                            $"[{obje.ObjectiveIndex}] {obje.Amount} x {obje.ItemToLoot.Name} ({obje.CreatureLootTemplate.CreatureTemplate.Creatures.Count} found)"));
+                            $"[{obje.ObjectiveIndex}] {obje.Amount} x {obje.ItemName} ({obje.Creatures.Count} found)"));
                 }
                 else
                     prerequisiteLoots.Visibility = Visibility.Collapsed;

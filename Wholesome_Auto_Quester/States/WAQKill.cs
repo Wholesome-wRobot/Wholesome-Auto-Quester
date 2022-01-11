@@ -23,7 +23,7 @@ namespace Wholesome_Auto_Quester.States
 
                 if (WAQTasks.TaskInProgress?.TaskType == TaskType.Kill)
                 {
-                    DisplayName = $"Kill {WAQTasks.TaskInProgress.CreatureTemplate.name} for {WAQTasks.TaskInProgress.Quest.LogTitle} [SmoothMove - Q]";
+                    DisplayName = $"Kill {WAQTasks.TaskInProgress.TargetName} for {WAQTasks.TaskInProgress.QuestTitle} [SmoothMove - Q]";
                     return true;
                 }
 
@@ -55,15 +55,15 @@ namespace Wholesome_Auto_Quester.States
             else
             {
                 if (!MoveHelper.IsMovementThreadRunning ||
-                    MoveHelper.CurrentMovementTarget.DistanceTo(task.Location) > 8) {
+                    MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 8) {
                     
-                    Logger.Log($"Moving to Hotspot for {task.Quest.LogTitle} (Kill).");
+                    Logger.Log($"Moving to Hotspot for {task.QuestTitle} (Kill).");
                     MoveHelper.StartGoToThread(task.Location, randomizeEnd: 8f);
                 }
                 if (task.GetDistance <= 12f) {
                     task.PutTaskOnTimeout("No creature to kill in sight");
                     // MoveHelper.StopAllMove();
-                } else if (ToolBox.DangerousEnemiesAtLocation(task.Location) && WAQTasks.TasksPile.FindAll(t => t.POIEntry == task.CreatureTemplate.entry).Count > 1) {
+                } else if (ToolBox.DangerousEnemiesAtLocation(task.Location) && WAQTasks.TasksPile.FindAll(t => t.TargetEntry == task.TargetEntry).Count > 1) {
                     task.PutTaskOnTimeout("Dangerous mobs in the area");
                 }
             }

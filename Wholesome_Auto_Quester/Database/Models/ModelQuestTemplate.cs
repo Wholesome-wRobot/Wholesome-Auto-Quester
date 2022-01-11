@@ -149,28 +149,20 @@ namespace Wholesome_Auto_Quester.Database.Models
             return closestsQg.Min();
         }
 
-        public void MarkAsCompleted()
-        {
-            if(!WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Contains(Id)) {
-                WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Add(Id);
-                WholesomeAQSettings.CurrentSetting.Save();
-            }
-        }
-
         public void AddQuestItemsToDoNotSellList()
         {
-            KillLootObjectives.ForEach(o => ToolBox.AddItemToDoNotSellList(o.ItemToLoot.Name));
-            GatherObjectives.ForEach(o => ToolBox.AddItemToDoNotSellList(o.ItemToObtain.Name));
+            KillLootObjectives.ForEach(o => ToolBox.AddItemToDoNotSellList(o.ItemName));
+            GatherObjectives.ForEach(o => ToolBox.AddItemToDoNotSellList(o.ItemName));
         }
 
         public void RemoveQuestItemsFromDoNotSellList()
         {
-            KillLootObjectives.ForEach(o => ToolBox.RemoveItemFromDoNotSellList(o.ItemToLoot.Name));
-            GatherObjectives.ForEach(o => ToolBox.RemoveItemFromDoNotSellList(o.ItemToObtain.Name));
+            KillLootObjectives.ForEach(o => ToolBox.RemoveItemFromDoNotSellList(o.ItemName));
+            GatherObjectives.ForEach(o => ToolBox.RemoveItemFromDoNotSellList(o.ItemName));
         }
 
         public bool IsCompleted => ToolBox.IsQuestCompleted(Id);
-        public string TrackerColor => WAQTasks.TaskInProgress?.Quest.Id == Id ? "White" : _trackerColorsDictionary[Status];
+        public string TrackerColor => WAQTasks.TaskInProgress?.QuestId == Id ? "White" : _trackerColorsDictionary[Status];
 
         public string GetObjectiveText(int objectiveIndex)
         {

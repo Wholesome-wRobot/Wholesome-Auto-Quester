@@ -6,9 +6,6 @@ using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 using FlXProfiles;
 using wManager.Wow.Enums;
-using robotManager.Helpful;
-using System.Collections.Generic;
-using static wManager.Wow.Helpers.PathFinder;
 
 namespace Wholesome_Auto_Quester.States {
     class WAQPickupQuestFromNpc : State {
@@ -22,7 +19,7 @@ namespace Wholesome_Auto_Quester.States {
 
                 if (WAQTasks.TaskInProgress?.TaskType == TaskType.PickupQuestFromCreature) {
                     DisplayName =
-                        $"Pick up quest {WAQTasks.TaskInProgress.Quest.LogTitle} at {WAQTasks.TaskInProgress.CreatureTemplate.name} [SmoothMove - Q]";
+                        $"Pick up quest {WAQTasks.TaskInProgress.QuestTitle} at {WAQTasks.TaskInProgress.TargetName} [SmoothMove - Q]";
                     return true;
                 }
 
@@ -34,8 +31,9 @@ namespace Wholesome_Auto_Quester.States {
             WAQTask task = WAQTasks.TaskInProgress;
             WoWObject npcObject = WAQTasks.TaskInProgressWoWObject;
 
-            if (Quest.GetQuestCompleted(task.Quest.Id)) {
-                task.Quest.MarkAsCompleted();
+            if (Quest.GetQuestCompleted(task.QuestId))
+            {
+                WAQTasks.MarQuestAsCompleted(task.QuestId);
                 return;
             }
 
@@ -49,9 +47,9 @@ namespace Wholesome_Auto_Quester.States {
 
                 if (!pickUpTarget.InInteractDistance()) {
                     if (!MoveHelper.IsMovementThreadRunning
-                       || MoveHelper.CurrentMovementTarget.DistanceTo(pickUpTarget.PositionWithoutType) > 4)
+                       || MoveHelper.CurrentMovementTarget?.DistanceTo(pickUpTarget.PositionWithoutType) > 4)
                     {
-                        Logger.Log($"NPC found - Going to {pickUpTarget.Name} to pick up {task.Quest.LogTitle}.");
+                        Logger.Log($"NPC found - Going to {pickUpTarget.Name} to pick up {task.QuestTitle}.");
                         MoveHelper.StartGoToThread(pickUpTarget.PositionWithoutType);
                     }
                     return;
@@ -61,14 +59,14 @@ namespace Wholesome_Auto_Quester.States {
 
                 if (!ToolBox.IsNpcFrameActive()) {
                     Interact.InteractGameObject(pickUpTarget.GetBaseAddress);
-                } else if (!ToolBox.GossipPickUpQuest(task.Quest.LogTitle)) {
+                } else if (!ToolBox.GossipPickUpQuest(task.QuestTitle)) {
                     task.PutTaskOnTimeout("Failed PickUp Gossip");
                 }
                 Thread.Sleep(1000);
             } else {
                 if (!MoveHelper.IsMovementThreadRunning ||
-                    MoveHelper.CurrentMovementTarget.DistanceTo(task.Location) > 8) {
-                    Logger.Log($"Moving to QuestGiver for {task.Quest.LogTitle} (PickUp).");
+                    MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 8) {
+                    Logger.Log($"Moving to QuestGiver for {task.QuestTitle} (PickUp).");
                     MoveHelper.StartGoToThread(task.Location);
                 }
                 if (task.GetDistance <= 12f) {

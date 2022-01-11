@@ -97,10 +97,10 @@ namespace Wholesome_Auto_Quester.Database {
                     //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Active item)");
                     continue;
                 }
-                if (q.KillLootObjectives.Any(klo => klo.ItemToLoot.Spell1 != null)
-                    || q.KillLootObjectives.Any(klo => klo.ItemToLoot.Spell2 != null)
-                    || q.KillLootObjectives.Any(klo => klo.ItemToLoot.Spell3 != null)
-                    || q.KillLootObjectives.Any(klo => klo.ItemToLoot.Spell4 != null))
+                if (q.KillLootObjectives.Any(klo => klo.ItemSpell1 != null)
+                    || q.KillLootObjectives.Any(klo => klo.ItemSpell2 != null)
+                    || q.KillLootObjectives.Any(klo => klo.ItemSpell3 != null)
+                    || q.KillLootObjectives.Any(klo => klo.ItemSpell4 != null))
                 {
                     //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Active loot item)");
                     continue;

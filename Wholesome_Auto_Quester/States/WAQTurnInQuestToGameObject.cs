@@ -20,7 +20,7 @@ namespace Wholesome_Auto_Quester.States
 
                 if (WAQTasks.TaskInProgress?.TaskType == TaskType.TurnInQuestToGameObject) {
                     DisplayName =
-                        $"Turning in {WAQTasks.TaskInProgress.Quest.LogTitle} at game object {WAQTasks.TaskInProgress.GameObjectTemplate.name} [SmoothMove - Q]";
+                        $"Turning in {WAQTasks.TaskInProgress.QuestTitle} at game object {WAQTasks.TaskInProgress.TargetName} [SmoothMove - Q]";
                     return true;
                 }
 
@@ -42,9 +42,9 @@ namespace Wholesome_Auto_Quester.States
 
                 if (turnInTarget.GetDistance > 4) {
                     if(!MoveHelper.IsMovementThreadRunning
-                       || MoveHelper.CurrentMovementTarget.DistanceTo(turnInTarget.Position) > 4) {
+                       || MoveHelper.CurrentMovementTarget?.DistanceTo(turnInTarget.Position) > 4) {
                         MoveHelper.StartGoToThread(turnInTarget.Position, randomizeEnd: 3f);
-                        Logger.Log($"Game Object found - Going to {turnInTarget.Name} to turn in {task.Quest.LogTitle}.");
+                        Logger.Log($"Game Object found - Going to {turnInTarget.Name} to turn in {task.QuestTitle}.");
                     }
                     return;
                 }
@@ -54,17 +54,17 @@ namespace Wholesome_Auto_Quester.States
                 if (!ToolBox.IsNpcFrameActive()) {
                     Interact.InteractGameObject(turnInTarget.GetBaseAddress);
                     Usefuls.WaitIsCasting();
-                } else if (!ToolBox.GossipTurnInQuest(task.Quest.LogTitle)) {
+                } else if (!ToolBox.GossipTurnInQuest(task.QuestTitle)) {
                     task.PutTaskOnTimeout("Failed PickUp Gossip");
                 } else {
                     Thread.Sleep(1000);
-                    if (!Quest.HasQuest(task.Quest.Id))
-                        task.Quest.MarkAsCompleted();
+                    if (!Quest.HasQuest(task.QuestId))
+                        WAQTasks.MarQuestAsCompleted(task.QuestId);
                 }
             } else {
                 if (!MoveHelper.IsMovementThreadRunning ||
-                    MoveHelper.CurrentMovementTarget.DistanceTo(task.Location) > 8) {
-                    Logger.Log($"Moving to QuestEnder for {task.Quest.LogTitle}.");
+                    MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 8) {
+                    Logger.Log($"Moving to QuestEnder for {task.QuestTitle}.");
                     MoveHelper.StartGoToThread(task.Location, randomizeEnd: 8f);
                 }
                 if (task.GetDistance <= 12f) {

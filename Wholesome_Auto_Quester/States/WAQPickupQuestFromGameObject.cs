@@ -19,7 +19,7 @@ namespace Wholesome_Auto_Quester.States {
 
                 if (WAQTasks.TaskInProgress?.TaskType == TaskType.PickupQuestFromGameObject) {
                     DisplayName =
-                        $"Pick up quest {WAQTasks.TaskInProgress.Quest.LogTitle} at {WAQTasks.TaskInProgress.GameObjectTemplate.name} [SmoothMove - Q]";
+                        $"Pick up quest {WAQTasks.TaskInProgress.QuestTitle} at {WAQTasks.TaskInProgress.TargetName} [SmoothMove - Q]";
                     return true;
                 }
 
@@ -31,8 +31,8 @@ namespace Wholesome_Auto_Quester.States {
             WAQTask task = WAQTasks.TaskInProgress;
             WoWObject gameObject = WAQTasks.TaskInProgressWoWObject;
 
-            if (Quest.GetQuestCompleted(task.Quest.Id)) {
-                task.Quest.MarkAsCompleted();
+            if (Quest.GetQuestCompleted(task.QuestId)) {
+                WAQTasks.MarQuestAsCompleted(task.QuestId);
                 return;
             }
 
@@ -46,9 +46,9 @@ namespace Wholesome_Auto_Quester.States {
 
                 if (pickUpTarget.GetDistance > 4) {
                     if(!MoveHelper.IsMovementThreadRunning
-                       || MoveHelper.CurrentMovementTarget.DistanceTo(pickUpTarget.Position) > 4)
+                       || MoveHelper.CurrentMovementTarget?.DistanceTo(pickUpTarget.Position) > 4)
                     {
-                        Logger.Log($"Game Object found - Going to {pickUpTarget.Name} to pick up {task.Quest.LogTitle}.");
+                        Logger.Log($"Game Object found - Going to {pickUpTarget.Name} to pick up {task.QuestTitle}.");
                         MoveHelper.StartGoToThread(pickUpTarget.Position, randomizeEnd: 3f);
                     }
                     return;
@@ -59,14 +59,14 @@ namespace Wholesome_Auto_Quester.States {
                 if (!ToolBox.IsNpcFrameActive()) {
                     Interact.InteractGameObject(pickUpTarget.GetBaseAddress);
                     Usefuls.WaitIsCasting();
-                } else if (!ToolBox.GossipPickUpQuest(task.Quest.LogTitle)) {
+                } else if (!ToolBox.GossipPickUpQuest(task.QuestTitle)) {
                     task.PutTaskOnTimeout("Failed pickup gossip");
                 }
                 Thread.Sleep(1000);
             } else {
                 if (!MoveHelper.IsMovementThreadRunning ||
-                    MoveHelper.CurrentMovementTarget.DistanceTo(task.Location) > 8) {
-                    Logger.Log($"Moving to QuestGiver for {task.Quest.LogTitle}.");
+                    MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 8) {
+                    Logger.Log($"Moving to QuestGiver for {task.QuestTitle}.");
                     MoveHelper.StartGoToThread(task.Location, randomizeEnd: 8f);
                 }
                 if (task.GetDistance <= 12f) {

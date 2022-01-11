@@ -1,18 +1,36 @@
-﻿using Wholesome_Auto_Quester.Database.Models;
+﻿using System.Collections.Generic;
+using Wholesome_Auto_Quester.Database.Models;
 
 namespace Wholesome_Auto_Quester.Database.Objectives
 {
     public class KillLootObjective : Objective
     {
-        public ModelCreatureLootTemplate CreatureLootTemplate { get; }
-        public ModelItemTemplate ItemToLoot { get; }
+        public string CreatureName { get; }
+        public List<ModelCreature> Creatures { get; }
+        public int CreatureMaxLevel { get; }
+        public int CreatureEntry { get; }
+        public string ItemName { get; }
+        public ModelSpell ItemSpell1 { get; }
+        public ModelSpell ItemSpell2 { get; }
+        public ModelSpell ItemSpell3 { get; }
+        public ModelSpell ItemSpell4 { get; }
+        public int ItemEntry { get; }
 
         public KillLootObjective(int amount, ModelCreatureLootTemplate creatureLootTemplate, ModelItemTemplate itemToLoot, string objectiveName = null)
         {
-            ItemToLoot = itemToLoot;
+            CreatureName = creatureLootTemplate.CreatureTemplate.name;
+            ItemName = itemToLoot.Name;
             Amount = amount;
-            CreatureLootTemplate = creatureLootTemplate;
-            ObjectiveName = objectiveName == null ? ItemToLoot.Name : objectiveName;
+            Creatures = creatureLootTemplate.CreatureTemplate.Creatures;
+            ItemSpell1 = itemToLoot.Spell1;
+            ItemSpell2 = itemToLoot.Spell2;
+            ItemSpell3 = itemToLoot.Spell3;
+            ItemSpell4 = itemToLoot.Spell4;
+            ItemEntry = itemToLoot.Entry;
+            CreatureMaxLevel = creatureLootTemplate.CreatureTemplate.maxLevel;
+            CreatureEntry = creatureLootTemplate.CreatureTemplate.entry;
+
+            ObjectiveName = objectiveName == null ? ItemName : objectiveName;
         }
     }
 }

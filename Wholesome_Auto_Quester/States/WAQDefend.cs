@@ -47,7 +47,7 @@ namespace Wholesome_Auto_Quester.States {
 
                 _defendTarget = attackingMe.FirstOrDefault();
 
-                if (isMounted && myPos.DistanceTo(MoveHelper.CurrentMovementTarget) > 26) return false;
+                if (isMounted && MoveHelper.CurrentMovementTarget != null && myPos.DistanceTo(MoveHelper.CurrentMovementTarget) > 26) return false;
 
                 if (_defendTarget != null) return true;
 

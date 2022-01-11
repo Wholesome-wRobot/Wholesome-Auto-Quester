@@ -1,16 +1,23 @@
-﻿using Wholesome_Auto_Quester.Database.Models;
+﻿using System.Collections.Generic;
+using Wholesome_Auto_Quester.Database.Models;
 
 namespace Wholesome_Auto_Quester.Database.Objectives
 {
     public class KillObjective : Objective
     {
-        public ModelCreatureTemplate CreatureTemplate { get; }
+        public List<ModelCreature> Creatures { get; }
+        public string CreatureName { get; }
+        public int CreatureMaxLevel { get; }
+        public int CreatureEntry { get; }
 
         public KillObjective(int amount, ModelCreatureTemplate creatureTemplate, string objectiveName)
         {
             Amount = amount;
-            CreatureTemplate = creatureTemplate;
-            ObjectiveName = objectiveName == null ? CreatureTemplate.name + " slain" : objectiveName;
+            CreatureName = creatureTemplate.name;
+            Creatures = creatureTemplate.Creatures;
+            CreatureMaxLevel = creatureTemplate.maxLevel;
+            CreatureEntry = creatureTemplate.entry;
+            ObjectiveName = objectiveName == null ? CreatureName + " slain" : objectiveName;
         }
     }
 }
