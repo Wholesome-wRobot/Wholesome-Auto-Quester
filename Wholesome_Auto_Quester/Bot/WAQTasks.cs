@@ -445,28 +445,31 @@ namespace Wholesome_Auto_Quester.Bot {
             Dictionary<int, Quest.PlayerQuest> logQuests = Quest.GetLogQuestId().ToDictionary(quest => quest.ID);
             ModelQuestTemplate[] completedQuests =
                 Quests.Where(q => q.Status == QuestStatus.Completed && q.PreviousQuestsIds.Count > 0).ToArray();
+            //List<string> itemsToRemoveFromDNSList = new List<string>();
+            List<string> itemsToAddToDNSList = new List<string>();
+
             // Update quests statuses
             foreach (ModelQuestTemplate quest in Quests)
             {
                 // Quest blacklisted
                 if (WholesomeAQSettings.CurrentSetting.BlacklistesQuests.Contains(quest.Id)) {
-                    quest.RemoveQuestItemsFromDoNotSellList();
+                    //itemsToRemoveFromDNSList.AddRange(quest.GetItemsStringsList());
                     quest.Status = QuestStatus.Blacklisted;
                     continue;
                 }
 
                 // Quest completed
-                if (quest.IsCompleted
-                    || completedQuests.Any(q => q.PreviousQuestsIds.Contains(quest.Id))) {
-                    quest.RemoveQuestItemsFromDoNotSellList();
+                if (quest.IsCompleted || completedQuests.Any(q => q.PreviousQuestsIds.Contains(quest.Id))) 
+                {
+                    //itemsToRemoveFromDNSList.AddRange(quest.GetItemsStringsList());
                     quest.Status = QuestStatus.Completed;
                     continue;
                 }
 
                 // Quest to pickup
-                if (quest.IsPickable()
-                    && !logQuests.ContainsKey(quest.Id)) {
-                    quest.AddQuestItemsToDoNotSellList();
+                if (quest.IsPickable() && !logQuests.ContainsKey(quest.Id))
+                {
+                    itemsToAddToDNSList.AddRange(quest.GetItemsStringsList());
                     quest.Status = QuestStatus.ToPickup;
                     continue;
                 }
@@ -475,30 +478,49 @@ namespace Wholesome_Auto_Quester.Bot {
                 if (logQuests.TryGetValue(quest.Id, out Quest.PlayerQuest foundQuest)) 
                 {
                     // Quest to turn in
-                    if (foundQuest.State == StateFlag.Complete) {
+                    if (foundQuest.State == StateFlag.Complete)
+                    {
+                        itemsToAddToDNSList.AddRange(quest.GetItemsStringsList());
                         quest.Status = QuestStatus.ToTurnIn;
-                        quest.AddQuestItemsToDoNotSellList();
                         continue;
                     }
 
                     // Quest failed
-                    if (foundQuest.State == StateFlag.Failed) {
+                    if (foundQuest.State == StateFlag.Failed)
+                    {
+                        //itemsToRemoveFromDNSList.AddRange(quest.GetItemsStringsList());
                         quest.Status = QuestStatus.Failed;
-                        quest.RemoveQuestItemsFromDoNotSellList();
                         continue;
                     }
 
                     // Quest in progress
                     quest.Status = QuestStatus.InProgress;
+                    itemsToAddToDNSList.AddRange(quest.GetItemsStringsList());
                     if (!quest.AreObjectivesRecorded && quest.GetAllObjectives().Count > 0)
-                    {
                         quest.RecordObjectiveIndices();
-                        quest.AddQuestItemsToDoNotSellList();
-                    }
+
                     continue;
                 }
 
                 quest.Status = QuestStatus.None;
+            }
+
+            // WAQ DNS List
+            int WAQlistStartIndex = wManagerSetting.CurrentSetting.DoNotSellList.IndexOf("WAQStart");
+            int WAQlistEndIndex = wManagerSetting.CurrentSetting.DoNotSellList.IndexOf("WAQEnd");
+            int WAQListLength = WAQlistEndIndex - WAQlistStartIndex - 1;
+            List<string> initialWAQList = wManagerSetting.CurrentSetting.DoNotSellList.GetRange(WAQlistStartIndex + 1, WAQListLength);
+            if (!initialWAQList.SequenceEqual(itemsToAddToDNSList))
+            {
+                initialWAQList.ForEach(item => {
+                    if (!itemsToAddToDNSList.Contains(item))
+                        Logger.Log($"Removed {item} from WAQ DoNotSell List"); });
+                itemsToAddToDNSList.ForEach(item => {
+                    if (!initialWAQList.Contains(item))
+                        Logger.Log($"Added {item} to WAQ DoNotSell List"); });
+                wManagerSetting.CurrentSetting.DoNotSellList.RemoveRange(WAQlistStartIndex + 1, WAQListLength);
+                wManagerSetting.CurrentSetting.DoNotSellList.InsertRange(WAQlistStartIndex + 1, itemsToAddToDNSList);
+                wManagerSetting.CurrentSetting.Save();
             }
 
             if (_tick++ % 5 == 0) Main.QuestTrackerGui.UpdateQuestsList();

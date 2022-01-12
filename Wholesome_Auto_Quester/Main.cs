@@ -104,6 +104,7 @@ public class Main : IProduct {
             
             FiniteStateMachineEvents.OnRunState += SmoothMoveKiller;
             LoggingEvents.OnAddLog += AddLogHandler;
+            ToolBox.InitializeWAQDoNotSellList();
             
             if (Bot.Pulse()) {                
                 if (WholesomeAQSettings.CurrentSetting.ActivateQuestsGUI)

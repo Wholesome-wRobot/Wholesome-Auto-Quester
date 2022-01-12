@@ -161,6 +161,20 @@ namespace Wholesome_Auto_Quester.Database.Models
             GatherObjectives.ForEach(o => ToolBox.RemoveItemFromDoNotSellList(o.ItemName));
         }
 
+        public List<string> GetItemsStringsList()
+        {
+            List<string> result = new List<string>();
+            KillLootObjectives.ForEach(o =>
+            {
+                if (!result.Contains(o.ItemName))  result.Add(o.ItemName);
+            });
+            GatherObjectives.ForEach(o =>
+            {
+                if (!result.Contains(o.ItemName)) result.Add(o.ItemName);
+            });
+            return result;
+        }
+
         public bool IsCompleted => ToolBox.IsQuestCompleted(Id);
         public string TrackerColor => WAQTasks.TaskInProgress?.QuestId == Id ? "White" : _trackerColorsDictionary[Status];
 

@@ -639,5 +639,17 @@ namespace Wholesome_Auto_Quester.Helpers {
                 wManagerSetting.CurrentSetting.Save();
             }
         }
+
+        public static void InitializeWAQDoNotSellList()
+        {
+            if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))
+            {
+                wManagerSetting.CurrentSetting.DoNotSellList.Remove("WAQStart");
+                wManagerSetting.CurrentSetting.DoNotSellList.Remove("WAQEnd");
+                wManagerSetting.CurrentSetting.DoNotSellList.Add("WAQStart");
+                wManagerSetting.CurrentSetting.DoNotSellList.Add("WAQEnd");
+                wManagerSetting.CurrentSetting.Save();
+            }
+        }
     }
 }
