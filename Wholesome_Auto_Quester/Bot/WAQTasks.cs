@@ -514,10 +514,10 @@ namespace Wholesome_Auto_Quester.Bot {
             {
                 initialWAQList.ForEach(item => {
                     if (!itemsToAddToDNSList.Contains(item))
-                        Logger.Log($"Removed {item} from WAQ DoNotSell List"); });
+                        Logger.Log($"Removed {item} from Do Not Sell List"); });
                 itemsToAddToDNSList.ForEach(item => {
                     if (!initialWAQList.Contains(item))
-                        Logger.Log($"Added {item} to WAQ DoNotSell List"); });
+                        Logger.Log($"Added {item} to Do Not Sell List"); });
                 wManagerSetting.CurrentSetting.DoNotSellList.RemoveRange(WAQlistStartIndex + 1, WAQListLength);
                 wManagerSetting.CurrentSetting.DoNotSellList.InsertRange(WAQlistStartIndex + 1, itemsToAddToDNSList);
                 wManagerSetting.CurrentSetting.Save();

@@ -29,7 +29,6 @@ namespace Wholesome_Auto_Quester.Database {
 
             int myClass = (int)ToolBox.GetClass();
             int myFaction = (int)ToolBox.GetFaction();
-            int myLevel = (int)ObjectManager.Me.Level;
 
             foreach (ModelQuestTemplate q in dbResult)
             {

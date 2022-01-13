@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Threading;
@@ -17,6 +18,7 @@ using Wholesome_Auto_Quester.GUI;
 using Wholesome_Auto_Quester.Helpers;
 using wManager;
 using wManager.Plugin;
+using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
@@ -104,6 +106,7 @@ public class Main : IProduct {
             
             FiniteStateMachineEvents.OnRunState += SmoothMoveKiller;
             LoggingEvents.OnAddLog += AddLogHandler;
+            EventsLua.AttachEventLua("PLAYER_DEAD", e => PlayerDeadHandler(e));
             ToolBox.InitializeWAQDoNotSellList();
             
             if (Bot.Pulse()) {                
@@ -198,5 +201,11 @@ public class Main : IProduct {
             Radar3D.DrawLine(ObjectManager.Me.Position, WAQTasks.TaskInProgressWoWObject.Position, Color.Yellow);
             Radar3D.DrawCircle(WAQTasks.TaskInProgressWoWObject.Position, 1, Color.Yellow);
         }
+    }
+
+    private void PlayerDeadHandler(object context)
+    {
+        Logger.Log($"You died. Blacklisting zone.");
+        wManagerSetting.AddBlackListZone(ObjectManager.Me.Position, 30, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
     }
 }

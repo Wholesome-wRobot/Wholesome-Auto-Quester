@@ -127,8 +127,8 @@ namespace Wholesome_Auto_Quester.Database
                 FROM spell
                 WHERE ID = {spellID}
             ";
-            List<ModelSpell> result = _con.Query<ModelSpell>(query).ToList();
-            return result.FirstOrDefault();
+            ModelSpell result = _con.Query<ModelSpell>(query).FirstOrDefault();
+            return result;
         }
 
         public ModelCreatureTemplate QueryCreatureTemplateByEntry(int creatureEntry)
@@ -153,10 +153,8 @@ namespace Wholesome_Auto_Quester.Database
                 WHERE id = {creatureId}
             ";
             List<ModelCreature> result = _con.Query<ModelCreature>(queryCreature).ToList();
-            if (result.Count > 0)
-                return result;
-            else
-                return new List<ModelCreature>();
+
+            return result.Count > 0 ? result : new List<ModelCreature>();
         }
 
         public List<ModelAreaTrigger> QueryAreasToExplore(int questId)
@@ -177,7 +175,7 @@ namespace Wholesome_Auto_Quester.Database
             string queryGOTemplate = $@"
                 Select *
                 FROM gameobject_template
-                WHERE data1 = {lootEntry}
+                WHERE data1 = {lootEntry};
             ";
             List<ModelGameObjectTemplate> result = _con.Query<ModelGameObjectTemplate>(queryGOTemplate).ToList();
             result.ForEach(got => { got.GameObjects = QueryGameObjectByEntry(got.entry); });
@@ -208,10 +206,7 @@ namespace Wholesome_Auto_Quester.Database
                 WHERE id = {gameObjectId}
             ";
             List<ModelGameObject> result = _con.Query<ModelGameObject>(query).ToList();
-            if (result.Count > 0)
-                return result;
-            else
-                return new List<ModelGameObject>();
+            return result.Count > 0 ? result : new List<ModelGameObject>();
         }
 
         public List<ModelGameObjectTemplate> QueryGameObjectQuestGivers(int questId)

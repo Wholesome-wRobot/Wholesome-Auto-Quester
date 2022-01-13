@@ -91,6 +91,9 @@
     <Reference Include="PresentationFramework">
       <Private>False</Private>
     </Reference>
+    <Reference Include="RDManaged">
+      <HintPath>..\Dependencies\RDManaged.dll</HintPath>
+    </Reference>
     <Reference Include="robotManager">
       <HintPath>..\Dependencies\robotManager.dll</HintPath>
       <Private>False</Private>
