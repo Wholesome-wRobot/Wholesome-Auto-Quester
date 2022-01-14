@@ -304,6 +304,7 @@
     <Compile Include="Database\Models\ModelCreatureTemplate.cs" />
     <Compile Include="Database\Models\ModelGameObject.cs" />
     <Compile Include="Database\Models\ModelGameObjectTemplate.cs" />
+    <Compile Include="Database\Models\ModelItemLootTemplate.cs" />
     <Compile Include="Database\Models\ModelQuestTemplateAddon.cs" />
     <Compile Include="Database\Models\ModelItemTemplate.cs" />
     <Compile Include="Database\Models\ModelAreaTrigger.cs" />

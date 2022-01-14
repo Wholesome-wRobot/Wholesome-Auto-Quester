@@ -46,15 +46,17 @@ namespace Wholesome_Auto_Quester.States
                 var killTarget = (WoWUnit)npc;
                 if (MoveHelper.IsMovementThreadRunning) MoveHelper.StopAllMove();
                 MoveHelper.StopCurrentMovementThread();
-                if (killTarget.IsAlive) {
-                    Logger.Log($"Unit found - Fighting {killTarget.Name}");
-                    Fight.StartFight(killTarget.Guid);
-                }
-                Thread.Sleep(200);
-                if (killTarget.IsDead) task.PutTaskOnTimeout("Completed");
-                if (killTarget.IsLootable && !ObjectManager.Me.InCombatFlagOnly) {
+
+                if (killTarget.IsLootable && !ObjectManager.Me.InCombatFlagOnly)
+                {
                     Logger.Log($"Looting {killTarget.Name}");
                     LootingTask.Pulse(new List<WoWUnit> { killTarget });
+                    if (!killTarget.IsLootable)
+                        task.PutTaskOnTimeout("Completed");
+                }
+                else if (killTarget.IsAlive) {
+                    Logger.Log($"Unit found - Fighting {killTarget.Name}");
+                    Fight.StartFight(killTarget.Guid);
                 }
             }
             else

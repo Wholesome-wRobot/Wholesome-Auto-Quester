@@ -13,6 +13,7 @@ namespace Wholesome_Auto_Quester.Database.Models
         public ModelSpell Spell4 { get; set; }
         public List<ModelCreatureLootTemplate> CreatureLootTemplates { get; set; }
         public List<ModelGameObjectLootTemplate> GameObjectLootTemplates { get; set; }
+        public List<ModelItemLootTemplate> ItemLootTemplates { get; set; }
 
         public int AllowableClass { get; set; }
         public int AllowableRace { get; set; }

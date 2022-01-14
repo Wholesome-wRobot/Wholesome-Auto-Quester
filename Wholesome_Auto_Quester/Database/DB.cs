@@ -58,7 +58,7 @@ namespace Wholesome_Auto_Quester.Database
             return result;
         }
 
-        public List<ModelCreatureLootTemplate> QueryCreatureLootTemplatesByItemId(int itemId)
+        public List<ModelCreatureLootTemplate> QueryCreatureLootTemplatesByItemEntry(int itemId)
         {
             string queryLootTemplate = $@"
                 SELECT *
@@ -84,7 +84,7 @@ namespace Wholesome_Auto_Quester.Database
             return result;
         }
 
-        public List<ModelGameObjectLootTemplate> QueryGameObjectLootTemplateByItem(int itemId)
+        public List<ModelGameObjectLootTemplate> QueryGameObjectLootTemplateByItemEntry(int itemId)
         {
             string queryLootTemplate = $@"
                 SELECT *
@@ -99,36 +99,53 @@ namespace Wholesome_Auto_Quester.Database
         public ModelItemTemplate QueryItemTemplateByItemEntry(int itemEntry)
         {
             if (itemEntry == 0) return null;
-
             string queryItemTemplate = $@"
                 SELECT * 
                 FROM item_template
                 WHERE entry = {itemEntry}
             ";
-            ModelItemTemplate result = _con.Query<ModelItemTemplate>(queryItemTemplate).FirstOrDefault();
-            if (result == null) return null;
-            
-            result.CreatureLootTemplates = QueryCreatureLootTemplatesByItemId(itemEntry);
-            result.GameObjectLootTemplates = QueryGameObjectLootTemplateByItem(itemEntry);
-            result.Spell1 = QuerySpellById(result.spellid_1);
-            result.Spell2 = QuerySpellById(result.spellid_2);
-            result.Spell3 = QuerySpellById(result.spellid_3);
-            result.Spell4 = QuerySpellById(result.spellid_4);
+            List<ModelItemTemplate> result = _con.Query<ModelItemTemplate>(queryItemTemplate).ToList();
+            if (result.Count <= 0) return null;
+            if (result.Count > 1) Logger.LogError($"Item entry {itemEntry} has more than one template !");
 
+            result.ForEach(it =>
+            {
+                it.CreatureLootTemplates = QueryCreatureLootTemplatesByItemEntry(itemEntry);
+                it.GameObjectLootTemplates = QueryGameObjectLootTemplateByItemEntry(itemEntry);
+                it.ItemLootTemplates = QueryItemLootTemplateByEntry(itemEntry);
+                it.Spell1 = QuerySpellById(it.spellid_1);
+                it.Spell2 = QuerySpellById(it.spellid_2);
+                it.Spell3 = QuerySpellById(it.spellid_3);
+                it.Spell4 = QuerySpellById(it.spellid_4);
+            });
+
+            return result.FirstOrDefault();
+        }
+
+        public List<ModelItemLootTemplate> QueryItemLootTemplateByEntry(int lootEntry)
+        {
+            if (lootEntry == 0) return null;
+            string queryItemLootTemplate = $@"
+                SELECT * 
+                FROM item_loot_template
+                WHERE Entry = {lootEntry}
+            ";
+            List<ModelItemLootTemplate> result = _con.Query<ModelItemLootTemplate>(queryItemLootTemplate).ToList();
             return result;
         }
 
         public ModelSpell QuerySpellById(int spellID)
         {
             if (spellID == 0) return null;
-
             string query = $@"
                 SELECT *
                 FROM spell
                 WHERE ID = {spellID}
             ";
-            ModelSpell result = _con.Query<ModelSpell>(query).FirstOrDefault();
-            return result;
+            List<ModelSpell> result = _con.Query<ModelSpell>(query).ToList();
+            if (result.Count <= 0) return null;
+            if (result.Count > 1) Logger.LogError($"Spell ID {spellID} has more than one spells !");
+            return result.FirstOrDefault();
         }
 
         public ModelCreatureTemplate QueryCreatureTemplateByEntry(int creatureEntry)
@@ -138,11 +155,11 @@ namespace Wholesome_Auto_Quester.Database
                 FROM creature_template
                 WHERE entry = {creatureEntry}
             ";
-            ModelCreatureTemplate result = _con.Query<ModelCreatureTemplate>(queryTemplate).FirstOrDefault();
-
-            result.Creatures = QueryCreaturesById(creatureEntry);
-
-            return result;
+            List<ModelCreatureTemplate> result = _con.Query<ModelCreatureTemplate>(queryTemplate).ToList();
+            if (result.Count <= 0) return null;
+            if (result.Count > 1) Logger.LogError($"Creature entry {creatureEntry} has more than one templates !");
+            result.ForEach(ct => ct.Creatures = QueryCreaturesById(creatureEntry));
+            return result.FirstOrDefault();
         }
 
         public List<ModelCreature> QueryCreaturesById(int creatureId)
@@ -179,7 +196,6 @@ namespace Wholesome_Auto_Quester.Database
             ";
             List<ModelGameObjectTemplate> result = _con.Query<ModelGameObjectTemplate>(queryGOTemplate).ToList();
             result.ForEach(got => { got.GameObjects = QueryGameObjectByEntry(got.entry); });
-
             return result;
         }
 
@@ -190,12 +206,11 @@ namespace Wholesome_Auto_Quester.Database
                 FROM gameobject_template
                 WHERE entry = {objectEntry}
             ";
-            ModelGameObjectTemplate result = _con.Query<ModelGameObjectTemplate>(queryGOTemplate).FirstOrDefault();
-            if (result == null) return null;
-
-            result.GameObjects = QueryGameObjectByEntry(result.entry);
-
-            return result;
+            List<ModelGameObjectTemplate> result = _con.Query<ModelGameObjectTemplate>(queryGOTemplate).ToList();
+            if (result.Count <= 0) return null;
+            if (result.Count > 1) Logger.LogError($"Game Object entry {objectEntry} has more than one templates !");
+            result.ForEach(got => got.GameObjects = QueryGameObjectByEntry(got.entry));
+            return result.FirstOrDefault();
         }
 
         public List<ModelGameObject> QueryGameObjectByEntry(int gameObjectId)
@@ -316,18 +331,19 @@ namespace Wholesome_Auto_Quester.Database
                 CREATE INDEX IF NOT EXISTS `idx_creature_questender_quest` ON `creature_questender` (`quest`);
                 CREATE INDEX IF NOT EXISTS `idx_creature_queststarter_id` ON `creature_queststarter` (`id`);
                 CREATE INDEX IF NOT EXISTS `idx_creature_queststarter_quest` ON `creature_queststarter` (`quest`);
-                CREATE UNIQUE INDEX IF NOT EXISTS `idx_creature_template_entry` ON `creature_template` (`entry`);
+                CREATE INDEX IF NOT EXISTS `idx_creature_template_entry` ON `creature_template` (`entry`);
                 CREATE INDEX IF NOT EXISTS `idx_gameobject_id` ON `gameobject` (`id`);
                 CREATE INDEX IF NOT EXISTS `idx_gameobject_loot_template_entry` ON `gameobject_loot_template` (`Entry`);
                 CREATE INDEX IF NOT EXISTS `idx_gameobject_loot_template_item` ON `gameobject_loot_template` (`Item`);
                 CREATE INDEX IF NOT EXISTS `idx_gameobject_template_data1` ON `gameobject_template` (`Data1`);
-                CREATE UNIQUE INDEX IF NOT EXISTS `idx_gameobject_template_entry` ON `gameobject_template` (`entry`);
-                CREATE UNIQUE INDEX IF NOT EXISTS `idx_item_template_entry` ON `item_template` (`entry`);
-                CREATE UNIQUE INDEX IF NOT EXISTS `idx_quest_template_id` ON `quest_template` (`ID`);
-                CREATE UNIQUE INDEX IF NOT EXISTS `idx_quest_template_addon_id` ON `quest_template_addon` (`ID`);
+                CREATE INDEX IF NOT EXISTS `idx_gameobject_template_entry` ON `gameobject_template` (`entry`);
+                CREATE INDEX IF NOT EXISTS `idx_item_template_entry` ON `item_template` (`entry`);
+                CREATE INDEX IF NOT EXISTS `idx_quest_template_id` ON `quest_template` (`ID`);
+                CREATE INDEX IF NOT EXISTS `idx_quest_template_addon_id` ON `quest_template_addon` (`ID`);
                 CREATE INDEX IF NOT EXISTS `idx_quest_template_addon_nextquestid` ON `quest_template_addon` (`NextQuestId`);
                 CREATE INDEX IF NOT EXISTS `idx_quest_template_addon_prevquestid` ON `quest_template_addon` (`PrevQuestId`);
-                CREATE UNIQUE INDEX IF NOT EXISTS `idx_spell_id` ON `spell` (`id`);
+                CREATE INDEX IF NOT EXISTS `idx_spell_id` ON `spell` (`id`);
+                CREATE INDEX IF NOT EXISTS `idx_item_loot_template_entry` ON `item_loot_template` (`Entry`);
             ");
             Logger.Log($"Process time (Indices) : {stopwatchIndices.ElapsedMilliseconds} ms");
         }
