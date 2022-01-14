@@ -33,15 +33,16 @@ namespace Wholesome_Auto_Quester.States
         public override void Run()
         {
             WAQTask task = WAQTasks.TaskInProgress;
+            WoWObject gameObject = WAQTasks.TaskInProgressWoWObject;
 
-            if (WAQTasks.TaskInProgressWoWObject != null)
+            if (gameObject != null)
             {
-                if (WAQTasks.TaskInProgressWoWObject.Type != WoWObjectType.Unit) {
-                    Logger.LogError($"Expected a WoWUnit for Kill but got {WAQTasks.TaskInProgressWoWObject.Type} instead.");
+                if (gameObject.Type != WoWObjectType.Unit) {
+                    Logger.LogError($"Expected a WoWUnit for Kill but got {gameObject.Type} instead.");
                     return;
                 }
 
-                var killTarget = (WoWUnit) WAQTasks.TaskInProgressWoWObject;
+                WoWUnit killTarget = (WoWUnit)gameObject;
 
                 if (!wManager.wManagerSetting.IsBlackListed(killTarget.Guid))
                 {

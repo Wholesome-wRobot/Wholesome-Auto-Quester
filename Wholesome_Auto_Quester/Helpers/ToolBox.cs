@@ -362,6 +362,7 @@ namespace Wholesome_Auto_Quester.Helpers {
         }
 
         public static bool IsQuestCompleted(int questId) => _completeQuests.Contains(questId);
+        public static HashSet<int> GetCompletedQUests() => _completeQuests;
 
         public static bool ShouldQuestBeFinished(this ModelQuestTemplate quest) => quest.Status == QuestStatus.InProgress
                                                                            || quest.Status == QuestStatus.ToTurnIn;

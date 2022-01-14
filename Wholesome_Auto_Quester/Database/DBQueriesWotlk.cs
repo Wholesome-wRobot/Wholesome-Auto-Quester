@@ -318,13 +318,13 @@ namespace Wholesome_Auto_Quester.Database {
             DisposeDb();
             
             List<ModelQuestTemplate> allFilteredQuests = FilterDBQuestsAfterFills(quests);
+            ToolBox.UpdateCompletedQuests();
 
             // Write JSON
             if (WholesomeAQSettings.CurrentSetting.DevMode)
             {
                 Stopwatch stopwatchJSON = Stopwatch.StartNew();
                 Logger.Log($"{allFilteredQuests.Count} results. Building JSON. Please wait.");
-                ToolBox.UpdateCompletedQuests();
                 ToolBox.WriteJSONFromDBResult(allFilteredQuests);
                 //ToolBox.ZipJSONFile();
                 Logger.Log($"Process time (JSON processing) : {stopwatchJSON.ElapsedMilliseconds} ms");

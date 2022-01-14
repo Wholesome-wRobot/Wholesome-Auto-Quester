@@ -371,8 +371,8 @@ namespace Wholesome_Auto_Quester.Bot {
             {
                 WoWObject closestObject = filteredSurroundingObjects[0];
 
-                float distance = ToolBox.CalculatePathTotalDistance(myPosition, closestObject.Position);
-                bool isObjectReachable = distance > 0;
+                float distanceToClosestObject = ToolBox.CalculatePathTotalDistance(myPosition, closestObject.Position);
+                bool isObjectReachable = distanceToClosestObject > 0;
 
                 if (!isObjectReachable)
                 {
@@ -381,7 +381,7 @@ namespace Wholesome_Auto_Quester.Bot {
                     return;
                 }
 
-                if (isObjectReachable && distance > closestObject.GetDistance * 2)
+                if (isObjectReachable && distanceToClosestObject > closestObject.GetDistance * 2)
                 {
                     Logger.LogError($"Detour detected for object {closestObject.Name}");
                     int nbObject = filteredSurroundingObjects.Count;
@@ -397,19 +397,21 @@ namespace Wholesome_Auto_Quester.Bot {
 
                         float nextFlyDistanceToObject = filteredSurroundingObjects[i + 1].GetDistance;
 
-                        if (walkDistanceToObject > 0 && walkDistanceToObject < distance)
+                        if (walkDistanceToObject > 0 && walkDistanceToObject < distanceToClosestObject)
                         {
-                            distance = walkDistanceToObject;
+                            distanceToClosestObject = walkDistanceToObject;
                             closestObject = filteredSurroundingObjects[i];
                         }
 
-                        if (distance < nextFlyDistanceToObject)
+                        if (distanceToClosestObject < nextFlyDistanceToObject)
                             break;
                     }
                 }
 
-                if (!isObjectReachable || distance > closestTaskDistance + 20)
+                if (!isObjectReachable || distanceToClosestObject > closestTaskDistance + 20)
+                {
                     TaskInProgressWoWObject = null;
+                }
                 else
                 {
                     TaskInProgressWoWObject = closestObject;
@@ -446,7 +448,6 @@ namespace Wholesome_Auto_Quester.Bot {
             Dictionary<int, Quest.PlayerQuest> logQuests = Quest.GetLogQuestId().ToDictionary(quest => quest.ID);
             ModelQuestTemplate[] completedQuests =
                 Quests.Where(q => q.Status == QuestStatus.Completed && q.PreviousQuestsIds.Count > 0).ToArray();
-            //List<string> itemsToRemoveFromDNSList = new List<string>();
             List<string> itemsToAddToDNSList = new List<string>();
 
             // Update quests statuses
@@ -454,7 +455,6 @@ namespace Wholesome_Auto_Quester.Bot {
             {
                 // Quest blacklisted
                 if (WholesomeAQSettings.CurrentSetting.BlacklistesQuests.Contains(quest.Id)) {
-                    //itemsToRemoveFromDNSList.AddRange(quest.GetItemsStringsList());
                     quest.Status = QuestStatus.Blacklisted;
                     continue;
                 }
@@ -462,10 +462,8 @@ namespace Wholesome_Auto_Quester.Bot {
                 // Mark quest as completed if it's part of an exclusive group
                 if (quest.QuestAddon.ExclusiveGroup > 0)
                 {
-                    List<ModelQuestTemplate> questsWithSameExclGroup = Quests
-                        .FindAll(q => q.QuestAddon.ExclusiveGroup == quest.QuestAddon.ExclusiveGroup);
-                    if (questsWithSameExclGroup.Any(q => 
-                        Quest.GetQuestCompleted(q.Id) || Quest.GetLogQuestIsComplete(q.Id) || Quest.HasQuest(q.Id)))
+                    if (quest.QuestAddon.ExclusiveQuests.Any(qId => qId != quest.Id 
+                        && (ToolBox.IsQuestCompleted(qId) || logQuests.ContainsKey(quest.Id))))
                     {
                         quest.Status = QuestStatus.Completed;
                         continue;
@@ -475,7 +473,6 @@ namespace Wholesome_Auto_Quester.Bot {
                 // Quest completed
                 if (quest.IsCompleted || completedQuests.Any(q => q.PreviousQuestsIds.Contains(quest.Id))) 
                 {
-                    //itemsToRemoveFromDNSList.AddRange(quest.GetItemsStringsList());
                     quest.Status = QuestStatus.Completed;
                     continue;
                 }
@@ -502,7 +499,6 @@ namespace Wholesome_Auto_Quester.Bot {
                     // Quest failed
                     if (foundQuest.State == StateFlag.Failed)
                     {
-                        //itemsToRemoveFromDNSList.AddRange(quest.GetItemsStringsList());
                         quest.Status = QuestStatus.Failed;
                         continue;
                     }

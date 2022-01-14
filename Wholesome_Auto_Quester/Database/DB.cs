@@ -312,8 +312,21 @@ namespace Wholesome_Auto_Quester.Database
                 ";
                 ModelQuestTemplateAddon addon = _con.Query<ModelQuestTemplateAddon>(queryQuestAddon).FirstOrDefault();
                 questTemplate.QuestAddon = addon ?? new ModelQuestTemplateAddon();
+                questTemplate.QuestAddon.ExclusiveQuests = QueryQuestIdsByExclusiveGroup(questTemplate.QuestAddon.ExclusiveGroup);
             });
 
+            return result;
+        }
+
+        public List<int> QueryQuestIdsByExclusiveGroup(int exclusiveGroup)
+        {
+            if (exclusiveGroup == 0) return new List<int>();
+            string queryQuestExcl = $@"
+                    SELECT id
+                    FROM quest_template_addon
+                    WHERE ExclusiveGroup = {exclusiveGroup}
+                ";
+            List<int> result = _con.Query<int>(queryQuestExcl).ToList();
             return result;
         }
 
@@ -341,6 +354,7 @@ namespace Wholesome_Auto_Quester.Database
                 CREATE INDEX IF NOT EXISTS `idx_item_loot_template_entry` ON `item_loot_template` (`Entry`);
                 CREATE INDEX IF NOT EXISTS `idx_item_template_entry` ON `item_template` (`entry`);
                 CREATE INDEX IF NOT EXISTS `idx_quest_template_id` ON `quest_template` (`ID`);
+                CREATE INDEX IF NOT EXISTS `idx_quest_template_addon_ExclusiveGroup` ON `quest_template_addon` (`ExclusiveGroup`);
                 CREATE INDEX IF NOT EXISTS `idx_quest_template_addon_id` ON `quest_template_addon` (`ID`);
                 CREATE INDEX IF NOT EXISTS `idx_quest_template_addon_nextquestid` ON `quest_template_addon` (`NextQuestId`);
                 CREATE INDEX IF NOT EXISTS `idx_quest_template_addon_prevquestid` ON `quest_template_addon` (`PrevQuestId`);
