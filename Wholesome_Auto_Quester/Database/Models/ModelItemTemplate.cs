@@ -11,9 +11,9 @@ namespace Wholesome_Auto_Quester.Database.Models
         public ModelSpell Spell2 { get; set; }
         public ModelSpell Spell3 { get; set; }
         public ModelSpell Spell4 { get; set; }
-        public List<ModelCreatureLootTemplate> CreatureLootTemplates { get; set; }
-        public List<ModelGameObjectLootTemplate> GameObjectLootTemplates { get; set; }
-        public List<ModelItemLootTemplate> ItemLootTemplates { get; set; }
+        public List<ModelCreatureLootTemplate> CreatureLootTemplates { get; set; } = new List<ModelCreatureLootTemplate>();
+        public List<ModelGameObjectLootTemplate> GameObjectLootTemplates { get; set; } = new List<ModelGameObjectLootTemplate>();
+        public List<ModelItemLootTemplate> ItemLootTemplates { get; set; } = new List<ModelItemLootTemplate>();
 
         public int AllowableClass { get; set; }
         public int AllowableRace { get; set; }

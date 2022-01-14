@@ -43,14 +43,14 @@ namespace Wholesome_Auto_Quester.States
 
                 var killTarget = (WoWUnit) WAQTasks.TaskInProgressWoWObject;
 
-                if (killTarget.IsDead && task.TaskType == TaskType.Kill)
-                    task.PutTaskOnTimeout("Completed");
-
                 if (!wManager.wManagerSetting.IsBlackListed(killTarget.Guid))
                 {
                     Logger.Log($"Unit found - Fighting {killTarget.Name}");
                     MoveHelper.StopCurrentMovementThread();
                     Fight.StartFight(killTarget.Guid);
+                    if (killTarget.IsDead && task.TaskType == TaskType.Kill
+                        || killTarget.IsDead && !killTarget.IsLootable && task.TaskType == TaskType.KillAndLoot)
+                        task.PutTaskOnTimeout("Completed");
                 }
             }
             else

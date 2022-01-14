@@ -150,6 +150,7 @@ namespace Wholesome_Auto_Quester.Database
 
         public ModelCreatureTemplate QueryCreatureTemplateByEntry(int creatureEntry)
         {
+            if (creatureEntry == 0) return null;
             string queryTemplate = $@"
                 SELECT *
                 FROM creature_template
@@ -327,23 +328,23 @@ namespace Wholesome_Auto_Quester.Database
                 CREATE INDEX IF NOT EXISTS `idx_creature_id` ON `creature` (`id`);
                 CREATE INDEX IF NOT EXISTS `idx_creature_loot_template_entry` ON `creature_loot_template` (`Entry`);
                 CREATE INDEX IF NOT EXISTS `idx_creature_loot_template_item` ON `creature_loot_template` (`Item`);
-                CREATE INDEX IF NOT EXISTS `idx_creature_questender_id` ON `creature_questender` (`id`);
                 CREATE INDEX IF NOT EXISTS `idx_creature_questender_quest` ON `creature_questender` (`quest`);
-                CREATE INDEX IF NOT EXISTS `idx_creature_queststarter_id` ON `creature_queststarter` (`id`);
                 CREATE INDEX IF NOT EXISTS `idx_creature_queststarter_quest` ON `creature_queststarter` (`quest`);
                 CREATE INDEX IF NOT EXISTS `idx_creature_template_entry` ON `creature_template` (`entry`);
                 CREATE INDEX IF NOT EXISTS `idx_gameobject_id` ON `gameobject` (`id`);
                 CREATE INDEX IF NOT EXISTS `idx_gameobject_loot_template_entry` ON `gameobject_loot_template` (`Entry`);
                 CREATE INDEX IF NOT EXISTS `idx_gameobject_loot_template_item` ON `gameobject_loot_template` (`Item`);
+                CREATE INDEX IF NOT EXISTS `idx_gameobject_queststarter_quest` ON `gameobject_queststarter` (`quest`);
+                CREATE INDEX IF NOT EXISTS `idx_gameobject_questender_quest` ON `gameobject_questender` (`quest`);
                 CREATE INDEX IF NOT EXISTS `idx_gameobject_template_data1` ON `gameobject_template` (`Data1`);
                 CREATE INDEX IF NOT EXISTS `idx_gameobject_template_entry` ON `gameobject_template` (`entry`);
+                CREATE INDEX IF NOT EXISTS `idx_item_loot_template_entry` ON `item_loot_template` (`Entry`);
                 CREATE INDEX IF NOT EXISTS `idx_item_template_entry` ON `item_template` (`entry`);
                 CREATE INDEX IF NOT EXISTS `idx_quest_template_id` ON `quest_template` (`ID`);
                 CREATE INDEX IF NOT EXISTS `idx_quest_template_addon_id` ON `quest_template_addon` (`ID`);
                 CREATE INDEX IF NOT EXISTS `idx_quest_template_addon_nextquestid` ON `quest_template_addon` (`NextQuestId`);
                 CREATE INDEX IF NOT EXISTS `idx_quest_template_addon_prevquestid` ON `quest_template_addon` (`PrevQuestId`);
                 CREATE INDEX IF NOT EXISTS `idx_spell_id` ON `spell` (`id`);
-                CREATE INDEX IF NOT EXISTS `idx_item_loot_template_entry` ON `item_loot_template` (`Entry`);
             ");
             Logger.Log($"Process time (Indices) : {stopwatchIndices.ElapsedMilliseconds} ms");
         }

@@ -10,9 +10,9 @@ using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.States
 {
-    class WAQLoot : State
+    class WAQLootInCombat : State
     {
-        public override string DisplayName { get; set; } = "WAQLoot [SmoothMove - Q]";
+        public override string DisplayName { get; set; } = "WAQLootInCombat [SmoothMove - Q]";
 
         public override bool NeedToRun
         {
@@ -26,9 +26,9 @@ namespace Wholesome_Auto_Quester.States
                 if (WAQTasks.TaskInProgress?.TaskType == TaskType.KillAndLoot && npc?.Type == WoWObjectType.Unit)
                 {
                     WoWUnit lootTarget = (WoWUnit)WAQTasks.TaskInProgressWoWObject;
-                    if (lootTarget.IsLootable && !ObjectManager.Me.InCombatFlagOnly)
+                    if (lootTarget.IsLootable && ObjectManager.Me.InCombatFlagOnly)
                     {
-                        DisplayName = $"Loot {WAQTasks.TaskInProgress.TargetName} for {WAQTasks.TaskInProgress.QuestTitle} [SmoothMove - Q]";
+                        DisplayName = $"Loot in combat {WAQTasks.TaskInProgress.TargetName} for {WAQTasks.TaskInProgress.QuestTitle} [SmoothMove - Q]";
                         return true;
                     }
                 }
@@ -43,8 +43,6 @@ namespace Wholesome_Auto_Quester.States
             WAQTask task = WAQTasks.TaskInProgress;
 
             WoWUnit lootTarget = (WoWUnit)npc;
-
-            ToolBox.ClearSpotAround(lootTarget);
 
             if (MoveHelper.IsMovementThreadRunning) MoveHelper.StopAllMove();
             MoveHelper.StopCurrentMovementThread();

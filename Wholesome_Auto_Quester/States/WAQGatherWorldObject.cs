@@ -59,6 +59,7 @@ namespace Wholesome_Auto_Quester.States {
                 if (ObjectManager.Me.Position.DistanceTo(gatherTarget.Position) <= 3 + gatherTarget.Scale)  
                 {
                     Logger.Log($"Interacting with {gameObject.Name} to pick it up. (Gathering)");
+                    MoveHelper.StopAllMove();
                     Interact.InteractGameObject(gameObject.GetBaseAddress);
                     Usefuls.WaitIsCastingAndLooting();
                 }

@@ -44,7 +44,7 @@ namespace Wholesome_Auto_Quester.States {
                 ToolBox.ClearSpotAround(gameObject);
 
                 if (gameObject.IsGoodInteractDistance) {
-                    if(MoveHelper.IsMovementThreadRunning) MoveHelper.StopAllMove();
+                    if (MoveHelper.IsMovementThreadRunning) MoveHelper.StopAllMove();
                     Logger.Log($"Interacting with {gameObject.Name} to pick it up. (Gathering)");
                     Interact.InteractGameObject(gameObject.GetBaseAddress);
                     Usefuls.WaitIsCastingAndLooting();

@@ -330,6 +330,7 @@
     <Compile Include="States\WAQGoTo.cs" />
     <Compile Include="States\WAQInteractWorldObject.cs" />
     <Compile Include="States\WAQLoot.cs" />
+    <Compile Include="States\WAQLootInCombat.cs" />
     <Compile Include="States\WAQPickupQuestFromGameObject.cs" />
     <Compile Include="States\WAQTurnInQuestToGameObject.cs" />
     <Compile Include="States\WAQTurnInQuestToNpc.cs" />

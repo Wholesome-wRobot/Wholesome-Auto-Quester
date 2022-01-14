@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Threading;
@@ -28,7 +27,7 @@ public class Main : IProduct {
     public static readonly QuestsTrackerGUI QuestTrackerGui = new QuestsTrackerGUI();
     private ProductSettingsControl _settingsUserControl;
 
-    public string version = "0.0.04"; // Must match version in Version.txt
+    public string version = "0.0.05"; // Must match version in Version.txt
 
     public bool IsStarted { get; private set; }
 
@@ -60,8 +59,11 @@ public class Main : IProduct {
     }
 
     public void Start() {        
-        try {
-            AutoUpdater.CheckUpdate(version);
+        try
+        {
+            if (AutoUpdater.CheckUpdate(version))
+                return;
+
             IsStarted = true;
 
             if (ToolBox.GetWoWVersion() == "3.3.5") {
