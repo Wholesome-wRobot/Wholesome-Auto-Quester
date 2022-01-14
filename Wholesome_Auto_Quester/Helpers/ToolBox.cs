@@ -250,7 +250,7 @@ namespace Wholesome_Auto_Quester.Helpers {
             	closeButton:Click();
             end");
 
-            Logger.Log($"Turned id quest {questName}.");
+            Logger.Log($"Turned in quest {questName}.");
 
             return true;
         }
@@ -358,11 +358,17 @@ namespace Wholesome_Auto_Quester.Helpers {
             List<int> completedQuests = new List<int>();
             completedQuests.AddRange(Quest.FinishedQuestSet);
             completedQuests.AddRange(WholesomeAQSettings.CurrentSetting.ListCompletedQuests);
-            _completeQuests = completedQuests.ToHashSet();
+            _completeQuests = completedQuests.Distinct().ToHashSet();
+            foreach (int questId in _completeQuests)
+            {
+                if (!WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Contains(questId))
+                    WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Add(questId);
+            }
+            WholesomeAQSettings.CurrentSetting.Save();
         }
 
         public static bool IsQuestCompleted(int questId) => _completeQuests.Contains(questId);
-        public static HashSet<int> GetCompletedQUests() => _completeQuests;
+        public static int GetServerNbCompletedQuests() => Quest.FinishedQuestSet.Count;
 
         public static bool ShouldQuestBeFinished(this ModelQuestTemplate quest) => quest.Status == QuestStatus.InProgress
                                                                            || quest.Status == QuestStatus.ToTurnIn;
@@ -642,26 +648,6 @@ namespace Wholesome_Auto_Quester.Helpers {
             if (isReachable)
                 for (var i = 0; i < path.Count - 1; ++i) distance += path[i].DistanceTo(path[i + 1]);
             return distance;
-        }
-
-        public static void AddItemToDoNotSellList(string itemName)
-        {
-            if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains(itemName))
-            {
-                Logger.Log($"Added item {itemName} to Do not Sell List");
-                wManagerSetting.CurrentSetting.DoNotSellList.Add(itemName);
-                wManagerSetting.CurrentSetting.Save();
-            }
-        }
-
-        public static void RemoveItemFromDoNotSellList(string itemName)
-        {
-            if (wManagerSetting.CurrentSetting.DoNotSellList.Contains(itemName))
-            {
-                Logger.Log($"Removed item {itemName} from Do not Sell List");
-                wManagerSetting.CurrentSetting.DoNotSellList.RemoveAll(i => i == itemName);
-                wManagerSetting.CurrentSetting.Save();
-            }
         }
 
         public static void InitializeWAQSettings()

@@ -153,18 +153,6 @@ namespace Wholesome_Auto_Quester.Database.Models
             return closestsQg.Count > 0 ? closestsQg.Min() : float.MaxValue;
         }
 
-        public void AddQuestItemsToDoNotSellList()
-        {
-            KillLootObjectives.ForEach(o => ToolBox.AddItemToDoNotSellList(o.ItemName));
-            GatherObjectives.ForEach(o => ToolBox.AddItemToDoNotSellList(o.ItemName));
-        }
-
-        public void RemoveQuestItemsFromDoNotSellList()
-        {
-            KillLootObjectives.ForEach(o => ToolBox.RemoveItemFromDoNotSellList(o.ItemName));
-            GatherObjectives.ForEach(o => ToolBox.RemoveItemFromDoNotSellList(o.ItemName));
-        }
-
         public List<string> GetItemsStringsList()
         {
             List<string> result = new List<string>();

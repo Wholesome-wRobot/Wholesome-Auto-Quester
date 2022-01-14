@@ -27,7 +27,7 @@ public class Main : IProduct {
     public static readonly QuestsTrackerGUI QuestTrackerGui = new QuestsTrackerGUI();
     private ProductSettingsControl _settingsUserControl;
 
-    public string version = "0.0.08"; // Must match version in Version.txt
+    public string version = "0.0.09"; // Must match version in Version.txt
 
     public bool IsStarted { get; private set; }
 
@@ -65,6 +65,7 @@ public class Main : IProduct {
                 return;
 
             IsStarted = true;
+            ToolBox.UpdateCompletedQuests();
 
             if (ToolBox.GetWoWVersion() == "3.3.5") {
                 var dbWotlk = new DBQueriesWotlk();

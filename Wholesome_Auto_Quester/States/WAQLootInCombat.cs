@@ -26,7 +26,7 @@ namespace Wholesome_Auto_Quester.States
                 if (WAQTasks.TaskInProgress?.TaskType == TaskType.KillAndLoot && npc?.Type == WoWObjectType.Unit)
                 {
                     WoWUnit lootTarget = (WoWUnit)WAQTasks.TaskInProgressWoWObject;
-                    if (lootTarget.IsLootable && ObjectManager.Me.InCombatFlagOnly)
+                    if (lootTarget.IsDead && lootTarget.IsLootable && ObjectManager.Me.InCombatFlagOnly)
                     {
                         DisplayName = $"Loot in combat {WAQTasks.TaskInProgress.TargetName} for {WAQTasks.TaskInProgress.QuestTitle} [SmoothMove - Q]";
                         return true;

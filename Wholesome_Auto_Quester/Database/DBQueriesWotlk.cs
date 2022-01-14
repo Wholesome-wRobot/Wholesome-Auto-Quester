@@ -318,7 +318,6 @@ namespace Wholesome_Auto_Quester.Database {
             DisposeDb();
             
             List<ModelQuestTemplate> allFilteredQuests = FilterDBQuestsAfterFills(quests);
-            ToolBox.UpdateCompletedQuests();
 
             // Write JSON
             if (WholesomeAQSettings.CurrentSetting.DevMode)

@@ -443,12 +443,14 @@ namespace Wholesome_Auto_Quester.Bot {
         }
 
         public static void UpdateStatuses() {
-            ToolBox.UpdateCompletedQuests();
-            
             Dictionary<int, Quest.PlayerQuest> logQuests = Quest.GetLogQuestId().ToDictionary(quest => quest.ID);
-            ModelQuestTemplate[] completedQuests =
-                Quests.Where(q => q.Status == QuestStatus.Completed && q.PreviousQuestsIds.Count > 0).ToArray();
             List<string> itemsToAddToDNSList = new List<string>();
+            if (ToolBox.GetServerNbCompletedQuests() <= 0 && WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Count > 0)
+            {
+                ToolBox.UpdateCompletedQuests();
+                Logger.Log("Waiting for server-side list of completed quests");
+                return;
+            }
 
             // Update quests statuses
             foreach (ModelQuestTemplate quest in Quests)
@@ -463,7 +465,7 @@ namespace Wholesome_Auto_Quester.Bot {
                 if (quest.QuestAddon.ExclusiveGroup > 0)
                 {
                     if (quest.QuestAddon.ExclusiveQuests.Any(qId => qId != quest.Id 
-                        && (ToolBox.IsQuestCompleted(qId) || logQuests.ContainsKey(quest.Id))))
+                        && (ToolBox.IsQuestCompleted(qId) || logQuests.ContainsKey(qId))))
                     {
                         quest.Status = QuestStatus.Completed;
                         continue;
@@ -471,7 +473,7 @@ namespace Wholesome_Auto_Quester.Bot {
                 }
 
                 // Quest completed
-                if (quest.IsCompleted || completedQuests.Any(q => q.PreviousQuestsIds.Contains(quest.Id))) 
+                if (quest.IsCompleted)
                 {
                     quest.Status = QuestStatus.Completed;
                     continue;
@@ -508,7 +510,6 @@ namespace Wholesome_Auto_Quester.Bot {
                     itemsToAddToDNSList.AddRange(quest.GetItemsStringsList());
                     if (!quest.AreObjectivesRecorded && quest.GetAllObjectives().Count > 0)
                         quest.RecordObjectiveIndices();
-
                     continue;
                 }
 
