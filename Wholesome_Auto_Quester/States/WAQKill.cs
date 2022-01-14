@@ -1,5 +1,4 @@
 ﻿using robotManager.FiniteStateMachine;
-using System.Threading;
 using FlXProfiles;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Helpers;
@@ -21,7 +20,7 @@ namespace Wholesome_Auto_Quester.States
                     || !ObjectManager.Me.IsValid)
                     return false;
 
-                if (WAQTasks.TaskInProgress?.TaskType == TaskType.Kill)
+                if (WAQTasks.TaskInProgress?.TaskType == TaskType.Kill || WAQTasks.TaskInProgress?.TaskType == TaskType.KillAndLoot)
                 {
                     DisplayName = $"Kill {WAQTasks.TaskInProgress.TargetName} for {WAQTasks.TaskInProgress.QuestTitle} [SmoothMove - Q]";
                     return true;
@@ -43,13 +42,15 @@ namespace Wholesome_Auto_Quester.States
                 }
 
                 var killTarget = (WoWUnit) WAQTasks.TaskInProgressWoWObject;
-                if(!wManager.wManagerSetting.IsBlackListed(killTarget.Guid))
+
+                if (killTarget.IsDead && task.TaskType == TaskType.Kill)
+                    task.PutTaskOnTimeout("Completed");
+
+                if (!wManager.wManagerSetting.IsBlackListed(killTarget.Guid))
                 {
                     Logger.Log($"Unit found - Fighting {killTarget.Name}");
                     MoveHelper.StopCurrentMovementThread();
                     Fight.StartFight(killTarget.Guid);
-                    Thread.Sleep(200);
-                    if (killTarget.IsDead) task.PutTaskOnTimeout("Completed");
                 }
             }
             else

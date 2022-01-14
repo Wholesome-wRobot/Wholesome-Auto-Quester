@@ -38,6 +38,8 @@ namespace Wholesome_Auto_Quester.States
                     return;
                 }
 
+                ToolBox.ClearSpotAround(gameObject);
+
                 var turnInTarget = (WoWGameObject) gameObject;
 
                 if (turnInTarget.GetDistance > 4) {
@@ -63,11 +65,11 @@ namespace Wholesome_Auto_Quester.States
                 }
             } else {
                 if (!MoveHelper.IsMovementThreadRunning ||
-                    MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 8) {
+                    MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 15) {
                     Logger.Log($"Moving to QuestEnder for {task.QuestTitle}.");
                     MoveHelper.StartGoToThread(task.Location, randomizeEnd: 8f);
                 }
-                if (task.GetDistance <= 12f) {
+                if (task.GetDistance <= 15f) {
                     task.PutTaskOnTimeout("No Object in sight for quest turn-in");
                     MoveHelper.StopAllMove();
                 }

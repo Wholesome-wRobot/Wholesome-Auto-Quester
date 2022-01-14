@@ -32,7 +32,6 @@ namespace Wholesome_Auto_Quester.States
         public override void Run()
         {
             WAQTask task = WAQTasks.TaskInProgress;
-            //Logger.Log($"******** RUNNING EXPLORATION TASK {ToolBox.GetTaskId(task)}  ********");
 
             if (task.GetDistance < 2f) {
                 MoveHelper.StopAllMove();

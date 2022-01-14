@@ -24,10 +24,11 @@ using wManager.Wow.ObjectManager;
 
 public class Main : IProduct {
     public const string ProductName = "Wholesome Auto Quester";
+    public const string FileName = "Wholesome_Auto_Quester";
     public static readonly QuestsTrackerGUI QuestTrackerGui = new QuestsTrackerGUI();
     private ProductSettingsControl _settingsUserControl;
 
-    public string version = "0.0.01"; // Must match version in Version.txt
+    public string version = "0.0.02"; // Must match version in Version.txt
 
     public bool IsStarted { get; private set; }
 
@@ -58,12 +59,11 @@ public class Main : IProduct {
         }
     }
 
-    public void Start() {
-        IsStarted = true;
-        
+    public void Start() {        
         try {
-            //AutoUpdater.CheckUpdate(version);
-            
+            AutoUpdater.CheckUpdate(version);
+            IsStarted = true;
+
             if (ToolBox.GetWoWVersion() == "3.3.5") {
                 var dbWotlk = new DBQueriesWotlk();
                 dbWotlk.GetAvailableQuests();

@@ -13,6 +13,16 @@ namespace Wholesome_Auto_Quester
     {
         public static WholesomeAQSettings CurrentSetting { get; set; }
 
+        public int LevelDeltaPlus { get; set; }
+        public int LevelDeltaMinus { get; set; }
+        public bool LogDebug { get; set; }
+        public bool DevMode { get; set; }
+        public bool ActivateQuestsGUI { get; set; }
+        public List<int> ListCompletedQuests { get; set; }
+        public List<int> BlacklistesQuests { get; set; }
+        public bool SmoothMove { get; set; }
+        public double LastUpdateDate { get; set; }
+
         public WholesomeAQSettings()
         {
             LogDebug = false;
@@ -22,6 +32,7 @@ namespace Wholesome_Auto_Quester
             LevelDeltaPlus = 2;
             LevelDeltaMinus = 5;
             SmoothMove = false;
+            LastUpdateDate = 0;
 
             BlacklistesQuests = new List<int>()
             {
@@ -29,15 +40,6 @@ namespace Wholesome_Auto_Quester
                 1202, // Theramore docks
             };
         }
-
-        public int LevelDeltaPlus { get; set; }
-        public int LevelDeltaMinus { get; set; }
-        public bool LogDebug { get; set; }
-        public bool DevMode { get; set; }
-        public bool ActivateQuestsGUI { get; set; }
-        public List<int> ListCompletedQuests { get; set; }
-        public List<int> BlacklistesQuests { get; set; }
-        public bool SmoothMove { get; set; }
 
         public static void AddQuestToBlackList(int questId)
         {

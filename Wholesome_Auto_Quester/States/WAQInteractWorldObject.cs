@@ -40,6 +40,9 @@ namespace Wholesome_Auto_Quester.States {
                 }
 
                 var gameObject = (WoWGameObject) WAQTasks.TaskInProgressWoWObject;
+
+                ToolBox.ClearSpotAround(gameObject);
+
                 if (gameObject.IsGoodInteractDistance) {
                     if(MoveHelper.IsMovementThreadRunning) MoveHelper.StopAllMove();
                     Logger.Log($"Interacting with {gameObject.Name} to pick it up. (Gathering)");
@@ -53,13 +56,13 @@ namespace Wholesome_Auto_Quester.States {
                 }
             } else {
                 if (!MoveHelper.IsMovementThreadRunning ||
-                    MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 8) {
+                    MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 15f) {
 
                     Logger.Log($"Moving to Hotspot for {task.QuestTitle} (Gather).");
                     MoveHelper.StartGoToThread(task.Location, randomizeEnd: 8f);
                 }
                 
-                if (task.GetDistance <= 12f) {
+                if (task.GetDistance <= 15f) {
                     task.PutTaskOnTimeout("No object to gather in sight");
                 } else if (ToolBox.DangerousEnemiesAtLocation(task.Location) && WAQTasks.TasksPile.FindAll(t => t.TargetEntry == task.TargetEntry).Count > 1) {
                     task.PutTaskOnTimeout("Dangerous mobs in the area");

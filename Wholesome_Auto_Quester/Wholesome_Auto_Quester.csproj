@@ -292,6 +292,7 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AutoUpdater.cs" />
     <Compile Include="Bot\Bot.cs" />
     <Compile Include="Bot\WAQTask.cs" />
     <Compile Include="Bot\WAQTasks.cs" />
@@ -327,8 +328,8 @@
     <Compile Include="Helpers\MoveHelper.cs" />
     <Compile Include="States\WAQDefend.cs" />
     <Compile Include="States\WAQGoTo.cs" />
-    <Compile Include="States\WAQKillAndLoot.cs" />
     <Compile Include="States\WAQInteractWorldObject.cs" />
+    <Compile Include="States\WAQLoot.cs" />
     <Compile Include="States\WAQPickupQuestFromGameObject.cs" />
     <Compile Include="States\WAQTurnInQuestToGameObject.cs" />
     <Compile Include="States\WAQTurnInQuestToNpc.cs" />

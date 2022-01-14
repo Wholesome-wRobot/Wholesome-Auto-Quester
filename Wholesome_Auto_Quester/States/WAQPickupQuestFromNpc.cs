@@ -43,6 +43,8 @@ namespace Wholesome_Auto_Quester.States {
                     return;
                 }
 
+                ToolBox.ClearSpotAround(npcObject);
+
                 var pickUpTarget = (WoWUnit) npcObject;
 
                 if (!pickUpTarget.InInteractDistance()) {
@@ -65,11 +67,11 @@ namespace Wholesome_Auto_Quester.States {
                 Thread.Sleep(1000);
             } else {
                 if (!MoveHelper.IsMovementThreadRunning ||
-                    MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 8) {
+                    MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 5) {
                     Logger.Log($"Moving to QuestGiver for {task.QuestTitle} (PickUp).");
                     MoveHelper.StartGoToThread(task.Location);
                 }
-                if (task.GetDistance <= 12f) {
+                if (task.GetDistance <= 15f) {
                     task.PutTaskOnTimeout("No NPC in sight for quest pickup");
                     MoveHelper.StopAllMove();
                 }

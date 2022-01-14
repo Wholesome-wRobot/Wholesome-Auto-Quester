@@ -37,19 +37,20 @@ namespace Wholesome_Auto_Quester.Bot
                 // Fsm.AddState(new IsAttacked { Priority = 30 });
                 Fsm.AddState(new WAQDefend { Priority = 30 });
                 Fsm.AddState(new Regeneration { Priority = 29 });
-                Fsm.AddState(new FlightMasterTakeTaxiState { Priority = 27 });
-                Fsm.AddState(new Farming { Priority = 26 });
+                Fsm.AddState(new WAQLoot { Priority = 28 });
+                Fsm.AddState(new Looting { Priority = 27 });
+                Fsm.AddState(new FlightMasterTakeTaxiState { Priority = 26 });
+                Fsm.AddState(new Farming { Priority = 25 });
 
                 Fsm.AddState(new Trainers { Priority = 22 });
                 Fsm.AddState(new ToTown { Priority = 21 });
-
+                
                 // WAQ tasks
-                Fsm.AddState(new WAQKillAndLoot { Priority = 19 });
-                Fsm.AddState(new Looting { Priority = 18 });
-                Fsm.AddState(new WAQInteractWorldObject { Priority = 17 });
-                Fsm.AddState(new WAQGoTo { Priority = 16 });
-                Fsm.AddState(new WAQKill { Priority = 15 });
-                Fsm.AddState(new WAQGatherWorldObject { Priority = 14 });
+                Fsm.AddState(new WAQInteractWorldObject { Priority = 20 });
+                Fsm.AddState(new WAQGoTo { Priority = 19 });
+                Fsm.AddState(new WAQKill { Priority = 18 });
+                //Fsm.AddState(new WAQKillAndLoot { Priority = 17 });
+                Fsm.AddState(new WAQGatherWorldObject { Priority = 16 });
                 
                 Fsm.AddState(new WAQPickupQuestFromNpc { Priority = 11 });
                 Fsm.AddState(new WAQPickupQuestFromGameObject { Priority = 10 });

@@ -102,6 +102,29 @@ namespace Wholesome_Auto_Quester.Helpers {
 
         public static long CurTime => Watch.ElapsedMilliseconds;
 
+        public static void ClearSpotAround(WoWObject POI, float clearDistance = 25f)
+        {
+            List<WoWObject> objectManager = ObjectManager.GetObjectWoW()
+                .FindAll(o => o.Type == WoWObjectType.Unit);
+            Dictionary<WoWUnit, float> hostileUnits = new Dictionary<WoWUnit, float>();
+            foreach (WoWUnit unit in objectManager)
+            {
+                if (unit.IsAlive && unit.IsAttackable && unit.Reaction == Reaction.Hostile 
+                    && unit.Position.DistanceTo(POI.Position) < clearDistance)
+                {
+                    float realDistance = CalculatePathTotalDistance(unit.Position, POI.Position);
+                    if (realDistance < clearDistance)
+                        hostileUnits.Add(unit, realDistance);
+                }
+            }
+            hostileUnits.OrderBy(u => u.Key.Position.DistanceTo(ObjectManager.Me.Position));
+            if (hostileUnits.Count > 0)
+            {
+                Logger.Log($"Fighting {hostileUnits.FirstOrDefault().Key.Name} to clear POI zone");
+                Fight.StartFight(hostileUnits.FirstOrDefault().Key.Guid);
+            }
+        }
+
         public static T TakeHighest<T>(this IEnumerable<T> list, Func<T, int> takeValue, out int amount) {
             var highest = int.MinValue;
             T curHighestElement = default;

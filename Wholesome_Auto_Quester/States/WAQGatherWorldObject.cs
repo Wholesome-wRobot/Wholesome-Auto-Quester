@@ -39,6 +39,8 @@ namespace Wholesome_Auto_Quester.States {
                     return;
                 }
 
+                ToolBox.ClearSpotAround(gameObject);
+
                 WoWGameObject gatherTarget = (WoWGameObject)gameObject;
 
                 if (gatherTarget.GetDistance > 3 + gatherTarget.Scale)
@@ -62,10 +64,10 @@ namespace Wholesome_Auto_Quester.States {
                 }
                 Thread.Sleep(1000);
             } else {
-                if (!MoveHelper.IsMovementThreadRunning || MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 8) {
+                if (!MoveHelper.IsMovementThreadRunning || MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 15) {
 
                     Logger.Log($"Moving to Hotspot for {task.QuestTitle} (Gather).");
-                    MoveHelper.StartGoToThread(task.Location, randomizeEnd: 8f);
+                    MoveHelper.StartGoToThread(task.Location, randomizeEnd: 15f);
                 }
                 
                 if (task.GetDistance <= 12f) {
