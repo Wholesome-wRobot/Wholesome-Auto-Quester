@@ -30,12 +30,12 @@ namespace Wholesome_Auto_Quester.States {
         public override void Run() {
             WAQTask task = WAQTasks.TaskInProgress;
             WoWObject gameObject = WAQTasks.TaskInProgressWoWObject;
-
+            /*
             if (Quest.GetQuestCompleted(task.QuestId)) {
                 WAQTasks.MarQuestAsCompleted(task.QuestId);
                 return;
             }
-
+            */
             if (gameObject != null) {
                 if (gameObject.Type != WoWObjectType.GameObject) 
                 {

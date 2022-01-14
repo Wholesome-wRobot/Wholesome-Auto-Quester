@@ -663,8 +663,11 @@ namespace Wholesome_Auto_Quester.Helpers {
             }
         }
 
-        public static void InitializeWAQDoNotSellList()
+        public static void InitializeWAQSettings()
         {
+            WholesomeAQSettings.AddQuestToBlackList(354); // Roaming mobs, hard to find in a hostile zone
+            WholesomeAQSettings.AddQuestToBlackList(1202); // Theramore docks
+
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))
             {
                 wManagerSetting.CurrentSetting.DoNotSellList.Remove("WAQStart");

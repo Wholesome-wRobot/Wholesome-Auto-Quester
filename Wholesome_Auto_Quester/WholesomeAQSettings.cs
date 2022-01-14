@@ -33,7 +33,6 @@ namespace Wholesome_Auto_Quester
             LevelDeltaMinus = 5;
             SmoothMove = false;
             LastUpdateDate = 0;
-
             BlacklistesQuests = new List<int>();
         }
 

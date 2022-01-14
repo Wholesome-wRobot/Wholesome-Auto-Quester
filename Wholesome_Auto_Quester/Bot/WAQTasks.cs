@@ -459,6 +459,19 @@ namespace Wholesome_Auto_Quester.Bot {
                     continue;
                 }
 
+                // Mark quest as completed if it's part of an exclusive group
+                if (quest.QuestAddon.ExclusiveGroup > 0)
+                {
+                    List<ModelQuestTemplate> questsWithSameExclGroup = Quests
+                        .FindAll(q => q.QuestAddon.ExclusiveGroup == quest.QuestAddon.ExclusiveGroup);
+                    if (questsWithSameExclGroup.Any(q => 
+                        Quest.GetQuestCompleted(q.Id) || Quest.GetLogQuestIsComplete(q.Id) || Quest.HasQuest(q.Id)))
+                    {
+                        quest.Status = QuestStatus.Completed;
+                        continue;
+                    }
+                }
+
                 // Quest completed
                 if (quest.IsCompleted || completedQuests.Any(q => q.PreviousQuestsIds.Contains(quest.Id))) 
                 {

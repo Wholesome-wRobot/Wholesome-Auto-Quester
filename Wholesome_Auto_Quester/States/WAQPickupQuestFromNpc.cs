@@ -30,13 +30,13 @@ namespace Wholesome_Auto_Quester.States {
         public override void Run() {
             WAQTask task = WAQTasks.TaskInProgress;
             WoWObject npcObject = WAQTasks.TaskInProgressWoWObject;
-
+            /*
             if (Quest.GetQuestCompleted(task.QuestId))
             {
                 WAQTasks.MarQuestAsCompleted(task.QuestId);
                 return;
             }
-
+            */
             if (npcObject != null) {
                 if (npcObject.Type != WoWObjectType.Unit) {
                     Logger.LogError($"Expected a WoWUnit for PickUp Quest but got {npcObject.Type} instead.");
