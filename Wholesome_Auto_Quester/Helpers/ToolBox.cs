@@ -355,7 +355,7 @@ namespace Wholesome_Auto_Quester.Helpers {
             || !ObjectManager.Me.IsMounted && ObjectManager.Me.InCombatFlagOnly;
 
         public static void UpdateCompletedQuests() {
-            var completedQuests = new List<int>();
+            List<int> completedQuests = new List<int>();
             completedQuests.AddRange(Quest.FinishedQuestSet);
             completedQuests.AddRange(WholesomeAQSettings.CurrentSetting.ListCompletedQuests);
             _completeQuests = completedQuests.ToHashSet();

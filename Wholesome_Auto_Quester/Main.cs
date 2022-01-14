@@ -27,7 +27,7 @@ public class Main : IProduct {
     public static readonly QuestsTrackerGUI QuestTrackerGui = new QuestsTrackerGUI();
     private ProductSettingsControl _settingsUserControl;
 
-    public string version = "0.0.05"; // Must match version in Version.txt
+    public string version = "0.0.06"; // Must match version in Version.txt
 
     public bool IsStarted { get; private set; }
 
@@ -65,6 +65,9 @@ public class Main : IProduct {
                 return;
 
             IsStarted = true;
+
+            WholesomeAQSettings.AddQuestToBlackList(354); // Roaming mobs, hard to find in a hostile zone
+            WholesomeAQSettings.AddQuestToBlackList(1202); // Theramore docks
 
             if (ToolBox.GetWoWVersion() == "3.3.5") {
                 var dbWotlk = new DBQueriesWotlk();

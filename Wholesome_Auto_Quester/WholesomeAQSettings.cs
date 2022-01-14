@@ -34,11 +34,7 @@ namespace Wholesome_Auto_Quester
             SmoothMove = false;
             LastUpdateDate = 0;
 
-            BlacklistesQuests = new List<int>()
-            {
-                354, // Roaming mobs, hard to find in a hostile zone
-                1202, // Theramore docks
-            };
+            BlacklistesQuests = new List<int>();
         }
 
         public static void AddQuestToBlackList(int questId)
