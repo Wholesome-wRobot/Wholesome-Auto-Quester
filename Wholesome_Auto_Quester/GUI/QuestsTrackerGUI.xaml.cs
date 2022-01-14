@@ -44,22 +44,25 @@ namespace Wholesome_Auto_Quester.GUI {
         }
 
         public void UpdateQuestsList() {
-            Dispatcher.BeginInvoke((Action) (() => {
+            Dispatcher.BeginInvoke((Action) (() => {                
                 object selectedQuest = sourceQuestsList.SelectedItem;
+                
                 sourceQuestsList.ItemsSource = null;
                 Vector3 myPos = ObjectManager.Me.PositionWithoutType;
-                sourceQuestsList.ItemsSource = WAQTasks.Quests
-                    .OrderBy(q => q.Status)
+                
+                List<ModelQuestTemplate> items = WAQTasks.Quests
+                    .OrderBy(q => q.Status)                    
                     .ThenBy(q => {
-                        if (q.CreatureQuestGivers.Count <= 0) return float.PositiveInfinity;
+                        if (q.CreatureQuestGivers.Count <= 0) return float.MaxValue;
                         return q.GetClosestQuestGiverDistance(myPos);
-                    });
-
-                if (selectedQuest != null && sourceQuestsList.Items.Contains(selectedQuest))
+                    }).ToList();
+                sourceQuestsList.ItemsSource = items;
+                
+                if (selectedQuest != null && sourceQuestsList.Items?.Count > 0 && sourceQuestsList.Items.Contains(selectedQuest))
                     sourceQuestsList.SelectedItem = selectedQuest;
                 else
                     detailsPanel.Visibility = Visibility.Hidden;
-
+                
                 questTitleTop.Text = $"Quests ({WAQTasks.Quests.Count})";
             }));
         }

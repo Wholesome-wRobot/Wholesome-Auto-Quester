@@ -139,14 +139,18 @@ namespace Wholesome_Auto_Quester.Database.Models
 
         public float GetClosestQuestGiverDistance(Vector3 myPosition)
         {
-            List<float> closestsQg = new List<float>();
+            List<float> closestsQg = new List<float>();            
             CreatureQuestGivers.ForEach(cqg =>
-                closestsQg.Add(cqg.Creatures.Min(c => c.GetSpawnPosition.DistanceTo(myPosition)))
-            );
+            {
+                if (cqg.Creatures.Count > 0)
+                    closestsQg.Add(cqg.Creatures.Min(c => c.GetSpawnPosition.DistanceTo(myPosition)));
+            });
             GameObjectQuestGivers.ForEach(goqg =>
-                closestsQg.Add(goqg.GameObjects.Min(c => c.GetSpawnPosition.DistanceTo(myPosition)))
-            );
-            return closestsQg.Min();
+            {
+                if (goqg.GameObjects.Count > 0)
+                    closestsQg.Add(goqg.GameObjects.Min(c => c.GetSpawnPosition.DistanceTo(myPosition)));
+            });
+            return closestsQg.Count > 0 ? closestsQg.Min() : float.MaxValue;
         }
 
         public void AddQuestItemsToDoNotSellList()
@@ -199,7 +203,7 @@ namespace Wholesome_Auto_Quester.Database.Models
         };
 
         public void RecordObjectiveIndices()
-        {
+        {            
             Logger.Log($"Recording objective indices for {LogTitle}");
             string[] objectives = Lua.LuaDoString<string[]>(@$"local numEntries, numQuests = GetNumQuestLogEntries()
                             local objectivesTable = {{}}

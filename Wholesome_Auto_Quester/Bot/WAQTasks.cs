@@ -442,6 +442,7 @@ namespace Wholesome_Auto_Quester.Bot {
 
         public static void UpdateStatuses() {
             ToolBox.UpdateCompletedQuests();
+            
             Dictionary<int, Quest.PlayerQuest> logQuests = Quest.GetLogQuestId().ToDictionary(quest => quest.ID);
             ModelQuestTemplate[] completedQuests =
                 Quests.Where(q => q.Status == QuestStatus.Completed && q.PreviousQuestsIds.Count > 0).ToArray();
@@ -522,7 +523,7 @@ namespace Wholesome_Auto_Quester.Bot {
                 wManagerSetting.CurrentSetting.DoNotSellList.InsertRange(WAQlistStartIndex + 1, itemsToAddToDNSList);
                 wManagerSetting.CurrentSetting.Save();
             }
-
+            
             if (_tick++ % 5 == 0) Main.QuestTrackerGui.UpdateQuestsList();
         }
 
