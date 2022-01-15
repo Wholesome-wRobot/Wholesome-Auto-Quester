@@ -1,9 +1,7 @@
 ﻿using robotManager.FiniteStateMachine;
-using System.Collections.Generic;
 using FlXProfiles;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Helpers;
-using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
@@ -19,14 +17,14 @@ namespace Wholesome_Auto_Quester.States
             get
             {
                 if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause
-                    || !ObjectManager.Me.IsValid)
+                    || !ObjectManager.Me.IsValid
+                    || ObjectManager.Me.HealthPercent < 40)
                     return false;
 
-                WoWObject npc = WAQTasks.TaskInProgressWoWObject;
-                if (WAQTasks.TaskInProgress?.TaskType == TaskType.KillAndLoot && npc?.Type == WoWObjectType.Unit)
+                if (WAQTasks.TaskInProgress?.TaskType == TaskType.KillAndLoot && WAQTasks.TaskInProgressWoWObject?.Type == WoWObjectType.Unit)
                 {
                     WoWUnit lootTarget = (WoWUnit)WAQTasks.TaskInProgressWoWObject;
-                    if (lootTarget.IsDead && lootTarget.IsLootable && ObjectManager.Me.InCombatFlagOnly)
+                    if (lootTarget.IsDead && lootTarget.IsLootable && ObjectManager.Me.InCombatFlagOnly && lootTarget.GetDistance < 25)
                     {
                         DisplayName = $"Loot in combat {WAQTasks.TaskInProgress.TargetName} for {WAQTasks.TaskInProgress.QuestTitle} [SmoothMove - Q]";
                         return true;
@@ -44,14 +42,17 @@ namespace Wholesome_Auto_Quester.States
 
             WoWUnit lootTarget = (WoWUnit)npc;
 
-            if (MoveHelper.IsMovementThreadRunning) MoveHelper.StopAllMove();
-            MoveHelper.StopCurrentMovementThread();
+            if (lootTarget.GetDistance > 3)
+                MoveHelper.StartGoToThread(npc.Position);
 
-            Logger.Log($"Looting {lootTarget.Name}");
-            LootingTask.Pulse(new List<WoWUnit> { lootTarget });
-
+            if (lootTarget.GetDistance <= 4)
+            {
+                Logger.Log($"Looting {lootTarget.Name}");
+                Interact.InteractGameObject(lootTarget.GetBaseAddress);
+            }
             if (!lootTarget.IsLootable)
                 task.PutTaskOnTimeout("Completed");
+            WAQTasks.UpdateTasks();
         }
     }
 }

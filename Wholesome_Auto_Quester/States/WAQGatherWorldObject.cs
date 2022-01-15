@@ -39,7 +39,7 @@ namespace Wholesome_Auto_Quester.States {
                     return;
                 }
 
-                ToolBox.ClearSpotAround(gameObject);
+                ToolBox.CheckSpotAround(gameObject);
 
                 WoWGameObject gatherTarget = (WoWGameObject)gameObject;
 
@@ -62,8 +62,8 @@ namespace Wholesome_Auto_Quester.States {
                     MoveHelper.StopAllMove();
                     Interact.InteractGameObject(gameObject.GetBaseAddress);
                     Usefuls.WaitIsCastingAndLooting();
+                    WAQTasks.UpdateTasks();
                 }
-                Thread.Sleep(1000);
             } else {
                 if (!MoveHelper.IsMovementThreadRunning || MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 15) {
 

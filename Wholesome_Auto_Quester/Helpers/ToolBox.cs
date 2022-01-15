@@ -102,14 +102,14 @@ namespace Wholesome_Auto_Quester.Helpers {
 
         public static long CurTime => Watch.ElapsedMilliseconds;
 
-        public static void ClearSpotAround(WoWObject POI, float clearDistance = 25f)
+        public static void CheckSpotAround(WoWObject POI, float clearDistance = 25f)
         {
             List<WoWObject> objectManager = ObjectManager.GetObjectWoW()
                 .FindAll(o => o.Type == WoWObjectType.Unit);
             Dictionary<WoWUnit, float> hostileUnits = new Dictionary<WoWUnit, float>();
             foreach (WoWUnit unit in objectManager)
             {
-                if (unit.IsAlive && unit.IsAttackable && unit.Reaction == Reaction.Hostile 
+                if (unit.IsAlive && unit.IsAttackable && unit.Reaction == Reaction.Hostile && unit.Guid != POI.Guid 
                     && unit.Position.DistanceTo(POI.Position) < clearDistance)
                 {
                     float realDistance = CalculatePathTotalDistance(unit.Position, POI.Position);
@@ -117,6 +117,16 @@ namespace Wholesome_Auto_Quester.Helpers {
                         hostileUnits.Add(unit, realDistance);
                 }
             }
+
+            if (hostileUnits.Where(u => u.Key.Level >= ObjectManager.Me.Level).Count() >= 2
+                || hostileUnits.Where(u => u.Key.Level >= ObjectManager.Me.Level - 2).Count() >= 3)
+            {
+                wManagerSetting.AddBlackList(POI.Guid, 1000 * 600, true);
+                WAQTasks.TaskInProgress.PutTaskOnTimeout(600, $"{POI.Name} is surrounded by {hostileUnits.Count} hostiles");
+                WAQTasks.UpdateTasks();
+                return;
+            }
+
             hostileUnits.OrderBy(u => u.Key.Position.DistanceTo(ObjectManager.Me.Position));
             if (hostileUnits.Count > 0)
             {
@@ -367,7 +377,7 @@ namespace Wholesome_Auto_Quester.Helpers {
             WholesomeAQSettings.CurrentSetting.Save();
         }
 
-        public static bool IsQuestCompleted(int questId) => _completeQuests.Contains(questId);
+        public static bool IsQuestCompleted(int questId) => WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Contains(questId);
         public static int GetServerNbCompletedQuests() => Quest.FinishedQuestSet.Count;
 
         public static bool ShouldQuestBeFinished(this ModelQuestTemplate quest) => quest.Status == QuestStatus.InProgress

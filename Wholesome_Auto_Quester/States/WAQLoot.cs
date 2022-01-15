@@ -44,16 +44,16 @@ namespace Wholesome_Auto_Quester.States
 
             WoWUnit lootTarget = (WoWUnit)npc;
 
-            ToolBox.ClearSpotAround(lootTarget);
+            ToolBox.CheckSpotAround(lootTarget);
 
             if (MoveHelper.IsMovementThreadRunning) MoveHelper.StopAllMove();
             MoveHelper.StopCurrentMovementThread();
 
             Logger.Log($"Looting {lootTarget.Name}");
             LootingTask.Pulse(new List<WoWUnit> { lootTarget });
-
             if (!lootTarget.IsLootable)
                 task.PutTaskOnTimeout("Completed");
+            WAQTasks.UpdateTasks();
         }
     }
 }

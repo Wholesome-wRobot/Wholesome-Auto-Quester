@@ -44,6 +44,8 @@ namespace Wholesome_Auto_Quester.States
 
                 WoWUnit killTarget = (WoWUnit)gameObject;
 
+                ToolBox.CheckSpotAround(killTarget);
+
                 if (!wManager.wManagerSetting.IsBlackListed(killTarget.Guid))
                 {
                     Logger.Log($"Unit found - Fighting {killTarget.Name}");
@@ -51,7 +53,10 @@ namespace Wholesome_Auto_Quester.States
                     Fight.StartFight(killTarget.Guid);
                     if (killTarget.IsDead && task.TaskType == TaskType.Kill
                         || killTarget.IsDead && !killTarget.IsLootable && task.TaskType == TaskType.KillAndLoot)
+                    {
                         task.PutTaskOnTimeout("Completed");
+                        WAQTasks.UpdateTasks();
+                    }
                 }
             }
             else

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Wholesome_Auto_Quester.Database.Models
 {
@@ -154,5 +155,63 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int flagsCustom { get; set; }
         public int SellPrice { get; set; }
         public int Subclass { get; set; }
+
+
+        private List<string> _item_flags;
+        public List<string> Item_Flags
+        {
+            get
+            {
+                if (_item_flags == null) _item_flags = GetMatchingItemFLags(Flags);
+                return _item_flags;
+            }
+        }
+
+        public List<string> GetMatchingItemFLags(long flag)
+        {
+            List<string> result = new List<string>();
+            foreach (long i in Enum.GetValues(typeof(ITEM_FLSG)))
+            {
+                if ((flag & i) != 0)
+                    result.Add(Enum.GetName(typeof(ITEM_FLSG), i));
+            }
+            return result;
+        }
     }
+}
+
+public enum ITEM_FLSG : long
+{
+    ITEM_FLAG_NO_PICKUP = 1,
+    CONJURED_ITEM = 2,
+    OPENABLE = 4,
+    GREEN_HEROIC_TEXT = 8,
+    DEPRECATED = 16,
+    CANT_BE_DESTROYED_EXCEPT_BY_SPELL = 32,
+    ITEM_FLAG_PLAYERCAST = 64,
+    NO_DEFAULT_30_SEC_CD_WHEN_EQUIPPED = 128,
+    ITEM_FLAG_MULTI_LOOT_QUEST = 256,
+    WRAPPER = 512,
+    USES_RESOURCE = 1024,
+    PARTY_LOOT = 2048,
+    REFUNDABLE = 4096,
+    ITEM_FLAG_PETITION = 8192,
+    ITEM_FLAG_HAS_TEXT = 16384,
+    ITEM_FLAG_NO_DISENCHANT = 32768,
+    ITEM_FLAG_REAL_DURATION = 65536,
+    NO_CREATOR = 131072,
+    CAN_BE_PROSPECTED = 262144,
+    UNIQUE_EQUIPPED = 524288,
+    ITEM_FLAG_IGNORE_FOR_AURAS = 1048576,
+    CAN_BE_USED_DURING_ARENA = 2097152,
+    NO_DURABILITY_LOSS = 4194304,
+    USABLE_IN_SHAPESHIFT = 8388608,
+    QUEST_GLOW = 16777216,
+    PROFESSION_RECIPE = 33554432,
+    UNUSABLE_IN_ARENA = 67108864,
+    ACCOUNT_BOUND = 134217728,
+    SPELL_IS_CAST_IGNORING_REAGENT = 268435456,
+    CAN_BE_MILLED = 536870912,
+    REPORT_TO_GUILD_CHAT = 1073741824,
+    BIND_ON_PICKUP_TRADABLE = 2147483648
 }

@@ -41,14 +41,14 @@ namespace Wholesome_Auto_Quester.States {
 
                 var gameObject = (WoWGameObject) WAQTasks.TaskInProgressWoWObject;
 
-                ToolBox.ClearSpotAround(gameObject);
+                ToolBox.CheckSpotAround(gameObject);
 
                 if (gameObject.IsGoodInteractDistance) {
                     if (MoveHelper.IsMovementThreadRunning) MoveHelper.StopAllMove();
                     Logger.Log($"Interacting with {gameObject.Name} to pick it up. (Gathering)");
                     Interact.InteractGameObject(gameObject.GetBaseAddress);
                     Usefuls.WaitIsCastingAndLooting();
-                    Thread.Sleep(100);
+                    WAQTasks.UpdateTasks();
                 } else if (!MoveHelper.IsMovementThreadRunning ||
                               MoveHelper.CurrentMovementTarget?.DistanceTo(gameObject.Position) > 4) {
                     Logger.Log($"Moving to {gameObject.Name} (Gathering).");

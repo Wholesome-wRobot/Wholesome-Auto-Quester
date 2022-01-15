@@ -30,12 +30,7 @@ namespace Wholesome_Auto_Quester.States {
         public override void Run() {
             WAQTask task = WAQTasks.TaskInProgress;
             WoWObject gameObject = WAQTasks.TaskInProgressWoWObject;
-            /*
-            if (Quest.GetQuestCompleted(task.QuestId)) {
-                WAQTasks.MarQuestAsCompleted(task.QuestId);
-                return;
-            }
-            */
+
             if (gameObject != null) {
                 if (gameObject.Type != WoWObjectType.GameObject) 
                 {
@@ -43,7 +38,7 @@ namespace Wholesome_Auto_Quester.States {
                     return;
                 }
 
-                ToolBox.ClearSpotAround(gameObject);
+                ToolBox.CheckSpotAround(gameObject);
 
                 WoWGameObject pickUpTarget = (WoWGameObject)gameObject;
 
@@ -60,20 +55,31 @@ namespace Wholesome_Auto_Quester.States {
 
                 if (MoveHelper.IsMovementThreadRunning) MoveHelper.StopAllMove();
 
-                if (!ToolBox.IsNpcFrameActive()) {
+                if (!ToolBox.IsNpcFrameActive()) 
+                {
                     Interact.InteractGameObject(pickUpTarget.GetBaseAddress);
                     Usefuls.WaitIsCasting();
-                } else if (!ToolBox.GossipPickUpQuest(task.QuestTitle)) {
-                    task.PutTaskOnTimeout("Failed pickup gossip");
+                } 
+                else 
+                {
+                    if (ToolBox.GossipPickUpQuest(task.QuestTitle))
+                    {
+                        Thread.Sleep(1000);
+                        WAQTasks.UpdateTasks();
+                    }
+                    else
+                        task.PutTaskOnTimeout("Failed pickup gossip");
                 }
-                Thread.Sleep(1000);
-            } else {
-                if (!MoveHelper.IsMovementThreadRunning ||
-                    MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 15) {
+            } 
+            else 
+            {
+                if (!MoveHelper.IsMovementThreadRunning || MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 15) 
+                {
                     Logger.Log($"Moving to QuestGiver for {task.QuestTitle}.");
                     MoveHelper.StartGoToThread(task.Location, randomizeEnd: 8f);
                 }
-                if (task.GetDistance <= 15f) {
+                if (task.GetDistance <= 15f) 
+                {
                     task.PutTaskOnTimeout("No object in sight for quest pickup");
                     MoveHelper.StopAllMove();
                 }

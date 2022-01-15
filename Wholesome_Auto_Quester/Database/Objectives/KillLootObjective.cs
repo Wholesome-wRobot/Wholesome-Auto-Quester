@@ -15,6 +15,7 @@ namespace Wholesome_Auto_Quester.Database.Objectives
         public ModelSpell ItemSpell3 { get; }
         public ModelSpell ItemSpell4 { get; }
         public int ItemEntry { get; }
+        public long ItemFLags { get; }
 
         public KillLootObjective(int amount, ModelCreatureLootTemplate creatureLootTemplate, ModelItemTemplate itemToLoot, string objectiveName = null)
         {
@@ -29,6 +30,7 @@ namespace Wholesome_Auto_Quester.Database.Objectives
             ItemEntry = itemToLoot.Entry;
             CreatureMaxLevel = creatureLootTemplate.CreatureTemplate.maxLevel;
             CreatureEntry = creatureLootTemplate.CreatureTemplate.entry;
+            ItemFLags = itemToLoot.Flags;
 
             ObjectiveName = objectiveName == null ? ItemName : objectiveName;
         }

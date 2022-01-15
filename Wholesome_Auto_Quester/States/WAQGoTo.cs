@@ -36,6 +36,7 @@ namespace Wholesome_Auto_Quester.States
             if (task.GetDistance < 2f) {
                 MoveHelper.StopAllMove();
                 Logger.Log($"Reached exploration hotspot for {task.QuestTitle}");
+                WAQTasks.UpdateTasks();
                 return;
             }
             

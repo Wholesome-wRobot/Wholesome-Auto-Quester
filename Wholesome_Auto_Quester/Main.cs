@@ -27,7 +27,7 @@ public class Main : IProduct {
     public static readonly QuestsTrackerGUI QuestTrackerGui = new QuestsTrackerGUI();
     private ProductSettingsControl _settingsUserControl;
 
-    public string version = "0.0.09"; // Must match version in Version.txt
+    public string version = "0.0.10"; // Must match version in Version.txt
 
     public bool IsStarted { get; private set; }
 

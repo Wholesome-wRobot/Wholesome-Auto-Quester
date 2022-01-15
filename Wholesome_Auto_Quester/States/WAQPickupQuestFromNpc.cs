@@ -30,24 +30,19 @@ namespace Wholesome_Auto_Quester.States {
         public override void Run() {
             WAQTask task = WAQTasks.TaskInProgress;
             WoWObject npcObject = WAQTasks.TaskInProgressWoWObject;
-            /*
-            if (Quest.GetQuestCompleted(task.QuestId))
-            {
-                WAQTasks.MarQuestAsCompleted(task.QuestId);
-                return;
-            }
-            */
+
             if (npcObject != null) {
                 if (npcObject.Type != WoWObjectType.Unit) {
                     Logger.LogError($"Expected a WoWUnit for PickUp Quest but got {npcObject.Type} instead.");
                     return;
                 }
 
-                ToolBox.ClearSpotAround(npcObject);
+                ToolBox.CheckSpotAround(npcObject);
 
                 var pickUpTarget = (WoWUnit) npcObject;
 
-                if (!pickUpTarget.InInteractDistance()) {
+                if (!pickUpTarget.InInteractDistance()) 
+                {
                     if (!MoveHelper.IsMovementThreadRunning
                        || MoveHelper.CurrentMovementTarget?.DistanceTo(pickUpTarget.PositionWithoutType) > 4)
                     {
@@ -59,19 +54,28 @@ namespace Wholesome_Auto_Quester.States {
 
                 if (MoveHelper.IsMovementThreadRunning) MoveHelper.StopAllMove();
 
-                if (!ToolBox.IsNpcFrameActive()) {
+                if (!ToolBox.IsNpcFrameActive()) 
                     Interact.InteractGameObject(pickUpTarget.GetBaseAddress);
-                } else if (!ToolBox.GossipPickUpQuest(task.QuestTitle)) {
-                    task.PutTaskOnTimeout("Failed PickUp Gossip");
+                else 
+                {
+                    if (ToolBox.GossipPickUpQuest(task.QuestTitle))
+                    {
+                        Thread.Sleep(1000);
+                        WAQTasks.UpdateTasks();
+                    }
+                    else
+                        task.PutTaskOnTimeout("Failed PickUp Gossip");
                 }
-                Thread.Sleep(1000);
-            } else {
-                if (!MoveHelper.IsMovementThreadRunning ||
-                    MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 5) {
+            } 
+            else 
+            {
+                if (!MoveHelper.IsMovementThreadRunning || MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 5) 
+                {
                     Logger.Log($"Moving to QuestGiver for {task.QuestTitle} (PickUp).");
                     MoveHelper.StartGoToThread(task.Location);
                 }
-                if (task.GetDistance <= 15f) {
+                if (task.GetDistance <= 15f) 
+                {
                     task.PutTaskOnTimeout("No NPC in sight for quest pickup");
                     MoveHelper.StopAllMove();
                 }

@@ -37,13 +37,15 @@ namespace Wholesome_Auto_Quester.States {
                     return;
                 }
 
-                ToolBox.ClearSpotAround(npcObject);
+                ToolBox.CheckSpotAround(npcObject);
 
                 var turnInTarget = (WoWUnit) npcObject;
 
-                if (!turnInTarget.InInteractDistance()) {
-                    if(!MoveHelper.IsMovementThreadRunning
-                       || MoveHelper.CurrentMovementTarget?.DistanceTo(turnInTarget.PositionWithoutType) > 4) {
+                if (!turnInTarget.InInteractDistance()) 
+                {
+                    if (!MoveHelper.IsMovementThreadRunning
+                       || MoveHelper.CurrentMovementTarget?.DistanceTo(turnInTarget.PositionWithoutType) > 4) 
+                    {
                         MoveHelper.StartGoToThread(turnInTarget.PositionWithoutType, randomizeEnd: 3f);
                         Logger.Log($"NPC found - Going to {turnInTarget.Name} to turn in {task.QuestTitle}.");
                     }
@@ -52,18 +54,27 @@ namespace Wholesome_Auto_Quester.States {
 
                 if (MoveHelper.IsMovementThreadRunning) MoveHelper.StopAllMove();
 
-                if (!ToolBox.IsNpcFrameActive()) {
+                if (!ToolBox.IsNpcFrameActive()) 
+                {
                     Interact.InteractGameObject(turnInTarget.GetBaseAddress);
-                } else if (!ToolBox.GossipTurnInQuest(task.QuestTitle)) {
-                    task.PutTaskOnTimeout("Failed PickUp Gossip");
-                } else {
-                    Thread.Sleep(1000);
-                    if (!Quest.HasQuest(task.QuestId))
-                        WAQTasks.MarQuestAsCompleted(task.QuestId);
-                }
-            } else {
-                if (!MoveHelper.IsMovementThreadRunning ||
-                    MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 15) {
+                } 
+                else 
+                {
+                    if (ToolBox.GossipTurnInQuest(task.QuestTitle))
+                    {
+                        Thread.Sleep(1000);
+                        if (!Quest.HasQuest(task.QuestId))
+                            WAQTasks.MarQuestAsCompleted(task.QuestId);
+                        WAQTasks.UpdateTasks();
+                    }
+                    else
+                        task.PutTaskOnTimeout("Failed PickUp Gossip");
+                } 
+            } 
+            else 
+            {
+                if (!MoveHelper.IsMovementThreadRunning || MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 15) 
+                {
                     Logger.Log($"Moving to QuestEnder for {task.QuestTitle}.");
                     MoveHelper.StartGoToThread(task.Location, randomizeEnd: 8f);
                 }

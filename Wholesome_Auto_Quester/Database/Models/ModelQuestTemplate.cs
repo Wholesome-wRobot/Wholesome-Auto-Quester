@@ -218,6 +218,11 @@ namespace Wholesome_Auto_Quester.Database.Models
                     }
                 }
             });
+            if (!AreObjectivesRecorded)
+            {
+                Logger.LogError($"Couldn't record indices for {LogTitle}");
+                AreObjectivesRecorded = true;
+            }
         }
 
         public List<Objective> GetAllObjectives()
