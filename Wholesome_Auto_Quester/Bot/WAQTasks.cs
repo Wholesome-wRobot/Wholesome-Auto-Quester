@@ -300,9 +300,8 @@ namespace Wholesome_Auto_Quester.Bot {
             // Check if pathing distance of first entries is not too far (big detour)
             var watchTaskLong = Stopwatch.StartNew();
             float closestTaskWalkDistance = ToolBox.CalculatePathTotalDistance(myPosition, closestTask.Location);
-            bool isTaskReachable = closestTaskWalkDistance > 0;
 
-            if (!isTaskReachable)
+            if (closestTaskWalkDistance <= 0)
             {
                 closestTask.PutTaskOnTimeout(600, "Unreachable (1)");
                 closestTask = null;
@@ -312,32 +311,30 @@ namespace Wholesome_Auto_Quester.Bot {
 
             if (closestTaskWalkDistance > closestTask.GetDistance * 2)
             {
-                Logger.LogError($"Detour detected for task {closestTask.TaskName}");
-                int nbTasks = TasksPile.Count;
+                Logger.Log($"Detour detected for task {closestTask.TaskName}");
                 int closestTaskPriorityScore = closestTask.CalculatePriority(closestTaskWalkDistance);
 
-                for (int i = 0; i < nbTasks - 1; i++)
+                for (int i = 0; i < TasksPile.Count - 1; i++)
                 {
                     if (i > 3) break;
                     if (!TasksPile[i].IsTimedOut)
                     {
-                        float walkDistanceToTask = ToolBox.CalculatePathTotalDistance(myPosition, TasksPile[i].Location);
-                        if (walkDistanceToTask <= 0)
+                        float walkDistanceToNewTask = ToolBox.CalculatePathTotalDistance(myPosition, TasksPile[i].Location);
+                        if (walkDistanceToNewTask <= 0)
                         {
                             TasksPile[i].PutTaskOnTimeout(600, "Unreachable (2)");
                             continue;
                         }
 
-                        int taskPriority = TasksPile[i].CalculatePriority(walkDistanceToTask);
-                        int nextTaskPriority = TasksPile[i + 1].Priority;
+                        int newTaskPriority = TasksPile[i].CalculatePriority(walkDistanceToNewTask);
 
-                        if (taskPriority < closestTaskPriorityScore)
+                        if (newTaskPriority < closestTaskPriorityScore)
                         {
-                            closestTaskPriorityScore = taskPriority;
+                            closestTaskPriorityScore = newTaskPriority;
                             closestTask = TasksPile[i];
                         }
 
-                        if (closestTaskPriorityScore < nextTaskPriority)
+                        if (closestTaskPriorityScore < TasksPile[i + 1].Priority)
                             break;
                     }
                 }

@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using FlXProfiles;
 using Newtonsoft.Json;
 using robotManager.Helpful;
 using Wholesome_Auto_Quester.Bot;
@@ -118,17 +119,25 @@ namespace Wholesome_Auto_Quester.Helpers {
                 }
             }
 
-            if (hostileUnits.Where(u => u.Key.Level >= ObjectManager.Me.Level).Count() >= 2
-                || hostileUnits.Where(u => u.Key.Level >= ObjectManager.Me.Level - 2).Count() >= 3)
+            WoWUnit poiUnit = POI is WoWUnit ? (WoWUnit)POI: null;
+            WoWUnit me = ObjectManager.Me;
+            bool poiIsHostileUnit = poiUnit != null && poiUnit.Reaction == Reaction.Hostile;
+            int maxCount = poiIsHostileUnit ? 2 : 3;
+            if (hostileUnits.Where(u => u.Key.Level >= me.Level && POI.Position.DistanceTo(u.Key.Position) < 18).Count() >= maxCount
+                || hostileUnits.Where(u => u.Key.Level >= me.Level - 2 && POI.Position.DistanceTo(u.Key.Position) < 18).Count() >= maxCount + 1)
             {
+                MoveHelper.StopAllMove();
                 wManagerSetting.AddBlackList(POI.Guid, 1000 * 600, true);
-                WAQTasks.TaskInProgress.PutTaskOnTimeout(600, $"{POI.Name} is surrounded by {hostileUnits.Count} hostiles");
+                wManagerSetting.AddBlackListZone(POI.Position, 20, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
+                WAQTasks.TaskInProgress.PutTaskOnTimeout(600, $"{POI.Name} is surrounded by hostiles");
                 WAQTasks.UpdateTasks();
                 return;
             }
 
-            hostileUnits.OrderBy(u => u.Key.Position.DistanceTo(ObjectManager.Me.Position));
-            if (hostileUnits.Count > 0)
+            IOrderedEnumerable<KeyValuePair<WoWUnit, float>> hostilesInFront = hostileUnits
+                .Where(u => u.Key.GetDistance < POI.GetDistance)
+                .OrderBy(u => u.Key.GetDistance);
+            if (hostilesInFront.Count() > 0)
             {
                 Logger.Log($"Fighting {hostileUnits.FirstOrDefault().Key.Name} to clear POI zone");
                 Fight.StartFight(hostileUnits.FirstOrDefault().Key.Guid);
