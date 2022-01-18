@@ -1,13 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using FlXProfiles;
+using Wholesome_Auto_Quester.Helpers;
 using robotManager.FiniteStateMachine;
 using robotManager.Helpful;
-using Wholesome_Auto_Quester.Helpers;
-using wManager;
 using wManager.Wow.Bot.Tasks;
-using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
@@ -30,7 +26,8 @@ namespace Wholesome_Auto_Quester.States {
             get
             {
                 if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause
-                    || !ObjectManager.Me.IsValid)
+                    || !ObjectManager.Me.IsValid
+                    || ObjectManager.Me.GetDurabilityPercent < 20)
                     return false;
 
                 // Check directly attacking units

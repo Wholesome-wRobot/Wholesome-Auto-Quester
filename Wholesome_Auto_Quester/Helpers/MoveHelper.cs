@@ -4,15 +4,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using robotManager.Helpful;
-using Wholesome_Auto_Quester;
-using Wholesome_Auto_Quester.Helpers;
+using Wholesome_Auto_Quester.Bot;
 using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 using Move = SmoothMove.Move;
 
-namespace FlXProfiles {
-    internal static class MoveHelper {
+namespace Wholesome_Auto_Quester.Helpers {
+    public static class MoveHelper {
         private static readonly object Lock = new object();
         private static Task _currentMovementTask;
         private static CancellationTokenSource _currentMovementToken;
@@ -76,7 +75,7 @@ namespace FlXProfiles {
                         precision: precision, shortCut: shortCut, jumpRareness: jumpRareness,
                         showPath: showPath, avoidDangerousEnemies: true))
                     :
-                    new Action(() => GoToTask.ToPosition(target));
+                    new Action(() => GoToTask.ToPosition(target, 0.2f));
 
                 Task goToTask = Task.Factory.StartNew(goToAction, cts.Token)
                     .ContinueWith(task => ResetCurrentMovementCache(), cts.Token);
@@ -106,7 +105,7 @@ namespace FlXProfiles {
 
         private static bool Finished(this Task task) => task.IsCompleted || task.IsCanceled || task.IsFaulted;
 
-        public static CancellationTokenSource StartMoveAlongThread(List<Vector3> path,
+        public static CancellationTokenSource StartMoveAlongToTaskThread(List<Vector3> path, WAQTask task,
             bool face = true, bool precise = false, Func<bool> abortIf = null, float randomization = 0,
             bool checkCurrent = true, float precision = 1, List<byte> customRadius = null, bool shortCut = false,
             int jumpRareness = 2, bool showPath = false)
@@ -129,25 +128,24 @@ namespace FlXProfiles {
                 Task moveAlongTask = Task.Factory.StartNew(moveAlongAction, cts.Token)
                     .ContinueWith(task => ResetCurrentMovementCache(), cts.Token);
 
-                if (abortIf != null)
-                    Task.Factory.StartNew(() => {
-                        while (!moveAlongTask.IsCompleted && !moveAlongTask.IsCanceled && !moveAlongTask.IsFaulted
-                               && !cts.Token.IsCancellationRequested && IsMovementThreadRunning)
+                Task.Factory.StartNew(() => {
+                    while (/*!moveAlongTask.IsCompleted &&*/ !moveAlongTask.IsCanceled && !moveAlongTask.IsFaulted
+                            && !cts.Token.IsCancellationRequested && IsMovementThreadRunning)
+                    {
+                        if (abortIf != null && abortIf() || task.Location.DistanceTo(WAQTasks.TaskInProgress?.Location) > 1)
                         {
-                            if (abortIf())
-                            {
-                                cts.Cancel();
-                                StopAllMove();
-                                break;
-                            }
-
-                            Thread.Sleep(100);
+                            cts.Cancel();
+                            StopAllMove();
+                            break;
                         }
-                    }, cts.Token);
 
-                _currentMovementTask = moveAlongTask;
+                        Thread.Sleep(100);
+                    }
+                }, cts.Token);
+
                 _currentMovementToken = cts;
                 _currentMovementTarget = path.LastOrDefault();
+                _currentMovementTask = moveAlongTask;
                 return cts;
             }
         }
@@ -263,5 +261,18 @@ namespace FlXProfiles {
             Interact.InteractGameObject(foundObject.GetBaseAddress);
             return true;
         }
+    }
+}
+
+public class WAQPath
+{
+    public List<Vector3> Path;
+    public float Distance;
+    public bool IsReachable => Distance > 0f;
+    public Vector3 Destination => Path.Last();
+    public WAQPath(List<Vector3> path, float distance)
+    {
+        Path = path;
+        Distance = distance;
     }
 }

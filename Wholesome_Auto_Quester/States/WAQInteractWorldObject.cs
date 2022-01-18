@@ -1,8 +1,6 @@
 ﻿using robotManager.FiniteStateMachine;
-using System.Threading;
-using FlXProfiles;
-using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Helpers;
+using Wholesome_Auto_Quester.Bot;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
@@ -27,45 +25,48 @@ namespace Wholesome_Auto_Quester.States {
             }
         }
 
-        public override void Run() {
+        public override void Run() 
+        {
             WAQTask task = WAQTasks.TaskInProgress;
+            WoWObject gameObject = WAQTasks.WoWObjectInProgress;
+            WAQPath pathToTask = WAQTasks.PathToCurrentTask;
 
-            if (WAQTasks.TaskInProgressWoWObject != null)
+            if (ToolBox.ShouldStateBeInterrupted(task, gameObject, WoWObjectType.GameObject))
+                return;
+
+            if (gameObject != null)
             {
-                if (WAQTasks.TaskInProgressWoWObject.Type != WoWObjectType.GameObject) {
-                    Logger.LogError(
-                        $"Found object ({WAQTasks.TaskInProgressWoWObject.Entry}) for {task.TaskName} is not a GameObject! " +
-                        $"This should not happen. We got {WAQTasks.TaskInProgressWoWObject.Type} instead.");
-                    return;
-                }
+                WoWGameObject interactObject = (WoWGameObject)WAQTasks.WoWObjectInProgress;
+                ToolBox.CheckSpotAround(interactObject);
 
-                var gameObject = (WoWGameObject) WAQTasks.TaskInProgressWoWObject;
-
-                ToolBox.CheckSpotAround(gameObject);
-
-                if (gameObject.IsGoodInteractDistance) {
+                if (interactObject.IsGoodInteractDistance) 
+                {
                     if (MoveHelper.IsMovementThreadRunning) MoveHelper.StopAllMove();
-                    Logger.Log($"Interacting with {gameObject.Name} to pick it up. (Gathering)");
-                    Interact.InteractGameObject(gameObject.GetBaseAddress);
+                    Logger.Log($"Interacting with {interactObject.Name}.");
+                    Interact.InteractGameObject(interactObject.GetBaseAddress);
                     Usefuls.WaitIsCastingAndLooting();
-                    WAQTasks.UpdateTasks();
-                } else if (!MoveHelper.IsMovementThreadRunning ||
-                              MoveHelper.CurrentMovementTarget?.DistanceTo(gameObject.Position) > 4) {
-                    Logger.Log($"Moving to {gameObject.Name} (Gathering).");
-                    MoveHelper.StartGoToThread(gameObject.Position, randomizeEnd: 3f);
+                    Main.RequestImmediateTaskUpdate = true;
+                } 
+                else if (!MoveHelper.IsMovementThreadRunning ||
+                    MoveHelper.CurrentMovementTarget?.DistanceTo(interactObject.Position) > 4) 
+                {
+                    Logger.Log($"Moving to {interactObject.Name} (Gathering).");
+                    MoveHelper.StartGoToThread(interactObject.Position, randomizeEnd: 3f);
                 }
-            } else {
+            } 
+            else 
+            {
                 if (!MoveHelper.IsMovementThreadRunning ||
-                    MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 15f) {
-
-                    Logger.Log($"Moving to Hotspot for {task.QuestTitle} (Gather).");
-                    MoveHelper.StartGoToThread(task.Location, randomizeEnd: 8f);
+                    MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 15f) 
+                {
+                    Logger.Log($"Traveling to Hotspot for {task.QuestTitle} (Gather).");
+                    MoveHelper.StartMoveAlongToTaskThread(pathToTask.Path, task);
                 }
                 
-                if (task.GetDistance <= 15f) {
+                if (task.GetDistance <= 12f) 
+                {
                     task.PutTaskOnTimeout("No object to gather in sight");
-                } else if (ToolBox.DangerousEnemiesAtLocation(task.Location) && WAQTasks.TasksPile.FindAll(t => t.TargetEntry == task.TargetEntry).Count > 1) {
-                    task.PutTaskOnTimeout("Dangerous mobs in the area");
+                    MoveHelper.StopAllMove();
                 }
             }
         }

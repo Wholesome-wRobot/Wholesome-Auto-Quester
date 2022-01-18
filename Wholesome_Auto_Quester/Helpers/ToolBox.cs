@@ -6,12 +6,12 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using FlXProfiles;
 using Newtonsoft.Json;
 using robotManager.Helpful;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Database.Models;
 using wManager;
+using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
@@ -105,6 +105,12 @@ namespace Wholesome_Auto_Quester.Helpers {
 
         public static void CheckSpotAround(WoWObject POI, float clearDistance = 25f)
         {
+            if (ObjectManager.Me.IsMounted)
+                MountTask.DismountMount();
+
+            if (ObjectManager.Me.InCombatFlagOnly)
+                return;
+
             List<WoWObject> objectManager = ObjectManager.GetObjectWoW()
                 .FindAll(o => o.Type == WoWObjectType.Unit);
             Dictionary<WoWUnit, float> hostileUnits = new Dictionary<WoWUnit, float>();
@@ -113,9 +119,9 @@ namespace Wholesome_Auto_Quester.Helpers {
                 if (unit.IsAlive && unit.IsAttackable && unit.Reaction == Reaction.Hostile && unit.Guid != POI.Guid 
                     && unit.Position.DistanceTo(POI.Position) < clearDistance)
                 {
-                    float realDistance = CalculatePathTotalDistance(unit.Position, POI.Position);
-                    if (realDistance < clearDistance)
-                        hostileUnits.Add(unit, realDistance);
+                    WAQPath pathFromPoi = GetWAQPath(unit.Position, POI.Position);
+                    if (pathFromPoi.Distance < clearDistance)
+                        hostileUnits.Add(unit, pathFromPoi.Distance);
                 }
             }
 
@@ -130,7 +136,7 @@ namespace Wholesome_Auto_Quester.Helpers {
                 wManagerSetting.AddBlackList(POI.Guid, 1000 * 600, true);
                 wManagerSetting.AddBlackListZone(POI.Position, 20, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
                 WAQTasks.TaskInProgress.PutTaskOnTimeout(600, $"{POI.Name} is surrounded by hostiles");
-                WAQTasks.UpdateTasks();
+                Main.RequestImmediateTaskReset = true;
                 return;
             }
 
@@ -370,7 +376,7 @@ namespace Wholesome_Auto_Quester.Helpers {
         }
 
         public static bool MoveToHotSpotAbortCondition(WAQTask task) =>
-            WAQTasks.TaskInProgressWoWObject != null
+            WAQTasks.WoWObjectInProgress != null
             || !ObjectManager.Me.IsMounted && ObjectManager.Me.InCombatFlagOnly;
 
         public static void UpdateCompletedQuests() {
@@ -378,12 +384,17 @@ namespace Wholesome_Auto_Quester.Helpers {
             completedQuests.AddRange(Quest.FinishedQuestSet);
             completedQuests.AddRange(WholesomeAQSettings.CurrentSetting.ListCompletedQuests);
             _completeQuests = completedQuests.Distinct().ToHashSet();
+            bool shouldSave = false;
             foreach (int questId in _completeQuests)
             {
                 if (!WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Contains(questId))
+                {
                     WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Add(questId);
+                    shouldSave = true;
+                }
             }
-            WholesomeAQSettings.CurrentSetting.Save();
+            if (shouldSave)
+                WholesomeAQSettings.CurrentSetting.Save();
         }
 
         public static bool IsQuestCompleted(int questId) => WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Contains(questId);
@@ -513,6 +524,32 @@ namespace Wholesome_Auto_Quester.Helpers {
             }
 
             return result;
+        }
+
+        public static bool ShouldStateBeInterrupted(WAQTask task, WoWObject gameObject, WoWObjectType expectedType)
+        {
+            if (gameObject != null)
+            {
+                if (gameObject.Type != expectedType)
+                {
+                    Logger.LogError($"Expected {expectedType} for PickUp Quest but got {gameObject.Type} instead.");
+                    return true;
+                }
+                if (wManagerSetting.IsBlackListedZone(gameObject.Position)
+                    || wManagerSetting.IsBlackListed(gameObject.Guid))
+                {
+                    MoveHelper.StopAllMove();
+                    Main.RequestImmediateTaskReset = true;
+                    return true;
+                }
+            }
+            if (wManagerSetting.IsBlackListedZone(task.Location))
+            {
+                MoveHelper.StopAllMove();
+                Main.RequestImmediateTaskReset = true;
+                return true;
+            }
+            return false;
         }
 
         public static void UpdateObjectiveCompletionDict(int[] questIds)
@@ -660,19 +697,22 @@ namespace Wholesome_Auto_Quester.Helpers {
             };
 
         // Calculate real walking distance, returns 0 is path is broken
-        public static float CalculatePathTotalDistance(Vector3 from, Vector3 to) {
+        public static WAQPath GetWAQPath(Vector3 from, Vector3 to)
+        {
             float distance = 0f;
             bool isReachable;
-            List<Vector3> path = FindPath(from, to, skipIfPartiel: true, resultSuccess: out isReachable);
+            List<Vector3> path = FindPath(from, to, skipIfPartiel: false, resultSuccess: out isReachable);
             if (isReachable)
                 for (var i = 0; i < path.Count - 1; ++i) distance += path[i].DistanceTo(path[i + 1]);
-            return distance;
+            return new WAQPath(path, distance);
         }
 
         public static void InitializeWAQSettings()
         {
             WholesomeAQSettings.AddQuestToBlackList(354); // Roaming mobs, hard to find in a hostile zone
             WholesomeAQSettings.AddQuestToBlackList(1202); // Theramore docks
+            WholesomeAQSettings.AddQuestToBlackList(1526); // Call of Fire. Requires active item from PREVIOUS quest
+            WholesomeAQSettings.AddQuestToBlackList(6548); // Too many mobs
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))
             {

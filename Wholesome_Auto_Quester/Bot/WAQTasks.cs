@@ -14,11 +14,13 @@ using static wManager.Wow.Helpers.Quest.PlayerQuest;
 namespace Wholesome_Auto_Quester.Bot {
     public class WAQTasks {
         private static int _tick;
-        private static bool _isUpdateTaskRunning = false;
         public static List<WAQTask> TasksPile { get; set; } = new List<WAQTask>();
         public static List<ModelQuestTemplate> Quests { get; set; } = new List<ModelQuestTemplate>();
         public static WAQTask TaskInProgress { get; set; }
-        public static WoWObject TaskInProgressWoWObject { get; set; }
+        public static WoWObject WoWObjectInProgress { get; set; }
+        public static WAQPath PathToCurrentTask { get; set; }
+        public static List<int> EntriesToLoot { get; set; }
+        public static List<WoWObject> WAQObjectManager { get; set; } = new List<WoWObject>();
 
         public static void AddQuests(List<ModelQuestTemplate> quests) {
             quests.ForEach(newQuest => {
@@ -27,15 +29,13 @@ namespace Wholesome_Auto_Quester.Bot {
             });
         }
 
-        public static void UpdateTasks() {
+        public static void UpdateTasks()
+        {
             if (Quests.Count <= 0 
                 || !ObjectManager.Me.IsAlive 
                 || !ObjectManager.Me.IsValid 
-                || Fight.InFight
-                || _isUpdateTaskRunning)
+                || Fight.InFight)
                 return;
-
-            _isUpdateTaskRunning = true;
 
             //Logger.Log("Update tasks");
             var generatedTasks = new List<WAQTask>();
@@ -46,6 +46,7 @@ namespace Wholesome_Auto_Quester.Bot {
             ToolBox.UpdateObjectiveCompletionDict(Quests.Where(quest => quest.Status == QuestStatus.InProgress)
                 .Select(quest => quest.Id).ToArray());
 
+            // TASK GENERATION
             foreach (ModelQuestTemplate quest in Quests)
             {
                 // Completed
@@ -53,6 +54,12 @@ namespace Wholesome_Auto_Quester.Bot {
                     TasksPile.RemoveAll(t => t.QuestId == quest.Id);
                     continue;
                 }
+
+                // quest is in progress but we don't have the starting item
+                if (quest.Status == QuestStatus.InProgress
+                    && quest.StartItem > 0
+                    && !ItemsManager.HasItemById((uint)quest.StartItem))
+                    continue;
 
                 // Turn in quest
                 if (quest.Status == QuestStatus.ToTurnIn)
@@ -277,10 +284,7 @@ namespace Wholesome_Auto_Quester.Bot {
             TasksPile.AddRange(generatedTasks);
 
             if (TasksPile.Count <= 0 || !TasksPile.Exists(t => !t.IsTimedOut))
-            {
-                _isUpdateTaskRunning = false;
                 return;
-            }
             
             // Filter far away new quests if we still have quests to turn in
             // if (TasksPile.Any(task => task.Quest.ShouldQuestBeFinished())) {
@@ -295,43 +299,51 @@ namespace Wholesome_Auto_Quester.Bot {
             TasksPile = TasksPile.Where(task => !wManagerSetting.IsBlackListedZone(task.Location))
                 .OrderBy(t => t.Priority).ToList();
 
-            WAQTask closestTask = TasksPile.Find(t => !t.IsTimedOut);
+            WAQTask closestTask = TasksPile.Find(t => !t.IsTimedOut && !wManagerSetting.IsBlackListedZone(t.Location));
 
-            // Check if pathing distance of first entries is not too far (big detour)
-            var watchTaskLong = Stopwatch.StartNew();
-            float closestTaskWalkDistance = ToolBox.CalculatePathTotalDistance(myPosition, closestTask.Location);
-
-            if (closestTaskWalkDistance <= 0)
+            if (closestTask == null)
             {
-                closestTask.PutTaskOnTimeout(600, "Unreachable (1)");
-                closestTask = null;
-                _isUpdateTaskRunning = false;
+                Logger.Log("No task found");
                 return;
             }
 
-            if (closestTaskWalkDistance > closestTask.GetDistance * 2)
+            // Check if pathing distance of first entries is not too far (big detour)
+            var watchTaskLong = Stopwatch.StartNew();
+            WAQPath pathToClosestTask = ToolBox.GetWAQPath(myPosition, closestTask.Location);
+
+            if (!pathToClosestTask.IsReachable)
             {
-                Logger.Log($"Detour detected for task {closestTask.TaskName}");
-                int closestTaskPriorityScore = closestTask.CalculatePriority(closestTaskWalkDistance);
+                closestTask.PutTaskOnTimeout(600, "Unreachable (1)");
+                wManagerSetting.AddBlackListZone(closestTask.Location, 5, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
+                Main.RequestImmediateTaskReset = true;
+                return;
+            }
+
+            if (pathToClosestTask.Distance > closestTask.GetDistance * 2)
+            {
+                //Logger.Log($"Detour detected for task {closestTask.TaskName}");
+                int closestTaskPriorityScore = closestTask.CalculatePriority(pathToClosestTask.Distance);
 
                 for (int i = 0; i < TasksPile.Count - 1; i++)
                 {
                     if (i > 3) break;
                     if (!TasksPile[i].IsTimedOut)
                     {
-                        float walkDistanceToNewTask = ToolBox.CalculatePathTotalDistance(myPosition, TasksPile[i].Location);
-                        if (walkDistanceToNewTask <= 0)
+                        WAQPath pathToNewTask = ToolBox.GetWAQPath(myPosition, TasksPile[i].Location);
+                        if (!pathToNewTask.IsReachable)
                         {
                             TasksPile[i].PutTaskOnTimeout(600, "Unreachable (2)");
+                            wManagerSetting.AddBlackListZone(closestTask.Location, 5, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
                             continue;
                         }
 
-                        int newTaskPriority = TasksPile[i].CalculatePriority(walkDistanceToNewTask);
+                        int newTaskPriority = TasksPile[i].CalculatePriority(pathToNewTask.Distance);
 
                         if (newTaskPriority < closestTaskPriorityScore)
                         {
                             closestTaskPriorityScore = newTaskPriority;
                             closestTask = TasksPile[i];
+                            pathToClosestTask = pathToNewTask;
                         }
 
                         if (closestTaskPriorityScore < TasksPile[i + 1].Priority)
@@ -344,11 +356,16 @@ namespace Wholesome_Auto_Quester.Bot {
             var researchedTasks = new List<WAQTask>();
             var wantedUnitEntries = new List<int>();
             var wantedObjectEntries = new List<int>();
+            var wantedLootEntries = new List<int>();
             TasksPile.ForEach(pileTask => {
                 if (!researchedTasks.Exists(poiTasks => poiTasks.ObjectGuid == pileTask.ObjectGuid) &&
                     !pileTask.IsTimedOut) {
                     if (pileTask.Creature != null)
+                    {
                         wantedUnitEntries.Add(pileTask.TargetEntry);
+                        if (pileTask.TaskType == TaskType.KillAndLoot)
+                            wantedLootEntries.Add(pileTask.TargetEntry);
+                    }
                     if (pileTask.GameObject != null)
                         wantedObjectEntries.Add(pileTask.TargetEntry);
 
@@ -356,80 +373,84 @@ namespace Wholesome_Auto_Quester.Bot {
                 }
             });
 
+            EntriesToLoot = wantedLootEntries;
+
             // Look for surrounding POIs
-            List<WoWObject> surroundingWoWObjects = ObjectManager.GetObjectWoW();
+            WAQObjectManager = ObjectManager.GetObjectWoW()
+                .Where(o => o.GetRealDistance() < 60)
+                .OrderBy(o => o.GetDistance)
+                .ToList();
 
             var watchObjectsShort = Stopwatch.StartNew();
-            List<WoWObject> filteredSurroundingObjects = surroundingWoWObjects.FindAll(o => {
+            List<WoWObject> filteredSurroundingObjects = WAQObjectManager.FindAll(o => {
                 int objectEntry = o.Entry;
                 WoWObjectType type = o.Type;
                 return (type == WoWObjectType.Unit && wantedUnitEntries.Contains(objectEntry)
-                        || type == WoWObjectType.GameObject && wantedObjectEntries.Contains(objectEntry))
-                        && !wManagerSetting.IsBlackListed(o.Guid)
-                        && o.GetRealDistance() < 60
-                        && IsObjectValidForTask(o, researchedTasks.Find(task => task.TargetEntry == objectEntry));
-            }).OrderBy(o => o.GetDistance).ToList();
+                    || type == WoWObjectType.GameObject && wantedObjectEntries.Contains(objectEntry))
+                    && !wManagerSetting.IsBlackListed(o.Guid)
+                    && !wManagerSetting.IsBlackListedZone(o.Position)
+                    && IsObjectValidForTask(o, researchedTasks.Find(task => task.TargetEntry == objectEntry));
+                }).ToList();
 
             // Get objects real distance
             var watchObjectShort = Stopwatch.StartNew();
             if (filteredSurroundingObjects.Count > 0)
             {
                 WoWObject closestObject = filteredSurroundingObjects[0];
+                WAQPath pathToClosestObject = ToolBox.GetWAQPath(myPosition, closestObject.Position);
+                //Logger.Log(closestObject.Name + " " + closestObject.Guid + " " + pathToClosestObject.IsReachable.ToString() + " " + pathToClosestObject.Distance);
 
-                float walkDistanceToClosestObject = ToolBox.CalculatePathTotalDistance(myPosition, closestObject.Position);
-                bool isObjectReachable = walkDistanceToClosestObject > 0;
-
-                if (!isObjectReachable)
+                if (!pathToClosestObject.IsReachable)
                 {
-                    Logger.LogError($"Blacklisting {closestObject.Name} {closestObject.Guid} because it's unreachable");
+                    Logger.Log($"Blacklisting {closestObject.Name} {closestObject.Guid} because it's unreachable");
                     wManagerSetting.AddBlackList(closestObject.Guid, 1000 * 600, true);
-                    _isUpdateTaskRunning = false;
+                    Main.RequestImmediateTaskReset = true;
                     return;
                 }
 
-                if (walkDistanceToClosestObject > closestObject.GetDistance * 2)
+                if (pathToClosestObject.Distance > closestObject.GetDistance * 2)
                 {
-                    Logger.Log($"Detour detected for object {closestObject.Name}");
+                    //Logger.Log($"Detour detected for object {closestObject.Name}");
                     int nbObject = filteredSurroundingObjects.Count;
                     for (int i = 1; i < nbObject - 1; i++)
                     {
-                        float walkDistanceToNewObject = ToolBox.CalculatePathTotalDistance(myPosition, filteredSurroundingObjects[i].Position);
+                        WAQPath pathToNewObject = ToolBox.GetWAQPath(myPosition, filteredSurroundingObjects[i].Position);
 
-                        if (walkDistanceToNewObject <= 0)
+                        if (!pathToNewObject.IsReachable)
                         {
-                            Logger.LogError($"Blacklisting {filteredSurroundingObjects[i].Name} {filteredSurroundingObjects[i].Guid} because it's unreachable");
+                            Logger.Log($"Blacklisting {filteredSurroundingObjects[i].Name} {filteredSurroundingObjects[i].Guid} because it's unreachable");
                             wManagerSetting.AddBlackList(filteredSurroundingObjects[i].Guid, 1000 * 600, true);
                             break;
                         }
 
-                        if (walkDistanceToNewObject < walkDistanceToClosestObject)
+                        if (pathToNewObject.Distance < pathToClosestObject.Distance)
                         {
-                            walkDistanceToClosestObject = walkDistanceToNewObject;
+                            pathToClosestObject = pathToNewObject;
                             closestObject = filteredSurroundingObjects[i];
                         }
 
                         float flyDistanceToNextObject = filteredSurroundingObjects[i + 1].GetDistance;
-                        if (walkDistanceToClosestObject < flyDistanceToNextObject)
+                        if (pathToClosestObject.Distance < flyDistanceToNextObject)
                             break;
                     }
                 }
 
-                if (!isObjectReachable || walkDistanceToClosestObject > closestTaskWalkDistance + 20)
+                if (!pathToClosestObject.IsReachable || pathToClosestObject.Distance > pathToClosestTask.Distance + 20)
                 {
-                    TaskInProgressWoWObject = null;
+                    WoWObjectInProgress = null;
                 }
                 else
                 {
-                    TaskInProgressWoWObject = closestObject;
-                    closestTask = researchedTasks.Find(task => task.TargetEntry == TaskInProgressWoWObject.Entry);
+                    WoWObjectInProgress = closestObject;
+                    closestTask = researchedTasks.Find(task => task.TargetEntry == WoWObjectInProgress.Entry);
                 }
             } 
             else 
-                TaskInProgressWoWObject = null;
+                WoWObjectInProgress = null;
 
             TaskInProgress = closestTask;
+            PathToCurrentTask = pathToClosestTask;
             if (_tick++ % 5 == 0) Main.QuestTrackerGui.UpdateTasksList();
-            _isUpdateTaskRunning = false;
         }
 
         private static bool IsObjectValidForTask(WoWObject wowObject, WAQTask task) {
@@ -451,10 +472,11 @@ namespace Wholesome_Auto_Quester.Bot {
         public static void UpdateStatuses() {
             Dictionary<int, Quest.PlayerQuest> logQuests = Quest.GetLogQuestId().ToDictionary(quest => quest.ID);
             List<string> itemsToAddToDNSList = new List<string>();
+            ToolBox.UpdateCompletedQuests();
             if (ToolBox.GetServerNbCompletedQuests() <= 0 && WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Count > 0)
             {
-                ToolBox.UpdateCompletedQuests();
-                Logger.Log("Waiting for server-side list of completed quests");
+                Logger.Log($"Waiting for server-side list of completed quests " +
+                    $"({ToolBox.GetServerNbCompletedQuests()}/{WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Count})");
                 return;
             }
 

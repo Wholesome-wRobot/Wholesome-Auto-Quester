@@ -1,21 +1,22 @@
-﻿using System;
+﻿using robotManager.Events;
+using robotManager.FiniteStateMachine;
+using robotManager.Helpful;
+using robotManager.Products;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using FlXProfiles;
-using robotManager.Events;
-using robotManager.FiniteStateMachine;
-using robotManager.Helpful;
-using robotManager.Products;
 using Wholesome_Auto_Quester;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Database;
 using Wholesome_Auto_Quester.GUI;
 using Wholesome_Auto_Quester.Helpers;
 using wManager;
+using wManager.Events;
 using wManager.Plugin;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
@@ -25,9 +26,12 @@ public class Main : IProduct {
     public const string ProductName = "Wholesome Auto Quester";
     public const string FileName = "Wholesome_Auto_Quester";
     public static readonly QuestsTrackerGUI QuestTrackerGui = new QuestsTrackerGUI();
+    private List<StuckCounter> ListStuckCounters = new List<StuckCounter>();
     private ProductSettingsControl _settingsUserControl;
+    public static bool RequestImmediateTaskUpdate;
+    public static bool RequestImmediateTaskReset;
 
-    public string version = "0.0.10"; // Must match version in Version.txt
+    public string version = "0.0.11"; // Must match version in Version.txt
 
     public bool IsStarted { get; private set; }
 
@@ -89,9 +93,21 @@ public class Main : IProduct {
                         Logging.WriteError(string.Concat(arg));
                     }
 
-                    Thread.Sleep(1000);
+                    //Thread.Sleep(1000);
+                    robotManager.Helpful.Timer maxWaitTime = new robotManager.Helpful.Timer(1000);
+                    while (!maxWaitTime.IsReady && !RequestImmediateTaskUpdate && !RequestImmediateTaskReset)
+                        Thread.Sleep(25);
+                    RequestImmediateTaskUpdate = false;
+                    if (RequestImmediateTaskReset)
+                    {
+                        RequestImmediateTaskReset = false;
+                        WAQTasks.PathToCurrentTask = null;
+                        WAQTasks.TaskInProgress = null;
+                        WAQTasks.WoWObjectInProgress = null;
+                    }
                 }
             });
+
             Task.Factory.StartNew(() => {
                 while (IsStarted) {
                     try {
@@ -109,6 +125,7 @@ public class Main : IProduct {
             
             FiniteStateMachineEvents.OnRunState += SmoothMoveKiller;
             LoggingEvents.OnAddLog += AddLogHandler;
+            MovementEvents.OnSeemStuck += SeemStuckHandler;
             EventsLua.AttachEventLua("PLAYER_DEAD", e => PlayerDeadHandler(e));
             ToolBox.InitializeWAQSettings();
             
@@ -146,6 +163,7 @@ public class Main : IProduct {
 
             FiniteStateMachineEvents.OnRunState -= SmoothMoveKiller;
             LoggingEvents.OnAddLog -= AddLogHandler;
+            MovementEvents.OnSeemStuck -= SeemStuckHandler;
 
             Bot.Dispose();
             IsStarted = false;
@@ -191,24 +209,94 @@ public class Main : IProduct {
         }
     }
 
-    private static int GetWowVersion() {
-        string[] forWow = Information.ForWow.Split('.');
-        return int.Parse(forWow[0]);
-    }
-
     private static void Radar3DOnDrawEvent() {
         if (WAQTasks.TaskInProgress != null)
-            Radar3D.DrawLine(ObjectManager.Me.Position, WAQTasks.TaskInProgress.Location, Color.Blue);
-
-        if (WAQTasks.TaskInProgressWoWObject != null) {
-            Radar3D.DrawLine(ObjectManager.Me.Position, WAQTasks.TaskInProgressWoWObject.Position, Color.Yellow);
-            Radar3D.DrawCircle(WAQTasks.TaskInProgressWoWObject.Position, 1, Color.Yellow);
+        {
+            Radar3D.DrawString(WAQTasks.TaskInProgress.TaskName, new Vector3(30, 200, 0), 10, Color.AliceBlue);
+            Radar3D.DrawLine(ObjectManager.Me.Position, WAQTasks.TaskInProgress.Location, Color.AliceBlue);
         }
+
+        if (WAQTasks.WoWObjectInProgress != null) {
+            Radar3D.DrawLine(ObjectManager.Me.Position, WAQTasks.WoWObjectInProgress.Position, Color.Yellow);
+            Radar3D.DrawCircle(WAQTasks.WoWObjectInProgress.Position, 1, Color.Yellow);
+            Radar3D.DrawString(WAQTasks.WoWObjectInProgress.Name, new Vector3(30, 220, 0), 10, Color.Yellow);
+        }
+
     }
 
     private void PlayerDeadHandler(object context)
     {
         Logger.Log($"You died. Blacklisting zone.");
-        wManagerSetting.AddBlackListZone(ObjectManager.Me.Position, 30, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
+        wManagerSetting.AddBlackListZone(ObjectManager.Me.Position, 20, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
+    }
+
+    private void SeemStuckHandler()
+    {
+        WAQTask task = WAQTasks.TaskInProgress;
+        WoWObject wowObject = WAQTasks.WoWObjectInProgress;
+
+        if (wowObject != null)
+        {
+            StuckCounter existing = ListStuckCounters.Find(sc => sc.WowObject != null && sc.WowObject.Guid == wowObject.Guid);
+            if (existing == null)
+                ListStuckCounters.Add(new StuckCounter(null, wowObject));
+            else
+                existing.AddToCount();
+            return;
+        }
+
+        if (task != null)
+        {
+            StuckCounter existing = ListStuckCounters.Find(sc => sc.WowObject == null && sc.Task.ObjectGuid == task.ObjectGuid);
+            if (existing == null)
+                ListStuckCounters.Add(new StuckCounter(task, null));
+            else
+                existing.AddToCount();
+            return;
+        }
+    }
+}
+
+public class StuckCounter
+{
+    public int Count;
+    public WoWObject WowObject;
+    public WAQTask Task;
+
+    public StuckCounter(WAQTask task, WoWObject wowObject)
+    {
+        Count = 0;
+        WowObject = wowObject;
+        Task = task;
+        AddToCount();
+    }
+
+    public void AddToCount()
+    {
+        if (Count > 5 || !ObjectManager.Me.IsAlive) return;
+
+        Count++;
+
+        if (WowObject != null)
+            Logger.Log($"We seem stuck trying to reach object {WowObject.Name} ({Count})");
+        else
+            Logger.Log($"We seem stuck trying to reach task {Task.TaskName} ({Count})");
+
+        if (Count >= 5)
+        {
+            if (WowObject != null)
+            {
+                Logger.LogError($"Blacklisting {WowObject.Name}, got stuck {Count} times trying to reach {WowObject.Position}");
+                wManagerSetting.AddBlackList(WowObject.Guid, 1000 * 600, true);
+                wManagerSetting.AddBlackListZone(WowObject.Position, 5, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
+                return;
+            }
+            if (Task != null)
+            {
+                Task.PutTaskOnTimeout(600, $"Stuck {Count} times");
+                wManagerSetting.AddBlackListZone(Task.Location, 5, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
+            }
+            Main.RequestImmediateTaskReset = true;
+        }
     }
 }

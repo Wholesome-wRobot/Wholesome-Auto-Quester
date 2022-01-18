@@ -4,7 +4,6 @@ using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
-using FlXProfiles;
 using wManager.Wow.Enums;
 
 namespace Wholesome_Auto_Quester.States {
@@ -19,7 +18,7 @@ namespace Wholesome_Auto_Quester.States {
 
                 if (WAQTasks.TaskInProgress?.TaskType == TaskType.PickupQuestFromCreature) {
                     DisplayName =
-                        $"Pick up quest {WAQTasks.TaskInProgress.QuestTitle} at {WAQTasks.TaskInProgress.TargetName} [SmoothMove - Q]";
+                        $"Pick up quest {WAQTasks.TaskInProgress.QuestTitle} from {WAQTasks.TaskInProgress.TargetName} [SmoothMove - Q]";
                     return true;
                 }
 
@@ -27,19 +26,20 @@ namespace Wholesome_Auto_Quester.States {
             }
         }
 
-        public override void Run() {
+        public override void Run() 
+        {
             WAQTask task = WAQTasks.TaskInProgress;
-            WoWObject npcObject = WAQTasks.TaskInProgressWoWObject;
+            WoWObject npcObject = WAQTasks.WoWObjectInProgress;
+            WAQPath pathToTask = WAQTasks.PathToCurrentTask;
 
-            if (npcObject != null) {
-                if (npcObject.Type != WoWObjectType.Unit) {
-                    Logger.LogError($"Expected a WoWUnit for PickUp Quest but got {npcObject.Type} instead.");
-                    return;
-                }
+            if (ToolBox.ShouldStateBeInterrupted(task, npcObject, WoWObjectType.Unit))
+                return;
 
-                ToolBox.CheckSpotAround(npcObject);
+            if (npcObject != null) 
+            {
+                WoWUnit pickUpTarget = (WoWUnit)npcObject;
 
-                var pickUpTarget = (WoWUnit) npcObject;
+                ToolBox.CheckSpotAround(pickUpTarget);
 
                 if (!pickUpTarget.InInteractDistance()) 
                 {
@@ -61,7 +61,7 @@ namespace Wholesome_Auto_Quester.States {
                     if (ToolBox.GossipPickUpQuest(task.QuestTitle))
                     {
                         Thread.Sleep(1000);
-                        WAQTasks.UpdateTasks();
+                        Main.RequestImmediateTaskUpdate = true;
                     }
                     else
                         task.PutTaskOnTimeout("Failed PickUp Gossip");
@@ -69,12 +69,13 @@ namespace Wholesome_Auto_Quester.States {
             } 
             else 
             {
-                if (!MoveHelper.IsMovementThreadRunning || MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 5) 
+                if (!MoveHelper.IsMovementThreadRunning 
+                    || MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 4) 
                 {
-                    Logger.Log($"Moving to QuestGiver for {task.QuestTitle} (PickUp).");
-                    MoveHelper.StartGoToThread(task.Location);
+                    Logger.Log($"Traveling to QuestGiver for {task.QuestTitle} (PickUp).");
+                    MoveHelper.StartMoveAlongToTaskThread(pathToTask.Path, task);
                 }
-                if (task.GetDistance <= 15f) 
+                if (task.GetDistance <= 12f) 
                 {
                     task.PutTaskOnTimeout("No NPC in sight for quest pickup");
                     MoveHelper.StopAllMove();

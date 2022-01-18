@@ -1,8 +1,7 @@
 ﻿using robotManager.FiniteStateMachine;
 using System.Threading;
-using FlXProfiles;
-using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Helpers;
+using Wholesome_Auto_Quester.Bot;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
@@ -29,17 +28,16 @@ namespace Wholesome_Auto_Quester.States {
 
         public override void Run() {
             WAQTask task = WAQTasks.TaskInProgress;
-            WoWObject npcObject = WAQTasks.TaskInProgressWoWObject;
+            WoWObject npcObject = WAQTasks.WoWObjectInProgress;
+            WAQPath pathToTask = WAQTasks.PathToCurrentTask;
 
-            if (npcObject != null) {
-                if (npcObject.Type != WoWObjectType.Unit) {
-                    Logger.LogError($"Expected a WoWUnit for TurnIn Quest but got {npcObject.Type} instead.");
-                    return;
-                }
+            if (ToolBox.ShouldStateBeInterrupted(task, npcObject, WoWObjectType.Unit))
+                return;
 
-                ToolBox.CheckSpotAround(npcObject);
-
-                var turnInTarget = (WoWUnit) npcObject;
+            if (npcObject != null) 
+            {
+                WoWUnit turnInTarget = (WoWUnit)npcObject;
+                ToolBox.CheckSpotAround(turnInTarget);
 
                 if (!turnInTarget.InInteractDistance()) 
                 {
@@ -65,7 +63,7 @@ namespace Wholesome_Auto_Quester.States {
                         Thread.Sleep(1000);
                         if (!Quest.HasQuest(task.QuestId))
                             WAQTasks.MarQuestAsCompleted(task.QuestId);
-                        WAQTasks.UpdateTasks();
+                        Main.RequestImmediateTaskUpdate = true;
                     }
                     else
                         task.PutTaskOnTimeout("Failed PickUp Gossip");
@@ -73,12 +71,12 @@ namespace Wholesome_Auto_Quester.States {
             } 
             else 
             {
-                if (!MoveHelper.IsMovementThreadRunning || MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 15) 
+                if (!MoveHelper.IsMovementThreadRunning || MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 5) 
                 {
-                    Logger.Log($"Moving to QuestEnder for {task.QuestTitle}.");
-                    MoveHelper.StartGoToThread(task.Location, randomizeEnd: 8f);
+                    Logger.Log($"Traveling to QuestEnder for {task.QuestTitle}.");
+                    MoveHelper.StartMoveAlongToTaskThread(pathToTask.Path, task);
                 }
-                if (task.GetDistance <= 15f)
+                if (task.GetDistance <= 12f)
                 {
                     task.PutTaskOnTimeout("No NPC in sight for quest turn-in");
                     MoveHelper.StopAllMove();

@@ -4,7 +4,6 @@ using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
-using FlXProfiles;
 using wManager.Wow.Enums;
 
 namespace Wholesome_Auto_Quester.States {
@@ -17,7 +16,8 @@ namespace Wholesome_Auto_Quester.States {
                     || !ObjectManager.Me.IsValid)
                     return false;
 
-                if (WAQTasks.TaskInProgress?.TaskType == TaskType.PickupQuestFromGameObject) {
+                if (WAQTasks.TaskInProgress?.TaskType == TaskType.PickupQuestFromGameObject) 
+                {
                     DisplayName =
                         $"Pick up quest {WAQTasks.TaskInProgress.QuestTitle} at {WAQTasks.TaskInProgress.TargetName} [SmoothMove - Q]";
                     return true;
@@ -29,26 +29,25 @@ namespace Wholesome_Auto_Quester.States {
 
         public override void Run() {
             WAQTask task = WAQTasks.TaskInProgress;
-            WoWObject gameObject = WAQTasks.TaskInProgressWoWObject;
+            WoWObject gameObject = WAQTasks.WoWObjectInProgress;
+            WAQPath pathToTask = WAQTasks.PathToCurrentTask;
 
-            if (gameObject != null) {
-                if (gameObject.Type != WoWObjectType.GameObject) 
-                {
-                    Logger.LogError($"Expected a GameObject for PickUp Quest but got {gameObject.Type} instead.");
-                    return;
-                }
+            if (ToolBox.ShouldStateBeInterrupted(task, gameObject, WoWObjectType.GameObject))
+                return;
 
-                ToolBox.CheckSpotAround(gameObject);
-
+            if (gameObject != null) 
+            {
                 WoWGameObject pickUpTarget = (WoWGameObject)gameObject;
+                ToolBox.CheckSpotAround(pickUpTarget);
+                float interactDistance = 3.5f + pickUpTarget.Scale;
 
-                if (pickUpTarget.GetDistance > 4) 
+                if (pickUpTarget.GetDistance > interactDistance) 
                 {
                     if (!MoveHelper.IsMovementThreadRunning
-                       || MoveHelper.CurrentMovementTarget?.DistanceTo(pickUpTarget.Position) > 4)
+                       || MoveHelper.CurrentMovementTarget?.DistanceTo(pickUpTarget.Position) > interactDistance)
                     {
                         Logger.Log($"Game Object found - Going to {pickUpTarget.Name} to pick up {task.QuestTitle}.");
-                        MoveHelper.StartGoToThread(pickUpTarget.Position, randomizeEnd: 3f);
+                        MoveHelper.StartGoToThread(pickUpTarget.Position);
                     }
                     return;
                 }
@@ -59,13 +58,14 @@ namespace Wholesome_Auto_Quester.States {
                 {
                     Interact.InteractGameObject(pickUpTarget.GetBaseAddress);
                     Usefuls.WaitIsCasting();
+                    Thread.Sleep(500);
                 } 
                 else 
                 {
                     if (ToolBox.GossipPickUpQuest(task.QuestTitle))
                     {
                         Thread.Sleep(1000);
-                        WAQTasks.UpdateTasks();
+                        Main.RequestImmediateTaskUpdate = true;
                     }
                     else
                         task.PutTaskOnTimeout("Failed pickup gossip");
@@ -75,10 +75,10 @@ namespace Wholesome_Auto_Quester.States {
             {
                 if (!MoveHelper.IsMovementThreadRunning || MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 15) 
                 {
-                    Logger.Log($"Moving to QuestGiver for {task.QuestTitle}.");
-                    MoveHelper.StartGoToThread(task.Location, randomizeEnd: 8f);
+                    Logger.Log($"Traveling to QuestGiver for {task.QuestTitle}.");
+                    MoveHelper.StartMoveAlongToTaskThread(pathToTask.Path, task);
                 }
-                if (task.GetDistance <= 15f) 
+                if (task.GetDistance <= 12f) 
                 {
                     task.PutTaskOnTimeout("No object in sight for quest pickup");
                     MoveHelper.StopAllMove();
