@@ -31,7 +31,7 @@ public class Main : IProduct {
     public static bool RequestImmediateTaskUpdate;
     public static bool RequestImmediateTaskReset;
 
-    public string version = "0.0.11"; // Must match version in Version.txt
+    public string version = "0.0.12"; // Must match version in Version.txt
 
     public bool IsStarted { get; private set; }
 
@@ -83,27 +83,24 @@ public class Main : IProduct {
             Task.Factory.StartNew(() => {
                 while (IsStarted) {
                     try {
-                        if (Conditions.InGameAndConnectedAndProductStartedNotInPause
-                                && !ObjectManager.Me.IsOnTaxi
-                                && ObjectManager.Me.IsAlive) {
+                        if (Conditions.InGameAndConnectedAndProductStartedNotInPause) {
                             WAQTasks.UpdateStatuses();
                             WAQTasks.UpdateTasks();
+                            //Thread.Sleep(1000);
+                            robotManager.Helpful.Timer maxWaitTime = new robotManager.Helpful.Timer(1000);
+                            while (!maxWaitTime.IsReady && !RequestImmediateTaskUpdate && !RequestImmediateTaskReset)
+                                Thread.Sleep(25);
+                            RequestImmediateTaskUpdate = false;
+                            if (RequestImmediateTaskReset)
+                            {
+                                RequestImmediateTaskReset = false;
+                                //WAQTasks.PathToCurrentTask = null;
+                                WAQTasks.TaskInProgress = null;
+                                WAQTasks.WoWObjectInProgress = null;
+                            }
                         }
                     } catch (Exception arg) {
                         Logging.WriteError(string.Concat(arg));
-                    }
-
-                    //Thread.Sleep(1000);
-                    robotManager.Helpful.Timer maxWaitTime = new robotManager.Helpful.Timer(1000);
-                    while (!maxWaitTime.IsReady && !RequestImmediateTaskUpdate && !RequestImmediateTaskReset)
-                        Thread.Sleep(25);
-                    RequestImmediateTaskUpdate = false;
-                    if (RequestImmediateTaskReset)
-                    {
-                        RequestImmediateTaskReset = false;
-                        WAQTasks.PathToCurrentTask = null;
-                        WAQTasks.TaskInProgress = null;
-                        WAQTasks.WoWObjectInProgress = null;
                     }
                 }
             });
@@ -221,7 +218,10 @@ public class Main : IProduct {
             Radar3D.DrawCircle(WAQTasks.WoWObjectInProgress.Position, 1, Color.Yellow);
             Radar3D.DrawString(WAQTasks.WoWObjectInProgress.Name, new Vector3(30, 220, 0), 10, Color.Yellow);
         }
-
+        if (MoveHelper.IsMovementThreadRunning)
+            Radar3D.DrawString("Movement thread running", new Vector3(30, 240, 0), 10, Color.Green);
+        else
+            Radar3D.DrawString("Movement thread not running", new Vector3(30, 240, 0), 10, Color.Red);
     }
 
     private void PlayerDeadHandler(object context)
@@ -262,6 +262,7 @@ public class StuckCounter
     public int Count;
     public WoWObject WowObject;
     public WAQTask Task;
+    private robotManager.Helpful.Timer _timer = new robotManager.Helpful.Timer();
 
     public StuckCounter(WAQTask task, WoWObject wowObject)
     {
@@ -273,7 +274,10 @@ public class StuckCounter
 
     public void AddToCount()
     {
-        if (Count > 5 || !ObjectManager.Me.IsAlive) return;
+        if (_timer.IsReady) Count = 0;
+        _timer = new robotManager.Helpful.Timer(20 * 1000);
+
+        if (Count > 10 || !ObjectManager.Me.IsAlive) return;
 
         Count++;
 
@@ -282,7 +286,7 @@ public class StuckCounter
         else
             Logger.Log($"We seem stuck trying to reach task {Task.TaskName} ({Count})");
 
-        if (Count >= 5)
+        if (Count >= 10)
         {
             if (WowObject != null)
             {

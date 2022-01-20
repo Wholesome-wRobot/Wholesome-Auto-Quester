@@ -36,8 +36,14 @@ namespace Wholesome_Auto_Quester.States
                     WoWUnit unit = (WoWUnit)ob;
                     if (unit.IsDead && unit.IsLootable && unit.GetDistance < 20)
                     {
-                        UnitToLoot = unit;
-                        break;
+                        WAQPath pathToCorpse = ToolBox.GetWAQPath(ObjectManager.Me.Position, unit.Position);
+                        if (pathToCorpse.IsReachable)
+                        {
+                            UnitToLoot = unit;
+                            break;
+                        }
+                        else
+                            UnitsLooted.Add(unit.Guid);
                     }
                     UnitToLoot = null;
                 }

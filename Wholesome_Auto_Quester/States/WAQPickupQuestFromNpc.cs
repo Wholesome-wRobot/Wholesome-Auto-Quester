@@ -30,7 +30,7 @@ namespace Wholesome_Auto_Quester.States {
         {
             WAQTask task = WAQTasks.TaskInProgress;
             WoWObject npcObject = WAQTasks.WoWObjectInProgress;
-            WAQPath pathToTask = WAQTasks.PathToCurrentTask;
+            //WAQPath pathToTask = WAQTasks.PathToCurrentTask;
 
             if (ToolBox.ShouldStateBeInterrupted(task, npcObject, WoWObjectType.Unit))
                 return;
@@ -60,8 +60,8 @@ namespace Wholesome_Auto_Quester.States {
                 {
                     if (ToolBox.GossipPickUpQuest(task.QuestTitle))
                     {
+                        Main.RequestImmediateTaskReset = true;
                         Thread.Sleep(1000);
-                        Main.RequestImmediateTaskUpdate = true;
                     }
                     else
                         task.PutTaskOnTimeout("Failed PickUp Gossip");
@@ -69,13 +69,13 @@ namespace Wholesome_Auto_Quester.States {
             } 
             else 
             {
-                if (!MoveHelper.IsMovementThreadRunning 
-                    || MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 4) 
+                if (!MoveHelper.IsMovementThreadRunning && task.Location.DistanceTo(ObjectManager.Me.Position) > 12) 
                 {
                     Logger.Log($"Traveling to QuestGiver for {task.QuestTitle} (PickUp).");
-                    MoveHelper.StartMoveAlongToTaskThread(pathToTask.Path, task);
+                    //MoveHelper.StartMoveAlongToTaskThread(pathToTask.Path, task);
+                    MoveHelper.StartGoToThread(task.Location);
                 }
-                if (task.GetDistance <= 12f) 
+                if (task.GetDistance <= 13) 
                 {
                     task.PutTaskOnTimeout("No NPC in sight for quest pickup");
                     MoveHelper.StopAllMove();

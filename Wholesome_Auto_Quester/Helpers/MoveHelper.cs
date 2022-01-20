@@ -20,8 +20,9 @@ namespace Wholesome_Auto_Quester.Helpers {
         public static bool IsMovementThreadRunning {
             get
             {
-                if (MovementManager.InMovement) return true;
-                lock (Lock) {
+                //if (MovementManager.InMovement || MovementManager.InMoveTo) return true;
+                lock (Lock)
+                {
                     return !_currentMovementTask?.Finished() ?? false;
                 }
             }
@@ -56,6 +57,7 @@ namespace Wholesome_Auto_Quester.Helpers {
         }
 
         private static void ResetCurrentMovementCache() {
+            Logger.Log("Reset movement cache");
             lock (Lock) {
                 _currentMovementTask = null;
                 _currentMovementToken = null;
@@ -105,7 +107,7 @@ namespace Wholesome_Auto_Quester.Helpers {
 
         private static bool Finished(this Task task) => task.IsCompleted || task.IsCanceled || task.IsFaulted;
 
-        public static CancellationTokenSource StartMoveAlongToTaskThread(List<Vector3> path, WAQTask task,
+        /*public static CancellationTokenSource StartMoveAlongToTaskThread(List<Vector3> path, WAQTask task,
             bool face = true, bool precise = false, Func<bool> abortIf = null, float randomization = 0,
             bool checkCurrent = true, float precision = 1, List<byte> customRadius = null, bool shortCut = false,
             int jumpRareness = 2, bool showPath = false)
@@ -125,20 +127,32 @@ namespace Wholesome_Auto_Quester.Helpers {
                     :
                     new Action(() => MovementManager.Go(path));
 
+                Logger.Log($"Starting new MoveAlong Thread");
                 Task moveAlongTask = Task.Factory.StartNew(moveAlongAction, cts.Token)
+                    .ContinueWith(t => 
+                    { 
+                        if (!WholesomeAQSettings.CurrentSetting.SmoothMove)
+                        {
+                            while (IsMovementThreadRunning && ObjectManager.Me.Position.DistanceTo(CurrentMovementTarget) > 5)
+                            {
+                                Thread.Sleep(100);
+                            }
+                            Logger.Log($"MoveAlong Thread is completed");
+                        }
+                    })
                     .ContinueWith(task => ResetCurrentMovementCache(), cts.Token);
 
                 Task.Factory.StartNew(() => {
-                    while (/*!moveAlongTask.IsCompleted &&*/ !moveAlongTask.IsCanceled && !moveAlongTask.IsFaulted
+                    while (!moveAlongTask.IsCompleted && !moveAlongTask.IsCanceled && !moveAlongTask.IsFaulted
                             && !cts.Token.IsCancellationRequested && IsMovementThreadRunning)
                     {
                         if (abortIf != null && abortIf() || task.Location.DistanceTo(WAQTasks.TaskInProgress?.Location) > 1)
                         {
+                            Logger.Log($"Canceled MoveAlong Thread");
                             cts.Cancel();
                             StopAllMove();
                             break;
                         }
-
                         Thread.Sleep(100);
                     }
                 }, cts.Token);
@@ -148,7 +162,7 @@ namespace Wholesome_Auto_Quester.Helpers {
                 _currentMovementTask = moveAlongTask;
                 return cts;
             }
-        }
+        }*/
 
         public static (List<Vector3>, List<byte>) SplitPathData(this List<(Vector3, byte)> pathWithData) {
             var path = new List<Vector3>(pathWithData.Count);

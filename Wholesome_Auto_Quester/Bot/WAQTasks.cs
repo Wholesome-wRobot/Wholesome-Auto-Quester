@@ -18,7 +18,7 @@ namespace Wholesome_Auto_Quester.Bot {
         public static List<ModelQuestTemplate> Quests { get; set; } = new List<ModelQuestTemplate>();
         public static WAQTask TaskInProgress { get; set; }
         public static WoWObject WoWObjectInProgress { get; set; }
-        public static WAQPath PathToCurrentTask { get; set; }
+        //public static WAQPath PathToCurrentTask { get; set; }
         public static List<int> EntriesToLoot { get; set; }
         public static List<WoWObject> WAQObjectManager { get; set; } = new List<WoWObject>();
 
@@ -31,10 +31,15 @@ namespace Wholesome_Auto_Quester.Bot {
 
         public static void UpdateTasks()
         {
+            _tick++;
             if (Quests.Count <= 0 
-                || !ObjectManager.Me.IsAlive 
+                || !ObjectManager.Me.IsAlive
+                || ObjectManager.Me.IsOnTaxi
                 || !ObjectManager.Me.IsValid 
-                || Fight.InFight)
+                || Fight.InFight
+                || ObjectManager.Me.HaveBuff("Drink")
+                || ObjectManager.Me.HaveBuff("Food")
+                || MoveHelper.IsMovementThreadRunning && (_tick % 5) != 0)
                 return;
 
             //Logger.Log("Update tasks");
@@ -50,7 +55,8 @@ namespace Wholesome_Auto_Quester.Bot {
             foreach (ModelQuestTemplate quest in Quests)
             {
                 // Completed
-                if (quest.Status == QuestStatus.Completed || quest.Status == QuestStatus.Blacklisted) {
+                if (quest.Status == QuestStatus.Completed || quest.Status == QuestStatus.Blacklisted) 
+                {
                     TasksPile.RemoveAll(t => t.QuestId == quest.Id);
                     continue;
                 }
@@ -449,8 +455,8 @@ namespace Wholesome_Auto_Quester.Bot {
                 WoWObjectInProgress = null;
 
             TaskInProgress = closestTask;
-            PathToCurrentTask = pathToClosestTask;
-            if (_tick++ % 5 == 0) Main.QuestTrackerGui.UpdateTasksList();
+            //PathToCurrentTask = pathToClosestTask;
+            if (_tick % 2 == 0) Main.QuestTrackerGui.UpdateTasksList();
         }
 
         private static bool IsObjectValidForTask(WoWObject wowObject, WAQTask task) {
@@ -469,7 +475,8 @@ namespace Wholesome_Auto_Quester.Bot {
             return true;
         }
 
-        public static void UpdateStatuses() {
+        public static void UpdateStatuses() 
+        {
             Dictionary<int, Quest.PlayerQuest> logQuests = Quest.GetLogQuestId().ToDictionary(quest => quest.ID);
             List<string> itemsToAddToDNSList = new List<string>();
             ToolBox.UpdateCompletedQuests();
@@ -562,7 +569,7 @@ namespace Wholesome_Auto_Quester.Bot {
                 wManagerSetting.CurrentSetting.Save();
             }
             
-            if (_tick++ % 5 == 0) Main.QuestTrackerGui.UpdateQuestsList();
+            if ((_tick % 2) == 0) Main.QuestTrackerGui.UpdateQuestsList();
         }
 
         public static void MarQuestAsCompleted(int questId)

@@ -41,7 +41,7 @@ namespace Wholesome_Auto_Quester.States {
                 IOrderedEnumerable<WoWUnit> attackingMe = justUnits
                     .Where(unit => {
                         uint unitLevel = unit.Level;
-                        if (MoveHelper.CurrentMovementTarget != null && (unitLevel < myLevel - 5 || unitLevel > myLevel + 2)) 
+                        if (/*unitLevel < myLevel - 5 || */unitLevel > myLevel + 3) 
                             return false;
                         return unit.IsAttackable && unit.InCombatFlagOnly && (unit.Target == myGuid || petGuid > 0 && unit.Target == petGuid);
                     })
@@ -52,9 +52,10 @@ namespace Wholesome_Auto_Quester.States {
                 _defendTarget = attackingMe.FirstOrDefault();
                 //Logger.LogError($"{_defendTarget.Name} is attacking me, target is {_defendTarget.TargetObject?.Name}");
 
+                //Logger.Log($"DEF - Mounted = {isMounted}, incomb = {ObjectManager.Me.InCombatFlagOnly}, dist={myPos.DistanceTo(MoveHelper.CurrentMovementTarget)}");
                 if (isMounted 
-                    && MoveHelper.CurrentMovementTarget != null 
-                    && myPos.DistanceTo(MoveHelper.CurrentMovementTarget) > 40) 
+                    && MoveHelper.CurrentMovementTarget != null
+                    && myPos.DistanceTo(MoveHelper.CurrentMovementTarget) > 60) 
                     return false;
 
                 MountTask.DismountMount(false, false, 100);

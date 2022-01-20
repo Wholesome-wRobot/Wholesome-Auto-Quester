@@ -29,7 +29,7 @@ namespace Wholesome_Auto_Quester.States {
         {
             WAQTask task = WAQTasks.TaskInProgress;
             WoWObject gameObject = WAQTasks.WoWObjectInProgress;
-            WAQPath pathToTask = WAQTasks.PathToCurrentTask;
+            //WAQPath pathToTask = WAQTasks.PathToCurrentTask;
 
             if (ToolBox.ShouldStateBeInterrupted(task, gameObject, WoWObjectType.GameObject))
                 return;
@@ -56,14 +56,13 @@ namespace Wholesome_Auto_Quester.States {
             } 
             else 
             {
-                if (!MoveHelper.IsMovementThreadRunning ||
-                    MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 15f) 
+                if (!MoveHelper.IsMovementThreadRunning && task.Location.DistanceTo(ObjectManager.Me.Position) > 12) 
                 {
                     Logger.Log($"Traveling to Hotspot for {task.QuestTitle} (Gather).");
-                    MoveHelper.StartMoveAlongToTaskThread(pathToTask.Path, task);
-                }
-                
-                if (task.GetDistance <= 12f) 
+                    //MoveHelper.StartMoveAlongToTaskThread(pathToTask.Path, task);
+                    MoveHelper.StartGoToThread(task.Location);
+                }                
+                if (task.GetDistance <= 13) 
                 {
                     task.PutTaskOnTimeout("No object to gather in sight");
                     MoveHelper.StopAllMove();

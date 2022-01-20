@@ -169,8 +169,45 @@ namespace Wholesome_Auto_Quester.Database
                 WHERE id = {creatureId}
             ";
             List<ModelCreature> result = _con.Query<ModelCreature>(queryCreature).ToList();
-
+            if (result.Count > 0)
+            {
+                List<ModelCreature> creaturesToAddWP = new List<ModelCreature>();
+                result.ForEach(c =>
+                {
+                    c.CreatureAddon = QueryCreaturesAddonsByGuid(c.guid);
+                    if (c.CreatureAddon?.WayPoints?.Count > 0)
+                    {
+                        c.CreatureAddon.WayPoints.RemoveAll(cToRemove => c.CreatureAddon.WayPoints.IndexOf(cToRemove) % 2 != 0);
+                        c.CreatureAddon.WayPoints.ForEach(wp =>
+                            creaturesToAddWP.Add(new ModelCreature(wp.position_x, wp.position_y, wp.position_z, c.guid, c.map, c.spawnTimeSecs)));
+                    }
+                });
+                result.AddRange(creaturesToAddWP);
+            }
             return result.Count > 0 ? result : new List<ModelCreature>();
+        }
+
+        public ModelCreatureAddon QueryCreaturesAddonsByGuid(uint guid)
+        {
+            string queryCreatureAddon = $@"
+                SELECT *
+                FROM creature_addon
+                WHERE guid = {guid}
+            ";
+            ModelCreatureAddon result = _con.Query<ModelCreatureAddon>(queryCreatureAddon).FirstOrDefault();
+            if (result != null && result.path_id > 0) result.WayPoints = QueryWayPointDataByPathId(result.path_id);
+            return result;
+        }
+
+        public List<ModelWayPointData> QueryWayPointDataByPathId(int pathId)
+        {
+            string queryWPData = $@"
+                SELECT *
+                FROM waypoint_data
+                WHERE id = {pathId}
+            ";
+            List<ModelWayPointData> result = _con.Query<ModelWayPointData>(queryWPData).ToList();
+            return result.Count > 0 ? result : new List<ModelWayPointData>();
         }
 
         public List<ModelAreaTrigger> QueryAreasToExplore(int questId)
@@ -303,11 +340,16 @@ namespace Wholesome_Auto_Quester.Database
                     SELECT * 
                     FROM quest_template
                     WHERE MinLevel <= {myLevel}
-                    AND ((QuestLevel <= {levelDeltaPlus} AND  QuestLevel >= {levelDeltaMinus}) OR (QuestLevel = -1))
                     AND (QuestType <> 0 OR Unknown0 <> 1);
                 ";
             List<ModelQuestTemplate> result = _con.Query<ModelQuestTemplate>(queryQuest).ToList();
 
+            result.ForEach(q =>
+            {
+                if (ToolBox.QuestModifiedLevel.TryGetValue(q.Id, out int levelModifier))
+                    q.QuestLevel += levelModifier;
+            });
+            result.RemoveAll(q => (q.QuestLevel > levelDeltaPlus || q.QuestLevel < levelDeltaMinus) && q.QuestLevel != -1);
             result.RemoveAll(q => questSortIdsToIgnore.Contains(q.QuestSortID));
 
             result.ForEach(questTemplate =>
@@ -345,6 +387,7 @@ namespace Wholesome_Auto_Quester.Database
                 CREATE INDEX IF NOT EXISTS `idx_areatrigger_id` ON `areatrigger` (`Id`);
                 CREATE INDEX IF NOT EXISTS `idx_areatrigger_involvedrelation_id` ON `areatrigger_involvedrelation` (`Id`);
                 CREATE INDEX IF NOT EXISTS `idx_areatrigger_involvedrelation_quest` ON `areatrigger_involvedrelation` (`quest`);
+                CREATE INDEX IF NOT EXISTS `idx_creature_addon_guid` ON `creature_addon` (`guid`);
                 CREATE INDEX IF NOT EXISTS `idx_creature_id` ON `creature` (`id`);
                 CREATE INDEX IF NOT EXISTS `idx_creature_loot_template_entry` ON `creature_loot_template` (`Entry`);
                 CREATE INDEX IF NOT EXISTS `idx_creature_loot_template_item` ON `creature_loot_template` (`Item`);
@@ -366,6 +409,7 @@ namespace Wholesome_Auto_Quester.Database
                 CREATE INDEX IF NOT EXISTS `idx_quest_template_addon_nextquestid` ON `quest_template_addon` (`NextQuestId`);
                 CREATE INDEX IF NOT EXISTS `idx_quest_template_addon_prevquestid` ON `quest_template_addon` (`PrevQuestId`);
                 CREATE INDEX IF NOT EXISTS `idx_spell_id` ON `spell` (`id`);
+                CREATE INDEX IF NOT EXISTS `idx_waypoint_data_id` ON `waypoint_data` (`id`);
             ");
             Logger.Log($"Process time (Indices) : {stopwatchIndices.ElapsedMilliseconds} ms");
         }

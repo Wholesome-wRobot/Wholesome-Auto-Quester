@@ -32,9 +32,9 @@ namespace Wholesome_Auto_Quester.States
         public override void Run()
         {
             WAQTask task = WAQTasks.TaskInProgress;
-            WAQPath pathToTask = WAQTasks.PathToCurrentTask;
+            //WAQPath pathToTask = WAQTasks.PathToCurrentTask;
 
-            if (task.GetDistance < 2f) 
+            if (task.GetDistance < 3) 
             {
                 MoveHelper.StopAllMove();
                 Logger.Log($"Reached exploration hotspot for {task.QuestTitle}");
@@ -43,11 +43,11 @@ namespace Wholesome_Auto_Quester.States
                 return;
             }
             
-            if (!MoveHelper.IsMovementThreadRunning ||
-                MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 8) 
+            if (!MoveHelper.IsMovementThreadRunning && task.Location.DistanceTo(ObjectManager.Me.Position) > 2) 
             {
-                Logger.Log($"Moving to Hotspot for {task.QuestTitle} (Explore).");
-                MoveHelper.StartMoveAlongToTaskThread(pathToTask.Path, task);
+                Logger.Log($"Traveling to Hotspot for {task.QuestTitle} (Explore).");
+                //MoveHelper.StartMoveAlongToTaskThread(pathToTask.Path, task);
+                MoveHelper.StartGoToThread(task.Location);
             }
         }
     }

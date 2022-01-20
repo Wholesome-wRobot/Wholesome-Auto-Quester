@@ -105,8 +105,11 @@ namespace Wholesome_Auto_Quester.Helpers {
 
         public static void CheckSpotAround(WoWObject POI, float clearDistance = 25f)
         {
-            if (ObjectManager.Me.IsMounted)
-                MountTask.DismountMount();
+            //Logger.Log($"CHECK - Mounted = {ObjectManager.Me.IsMounted}, incomb = {ObjectManager.Me.InCombatFlagOnly}, dist={POI.GetDistance}");
+            WoWUnit poiUnit = POI is WoWUnit ? (WoWUnit)POI : null;
+            WoWUnit me = ObjectManager.Me;
+            if (me.IsMounted && (me.InCombatFlagOnly || POI.GetDistance < 60 && poiUnit?.Reaction == Reaction.Hostile))
+                MountTask.DismountMount(false, false, 100);
 
             if (ObjectManager.Me.InCombatFlagOnly)
                 return;
@@ -125,8 +128,6 @@ namespace Wholesome_Auto_Quester.Helpers {
                 }
             }
 
-            WoWUnit poiUnit = POI is WoWUnit ? (WoWUnit)POI: null;
-            WoWUnit me = ObjectManager.Me;
             bool poiIsHostileUnit = poiUnit != null && poiUnit.Reaction == Reaction.Hostile;
             int maxCount = poiIsHostileUnit ? 2 : 3;
             if (hostileUnits.Where(u => u.Key.Level >= me.Level && POI.Position.DistanceTo(u.Key.Position) < 18).Count() >= maxCount
@@ -140,8 +141,9 @@ namespace Wholesome_Auto_Quester.Helpers {
                 return;
             }
 
+            int addedDistCheck = poiIsHostileUnit ? 0 : 15; // We check further if it's not an enemy
             IOrderedEnumerable<KeyValuePair<WoWUnit, float>> hostilesInFront = hostileUnits
-                .Where(u => u.Key.GetDistance < POI.GetDistance)
+                .Where(u => u.Key.GetDistance < POI.GetDistance + addedDistCheck)
                 .OrderBy(u => u.Key.GetDistance);
             if (hostilesInFront.Count() > 0)
             {
@@ -390,6 +392,7 @@ namespace Wholesome_Auto_Quester.Helpers {
                 if (!WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Contains(questId))
                 {
                     WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Add(questId);
+                    Logger.Log($"Saved quest {questId} as completed");
                     shouldSave = true;
                 }
             }
@@ -706,13 +709,21 @@ namespace Wholesome_Auto_Quester.Helpers {
                 for (var i = 0; i < path.Count - 1; ++i) distance += path[i].DistanceTo(path[i + 1]);
             return new WAQPath(path, distance);
         }
+        public static bool IsHorde()
+        {
+            return ObjectManager.Me.Faction == (uint)PlayerFactions.Orc || ObjectManager.Me.Faction == (uint)PlayerFactions.Tauren
+                || ObjectManager.Me.Faction == (uint)PlayerFactions.Undead || ObjectManager.Me.Faction == (uint)PlayerFactions.BloodElf
+                || ObjectManager.Me.Faction == (uint)PlayerFactions.Troll;
+        }
 
         public static void InitializeWAQSettings()
         {
-            WholesomeAQSettings.AddQuestToBlackList(354); // Roaming mobs, hard to find in a hostile zone
             WholesomeAQSettings.AddQuestToBlackList(1202); // Theramore docks
-            WholesomeAQSettings.AddQuestToBlackList(1526); // Call of Fire. Requires active item from PREVIOUS quest
-            WholesomeAQSettings.AddQuestToBlackList(6548); // Too many mobs
+            //WholesomeAQSettings.AddQuestToBlackList(1526); // Call of Fire. Requires active item from PREVIOUS quest
+            WholesomeAQSettings.AddQuestToBlackList(863); // Ignition, bugged platform
+            WholesomeAQSettings.AddQuestToBlackList(6383); // Ashenvale hunt, bugged 
+            WholesomeAQSettings.AddQuestToBlackList(891); // The GUns of NorthWatch, too many mobs
+            if (IsHorde()) WholesomeAQSettings.AddQuestToBlackList(4740); // Bugged, should only be alliance
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))
             {
@@ -723,5 +734,14 @@ namespace Wholesome_Auto_Quester.Helpers {
                 wManagerSetting.CurrentSetting.Save();
             }
         }
+
+        public static Dictionary<int, int> QuestModifiedLevel = new Dictionary<int, int>()
+        {
+            { 354, 3 }, // Roaming mobs, hard to find in a hostile zone
+            { 843, 3 }, // Bael'Dun excavation, too many mobs
+            { 6548, 3 }, // Avenge my village, too many mobs
+            { 6629, 3 }, // Avenge my village follow up, too many mobs
+            { 216, 2 }, // Between a rock and a Thistlefur, too many mobs
+        };
     }
 }

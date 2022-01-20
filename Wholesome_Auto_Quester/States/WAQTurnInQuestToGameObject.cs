@@ -31,7 +31,7 @@ namespace Wholesome_Auto_Quester.States
         {
             WAQTask task = WAQTasks.TaskInProgress;
             WoWObject gameObject = WAQTasks.WoWObjectInProgress;
-            WAQPath pathToTask = WAQTasks.PathToCurrentTask;
+            //WAQPath pathToTask = WAQTasks.PathToCurrentTask;
 
             if (ToolBox.ShouldStateBeInterrupted(task, gameObject, WoWObjectType.GameObject))
                 return;
@@ -63,10 +63,10 @@ namespace Wholesome_Auto_Quester.States
                 {
                     if (ToolBox.GossipTurnInQuest(task.QuestTitle))
                     {
+                        Main.RequestImmediateTaskReset = true;
                         Thread.Sleep(1000);
                         if (!Quest.HasQuest(task.QuestId))
                             WAQTasks.MarQuestAsCompleted(task.QuestId);
-                        Main.RequestImmediateTaskUpdate = true;
                     }
                     else
                         task.PutTaskOnTimeout("Failed PickUp Gossip");
@@ -74,12 +74,13 @@ namespace Wholesome_Auto_Quester.States
             } 
             else 
             {
-                if (!MoveHelper.IsMovementThreadRunning || MoveHelper.CurrentMovementTarget?.DistanceTo(task.Location) > 5) 
+                if (!MoveHelper.IsMovementThreadRunning && task.Location.DistanceTo(ObjectManager.Me.Position) > 12) 
                 {
                     Logger.Log($"Traveling to QuestEnder for {task.QuestTitle}.");
-                    MoveHelper.StartMoveAlongToTaskThread(pathToTask.Path, task);
+                    //MoveHelper.StartMoveAlongToTaskThread(pathToTask.Path, task);
+                    MoveHelper.StartGoToThread(task.Location);
                 }
-                if (task.GetDistance <= 12f) 
+                if (task.GetDistance <= 13) 
                 {
                     task.PutTaskOnTimeout("No Object in sight for quest turn-in");
                     MoveHelper.StopAllMove();

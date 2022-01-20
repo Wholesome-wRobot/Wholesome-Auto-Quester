@@ -300,6 +300,7 @@
     <Compile Include="Database\DBQueriesWotlk.cs" />
     <Compile Include="Database\DBQueriesTBC.cs" />
     <Compile Include="Database\Models\ModelCreature.cs" />
+    <Compile Include="Database\Models\ModelCreatureAddon.cs" />
     <Compile Include="Database\Models\ModelGameObjectLootTemplate.cs" />
     <Compile Include="Database\Models\ModelCreatureLootTemplate.cs" />
     <Compile Include="Database\Models\ModelCreatureTemplate.cs" />
@@ -311,6 +312,7 @@
     <Compile Include="Database\Models\ModelAreaTrigger.cs" />
     <Compile Include="Database\Models\ModelQuestTemplate.cs" />
     <Compile Include="Database\Models\ModelSpell.cs" />
+    <Compile Include="Database\Models\ModelWayPointData.cs" />
     <Compile Include="Database\Objectives\ExplorationObjective.cs" />
     <Compile Include="Database\Objectives\GatherObjective.cs" />
     <Compile Include="Database\Objectives\InteractObjective.cs" />

@@ -51,8 +51,7 @@ namespace Wholesome_Auto_Quester.States
 
             ToolBox.CheckSpotAround(lootTarget);
 
-            if (MoveHelper.IsMovementThreadRunning) MoveHelper.StopAllMove();
-            MoveHelper.StopCurrentMovementThread();
+            MoveHelper.StopAllMove();
 
             Logger.Log($"Looting {lootTarget.Name}");
             LootingTask.Pulse(new List<WoWUnit> { lootTarget });

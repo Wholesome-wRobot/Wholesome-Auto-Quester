@@ -34,7 +34,7 @@ namespace Wholesome_Auto_Quester.States
         {
             WAQTask task = WAQTasks.TaskInProgress;
             WoWObject gameObject = WAQTasks.WoWObjectInProgress;
-            WAQPath pathToTask = WAQTasks.PathToCurrentTask;
+            //WAQPath pathToTask = WAQTasks.PathToCurrentTask;
 
             if (ToolBox.ShouldStateBeInterrupted(task, gameObject, WoWObjectType.Unit))
                 return;
@@ -45,7 +45,7 @@ namespace Wholesome_Auto_Quester.States
                 ToolBox.CheckSpotAround(killTarget);
 
                 Logger.Log($"Unit found - Fighting {killTarget.Name}");
-                MoveHelper.StopCurrentMovementThread();
+                MoveHelper.StopAllMove();
                 Fight.StartFight(killTarget.Guid);
                 if (killTarget.IsDead && task.TaskType == TaskType.Kill
                     || killTarget.IsDead && !killTarget.IsLootable && task.TaskType == TaskType.KillAndLoot)
@@ -56,12 +56,13 @@ namespace Wholesome_Auto_Quester.States
             }
             else
             {
-                if (!MoveHelper.IsMovementThreadRunning || WAQTasks.PathToCurrentTask?.Destination.DistanceTo(task.Location) > 5) 
+                if (!MoveHelper.IsMovementThreadRunning && task.Location.DistanceTo(ObjectManager.Me.Position) > 13) 
                 {                    
                     Logger.Log($"Traveling to Hotspot for {task.QuestTitle} (Kill).");
-                    MoveHelper.StartMoveAlongToTaskThread(pathToTask.Path, task);
+                    //MoveHelper.StartMoveAlongToTaskThread(pathToTask.Path, task);
+                    MoveHelper.StartGoToThread(task.Location);
                 }
-                if (task.GetDistance <= 12f) 
+                if (task.GetDistance <= 12) 
                 {
                     task.PutTaskOnTimeout("No creature to kill in sight");
                     Main.RequestImmediateTaskUpdate = true;
