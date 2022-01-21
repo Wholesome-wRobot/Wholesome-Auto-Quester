@@ -134,8 +134,10 @@ namespace Wholesome_Auto_Quester.Helpers {
                 || hostileUnits.Where(u => u.Key.Level >= me.Level - 2 && POI.Position.DistanceTo(u.Key.Position) < 18).Count() >= maxCount + 1)
             {
                 MoveHelper.StopAllMove();
-                wManagerSetting.AddBlackList(POI.Guid, 1000 * 600, true);
-                wManagerSetting.AddBlackListZone(POI.Position, 20, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
+                BlacklistHelper.AddNPC(POI.Guid);
+                //wManagerSetting.AddBlackList(POI.Guid, 1000 * 600, true);
+                BlacklistHelper.AddZone(POI.Position, 20);
+                //wManagerSetting.AddBlackListZone(POI.Position, 20, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
                 WAQTasks.TaskInProgress.PutTaskOnTimeout(600, $"{POI.Name} is surrounded by hostiles");
                 Main.RequestImmediateTaskReset = true;
                 return;
@@ -282,7 +284,7 @@ namespace Wholesome_Auto_Quester.Helpers {
             return true;
         }
 
-        public static bool GossipPickUpQuest(string questName) {
+        public static bool GossipPickUpQuest(string questName, int questId) {
             // Select quest
             var exitCodeOpen = Lua.LuaDoString<int>($@"
             if GetClickFrame('QuestFrameAcceptButton'):IsVisible() == 1 or GetClickFrame('QuestFrameCompleteButton'):IsVisible() == 1 then return 0; end
@@ -306,6 +308,14 @@ namespace Wholesome_Auto_Quester.Helpers {
             			return 0;
             		end
             	end
+                local autoCompleteQuests = {{ GetGossipActiveQuests() }}
+            	for j=1, GetNumGossipActiveQuests(), 1 do
+            		local i = j*4-3;
+            		if autoCompleteQuests[i] == '{questName.EscapeLuaString()}' then
+            			SelectGossipActiveQuest(j);
+            			return 3;
+            		end
+            	end
             else
             	return 1;
             end
@@ -317,6 +327,12 @@ namespace Wholesome_Auto_Quester.Helpers {
                 case 2:
                     Logger.LogError($"The quest {questName} has not been found to pick up.");
                     return false;
+                case 3:
+                    Logger.Log($"The quest {questName} is an autocomplete.");
+                    Thread.Sleep(200);
+                    Quest.CompleteQuest();
+                    WAQTasks.MarQuestAsCompleted(questId);
+                    return true;
             }
 
             Thread.Sleep(200);
@@ -709,6 +725,7 @@ namespace Wholesome_Auto_Quester.Helpers {
                 for (var i = 0; i < path.Count - 1; ++i) distance += path[i].DistanceTo(path[i + 1]);
             return new WAQPath(path, distance);
         }
+
         public static bool IsHorde()
         {
             return ObjectManager.Me.Faction == (uint)PlayerFactions.Orc || ObjectManager.Me.Faction == (uint)PlayerFactions.Tauren
@@ -718,12 +735,12 @@ namespace Wholesome_Auto_Quester.Helpers {
 
         public static void InitializeWAQSettings()
         {
-            WholesomeAQSettings.AddQuestToBlackList(1202); // Theramore docks
+            BlacklistHelper.AddQuestToBlackList(1202); // Theramore docks
             //WholesomeAQSettings.AddQuestToBlackList(1526); // Call of Fire. Requires active item from PREVIOUS quest
-            WholesomeAQSettings.AddQuestToBlackList(863); // Ignition, bugged platform
-            WholesomeAQSettings.AddQuestToBlackList(6383); // Ashenvale hunt, bugged 
-            WholesomeAQSettings.AddQuestToBlackList(891); // The GUns of NorthWatch, too many mobs
-            if (IsHorde()) WholesomeAQSettings.AddQuestToBlackList(4740); // Bugged, should only be alliance
+            BlacklistHelper.AddQuestToBlackList(863); // Ignition, bugged platform
+            BlacklistHelper.AddQuestToBlackList(6383); // Ashenvale hunt, bugged 
+            BlacklistHelper.AddQuestToBlackList(891); // The GUns of NorthWatch, too many mobs
+            if (IsHorde()) BlacklistHelper.AddQuestToBlackList(4740); // Bugged, should only be alliance
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))
             {

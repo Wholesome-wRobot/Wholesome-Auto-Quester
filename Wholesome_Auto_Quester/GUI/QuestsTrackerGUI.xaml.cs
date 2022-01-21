@@ -22,7 +22,7 @@ namespace Wholesome_Auto_Quester.GUI {
         public void AddToBLClicked(object sender, RoutedEventArgs e) {
             if (sourceQuestsList.SelectedItem != null) {
                 ModelQuestTemplate selected = (ModelQuestTemplate) sourceQuestsList.SelectedItem;
-                WholesomeAQSettings.AddQuestToBlackList(selected.Id);
+                BlacklistHelper.AddQuestToBlackList(selected.Id);
                 UpdateQuestsList();
             }
         }
@@ -30,7 +30,7 @@ namespace Wholesome_Auto_Quester.GUI {
         public void RmvFromBLClicked(object sender, RoutedEventArgs e) {
             if (sourceQuestsList.SelectedItem != null) {
                 ModelQuestTemplate selected = (ModelQuestTemplate) sourceQuestsList.SelectedItem;
-                WholesomeAQSettings.RemoveQuestFromBlackList(selected.Id);
+                BlacklistHelper.RemoveQuestFromBlackList(selected.Id);
                 UpdateQuestsList();
             }
         }

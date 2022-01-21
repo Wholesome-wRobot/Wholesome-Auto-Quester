@@ -4,7 +4,6 @@ using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 using System.IO;
 using System.Collections.Generic;
-using Wholesome_Auto_Quester.Helpers;
 
 namespace Wholesome_Auto_Quester
 {
@@ -34,26 +33,6 @@ namespace Wholesome_Auto_Quester
             SmoothMove = false;
             LastUpdateDate = 0;
             BlacklistesQuests = new List<int>();
-        }
-
-        public static void AddQuestToBlackList(int questId)
-        {
-            if (!CurrentSetting.BlacklistesQuests.Contains(questId))
-            {
-                CurrentSetting.BlacklistesQuests.Add(questId);
-                CurrentSetting.Save();
-                Logger.Log($"The quest {questId} has been blacklisted");
-            }
-        }
-
-        public static void RemoveQuestFromBlackList(int questId)
-        {
-            if (CurrentSetting.BlacklistesQuests.Contains(questId))
-            {
-                CurrentSetting.BlacklistesQuests.Remove(questId);
-                CurrentSetting.Save();
-                Logger.Log($"The quest {questId} has been removed from the blacklist");
-            }
         }
 
         public bool Save()

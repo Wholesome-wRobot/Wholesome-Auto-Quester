@@ -57,7 +57,7 @@ namespace Wholesome_Auto_Quester.Helpers {
         }
 
         private static void ResetCurrentMovementCache() {
-            Logger.Log("Reset movement cache");
+            //Logger.Log("Reset movement cache");
             lock (Lock) {
                 _currentMovementTask = null;
                 _currentMovementToken = null;

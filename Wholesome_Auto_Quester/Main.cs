@@ -15,10 +15,8 @@ using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Database;
 using Wholesome_Auto_Quester.GUI;
 using Wholesome_Auto_Quester.Helpers;
-using wManager;
 using wManager.Events;
 using wManager.Plugin;
-using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
@@ -31,7 +29,7 @@ public class Main : IProduct {
     public static bool RequestImmediateTaskUpdate;
     public static bool RequestImmediateTaskReset;
 
-    public string version = "0.0.12"; // Must match version in Version.txt
+    public string version = "0.0.13"; // Must match version in Version.txt
 
     public bool IsStarted { get; private set; }
 
@@ -70,6 +68,11 @@ public class Main : IProduct {
 
             IsStarted = true;
             ToolBox.UpdateCompletedQuests();
+            ToolBox.InitializeWAQSettings();
+            FiniteStateMachineEvents.OnRunState += SmoothMoveKiller;
+            LoggingEvents.OnAddLog += AddLogHandler;
+            MovementEvents.OnSeemStuck += SeemStuckHandler;
+            EventsLua.AttachEventLua("PLAYER_DEAD", e => PlayerDeadHandler(e));
 
             if (ToolBox.GetWoWVersion() == "3.3.5") {
                 var dbWotlk = new DBQueriesWotlk();
@@ -83,7 +86,9 @@ public class Main : IProduct {
             Task.Factory.StartNew(() => {
                 while (IsStarted) {
                     try {
-                        if (Conditions.InGameAndConnectedAndProductStartedNotInPause) {
+                        if (Conditions.InGameAndConnectedAndProductStartedNotInPause)
+                        {
+                            BlacklistHelper.CleanupBlacklist();
                             WAQTasks.UpdateStatuses();
                             WAQTasks.UpdateTasks();
                             //Thread.Sleep(1000);
@@ -119,12 +124,6 @@ public class Main : IProduct {
                     Thread.Sleep(1000 * 60 * 15);
                 }
             });
-            
-            FiniteStateMachineEvents.OnRunState += SmoothMoveKiller;
-            LoggingEvents.OnAddLog += AddLogHandler;
-            MovementEvents.OnSeemStuck += SeemStuckHandler;
-            EventsLua.AttachEventLua("PLAYER_DEAD", e => PlayerDeadHandler(e));
-            ToolBox.InitializeWAQSettings();
             
             if (Bot.Pulse()) {                
                 if (WholesomeAQSettings.CurrentSetting.ActivateQuestsGUI)
@@ -178,7 +177,8 @@ public class Main : IProduct {
         if (log.Text == "[Fight] Mob seem bugged" && ObjectManager.Target.Guid > 0)
         {
             Logger.Log($"{ObjectManager.Target.Guid} is bugged. Blacklisting.");
-            wManagerSetting.AddBlackList(ObjectManager.Target.Guid, isSessionBlacklist: true);
+            BlacklistHelper.AddNPC(ObjectManager.Target.Guid);
+            //wManagerSetting.AddBlackList(ObjectManager.Target.Guid, isSessionBlacklist: true);
         }
     }
 
@@ -227,7 +227,8 @@ public class Main : IProduct {
     private void PlayerDeadHandler(object context)
     {
         Logger.Log($"You died. Blacklisting zone.");
-        wManagerSetting.AddBlackListZone(ObjectManager.Me.Position, 20, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
+        BlacklistHelper.AddZone(ObjectManager.Me.Position, 20);
+        //wManagerSetting.AddBlackListZone(ObjectManager.Me.Position, 20, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
     }
 
     private void SeemStuckHandler()
@@ -291,14 +292,17 @@ public class StuckCounter
             if (WowObject != null)
             {
                 Logger.LogError($"Blacklisting {WowObject.Name}, got stuck {Count} times trying to reach {WowObject.Position}");
-                wManagerSetting.AddBlackList(WowObject.Guid, 1000 * 600, true);
-                wManagerSetting.AddBlackListZone(WowObject.Position, 5, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
+                BlacklistHelper.AddNPC(WowObject.Guid);
+                //wManagerSetting.AddBlackList(WowObject.Guid, 1000 * 600, true);
+                BlacklistHelper.AddZone(WowObject.Position, 5);
+                //wManagerSetting.AddBlackListZone(WowObject.Position, 5, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
                 return;
             }
             if (Task != null)
             {
                 Task.PutTaskOnTimeout(600, $"Stuck {Count} times");
-                wManagerSetting.AddBlackListZone(Task.Location, 5, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
+                BlacklistHelper.AddZone(WowObject.Position, 5);
+                //wManagerSetting.AddBlackListZone(Task.Location, 5, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
             }
             Main.RequestImmediateTaskReset = true;
         }

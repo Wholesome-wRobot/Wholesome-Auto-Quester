@@ -325,6 +325,7 @@
     <Compile Include="GUI\QuestsTrackerGUI.xaml.cs">
       <DependentUpon>QuestsTrackerGUI.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\BlacklistHelper.cs" />
     <Compile Include="Helpers\Enums.cs" />
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Helpers\MoveHelper.cs" />

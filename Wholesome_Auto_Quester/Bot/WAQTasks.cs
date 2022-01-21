@@ -289,17 +289,8 @@ namespace Wholesome_Auto_Quester.Bot {
 
             TasksPile.AddRange(generatedTasks);
 
-            if (TasksPile.Count <= 0 || !TasksPile.Exists(t => !t.IsTimedOut))
-                return;
-            
-            // Filter far away new quests if we still have quests to turn in
-            // if (TasksPile.Any(task => task.Quest.ShouldQuestBeFinished())) {
-            //     TasksPile.RemoveAll(task => task.TaskType == TaskType.PickupQuest && !Quests
-            //         .Where(quest => quest.ShouldQuestBeFinished())
-            //         .Any(questToBeFinished => questToBeFinished.QuestGivers
-            //             .Any(questToFinishGiver => task.Quest.QuestGivers.Any(taskQuestGiver =>
-            //                 taskQuestGiver.Position().DistanceTo(questToFinishGiver.Position()) < 250))));
-            // }
+            /*if (TasksPile.Count <= 0 || !TasksPile.Exists(t => !t.IsTimedOut))
+                return;*/
             
             WAQTask.UpdatePriorityData();
             TasksPile = TasksPile.Where(task => !wManagerSetting.IsBlackListedZone(task.Location))
@@ -320,7 +311,8 @@ namespace Wholesome_Auto_Quester.Bot {
             if (!pathToClosestTask.IsReachable)
             {
                 closestTask.PutTaskOnTimeout(600, "Unreachable (1)");
-                wManagerSetting.AddBlackListZone(closestTask.Location, 5, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
+                BlacklistHelper.AddZone(closestTask.Location, 5);
+                //wManagerSetting.AddBlackListZone(closestTask.Location, 5, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
                 Main.RequestImmediateTaskReset = true;
                 return;
             }
@@ -339,7 +331,8 @@ namespace Wholesome_Auto_Quester.Bot {
                         if (!pathToNewTask.IsReachable)
                         {
                             TasksPile[i].PutTaskOnTimeout(600, "Unreachable (2)");
-                            wManagerSetting.AddBlackListZone(closestTask.Location, 5, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
+                            BlacklistHelper.AddZone(closestTask.Location, 5);
+                            //wManagerSetting.AddBlackListZone(closestTask.Location, 5, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
                             continue;
                         }
 
@@ -409,7 +402,8 @@ namespace Wholesome_Auto_Quester.Bot {
                 if (!pathToClosestObject.IsReachable)
                 {
                     Logger.Log($"Blacklisting {closestObject.Name} {closestObject.Guid} because it's unreachable");
-                    wManagerSetting.AddBlackList(closestObject.Guid, 1000 * 600, true);
+                    BlacklistHelper.AddNPC(closestObject.Guid);
+                    //wManagerSetting.AddBlackList(closestObject.Guid, 1000 * 600, true);
                     Main.RequestImmediateTaskReset = true;
                     return;
                 }
@@ -425,7 +419,8 @@ namespace Wholesome_Auto_Quester.Bot {
                         if (!pathToNewObject.IsReachable)
                         {
                             Logger.Log($"Blacklisting {filteredSurroundingObjects[i].Name} {filteredSurroundingObjects[i].Guid} because it's unreachable");
-                            wManagerSetting.AddBlackList(filteredSurroundingObjects[i].Guid, 1000 * 600, true);
+                            BlacklistHelper.AddNPC(filteredSurroundingObjects[i].Guid);
+                            //wManagerSetting.AddBlackList(filteredSurroundingObjects[i].Guid, 1000 * 600, true);
                             break;
                         }
 
@@ -480,12 +475,14 @@ namespace Wholesome_Auto_Quester.Bot {
             Dictionary<int, Quest.PlayerQuest> logQuests = Quest.GetLogQuestId().ToDictionary(quest => quest.ID);
             List<string> itemsToAddToDNSList = new List<string>();
             ToolBox.UpdateCompletedQuests();
+            /*
             if (ToolBox.GetServerNbCompletedQuests() <= 0 && WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Count > 0)
             {
                 Logger.Log($"Waiting for server-side list of completed quests " +
                     $"({ToolBox.GetServerNbCompletedQuests()}/{WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Count})");
                 return;
             }
+            */
 
             // Update quests statuses
             foreach (ModelQuestTemplate quest in Quests)

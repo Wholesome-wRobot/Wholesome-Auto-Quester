@@ -62,7 +62,7 @@ namespace Wholesome_Auto_Quester.States {
                 } 
                 else 
                 {
-                    if (ToolBox.GossipPickUpQuest(task.QuestTitle))
+                    if (ToolBox.GossipPickUpQuest(task.QuestTitle, task.QuestId))
                     {
                         Main.RequestImmediateTaskReset = true;
                         Thread.Sleep(1000);
