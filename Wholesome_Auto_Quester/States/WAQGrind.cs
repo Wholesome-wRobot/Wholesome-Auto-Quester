@@ -41,11 +41,17 @@ namespace Wholesome_Auto_Quester.States
                 Logger.Log($"Unit found - Fighting {killTarget.Name}");
                 MoveHelper.StopAllMove();
                 Fight.StartFight(killTarget.Guid);
-                if (killTarget.IsDead && task.TaskType == TaskType.Grind && killTarget.Guid == task.ObjectRealGuid)
+                Main.RequestImmediateTaskReset = true;
+                
+                if (killTarget.IsDead 
+                    && task.TaskType == TaskType.Grind 
+                    && killTarget.Guid == task.ObjectRealGuid)
                 {
+                    Logger.Log($"Task GUID={task.ObjectRealGuid}, npc GUID={killTarget.Guid}");
                     task.PutTaskOnTimeout("Completed");
-                    Main.RequestImmediateTaskReset = true;
                 }
+                Main.RequestImmediateTaskReset = true;
+
             }
             else
             {

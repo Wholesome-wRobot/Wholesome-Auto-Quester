@@ -492,7 +492,7 @@ namespace Wholesome_Auto_Quester.Bot {
                     return false;
             }
 
-            if (task.TaskType == TaskType.Kill) {
+            if (task.TaskType == TaskType.Kill || task.TaskType == TaskType.Grind) {
                 var unit = (WoWUnit) wowObject;
                 if (!unit.IsAlive)
                     return false;
