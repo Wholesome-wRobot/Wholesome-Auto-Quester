@@ -1,15 +1,14 @@
 ﻿using robotManager.FiniteStateMachine;
 using Wholesome_Auto_Quester.Helpers;
 using Wholesome_Auto_Quester.Bot;
-using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.States
 {
-    class WAQKill : State
+    class WAQGrind : State
     {
-        public override string DisplayName { get; set; } = "Kill creature [SmoothMove - Q]";
+        public override string DisplayName { get; set; } = "Grind creature [SmoothMove - Q]";
 
         public override bool NeedToRun
         {
@@ -19,10 +18,9 @@ namespace Wholesome_Auto_Quester.States
                     || !ObjectManager.Me.IsValid)
                     return false;
 
-                if (WAQTasks.TaskInProgress?.TaskType == TaskType.Kill 
-                    || WAQTasks.TaskInProgress?.TaskType == TaskType.KillAndLoot)
+                if (WAQTasks.TaskInProgress?.TaskType == TaskType.Grind)
                 {
-                    DisplayName = $"Kill {WAQTasks.TaskInProgress.TargetName} for {WAQTasks.TaskInProgress.QuestTitle} [SmoothMove - Q]";
+                    DisplayName = $"Grind {WAQTasks.TaskInProgress.TargetName} [SmoothMove - Q]";
                     return true;
                 }
 
@@ -34,10 +32,6 @@ namespace Wholesome_Auto_Quester.States
         {
             WAQTask task = WAQTasks.TaskInProgress;
             WoWObject gameObject = WAQTasks.WoWObjectInProgress;
-            //WAQPath pathToTask = WAQTasks.PathToCurrentTask;
-
-            if (ToolBox.ShouldStateBeInterrupted(task, gameObject, WoWObjectType.Unit))
-                return;
 
             if (gameObject != null)
             {
@@ -47,18 +41,17 @@ namespace Wholesome_Auto_Quester.States
                 Logger.Log($"Unit found - Fighting {killTarget.Name}");
                 MoveHelper.StopAllMove();
                 Fight.StartFight(killTarget.Guid);
-                if (killTarget.IsDead && task.TaskType == TaskType.Kill && killTarget.Guid == task.ObjectRealGuid
-                    || killTarget.IsDead && !killTarget.IsLootable && task.TaskType == TaskType.KillAndLoot && killTarget.Guid == task.ObjectRealGuid)
+                if (killTarget.IsDead && task.TaskType == TaskType.Grind && killTarget.Guid == task.ObjectRealGuid)
                 {
                     task.PutTaskOnTimeout("Completed");
-                    Main.RequestImmediateTaskUpdate = true;
+                    Main.RequestImmediateTaskReset = true;
                 }
             }
             else
             {
                 if (!MoveHelper.IsMovementThreadRunning && task.Location.DistanceTo(ObjectManager.Me.Position) > 12) 
                 {                    
-                    Logger.Log($"Traveling to Hotspot for {task.QuestTitle} (Kill).");
+                    Logger.Log($"Traveling to Hotspot to grind {task.TargetName}.");
                     //MoveHelper.StartMoveAlongToTaskThread(pathToTask.Path, task);
                     MoveHelper.StartGoToThread(task.Location);
                 }

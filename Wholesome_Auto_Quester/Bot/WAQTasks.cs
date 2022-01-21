@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using Wholesome_Auto_Quester.Database;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Database.Objectives;
 using Wholesome_Auto_Quester.Helpers;
@@ -33,18 +34,18 @@ namespace Wholesome_Auto_Quester.Bot {
         public static void UpdateTasks()
         {
             _tick++;
-            if (Quests.Count <= 0 
-                || !ObjectManager.Me.IsAlive
+
+            if (!ObjectManager.Me.IsAlive
                 || ObjectManager.Me.IsOnTaxi
                 || !ObjectManager.Me.IsValid 
                 || Fight.InFight
                 || ObjectManager.Me.HaveBuff("Drink")
                 || ObjectManager.Me.HaveBuff("Food")
-                || MoveHelper.IsMovementThreadRunning && (_tick % 5) != 0)
+                || MovementManager.InMovement && (_tick % 5) != 0)
                 return;
 
             //Logger.Log("Update tasks");
-            var generatedTasks = new List<WAQTask>();
+            var generatedQuestTasks = new List<WAQTask>();
             int myContinent = Usefuls.ContinentId;
             int myLevel = (int)ObjectManager.Me.Level;
             Vector3 myPosition = ObjectManager.Me.Position;
@@ -95,7 +96,7 @@ namespace Wholesome_Auto_Quester.Bot {
                                 if (creature.map == myContinent
                                     && !TasksPile.Exists(t =>
                                         t.IsSameTask(TaskType.TurnInQuestToCreature, quest.Id, 5, () => (int)creature.guid)))
-                                    generatedTasks.Add(new WAQTask(TaskType.TurnInQuestToCreature, creatureTemplate.name, creatureTemplate.entry,
+                                    generatedQuestTasks.Add(new WAQTask(TaskType.TurnInQuestToCreature, creatureTemplate.name, creatureTemplate.entry,
                                         quest.LogTitle, quest.Id, creature, 5));
                             });
                         });
@@ -108,7 +109,7 @@ namespace Wholesome_Auto_Quester.Bot {
                                 if (gameObject.map == myContinent
                                     && !TasksPile.Exists(t =>
                                         t.IsSameTask(TaskType.TurnInQuestToGameObject, quest.Id, 5, () => (int)gameObject.guid)))
-                                    generatedTasks.Add(new WAQTask(TaskType.TurnInQuestToGameObject, gameObjectTemplate.name, gameObjectTemplate.entry,
+                                    generatedQuestTasks.Add(new WAQTask(TaskType.TurnInQuestToGameObject, gameObjectTemplate.name, gameObjectTemplate.entry,
                                         quest.LogTitle, quest.Id, gameObject, 5));
                             });
                         });
@@ -130,7 +131,7 @@ namespace Wholesome_Auto_Quester.Bot {
                                 if (creature.map == myContinent
                                     && !TasksPile.Exists(t =>
                                         t.IsSameTask(TaskType.PickupQuestFromCreature, quest.Id, 6, () => (int)creature.guid)))
-                                    generatedTasks.Add(new WAQTask(TaskType.PickupQuestFromCreature, creatureTemplate.name, creatureTemplate.entry,
+                                    generatedQuestTasks.Add(new WAQTask(TaskType.PickupQuestFromCreature, creatureTemplate.name, creatureTemplate.entry,
                                         quest.LogTitle, quest.Id, creature, 6));
                             });
                         });
@@ -143,7 +144,7 @@ namespace Wholesome_Auto_Quester.Bot {
                                 if (gameObject.map == myContinent
                                     && !TasksPile.Exists(t =>
                                         t.IsSameTask(TaskType.PickupQuestFromGameObject, quest.Id, 6, () => (int)gameObject.guid)))
-                                    generatedTasks.Add(new WAQTask(TaskType.PickupQuestFromGameObject, gameObjectTemplate.name, gameObjectTemplate.entry,
+                                    generatedQuestTasks.Add(new WAQTask(TaskType.PickupQuestFromGameObject, gameObjectTemplate.name, gameObjectTemplate.entry,
                                         quest.LogTitle, quest.Id, gameObject, 6));
                             });
                         });
@@ -172,7 +173,7 @@ namespace Wholesome_Auto_Quester.Bot {
                                     && !TasksPile.Exists(t =>
                                         t.IsSameTask(TaskType.KillAndLoot, quest.Id,
                                             obje.ObjectiveIndex, () => (int)creature.guid)))
-                                    generatedTasks.Add(new WAQTask(TaskType.KillAndLoot, obje.CreatureName, obje.CreatureEntry,
+                                    generatedQuestTasks.Add(new WAQTask(TaskType.KillAndLoot, obje.CreatureName, obje.CreatureEntry,
                                         quest.LogTitle, quest.Id, creature, obje.ObjectiveIndex));
                             });
                         }
@@ -195,7 +196,7 @@ namespace Wholesome_Auto_Quester.Bot {
                                         && !TasksPile.Exists(t =>
                                             t.IsSameTask(TaskType.GatherGameObject, quest.Id,
                                                 obje.ObjectiveIndex, () => (int)gameObject.guid)))
-                                        generatedTasks.Add(new WAQTask(TaskType.GatherGameObject, got.GameObjectName, got.GameObjectEntry,
+                                        generatedQuestTasks.Add(new WAQTask(TaskType.GatherGameObject, got.GameObjectName, got.GameObjectEntry,
                                             quest.LogTitle, quest.Id, gameObject, obje.ObjectiveIndex));
                                 });
                             }
@@ -216,7 +217,7 @@ namespace Wholesome_Auto_Quester.Bot {
                                     && !TasksPile.Exists(t =>
                                         t.IsSameTask(TaskType.Explore, quest.Id,
                                             obje.ObjectiveIndex)))
-                                    generatedTasks.Add(new WAQTask(TaskType.Explore, quest.LogTitle, quest.Id, obje.Area, obje.ObjectiveIndex));
+                                    generatedQuestTasks.Add(new WAQTask(TaskType.Explore, quest.LogTitle, quest.Id, obje.Area, obje.ObjectiveIndex));
                             }
                             else
                             {
@@ -235,7 +236,7 @@ namespace Wholesome_Auto_Quester.Bot {
                                         && !TasksPile.Exists(t =>
                                             t.IsSameTask(TaskType.KillAndLoot, quest.Id,
                                                 obje.ObjectiveIndex, () => (int)creature.guid)))
-                                        generatedTasks.Add(new WAQTask(TaskType.KillAndLoot, obje.CreatureName, obje.CreatureEntry, 
+                                        generatedQuestTasks.Add(new WAQTask(TaskType.KillAndLoot, obje.CreatureName, obje.CreatureEntry, 
                                             quest.LogTitle, quest.Id, creature, obje.ObjectiveIndex));
                                 });
                             else
@@ -253,7 +254,7 @@ namespace Wholesome_Auto_Quester.Bot {
                                         && !TasksPile.Exists(t =>
                                             t.IsSameTask(TaskType.Kill, quest.Id,
                                                 obje.ObjectiveIndex, () => (int)creature.guid)))
-                                        generatedTasks.Add(new WAQTask(TaskType.Kill, obje.CreatureName, obje.CreatureEntry, quest.LogTitle, 
+                                        generatedQuestTasks.Add(new WAQTask(TaskType.Kill, obje.CreatureName, obje.CreatureEntry, quest.LogTitle, 
                                             quest.Id, creature, obje.ObjectiveIndex));
                                 });
                             else
@@ -272,7 +273,7 @@ namespace Wholesome_Auto_Quester.Bot {
                                             && !TasksPile.Exists(t =>
                                                 t.IsSameTask(TaskType.GatherGameObject, quest.Id,
                                                     obje.ObjectiveIndex, () => (int)gameObject.guid)))
-                                            generatedTasks.Add(new WAQTask(TaskType.GatherGameObject, got.GameObjectName, got.GameObjectEntry,
+                                            generatedQuestTasks.Add(new WAQTask(TaskType.GatherGameObject, got.GameObjectName, got.GameObjectEntry,
                                             quest.LogTitle, quest.Id, gameObject, obje.ObjectiveIndex));
                                     });
                                 else
@@ -290,7 +291,7 @@ namespace Wholesome_Auto_Quester.Bot {
                                         && !TasksPile.Exists(t =>
                                             t.IsSameTask(TaskType.InteractWithWorldObject, quest.Id,
                                                 obje.ObjectiveIndex, () => (int)gameObject.guid)))
-                                        generatedTasks.Add(new WAQTask(TaskType.InteractWithWorldObject, obje.GameObjectName, obje.GameObjectEntry,
+                                        generatedQuestTasks.Add(new WAQTask(TaskType.InteractWithWorldObject, obje.GameObjectName, obje.GameObjectEntry,
                                         quest.LogTitle, quest.Id, gameObject, obje.ObjectiveIndex));
                                 });
                             else
@@ -301,7 +302,7 @@ namespace Wholesome_Auto_Quester.Bot {
                 }
             }
 
-            TasksPile.AddRange(generatedTasks);
+            TasksPile.AddRange(generatedQuestTasks);
 
             /*if (TasksPile.Count <= 0 || !TasksPile.Exists(t => !t.IsTimedOut))
                 return;*/
@@ -310,11 +311,26 @@ namespace Wholesome_Auto_Quester.Bot {
             TasksPile = TasksPile.Where(task => !wManagerSetting.IsBlackListedZone(task.Location))
                 .OrderBy(t => t.Priority).ToList();
 
+            if (TasksPile.Any(t => t.TaskType != TaskType.Grind && !t.IsTimedOut))
+                TasksPile.RemoveAll(t => t.TaskType == TaskType.Grind);
+
             WAQTask closestTask = TasksPile.Find(t => !t.IsTimedOut && !wManagerSetting.IsBlackListedZone(t.Location));
 
             if (closestTask == null)
             {
                 Logger.Log("No task found");
+                // Generate Kill tasks for grinding
+                DB _database = new DB();
+                List<ModelCreatureTemplate> ctToGrind = _database.QueryCreatureTemplatesToGrind();
+                _database.Dispose();
+
+                ctToGrind.RemoveAll(ct => ct.Creatures.Any(c => c.map != Usefuls.ContinentId) || ct.IsFriendly);
+                Logger.Log($"Found {ctToGrind.Count} templates to grind");
+                ctToGrind.ForEach(ct =>
+                {
+                    ct.Creatures.ForEach(c =>
+                        TasksPile.Add(new WAQTask(TaskType.Grind, ct.name, ct.entry, c)));
+                });
                 return;
             }
 
@@ -371,7 +387,7 @@ namespace Wholesome_Auto_Quester.Bot {
             var wantedObjectEntries = new List<int>();
             var wantedLootEntries = new List<int>();
             TasksPile.ForEach(pileTask => {
-                if (!researchedTasks.Exists(poiTasks => poiTasks.ObjectGuid == pileTask.ObjectGuid) &&
+                if (!researchedTasks.Exists(poiTasks => poiTasks.ObjectDBGuid == pileTask.ObjectDBGuid) &&
                     !pileTask.IsTimedOut) {
                     if (pileTask.Creature != null)
                     {
@@ -458,6 +474,7 @@ namespace Wholesome_Auto_Quester.Bot {
                 {
                     WoWObjectInProgress = closestObject;
                     closestTask = researchedTasks.Find(task => task.TargetEntry == WoWObjectInProgress.Entry);
+                    closestTask.ObjectRealGuid = WoWObjectInProgress.Guid;
                 }
             } 
             else 

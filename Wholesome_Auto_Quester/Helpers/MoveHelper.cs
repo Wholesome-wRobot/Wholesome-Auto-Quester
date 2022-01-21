@@ -36,10 +36,13 @@ namespace Wholesome_Auto_Quester.Helpers {
             }
         }
 
-        public static void StopAllMove() {
-            StopCurrentMovementThread();
+        public static void StopAllMove()
+        {
+            MovementManager.StopMoveOnly();
             MovementManager.StopMoveNewThread();
             MovementManager.StopMove();
+            MovementManager.StopMoveTo();
+            StopCurrentMovementThread();
         }
 
         public static void StopCurrentMovementThread() {

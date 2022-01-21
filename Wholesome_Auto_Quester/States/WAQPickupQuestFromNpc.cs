@@ -54,8 +54,14 @@ namespace Wholesome_Auto_Quester.States {
 
                 if (MoveHelper.IsMovementThreadRunning) MoveHelper.StopAllMove();
 
-                if (!ToolBox.IsNpcFrameActive()) 
+                if (!ToolBox.IsNpcFrameActive())
+                {
+                    MoveHelper.StopAllMove();
                     Interact.InteractGameObject(pickUpTarget.GetBaseAddress);
+                    Thread.Sleep(500);
+                    if (!ToolBox.IsNpcFrameActive())
+                        task.PutTaskOnTimeout($"Couldn't open quest frame");
+                }
                 else 
                 {
                     if (ToolBox.GossipPickUpQuest(task.QuestTitle, task.QuestId))

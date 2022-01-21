@@ -161,6 +161,22 @@ namespace Wholesome_Auto_Quester.Database
             return result.FirstOrDefault();
         }
 
+        public List<ModelCreatureTemplate> QueryCreatureTemplatesToGrind()
+        {
+            uint myLevel = ObjectManager.Me.Level;
+            string queryTemplates = $@"
+                SELECT * FROM creature_template ct
+                WHERE 
+	                ct.maxlevel <= {myLevel + 1} 
+	                AND ct.minlevel >= {myLevel - 2}
+	                AND ct.type = 1
+            ";
+            List<ModelCreatureTemplate> result = _con.Query<ModelCreatureTemplate>(queryTemplates).ToList();
+            if (result.Count <= 0) return null;
+            result.ForEach(ct => ct.Creatures = QueryCreaturesById(ct.entry));
+            return result;
+        }
+
         public List<ModelCreature> QueryCreaturesById(int creatureId)
         {
             string queryCreature = $@"

@@ -13,7 +13,8 @@ namespace Wholesome_Auto_Quester.Bot {
 
         public Vector3 Location { get; }
         public int Map { get; }
-        public uint ObjectGuid { get; }
+        public uint ObjectDBGuid { get; }
+        public ulong ObjectRealGuid { get; set; }
         public int ObjectiveIndex { get; }
         public int TargetEntry { get; }
         public string TargetName { get; }
@@ -34,7 +35,7 @@ namespace Wholesome_Auto_Quester.Bot {
             Creature = creature;
             Map = creature.map;
             Location = creature.GetSpawnPosition;
-            ObjectGuid = creature.guid;
+            ObjectDBGuid = creature.guid;
             QuestId = questId;
             TargetEntry = creatureEntry;
             TargetName = creatureName;
@@ -50,6 +51,19 @@ namespace Wholesome_Auto_Quester.Bot {
             if (taskType == TaskType.KillAndLoot)
                 TaskName = $"Kill and Loot {TargetName} for {QuestTitle}";
         }
+
+        // Grind
+        public WAQTask(TaskType taskType, string creatureName, int creatureEntry, ModelCreature creature)
+        {
+            TaskType = taskType;
+            Creature = creature;
+            Map = creature.map;
+            Location = creature.GetSpawnPosition;
+            ObjectDBGuid = creature.guid;
+            TargetEntry = creatureEntry;
+            TargetName = creatureName;
+            TaskName = $"Grind {creatureName}";
+        }
         
         // Game Objects
         public WAQTask(TaskType taskType, string gameObjectName, int gameObjectEntry, string questTitle, int questId,
@@ -59,7 +73,7 @@ namespace Wholesome_Auto_Quester.Bot {
             GameObject = gameObject;
             Map = gameObject.map;
             Location = gameObject.GetSpawnPosition;
-            ObjectGuid = gameObject.guid;
+            ObjectDBGuid = gameObject.guid;
             QuestId = questId;
             TargetEntry = gameObjectEntry;
             TargetName = gameObjectName;
@@ -116,7 +130,7 @@ namespace Wholesome_Auto_Quester.Bot {
         public bool IsSameTask(TaskType taskType, int questEntry, int objIndex, Func<int> getUniqueId = null) 
         {
             return TaskType == taskType && QuestId == questEntry && ObjectiveIndex == objIndex
-                   && ObjectGuid == (getUniqueId?.Invoke() ?? 0);
+                   && ObjectDBGuid == (getUniqueId?.Invoke() ?? 0);
         }
 
         public bool IsTimedOut => !_timeOutTimer.IsReady;
@@ -140,13 +154,14 @@ namespace Wholesome_Auto_Quester.Bot {
 
         public int CalculatePriority(float taskDistance)
         {
+            if (TaskType == TaskType.Grind) return (int)taskDistance;
             ModelQuestTemplate quest = WAQTasks.Quests.Find(q => q.Id == QuestId);
             if (taskDistance > 0) // path found
             {
                 if (TaskType == TaskType.PickupQuestFromCreature) taskDistance *= 2.5f;
                 if (TaskType == TaskType.TurnInQuestToCreature) taskDistance *= 1.5f;
-                if (quest.QuestAddon.AllowableClasses > 0) taskDistance /= 5;
-                if (quest.TimeAllowed > 0 && TaskType != TaskType.PickupQuestFromCreature) taskDistance /= 100;
+                if (quest.QuestAddon?.AllowableClasses > 0) taskDistance /= 5;
+                if (quest.TimeAllowed > 0 && TaskType != TaskType.PickupQuestFromCreature) taskDistance /= 100;                
             }
 
             return (int)taskDistance;

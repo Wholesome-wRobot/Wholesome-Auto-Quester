@@ -53,6 +53,7 @@
         KillAndLoot,
         GatherGameObject,
         Explore,
-        InteractWithWorldObject
+        InteractWithWorldObject,
+        Grind
     }
 }

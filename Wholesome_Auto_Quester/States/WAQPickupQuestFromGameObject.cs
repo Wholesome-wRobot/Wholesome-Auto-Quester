@@ -56,9 +56,12 @@ namespace Wholesome_Auto_Quester.States {
 
                 if (!ToolBox.IsNpcFrameActive()) 
                 {
+                    MoveHelper.StopAllMove();
                     Interact.InteractGameObject(pickUpTarget.GetBaseAddress);
                     Usefuls.WaitIsCasting();
                     Thread.Sleep(500);
+                    if (!ToolBox.IsNpcFrameActive())
+                        task.PutTaskOnTimeout($"Couldn't open quest frame");
                 } 
                 else 
                 {

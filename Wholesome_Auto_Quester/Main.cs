@@ -29,7 +29,7 @@ public class Main : IProduct {
     public static bool RequestImmediateTaskUpdate;
     public static bool RequestImmediateTaskReset;
 
-    public string version = "0.0.16"; // Must match version in Version.txt
+    public string version = "0.0.17"; // Must match version in Version.txt
 
     public bool IsStarted { get; private set; }
 
@@ -251,7 +251,7 @@ public class Main : IProduct {
 
         if (task != null)
         {
-            StuckCounter existing = ListStuckCounters.Find(sc => sc.WowObject == null && sc.Task.ObjectGuid == task.ObjectGuid);
+            StuckCounter existing = ListStuckCounters.Find(sc => sc.WowObject == null && sc.Task.ObjectDBGuid == task.ObjectDBGuid);
             if (existing == null)
                 ListStuckCounters.Add(new StuckCounter(task, null));
             else

@@ -51,7 +51,8 @@ namespace Wholesome_Auto_Quester.Bot
                 Fsm.AddState(new WAQGoTo { Priority = 19 });
                 Fsm.AddState(new WAQKill { Priority = 18 });
                 Fsm.AddState(new WAQGatherWorldObject { Priority = 16 });
-                
+                Fsm.AddState(new WAQGrind { Priority = 15 });
+
                 Fsm.AddState(new WAQPickupQuestFromNpc { Priority = 11 });
                 Fsm.AddState(new WAQPickupQuestFromGameObject { Priority = 10 });
                 Fsm.AddState(new WAQTurnInQuestToNpc { Priority = 9 });
