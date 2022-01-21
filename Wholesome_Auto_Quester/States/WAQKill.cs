@@ -56,13 +56,13 @@ namespace Wholesome_Auto_Quester.States
             }
             else
             {
-                if (!MoveHelper.IsMovementThreadRunning && task.Location.DistanceTo(ObjectManager.Me.Position) > 13) 
+                if (!MoveHelper.IsMovementThreadRunning && task.Location.DistanceTo(ObjectManager.Me.Position) > 12) 
                 {                    
                     Logger.Log($"Traveling to Hotspot for {task.QuestTitle} (Kill).");
                     //MoveHelper.StartMoveAlongToTaskThread(pathToTask.Path, task);
                     MoveHelper.StartGoToThread(task.Location);
                 }
-                if (task.GetDistance <= 12) 
+                if (task.GetDistance <= 13) 
                 {
                     task.PutTaskOnTimeout("No creature to kill in sight");
                     Main.RequestImmediateTaskUpdate = true;

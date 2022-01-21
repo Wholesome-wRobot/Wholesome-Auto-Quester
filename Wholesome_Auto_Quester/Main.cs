@@ -29,7 +29,7 @@ public class Main : IProduct {
     public static bool RequestImmediateTaskUpdate;
     public static bool RequestImmediateTaskReset;
 
-    public string version = "0.0.15"; // Must match version in Version.txt
+    public string version = "0.0.16"; // Must match version in Version.txt
 
     public bool IsStarted { get; private set; }
 
