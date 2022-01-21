@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Database.Objectives;
 using Wholesome_Auto_Quester.Helpers;
@@ -66,6 +67,19 @@ namespace Wholesome_Auto_Quester.Bot {
                     && quest.StartItem > 0
                     && !ItemsManager.HasItemById((uint)quest.StartItem))
                     continue;
+
+                // Pickup quest from bag item
+                if (quest.Status != QuestStatus.InProgress
+                    && quest.Status != QuestStatus.ToTurnIn
+                    && quest.StartItemTemplate?.startquest > 0 
+                    && quest.Id == quest.StartItemTemplate?.startquest)
+                {
+                    if (ItemsManager.HasItemById((uint)quest.StartItem))
+                    {
+                        Logger.Log($"Starting {quest.LogTitle} from {quest.StartItemTemplate.Name}");
+                        ToolBox.PickupQuestFromBagItem(quest.StartItemTemplate.Name);
+                    }
+                }
 
                 // Turn in quest
                 if (quest.Status == QuestStatus.ToTurnIn)

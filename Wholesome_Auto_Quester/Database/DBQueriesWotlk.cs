@@ -83,11 +83,12 @@ namespace Wholesome_Auto_Quester.Database {
 
             foreach (ModelQuestTemplate q in dbResult)
             {
-                if (!q.CreatureQuestGivers.Any(qg => qg.IsNeutralOrFriendly) && q.GameObjectQuestGivers.Count <= 0)
+                if (q.CreatureQuestGivers.Count > 0 && !q.CreatureQuestGivers.Any(qg => qg.IsNeutralOrFriendly) && q.GameObjectQuestGivers.Count <= 0)
                 {
                     //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Not for my faction)");
                     continue;
                 }
+                
                 if (q.StartItemTemplate?.Spell1 != null
                     || q.StartItemTemplate?.Spell2 != null
                     || q.StartItemTemplate?.Spell3 != null
@@ -106,7 +107,6 @@ namespace Wholesome_Auto_Quester.Database {
                     //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Active loot item)");
                     continue;
                 }
-
                 result.Add(q);
             }
             return result;

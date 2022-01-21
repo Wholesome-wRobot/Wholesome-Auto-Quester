@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading;
 using Wholesome_Auto_Quester;
 using Wholesome_Auto_Quester.Helpers;
-using System.IO;
 using System.Net;
 
 public static class AutoUpdater

@@ -760,5 +760,18 @@ namespace Wholesome_Auto_Quester.Helpers {
             { 6629, 3 }, // Avenge my village follow up, too many mobs
             { 216, 2 }, // Between a rock and a Thistlefur, too many mobs
         };
+
+        public static void PickupQuestFromBagItem(string itemName)
+        {
+            ItemsManager.UseItemByNameOrId(itemName);
+            Thread.Sleep(500);
+            Lua.LuaDoString("if GetClickFrame('QuestFrame'):IsVisible() then AcceptQuest(); end");
+            Thread.Sleep(500);
+            Lua.LuaDoString(@"
+                        local closeButton = GetClickFrame('QuestFrameCloseButton');
+                        if closeButton:IsVisible() then
+            	            closeButton:Click();
+                        end");
+        }
     }
 }
