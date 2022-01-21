@@ -29,7 +29,7 @@ public class Main : IProduct {
     public static bool RequestImmediateTaskUpdate;
     public static bool RequestImmediateTaskReset;
 
-    public string version = "0.0.13"; // Must match version in Version.txt
+    public string version = "0.0.14"; // Must match version in Version.txt
 
     public bool IsStarted { get; private set; }
 
@@ -64,6 +64,9 @@ public class Main : IProduct {
         try
         {
             if (AutoUpdater.CheckUpdate(version))
+                return;
+
+            if (!AutoUpdater.CheckDbDownload())
                 return;
 
             IsStarted = true;
