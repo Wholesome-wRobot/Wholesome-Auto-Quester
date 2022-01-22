@@ -75,6 +75,7 @@ public class Main : IProduct {
             FiniteStateMachineEvents.OnRunState += SmoothMoveKiller;
             LoggingEvents.OnAddLog += AddLogHandler;
             MovementEvents.OnSeemStuck += SeemStuckHandler;
+            EventsLuaWithArgs.OnEventsLuaStringWithArgs += EventsWithArgsHandler;
             EventsLua.AttachEventLua("PLAYER_DEAD", e => PlayerDeadHandler(e));
 
             if (ToolBox.GetWoWVersion() == "3.3.5") {
@@ -91,21 +92,24 @@ public class Main : IProduct {
                     try {
                         if (Conditions.InGameAndConnectedAndProductStartedNotInPause)
                         {
+                            robotManager.Helpful.Timer maxWaitTime = new robotManager.Helpful.Timer(1000);
+                            while (!maxWaitTime.IsReady)
+                            {
+                                if (RequestImmediateTaskReset)
+                                {
+                                    WAQTasks.TaskInProgress = null;
+                                    WAQTasks.WoWObjectInProgress = null;
+                                    break;
+                                }
+                                if (RequestImmediateTaskUpdate)
+                                    break;
+                                Thread.Sleep(25);
+                            }
                             BlacklistHelper.CleanupBlacklist();
                             WAQTasks.UpdateStatuses();
                             WAQTasks.UpdateTasks();
-                            //Thread.Sleep(1000);
-                            robotManager.Helpful.Timer maxWaitTime = new robotManager.Helpful.Timer(1000);
-                            while (!maxWaitTime.IsReady && !RequestImmediateTaskUpdate && !RequestImmediateTaskReset)
-                                Thread.Sleep(25);
                             RequestImmediateTaskUpdate = false;
-                            if (RequestImmediateTaskReset)
-                            {
-                                RequestImmediateTaskReset = false;
-                                //WAQTasks.PathToCurrentTask = null;
-                                WAQTasks.TaskInProgress = null;
-                                WAQTasks.WoWObjectInProgress = null;
-                            }
+                            RequestImmediateTaskReset = false;
                         }
                     } catch (Exception arg) {
                         Logging.WriteError(string.Concat(arg));
@@ -124,7 +128,7 @@ public class Main : IProduct {
                         Logging.WriteError(string.Concat(arg));
                     }
 
-                    Thread.Sleep(1000 * 60 * 15);
+                    Thread.Sleep(1000 * 60 * 5);
                 }
             });
             
@@ -163,6 +167,7 @@ public class Main : IProduct {
             FiniteStateMachineEvents.OnRunState -= SmoothMoveKiller;
             LoggingEvents.OnAddLog -= AddLogHandler;
             MovementEvents.OnSeemStuck -= SeemStuckHandler;
+            EventsLuaWithArgs.OnEventsLuaStringWithArgs -= EventsWithArgsHandler;
 
             Bot.Dispose();
             IsStarted = false;
@@ -179,8 +184,7 @@ public class Main : IProduct {
     {
         if (log.Text == "[Fight] Mob seem bugged" && ObjectManager.Target.Guid > 0)
         {
-            Logger.Log($"{ObjectManager.Target.Guid} is bugged. Blacklisting.");
-            BlacklistHelper.AddNPC(ObjectManager.Target.Guid);
+            BlacklistHelper.AddNPC(ObjectManager.Target.Guid, "Mob seem bugged");
             //wManagerSetting.AddBlackList(ObjectManager.Target.Guid, isSessionBlacklist: true);
         }
     }
@@ -229,8 +233,7 @@ public class Main : IProduct {
 
     private void PlayerDeadHandler(object context)
     {
-        Logger.Log($"You died. Blacklisting zone.");
-        BlacklistHelper.AddZone(ObjectManager.Me.Position, 20);
+        BlacklistHelper.AddZone(ObjectManager.Me.Position, 20, "Death");
         //wManagerSetting.AddBlackListZone(ObjectManager.Me.Position, 20, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
     }
 
@@ -243,7 +246,7 @@ public class Main : IProduct {
         {
             StuckCounter existing = ListStuckCounters.Find(sc => sc.WowObject != null && sc.WowObject.Guid == wowObject.Guid);
             if (existing == null)
-                ListStuckCounters.Add(new StuckCounter(null, wowObject));
+                ListStuckCounters.Add(new StuckCounter(task, wowObject));
             else
                 existing.AddToCount();
             return;
@@ -251,12 +254,21 @@ public class Main : IProduct {
 
         if (task != null)
         {
-            StuckCounter existing = ListStuckCounters.Find(sc => sc.WowObject == null && sc.Task.ObjectDBGuid == task.ObjectDBGuid);
+            StuckCounter existing = ListStuckCounters.Find(sc => sc.Task.Location == task.Location);
             if (existing == null)
                 ListStuckCounters.Add(new StuckCounter(task, null));
             else
                 existing.AddToCount();
             return;
+        }
+    }
+
+    private void EventsWithArgsHandler(string id, List<string> args)
+    {
+        if (id == "UI_ERROR_MESSAGE" && args[0] == "You cannot attack that target.")
+        {
+            if (ObjectManager.Target != null)
+                BlacklistHelper.AddNPC(ObjectManager.Target.Guid, $"Can't attack this target");
         }
     }
 }
@@ -279,33 +291,35 @@ public class StuckCounter
     public void AddToCount()
     {
         if (_timer.IsReady) Count = 0;
-        _timer = new robotManager.Helpful.Timer(20 * 1000);
-
-        if (Count > 10 || !ObjectManager.Me.IsAlive) return;
-
+        _timer = new robotManager.Helpful.Timer(30 * 1000);
+        int maxCOunt = 10;
+        if (WowObject?.Position.Z > ObjectManager.Me.Position.Z + 20 && WowObject?.Position.DistanceTo2D(ObjectManager.Me.Position) < 10
+            || Task?.Location.Z > ObjectManager.Me.Position.Z + 20 && Task?.Location.DistanceTo2D(ObjectManager.Me.Position) < 10)
+            maxCOunt = 3;
         Count++;
+
+        if (Count > maxCOunt || !ObjectManager.Me.IsAlive) return;
 
         if (WowObject != null)
             Logger.Log($"We seem stuck trying to reach object {WowObject.Name} ({Count})");
         else
             Logger.Log($"We seem stuck trying to reach task {Task.TaskName} ({Count})");
 
-        if (Count >= 10)
+        if (Count >= maxCOunt)
         {
             if (WowObject != null)
             {
-                Logger.LogError($"Blacklisting {WowObject.Name}, got stuck {Count} times trying to reach {WowObject.Position}");
-                BlacklistHelper.AddNPC(WowObject.Guid);
-                //wManagerSetting.AddBlackList(WowObject.Guid, 1000 * 600, true);
-                BlacklistHelper.AddZone(WowObject.Position, 5);
-                //wManagerSetting.AddBlackListZone(WowObject.Position, 5, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
+                Fight.StopFight();
+                BlacklistHelper.AddNPC(WowObject.Guid, $"Stuck {maxCOunt} times trying to reach");
+                BlacklistHelper.AddZone(WowObject.Position, 5, $"Stuck {maxCOunt} times trying to reach");
+                Task.PutTaskOnTimeout(15 * 60, $"Stuck {Count} times");
                 return;
             }
             if (Task != null)
             {
-                Task.PutTaskOnTimeout(600, $"Stuck {Count} times");
-                BlacklistHelper.AddZone(WowObject.Position, 5);
-                //wManagerSetting.AddBlackListZone(Task.Location, 5, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
+                Fight.StopFight();
+                BlacklistHelper.AddZone(Task.Location, 5, $"Stuck {maxCOunt} times trying to reach");
+                Task.PutTaskOnTimeout(15 * 60, $"Stuck {Count} times");
             }
             Main.RequestImmediateTaskReset = true;
         }

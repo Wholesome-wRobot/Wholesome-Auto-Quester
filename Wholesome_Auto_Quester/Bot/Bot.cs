@@ -52,13 +52,13 @@ namespace Wholesome_Auto_Quester.Bot
                 Fsm.AddState(new WAQKill { Priority = 18 });
                 Fsm.AddState(new WAQGatherWorldObject { Priority = 16 });
                 Fsm.AddState(new WAQGrind { Priority = 15 });
-
                 Fsm.AddState(new WAQPickupQuestFromNpc { Priority = 11 });
                 Fsm.AddState(new WAQPickupQuestFromGameObject { Priority = 10 });
                 Fsm.AddState(new WAQTurnInQuestToNpc { Priority = 9 });
                 Fsm.AddState(new WAQTurnInQuestToGameObject { Priority = 8 });
+                Fsm.AddState(new WAQMoveToHotspot { Priority = 7 });
 
-                Fsm.AddState(new Grinding { Priority = 2 });
+                //Fsm.AddState(new Grinding { Priority = 2 });
                 Fsm.AddState(new MovementLoop { Priority = 1 });
 
                 Fsm.AddState(new Idle { Priority = 0 });

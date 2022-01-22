@@ -16,7 +16,8 @@ namespace Wholesome_Auto_Quester.States {
                     || !ObjectManager.Me.IsValid)
                     return false;
 
-                if (WAQTasks.TaskInProgress?.TaskType == TaskType.PickupQuestFromCreature) {
+                if (WAQTasks.TaskInProgress?.TaskType == TaskType.PickupQuestFromCreature && WAQTasks.WoWObjectInProgress != null) 
+                {
                     DisplayName =
                         $"Pick up quest {WAQTasks.TaskInProgress.QuestTitle} from {WAQTasks.TaskInProgress.TargetName} [SmoothMove - Q]";
                     return true;
@@ -35,57 +36,38 @@ namespace Wholesome_Auto_Quester.States {
             if (ToolBox.ShouldStateBeInterrupted(task, npcObject, WoWObjectType.Unit))
                 return;
 
-            if (npcObject != null) 
+            WoWUnit pickUpTarget = (WoWUnit)npcObject;
+
+            if (ToolBox.HostilesAreAround(pickUpTarget))
+                return;
+
+            if (!pickUpTarget.InInteractDistance()) 
             {
-                WoWUnit pickUpTarget = (WoWUnit)npcObject;
-
-                ToolBox.CheckSpotAround(pickUpTarget);
-
-                if (!pickUpTarget.InInteractDistance()) 
+                if (!MoveHelper.IsMovementThreadRunning)
                 {
-                    if (!MoveHelper.IsMovementThreadRunning
-                       || MoveHelper.CurrentMovementTarget?.DistanceTo(pickUpTarget.PositionWithoutType) > 4)
-                    {
-                        Logger.Log($"NPC found - Going to {pickUpTarget.Name} to pick up {task.QuestTitle}.");
-                        MoveHelper.StartGoToThread(pickUpTarget.PositionWithoutType);
-                    }
-                    return;
+                    Logger.Log($"NPC found - Going to {pickUpTarget.Name} to pick up {task.QuestTitle}.");
+                    MoveHelper.StartGoToThread(pickUpTarget.PositionWithoutType);
                 }
+                return;
+            }
 
-                if (MoveHelper.IsMovementThreadRunning) MoveHelper.StopAllMove();
-
+            if (!ToolBox.IsNpcFrameActive())
+            {
+                MoveHelper.StopAllMove();
+                Interact.InteractGameObject(pickUpTarget.GetBaseAddress);
+                Thread.Sleep(500);
                 if (!ToolBox.IsNpcFrameActive())
-                {
-                    MoveHelper.StopAllMove();
-                    Interact.InteractGameObject(pickUpTarget.GetBaseAddress);
-                    Thread.Sleep(500);
-                    if (!ToolBox.IsNpcFrameActive())
-                        task.PutTaskOnTimeout($"Couldn't open quest frame");
-                }
-                else 
-                {
-                    if (ToolBox.GossipPickUpQuest(task.QuestTitle, task.QuestId))
-                    {
-                        Main.RequestImmediateTaskReset = true;
-                        Thread.Sleep(1000);
-                    }
-                    else
-                        task.PutTaskOnTimeout("Failed PickUp Gossip");
-                }
-            } 
+                    task.PutTaskOnTimeout($"Couldn't open quest frame");
+            }
             else 
             {
-                if (!MoveHelper.IsMovementThreadRunning && task.Location.DistanceTo(ObjectManager.Me.Position) > 12) 
+                if (ToolBox.GossipPickUpQuest(task.QuestTitle, task.QuestId))
                 {
-                    Logger.Log($"Traveling to QuestGiver for {task.QuestTitle} (PickUp).");
-                    //MoveHelper.StartMoveAlongToTaskThread(pathToTask.Path, task);
-                    MoveHelper.StartGoToThread(task.Location);
+                    Main.RequestImmediateTaskReset = true;
+                    Thread.Sleep(1000);
                 }
-                if (task.GetDistance <= 13) 
-                {
-                    task.PutTaskOnTimeout("No NPC in sight for quest pickup");
-                    MoveHelper.StopAllMove();
-                }
+                else
+                    task.PutTaskOnTimeout("Failed PickUp Gossip");
             }
         }
     }

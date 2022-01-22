@@ -6,11 +6,12 @@ using robotManager.Helpful;
 using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
+using Wholesome_Auto_Quester.Bot;
 
 namespace Wholesome_Auto_Quester.States {
     internal class WAQDefend : State {
         private WoWUnit _defendTarget;
-        public override string DisplayName { get; set; } = "Defend";
+        public override string DisplayName { get; set; } = "WAQ Defend";
 
         public override void Run() {
             if (_defendTarget == null) return;
@@ -18,6 +19,7 @@ namespace Wholesome_Auto_Quester.States {
             DisplayName = stateName;
             Logger.Log(stateName);
             MoveHelper.StopAllMove();
+            if (Fight.InFight) Fight.StopFight();
             Fight.StartFight(_defendTarget.Guid);
             _defendTarget = null;
         }
@@ -38,6 +40,10 @@ namespace Wholesome_Auto_Quester.States {
                 ulong myGuid = ObjectManager.Me.Guid;
                 ulong petGuid = ObjectManager.Pet?.Guid ?? 0U;
 
+                if (isMounted
+                    && WAQTasks.TaskInProgress?.Location.DistanceTo(myPos) > 60)
+                    return false;
+
                 IOrderedEnumerable<WoWUnit> attackingMe = justUnits
                     .Where(unit => {
                         uint unitLevel = unit.Level;
@@ -47,20 +53,18 @@ namespace Wholesome_Auto_Quester.States {
                     })
                     .OrderBy(unit => unit.PositionWithoutType.DistanceTo(myPos));
 
-                if (attackingMe.Count() <= 0) return false;
+                if (attackingMe.Count() <= 0) 
+                    return false;
 
                 _defendTarget = attackingMe.FirstOrDefault();
                 //Logger.LogError($"{_defendTarget.Name} is attacking me, target is {_defendTarget.TargetObject?.Name}");
-
                 //Logger.Log($"DEF - Mounted = {isMounted}, incomb = {ObjectManager.Me.InCombatFlagOnly}, dist={myPos.DistanceTo(MoveHelper.CurrentMovementTarget)}");
-                if (isMounted 
-                    && MoveHelper.CurrentMovementTarget != null
-                    && myPos.DistanceTo(MoveHelper.CurrentMovementTarget) > 60) 
-                    return false;
 
-                MountTask.DismountMount(false, false, 100);
+                MountTask.DismountMount(false, false);
 
-                if (_defendTarget != null) return true;
+                if (_defendTarget != null) 
+                    return true;
+
                 /*
                 // Check possible units on path
                 List<Vector3> path = SmoothMove.Move.LatestPath;

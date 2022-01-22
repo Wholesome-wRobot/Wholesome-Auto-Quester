@@ -334,6 +334,7 @@
     <Compile Include="States\WAQInteractWorldObject.cs" />
     <Compile Include="States\WAQGrind.cs" />
     <Compile Include="States\WAQLoot.cs" />
+    <Compile Include="States\WAQMoveToHotspot.cs" />
     <Compile Include="States\WAQPriorityLoot.cs" />
     <Compile Include="States\WAQPickupQuestFromGameObject.cs" />
     <Compile Include="States\WAQTurnInQuestToGameObject.cs" />

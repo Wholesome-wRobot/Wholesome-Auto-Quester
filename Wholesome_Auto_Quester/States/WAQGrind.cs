@@ -3,6 +3,9 @@ using Wholesome_Auto_Quester.Helpers;
 using Wholesome_Auto_Quester.Bot;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
+using wManager.Wow.Enums;
+using wManager.Wow.Bot.Tasks;
+using System.Threading;
 
 namespace Wholesome_Auto_Quester.States
 {
@@ -18,7 +21,7 @@ namespace Wholesome_Auto_Quester.States
                     || !ObjectManager.Me.IsValid)
                     return false;
 
-                if (WAQTasks.TaskInProgress?.TaskType == TaskType.Grind)
+                if (WAQTasks.TaskInProgress?.TaskType == TaskType.Grind && WAQTasks.WoWObjectInProgress != null)
                 {
                     DisplayName = $"Grind {WAQTasks.TaskInProgress.TargetName} [SmoothMove - Q]";
                     return true;
@@ -33,40 +36,39 @@ namespace Wholesome_Auto_Quester.States
             WAQTask task = WAQTasks.TaskInProgress;
             WoWObject gameObject = WAQTasks.WoWObjectInProgress;
 
-            if (gameObject != null)
+            if (ToolBox.ShouldStateBeInterrupted(task, gameObject, WoWObjectType.Unit))
+                return;
+
+            WoWUnit killTarget = (WoWUnit)gameObject;
+            float distanceToTarget = killTarget.GetDistance;
+            //Check if we have vision, it might be a big detour
+            if (TraceLine.TraceLineGo(ObjectManager.Me.Position, killTarget.Position, CGWorldFrameHitFlags.HitTestSpellLoS | CGWorldFrameHitFlags.HitTestLOS))
             {
-                WoWUnit killTarget = (WoWUnit)gameObject;
-                ToolBox.CheckSpotAround(killTarget);
-
-                Logger.Log($"Unit found - Fighting {killTarget.Name}");
-                MoveHelper.StopAllMove();
-                Fight.StartFight(killTarget.Guid);
-                Main.RequestImmediateTaskReset = true;
-                
-                if (killTarget.IsDead 
-                    && task.TaskType == TaskType.Grind 
-                    && killTarget.Guid == task.ObjectRealGuid)
-                {
-                    Logger.Log($"Task GUID={task.ObjectRealGuid}, npc GUID={killTarget.Guid}");
-                    task.PutTaskOnTimeout("Completed");
-                }
-                Main.RequestImmediateTaskReset = true;
-
+                distanceToTarget = ToolBox.GetWAQPath(ObjectManager.Me.Position, killTarget.Position).Distance;
+                Thread.Sleep(1000);
             }
-            else
+
+            if (distanceToTarget > 40)
             {
-                if (!MoveHelper.IsMovementThreadRunning && task.Location.DistanceTo(ObjectManager.Me.Position) > 12) 
-                {                    
-                    Logger.Log($"Traveling to Hotspot to grind {task.TargetName}.");
-                    //MoveHelper.StartMoveAlongToTaskThread(pathToTask.Path, task);
-                    MoveHelper.StartGoToThread(task.Location);
-                }
-                if (task.GetDistance <= 13) 
-                {
-                    task.PutTaskOnTimeout("No creature to kill in sight");
-                    Main.RequestImmediateTaskUpdate = true;
-                    MoveHelper.StopAllMove();
-                }
+                if (!MoveHelper.IsMovementThreadRunning)
+                    MoveHelper.StartGoToThread(killTarget.Position);
+                return;
+            }
+
+            //MoveHelper.StopAllMove();
+            MountTask.DismountMount(false, false);
+
+            if (ToolBox.HostilesAreAround(killTarget))
+                return;
+
+            Logger.Log($"Unit found - Fighting {killTarget.Name}");
+            Fight.StartFight(killTarget.Guid);
+
+            if (killTarget.IsDead)
+            {
+                task.PutTaskOnTimeout("Completed");
+                Main.RequestImmediateTaskReset = true;
+                return;
             }
         }
     }

@@ -17,7 +17,8 @@ namespace Wholesome_Auto_Quester.States
                     || !ObjectManager.Me.IsValid)
                     return false;
 
-                if (WAQTasks.TaskInProgress?.TaskType == TaskType.TurnInQuestToGameObject) {
+                if (WAQTasks.TaskInProgress?.TaskType == TaskType.TurnInQuestToGameObject && WAQTasks.WoWObjectInProgress != null) 
+                {
                     DisplayName =
                         $"Turning in {WAQTasks.TaskInProgress.QuestTitle} at game object {WAQTasks.TaskInProgress.TargetName} [SmoothMove - Q]";
                     return true;
@@ -36,55 +37,38 @@ namespace Wholesome_Auto_Quester.States
             if (ToolBox.ShouldStateBeInterrupted(task, gameObject, WoWObjectType.GameObject))
                 return;
 
-            if (gameObject != null) 
+            WoWGameObject turnInTarget = (WoWGameObject)gameObject;
+
+            if (ToolBox.HostilesAreAround(turnInTarget))
+                return;
+
+            if (turnInTarget.GetDistance > 4) 
             {
-                WoWGameObject turnInTarget = (WoWGameObject)gameObject;
-                ToolBox.CheckSpotAround(turnInTarget);
-
-                if (turnInTarget.GetDistance > 4) 
+                if (!MoveHelper.IsMovementThreadRunning) 
                 {
-                    if (!MoveHelper.IsMovementThreadRunning
-                       || MoveHelper.CurrentMovementTarget?.DistanceTo(turnInTarget.Position) > 4) 
-                    {
-                        MoveHelper.StartGoToThread(turnInTarget.Position, randomizeEnd: 3f);
-                        Logger.Log($"Game Object found - Going to {turnInTarget.Name} to turn in {task.QuestTitle}.");
-                    }
-                    return;
+                    MoveHelper.StartGoToThread(turnInTarget.Position, randomizeEnd: 3f);
+                    Logger.Log($"Game Object found - Going to {turnInTarget.Name} to turn in {task.QuestTitle}.");
                 }
+                return;
+            }
 
-                if (MoveHelper.IsMovementThreadRunning) MoveHelper.StopAllMove();
-
-                if (!ToolBox.IsNpcFrameActive()) 
-                {
-                    Interact.InteractGameObject(turnInTarget.GetBaseAddress);
-                    Usefuls.WaitIsCasting();
-                } 
-                else 
-                {
-                    if (ToolBox.GossipTurnInQuest(task.QuestTitle))
-                    {
-                        Main.RequestImmediateTaskReset = true;
-                        Thread.Sleep(1000);
-                        if (!Quest.HasQuest(task.QuestId))
-                            WAQTasks.MarQuestAsCompleted(task.QuestId);
-                    }
-                    else
-                        task.PutTaskOnTimeout("Failed PickUp Gossip");
-                }
+            if (!ToolBox.IsNpcFrameActive()) 
+            {
+                MoveHelper.StopAllMove();
+                Interact.InteractGameObject(turnInTarget.GetBaseAddress);
+                Usefuls.WaitIsCasting();
             } 
             else 
             {
-                if (!MoveHelper.IsMovementThreadRunning && task.Location.DistanceTo(ObjectManager.Me.Position) > 12) 
+                if (ToolBox.GossipTurnInQuest(task.QuestTitle))
                 {
-                    Logger.Log($"Traveling to QuestEnder for {task.QuestTitle}.");
-                    //MoveHelper.StartMoveAlongToTaskThread(pathToTask.Path, task);
-                    MoveHelper.StartGoToThread(task.Location);
+                    Main.RequestImmediateTaskReset = true;
+                    Thread.Sleep(1000);
+                    if (!Quest.HasQuest(task.QuestId))
+                        WAQTasks.MarQuestAsCompleted(task.QuestId);
                 }
-                if (task.GetDistance <= 13) 
-                {
-                    task.PutTaskOnTimeout("No Object in sight for quest turn-in");
-                    MoveHelper.StopAllMove();
-                }
+                else
+                    task.PutTaskOnTimeout("Failed PickUp Gossip");
             }
         }
     }

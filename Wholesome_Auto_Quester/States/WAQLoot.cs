@@ -19,19 +19,15 @@ namespace Wholesome_Auto_Quester.States
             get
             {
                 if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause
-                    || !ObjectManager.Me.IsValid)
+                    || !ObjectManager.Me.IsValid
+                    || WAQTasks.WoWObjectInProgress == null)
                     return false;
 
                 WoWObject npc = WAQTasks.WoWObjectInProgress;
-                if (WAQTasks.TaskInProgress?.TaskType == TaskType.KillAndLoot
-                    && npc != null
-                    && npc.Type == WoWObjectType.Unit 
-                    && !wManagerSetting.IsBlackListed(npc.Guid)
-                    && !wManagerSetting.IsBlackListedZone(npc.Position)
-                    && !ObjectManager.Me.InCombatFlagOnly)
+                if (WAQTasks.TaskInProgress?.TaskType == TaskType.KillAndLoot && !ObjectManager.Me.InCombatFlagOnly)
                 {
                     WoWUnit lootTarget = (WoWUnit)WAQTasks.WoWObjectInProgress;
-                    if (lootTarget.IsLootable)
+                    if (lootTarget.IsDead)
                     {
                         DisplayName = $"Loot {WAQTasks.TaskInProgress.TargetName} for {WAQTasks.TaskInProgress.QuestTitle} [SmoothMove - Q]";
                         return true;
@@ -49,15 +45,14 @@ namespace Wholesome_Auto_Quester.States
 
             WoWUnit lootTarget = (WoWUnit)npc;
 
-            ToolBox.CheckSpotAround(lootTarget);
-
-            MoveHelper.StopAllMove();
+            if (ToolBox.HostilesAreAround(lootTarget)) 
+                return;
 
             Logger.Log($"Looting {lootTarget.Name}");
             LootingTask.Pulse(new List<WoWUnit> { lootTarget });
             if (!lootTarget.IsLootable)
                 task.PutTaskOnTimeout("Completed");
-            Main.RequestImmediateTaskUpdate = true;
+            Main.RequestImmediateTaskReset = true;
         }
     }
 }

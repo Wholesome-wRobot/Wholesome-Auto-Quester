@@ -38,11 +38,12 @@ namespace Wholesome_Auto_Quester.Helpers {
 
         public static void StopAllMove()
         {
+            StopCurrentMovementThread();
             MovementManager.StopMoveOnly();
             MovementManager.StopMoveNewThread();
             MovementManager.StopMove();
             MovementManager.StopMoveTo();
-            StopCurrentMovementThread();
+            MovementManager.StopMoveOnly();
         }
 
         public static void StopCurrentMovementThread() {
@@ -68,19 +69,28 @@ namespace Wholesome_Auto_Quester.Helpers {
             }
         }
 
-        public static CancellationTokenSource StartGoToThread(Vector3 target,
+        public static CancellationTokenSource StartGoToThread(Vector3 target, string log,
             bool face = true, bool precise = false, Func<bool> abortIf = null, float randomizeEnd = 0,
             float randomization = 0, bool checkCurrent = true, float precision = 1,
-            bool shortCut = false, int jumpRareness = 2, bool showPath = false) {
+            bool shortCut = false, int jumpRareness = 2, bool showPath = false) 
+        {
+            lock (Lock) 
+            {
+                if (_currentMovementTarget != null && _currentMovementTarget == target)
+                {
+                    Logger.LogError($"Called Move with same destination, ABORT");
+                    return _currentMovementToken;
+                }
 
-            lock (Lock) {
+                Logger.Log(log);
+
                 var cts = new CancellationTokenSource();
                 Action goToAction = WholesomeAQSettings.CurrentSetting.SmoothMove ?
                     new Action(() => Move.GoTo(target, face, precise, randomizeEnd, randomization, cts.Token,
                         precision: precision, shortCut: shortCut, jumpRareness: jumpRareness,
                         showPath: showPath, avoidDangerousEnemies: true))
                     :
-                    new Action(() => GoToTask.ToPosition(target, 0.2f));
+                    new Action(() => GoToTask.ToPosition(target, 1f, skipIfCannotMakePath: true));
 
                 Task goToTask = Task.Factory.StartNew(goToAction, cts.Token)
                     .ContinueWith(task => ResetCurrentMovementCache(), cts.Token);

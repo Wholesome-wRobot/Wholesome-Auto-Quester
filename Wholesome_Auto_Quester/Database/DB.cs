@@ -167,8 +167,8 @@ namespace Wholesome_Auto_Quester.Database
             string queryTemplates = $@"
                 SELECT * FROM creature_template ct
                 WHERE 
-	                ct.maxlevel <= {myLevel + 1} 
-	                AND ct.minlevel >= {myLevel - 2}
+	                ct.maxlevel <= {myLevel} 
+	                AND ct.minlevel >= {myLevel - 3}
 	                AND ct.type = 1
             ";
             List<ModelCreatureTemplate> result = _con.Query<ModelCreatureTemplate>(queryTemplates).ToList();

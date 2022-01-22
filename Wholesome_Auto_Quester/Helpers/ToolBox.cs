@@ -103,16 +103,16 @@ namespace Wholesome_Auto_Quester.Helpers {
 
         public static long CurTime => Watch.ElapsedMilliseconds;
 
-        public static void CheckSpotAround(WoWObject POI, float clearDistance = 25f)
+        public static bool HostilesAreAround(WoWObject POI, float clearDistance = 25f)
         {
             //Logger.Log($"CHECK - Mounted = {ObjectManager.Me.IsMounted}, incomb = {ObjectManager.Me.InCombatFlagOnly}, dist={POI.GetDistance}");
             WoWUnit poiUnit = POI is WoWUnit ? (WoWUnit)POI : null;
             WoWUnit me = ObjectManager.Me;
             if (me.IsMounted && (me.InCombatFlagOnly || POI.GetDistance < 60 && poiUnit?.Reaction == Reaction.Hostile))
-                MountTask.DismountMount(false, false, 100);
+                MountTask.DismountMount(false, false);
 
             if (ObjectManager.Me.InCombatFlagOnly)
-                return;
+                return true;
 
             List<WoWObject> objectManager = ObjectManager.GetObjectWoW()
                 .FindAll(o => o.Type == WoWObjectType.Unit);
@@ -133,14 +133,13 @@ namespace Wholesome_Auto_Quester.Helpers {
             if (hostileUnits.Where(u => u.Key.Level >= me.Level && POI.Position.DistanceTo(u.Key.Position) < 18).Count() >= maxCount
                 || hostileUnits.Where(u => u.Key.Level >= me.Level - 2 && POI.Position.DistanceTo(u.Key.Position) < 18).Count() >= maxCount + 1)
             {
+                if (Fight.InFight) Fight.StopFight();
                 MoveHelper.StopAllMove();
-                BlacklistHelper.AddNPC(POI.Guid);
-                //wManagerSetting.AddBlackList(POI.Guid, 1000 * 600, true);
-                BlacklistHelper.AddZone(POI.Position, 20);
-                //wManagerSetting.AddBlackListZone(POI.Position, 20, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
+                BlacklistHelper.AddNPC(POI.Guid, "Surrounded by hostiles");
+                BlacklistHelper.AddZone(POI.Position, 20, "Surrounded by hostiles");
                 WAQTasks.TaskInProgress.PutTaskOnTimeout(600, $"{POI.Name} is surrounded by hostiles");
                 Main.RequestImmediateTaskReset = true;
-                return;
+                return true;
             }
 
             int addedDistCheck = poiIsHostileUnit ? 0 : 15; // We check further if it's not an enemy
@@ -149,9 +148,12 @@ namespace Wholesome_Auto_Quester.Helpers {
                 .OrderBy(u => u.Key.GetDistance);
             if (hostilesInFront.Count() > 0)
             {
+                if (Fight.InFight) Fight.StopFight();
                 Logger.Log($"Fighting {hostileUnits.FirstOrDefault().Key.Name} to clear POI zone");
                 Fight.StartFight(hostileUnits.FirstOrDefault().Key.Guid);
+                return true;
             }
+            return false;
         }
 
         public static T TakeHighest<T>(this IEnumerable<T> list, Func<T, int> takeValue, out int amount) {
@@ -739,7 +741,8 @@ namespace Wholesome_Auto_Quester.Helpers {
             //WholesomeAQSettings.AddQuestToBlackList(1526); // Call of Fire. Requires active item from PREVIOUS quest
             BlacklistHelper.AddQuestToBlackList(863); // Ignition, bugged platform
             BlacklistHelper.AddQuestToBlackList(6383); // Ashenvale hunt, bugged 
-            BlacklistHelper.AddQuestToBlackList(891); // The GUns of NorthWatch, too many mobs
+            BlacklistHelper.AddQuestToBlackList(891); // The Guns of NorthWatch, too many mobs
+            BlacklistHelper.AddQuestToBlackList(9612); // A hearty thanks, requires heal on mob
             if (IsHorde()) BlacklistHelper.AddQuestToBlackList(4740); // Bugged, should only be alliance
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))

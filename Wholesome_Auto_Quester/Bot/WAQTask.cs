@@ -14,7 +14,6 @@ namespace Wholesome_Auto_Quester.Bot {
         public Vector3 Location { get; }
         public int Map { get; }
         public uint ObjectDBGuid { get; }
-        public ulong ObjectRealGuid { get; set; }
         public int ObjectiveIndex { get; }
         public int TargetEntry { get; }
         public string TargetName { get; }

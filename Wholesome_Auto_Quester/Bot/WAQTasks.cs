@@ -34,15 +34,25 @@ namespace Wholesome_Auto_Quester.Bot {
         public static void UpdateTasks()
         {
             _tick++;
+            WoWLocalPlayer me = ObjectManager.Me;
 
-            if (!ObjectManager.Me.IsAlive
-                || ObjectManager.Me.IsOnTaxi
-                || !ObjectManager.Me.IsValid 
-                || Fight.InFight
-                || ObjectManager.Me.HaveBuff("Drink")
-                || ObjectManager.Me.HaveBuff("Food")
-                || MovementManager.InMovement && (_tick % 5) != 0)
+            if (me.IsOnTaxi
+                || me.IsDead
+                || !me.IsValid)
+            {
+                TaskInProgress = null;
+                WoWObjectInProgress = null;
                 return;
+            }
+
+            if (!Main.RequestImmediateTaskReset && !Main.RequestImmediateTaskUpdate)
+            {
+                if (Fight.InFight
+                    || me.HaveBuff("Drink")
+                    || me.HaveBuff("Food")
+                    || MovementManager.InMovement && (_tick % 5) != 0)
+                    return;
+            }
 
             //Logger.Log("Update tasks");
             var generatedQuestTasks = new List<WAQTask>();
@@ -341,8 +351,7 @@ namespace Wholesome_Auto_Quester.Bot {
             if (!pathToClosestTask.IsReachable)
             {
                 closestTask.PutTaskOnTimeout(600, "Unreachable (1)");
-                BlacklistHelper.AddZone(closestTask.Location, 5);
-                //wManagerSetting.AddBlackListZone(closestTask.Location, 5, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
+                BlacklistHelper.AddZone(closestTask.Location, 5, "Unreachable (1)");
                 Main.RequestImmediateTaskReset = true;
                 return;
             }
@@ -361,8 +370,7 @@ namespace Wholesome_Auto_Quester.Bot {
                         if (!pathToNewTask.IsReachable)
                         {
                             TasksPile[i].PutTaskOnTimeout(600, "Unreachable (2)");
-                            BlacklistHelper.AddZone(closestTask.Location, 5);
-                            //wManagerSetting.AddBlackListZone(closestTask.Location, 5, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
+                            BlacklistHelper.AddZone(closestTask.Location, 5, "Unreachable (2)");
                             continue;
                         }
 
@@ -406,7 +414,7 @@ namespace Wholesome_Auto_Quester.Bot {
 
             // Look for surrounding POIs
             WAQObjectManager = ObjectManager.GetObjectWoW()
-                .Where(o => o.GetRealDistance() < 60)
+                //.Where(o => o.GetRealDistance() < 60)
                 .OrderBy(o => o.GetDistance)
                 .ToList();
 
@@ -431,16 +439,13 @@ namespace Wholesome_Auto_Quester.Bot {
 
                 if (!pathToClosestObject.IsReachable)
                 {
-                    Logger.Log($"Blacklisting {closestObject.Name} {closestObject.Guid} because it's unreachable");
-                    BlacklistHelper.AddNPC(closestObject.Guid);
-                    //wManagerSetting.AddBlackList(closestObject.Guid, 1000 * 600, true);
+                    BlacklistHelper.AddNPC(closestObject.Guid, "Unreachable");
                     Main.RequestImmediateTaskReset = true;
                     return;
                 }
 
                 if (pathToClosestObject.Distance > closestObject.GetDistance * 2)
                 {
-                    //Logger.Log($"Detour detected for object {closestObject.Name}");
                     int nbObject = filteredSurroundingObjects.Count;
                     for (int i = 1; i < nbObject - 1; i++)
                     {
@@ -449,8 +454,7 @@ namespace Wholesome_Auto_Quester.Bot {
                         if (!pathToNewObject.IsReachable)
                         {
                             Logger.Log($"Blacklisting {filteredSurroundingObjects[i].Name} {filteredSurroundingObjects[i].Guid} because it's unreachable");
-                            BlacklistHelper.AddNPC(filteredSurroundingObjects[i].Guid);
-                            //wManagerSetting.AddBlackList(filteredSurroundingObjects[i].Guid, 1000 * 600, true);
+                            BlacklistHelper.AddNPC(filteredSurroundingObjects[i].Guid, "Unreachable");
                             break;
                         }
 
@@ -473,8 +477,9 @@ namespace Wholesome_Auto_Quester.Bot {
                 else
                 {
                     WoWObjectInProgress = closestObject;
-                    closestTask = researchedTasks.Find(task => task.TargetEntry == WoWObjectInProgress.Entry);
-                    closestTask.ObjectRealGuid = WoWObjectInProgress.Guid;
+                    closestTask = researchedTasks
+                        .OrderBy(t => t.Location.DistanceTo(WoWObjectInProgress.Position))
+                        .FirstOrDefault(task => task.TargetEntry == WoWObjectInProgress.Entry);
                 }
             } 
             else 

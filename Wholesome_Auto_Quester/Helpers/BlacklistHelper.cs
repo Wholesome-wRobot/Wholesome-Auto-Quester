@@ -31,14 +31,22 @@ namespace Wholesome_Auto_Quester.Helpers
             }
         }
 
-        public static void AddZone(Vector3 position, int radius, int timeInMs = 1000 * 60 * 15)
+        public static void AddZone(Vector3 position, int radius, string reason, int timeInMs = 1000 * 60 * 15)
         {
-            ListEntries.Add(new WAQBlacklistEntry(position, radius, timeInMs));
+            if (!ListEntries.Exists(wbl => wbl.Position == position))
+            {
+                Logger.Log($"Adding {position} to zone blacklist ({reason})");
+                ListEntries.Add(new WAQBlacklistEntry(position, radius, timeInMs));
+            }
         }
 
-        public static void AddNPC(ulong guid, int timeInMs = 1000 * 60 * 15)
+        public static void AddNPC(ulong guid, string reason, int timeInMs = 1000 * 60 * 15)
         {
-            ListEntries.Add(new WAQBlacklistEntry(guid, timeInMs));
+            if (!ListEntries.Exists(wbl => wbl.Guid == guid))
+            {
+                Logger.Log($"Adding {guid} to NPC blacklist ({reason})");
+                ListEntries.Add(new WAQBlacklistEntry(guid, timeInMs));
+            }
         }
 
         public static void CleanupBlacklist()

@@ -4,6 +4,8 @@ using Wholesome_Auto_Quester.Bot;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
+using wManager.Wow.Bot.Tasks;
+using System.Threading;
 
 namespace Wholesome_Auto_Quester.States
 {
@@ -19,8 +21,8 @@ namespace Wholesome_Auto_Quester.States
                     || !ObjectManager.Me.IsValid)
                     return false;
 
-                if (WAQTasks.TaskInProgress?.TaskType == TaskType.Kill 
-                    || WAQTasks.TaskInProgress?.TaskType == TaskType.KillAndLoot)
+                if ((WAQTasks.TaskInProgress?.TaskType == TaskType.Kill || WAQTasks.TaskInProgress?.TaskType == TaskType.KillAndLoot) 
+                    && WAQTasks.WoWObjectInProgress != null)
                 {
                     DisplayName = $"Kill {WAQTasks.TaskInProgress.TargetName} for {WAQTasks.TaskInProgress.QuestTitle} [SmoothMove - Q]";
                     return true;
@@ -34,40 +36,41 @@ namespace Wholesome_Auto_Quester.States
         {
             WAQTask task = WAQTasks.TaskInProgress;
             WoWObject gameObject = WAQTasks.WoWObjectInProgress;
-            //WAQPath pathToTask = WAQTasks.PathToCurrentTask;
 
             if (ToolBox.ShouldStateBeInterrupted(task, gameObject, WoWObjectType.Unit))
                 return;
 
-            if (gameObject != null)
+            WoWUnit killTarget = (WoWUnit)gameObject;
+            float distanceToTarget = killTarget.GetDistance;
+            //Check if we have vision, it might be a big detour
+            if (TraceLine.TraceLineGo(ObjectManager.Me.Position, killTarget.Position, CGWorldFrameHitFlags.HitTestSpellLoS | CGWorldFrameHitFlags.HitTestLOS))
             {
-                WoWUnit killTarget = (WoWUnit)gameObject;
-                ToolBox.CheckSpotAround(killTarget);
-
-                Logger.Log($"Unit found - Fighting {killTarget.Name}");
-                MoveHelper.StopAllMove();
-                Fight.StartFight(killTarget.Guid);                
-                if (killTarget.IsDead && task.TaskType == TaskType.Kill && killTarget.Guid == task.ObjectRealGuid
-                    || killTarget.IsDead && !killTarget.IsLootable && task.TaskType == TaskType.KillAndLoot && killTarget.Guid == task.ObjectRealGuid)
-                {
-                    task.PutTaskOnTimeout("Completed");
-                }                
-                Main.RequestImmediateTaskReset = true;
+                distanceToTarget = ToolBox.GetWAQPath(ObjectManager.Me.Position, killTarget.Position).Distance;
+                Thread.Sleep(1000);
             }
-            else
+
+            if (distanceToTarget > 40 && !MoveHelper.IsMovementThreadRunning)
             {
-                if (!MoveHelper.IsMovementThreadRunning && task.Location.DistanceTo(ObjectManager.Me.Position) > 12) 
-                {                    
-                    Logger.Log($"Traveling to Hotspot for {task.QuestTitle} (Kill).");
-                    //MoveHelper.StartMoveAlongToTaskThread(pathToTask.Path, task);
-                    MoveHelper.StartGoToThread(task.Location);
-                }
-                if (task.GetDistance <= 13) 
-                {
-                    task.PutTaskOnTimeout("No creature to kill in sight");
-                    Main.RequestImmediateTaskUpdate = true;
-                    MoveHelper.StopAllMove();
-                }
+                if (!MoveHelper.IsMovementThreadRunning)
+                    MoveHelper.StartGoToThread(killTarget.Position);
+                return;
+            }
+
+            //MoveHelper.StopAllMove();
+            MountTask.DismountMount(false, false);
+
+            if (ToolBox.HostilesAreAround(killTarget))
+                return;
+
+            Logger.Log($"Unit found - Fighting {killTarget.Name}");
+            Fight.StartFight(killTarget.Guid);
+
+            if (killTarget.IsDead && task.TaskType == TaskType.Kill
+                || killTarget.IsDead && !killTarget.IsLootable && task.TaskType == TaskType.KillAndLoot)
+            {
+                task.PutTaskOnTimeout("Completed");
+                Main.RequestImmediateTaskReset = true;
+                return;
             }
         }
     }

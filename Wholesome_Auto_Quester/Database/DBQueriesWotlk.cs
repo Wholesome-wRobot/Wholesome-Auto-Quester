@@ -7,6 +7,7 @@ using Wholesome_Auto_Quester.Bot;
 using robotManager.Products;
 using Wholesome_Auto_Quester.Database.Objectives;
 using System.Diagnostics;
+using wManager.Wow.Helpers;
 
 namespace Wholesome_Auto_Quester.Database {
     public class DBQueriesWotlk

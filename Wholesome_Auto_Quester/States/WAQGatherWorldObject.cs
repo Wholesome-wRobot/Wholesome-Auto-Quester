@@ -16,7 +16,7 @@ namespace Wholesome_Auto_Quester.States {
                     || !ObjectManager.Me.IsValid)
                     return false;
 
-                if (WAQTasks.TaskInProgress?.TaskType == TaskType.GatherGameObject) 
+                if (WAQTasks.TaskInProgress?.TaskType == TaskType.GatherGameObject && WAQTasks.WoWObjectInProgress != null) 
                 {
                     DisplayName =
                         $"Gather world object {WAQTasks.TaskInProgress.TargetName} for {WAQTasks.TaskInProgress.QuestTitle} [SmoothMove - Q]";
@@ -36,44 +36,27 @@ namespace Wholesome_Auto_Quester.States {
             if (ToolBox.ShouldStateBeInterrupted(task, gameObject, WoWObjectType.GameObject))
                 return;
 
-            if (gameObject != null)
-            {
-                WoWGameObject gatherTarget = (WoWGameObject)gameObject;
-                ToolBox.CheckSpotAround(gatherTarget);
-                float interactDistance = 3.5f + gatherTarget.Scale;
+            WoWGameObject gatherTarget = (WoWGameObject)gameObject;
+            if (ToolBox.HostilesAreAround(gatherTarget))
+                return;
+            float interactDistance = 3.5f + gatherTarget.Scale;
 
-                if (gatherTarget.GetDistance > interactDistance)
-                {
-                    if (!MoveHelper.IsMovementThreadRunning
-                       || MoveHelper.CurrentMovementTarget?.DistanceTo(gatherTarget.Position) > interactDistance)
-                    {
-                        Logger.Log($"Game Object found - Going to {gatherTarget.Name} to gather.");
-                        MoveHelper.StartGoToThread(gatherTarget.Position);
-                    }
-                    return;
-                }
-
-                Logger.Log($"Interacting with {gameObject.Name}. (Gathering)");
-                MoveHelper.StopAllMove();
-                Interact.InteractGameObject(gameObject.GetBaseAddress);
-                Usefuls.WaitIsCastingAndLooting();
-                Thread.Sleep(200);
-                Main.RequestImmediateTaskReset = true;
-            } 
-            else 
+            if (gatherTarget.GetDistance > interactDistance)
             {
-                if (!MoveHelper.IsMovementThreadRunning && task.Location.DistanceTo(ObjectManager.Me.Position) > 12) 
+                if (!MoveHelper.IsMovementThreadRunning)
                 {
-                    Logger.Log($"Traveling to Hotspot for {task.QuestTitle} (Gather).");
-                    //MoveHelper.StartMoveAlongToTaskThread(pathToTask.Path, task);
-                    MoveHelper.StartGoToThread(task.Location);
-                }                
-                if (task.GetDistance <= 13) 
-                {
-                    task.PutTaskOnTimeout("No Object to gather in sight");
-                    MoveHelper.StopAllMove();
+                    Logger.Log($"Game Object found - Going to {gatherTarget.Name} to gather.");
+                    MoveHelper.StartGoToThread(gatherTarget.Position);
                 }
+                return;
             }
+
+            Logger.Log($"Gathering {gameObject.Name}");
+            MoveHelper.StopAllMove();
+            Interact.InteractGameObject(gameObject.GetBaseAddress);
+            Usefuls.WaitIsCastingAndLooting();
+            Thread.Sleep(200);
+            Main.RequestImmediateTaskReset = true;
         }
     }
 }

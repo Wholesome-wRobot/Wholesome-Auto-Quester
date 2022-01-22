@@ -18,8 +18,7 @@ namespace Wholesome_Auto_Quester.States
                     || !ObjectManager.Me.IsValid)
                     return false;
 
-                if (WAQTasks.TaskInProgress?.TaskType == TaskType.Explore
-                    && !wManager.wManagerSetting.IsBlackListedZone(WAQTasks.TaskInProgress.Location))
+                if (WAQTasks.TaskInProgress?.TaskType == TaskType.Explore)
                 {
                     DisplayName = $"Explore {WAQTasks.TaskInProgress.Location} for {WAQTasks.TaskInProgress.QuestTitle} [SmoothMove - Q]";
                     return true;
@@ -39,7 +38,7 @@ namespace Wholesome_Auto_Quester.States
                 MoveHelper.StopAllMove();
                 Logger.Log($"Reached exploration hotspot for {task.QuestTitle}");
                 task.PutTaskOnTimeout("Completed");
-                Main.RequestImmediateTaskUpdate = true;
+                Main.RequestImmediateTaskReset = true;
                 return;
             }
             
