@@ -40,9 +40,10 @@ namespace Wholesome_Auto_Quester.States {
             if (ToolBox.HostilesAreAround(turnInTarget))
                 return;
 
-            if (!turnInTarget.InInteractDistance() && turnInTarget.Position.DistanceTo(MoveHelper.currentTarget) > 10) 
+            if (!turnInTarget.InInteractDistance()) 
             {
-                MoveHelper.StartGoToThread(turnInTarget.PositionWithoutType, $"NPC found - Going to {turnInTarget.Name} to turn in {task.QuestTitle}.");
+                if (!MoveHelper.IsMovementThreadRunning || turnInTarget.Position.DistanceTo(MoveHelper.currentTarget) > 10)
+                    MoveHelper.StartGoToThread(turnInTarget.PositionWithoutType, $"NPC found - Going to {turnInTarget.Name} to turn in {task.QuestTitle}.");
                 return;
             }
 

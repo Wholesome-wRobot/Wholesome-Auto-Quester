@@ -41,9 +41,10 @@ namespace Wholesome_Auto_Quester.States {
             if (ToolBox.HostilesAreAround(pickUpTarget))
                 return;
 
-            if (!pickUpTarget.InInteractDistance() && pickUpTarget.Position.DistanceTo(MoveHelper.currentTarget) > 10) 
+            if (!pickUpTarget.InInteractDistance()) 
             {
-                MoveHelper.StartGoToThread(pickUpTarget.PositionWithoutType, $"NPC found - Going to {pickUpTarget.Name} to pick up {task.QuestTitle}.");
+                if (!MoveHelper.IsMovementThreadRunning || pickUpTarget.Position.DistanceTo(MoveHelper.currentTarget) > 10)
+                    MoveHelper.StartGoToThread(pickUpTarget.PositionWithoutType, $"NPC found - Going to {pickUpTarget.Name} to pick up {task.QuestTitle}.");
                 return;
             }
 
