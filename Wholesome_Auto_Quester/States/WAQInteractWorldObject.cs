@@ -43,11 +43,7 @@ namespace Wholesome_Auto_Quester.States {
 
             if (interactObject.GetDistance > interactDistance)
             {
-                if (!MoveHelper.IsMovementThreadRunning)
-                {
-                    Logger.Log($"Game Object found - Going to {interactObject.Name} to interact.");
-                    MoveHelper.StartGoToThread(interactObject.Position);
-                }
+                MoveHelper.StartGoToThread(interactObject.Position, $"Game Object found - Going to {interactObject.Name} to interact.");
                 return;
             }
 

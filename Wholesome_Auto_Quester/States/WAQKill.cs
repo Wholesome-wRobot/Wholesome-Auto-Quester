@@ -49,10 +49,9 @@ namespace Wholesome_Auto_Quester.States
                 Thread.Sleep(1000);
             }
 
-            if (distanceToTarget > 40 && !MoveHelper.IsMovementThreadRunning)
+            if (distanceToTarget > 40 && killTarget.Position.DistanceTo(MoveHelper.currentTarget) > 10)
             {
-                if (!MoveHelper.IsMovementThreadRunning)
-                    MoveHelper.StartGoToThread(killTarget.Position);
+                MoveHelper.StartGoToThread(killTarget.Position, null);
                 return;
             }
 

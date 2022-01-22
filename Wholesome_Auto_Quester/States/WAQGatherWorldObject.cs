@@ -43,11 +43,7 @@ namespace Wholesome_Auto_Quester.States {
 
             if (gatherTarget.GetDistance > interactDistance)
             {
-                if (!MoveHelper.IsMovementThreadRunning)
-                {
-                    Logger.Log($"Game Object found - Going to {gatherTarget.Name} to gather.");
-                    MoveHelper.StartGoToThread(gatherTarget.Position);
-                }
+                MoveHelper.StartGoToThread(gatherTarget.Position, $"Game Object found - Going to {gatherTarget.Name} to gather.");
                 return;
             }
 

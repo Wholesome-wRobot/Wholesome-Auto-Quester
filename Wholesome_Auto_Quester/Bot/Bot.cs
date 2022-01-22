@@ -104,12 +104,9 @@ namespace Wholesome_Auto_Quester.Bot
             Logging.Write("Level UP! Reload Fight Class.");
             SpellManager.UpdateSpellBook();
             CustomClass.ResetCustomClass();
+            DBQueriesWotlk dbWotlk = new DBQueriesWotlk();
+            dbWotlk.GetAvailableQuests();
 
-            if (ToolBox.GetWoWVersion() == "3.3.5")
-            {
-                DBQueriesWotlk dbWotlk = new DBQueriesWotlk();
-                dbWotlk.GetAvailableQuests();
-            }
         }
 
         private static void ScreenReloaded()

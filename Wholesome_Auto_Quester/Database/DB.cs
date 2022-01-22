@@ -18,14 +18,7 @@ namespace Wholesome_Auto_Quester.Database
 
         public DB()
         {
-            string baseDirectory = "";
-
-            if (ToolBox.GetWoWVersion() == "2.4.3")
-                baseDirectory = Others.GetCurrentDirectory + @"Data\WoWDb243;Cache=Shared;";
-
-            if (ToolBox.GetWoWVersion() == "3.3.5")
-                baseDirectory = Others.GetCurrentDirectory + @"Data\WoWDb335;Cache=Shared;";
-
+             string baseDirectory = Others.GetCurrentDirectory + @"Data\WoWDb335;Cache=Shared;";
             _con = new SQLiteConnection("Data Source=" + baseDirectory);
              _con.Open();
             _cmd = _con.CreateCommand();

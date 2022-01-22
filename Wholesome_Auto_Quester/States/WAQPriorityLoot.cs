@@ -63,7 +63,7 @@ namespace Wholesome_Auto_Quester.States
             Fight.StopFight();
             //LootingTask.Pulse(new List<WoWUnit> { UnitToLoot });
             if (UnitToLoot.GetDistance > 3)
-                MoveHelper.StartGoToThread(UnitToLoot.Position);
+                MoveHelper.StartGoToThread(UnitToLoot.Position, null);
 
             if (UnitToLoot.GetDistance <= 4)
             {

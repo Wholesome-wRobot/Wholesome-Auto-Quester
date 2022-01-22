@@ -40,13 +40,9 @@ namespace Wholesome_Auto_Quester.States {
                 return;
             float interactDistance = 3.5f + pickUpTarget.Scale;
 
-            if (pickUpTarget.GetDistance > interactDistance && !MoveHelper.IsMovementThreadRunning) 
+            if (pickUpTarget.GetDistance > interactDistance) 
             {
-                if (!MoveHelper.IsMovementThreadRunning)
-                {
-                    Logger.Log($"Game Object found - Going to {pickUpTarget.Name} to pick up {task.QuestTitle}.");
-                    MoveHelper.StartGoToThread(pickUpTarget.Position);
-                }
+                MoveHelper.StartGoToThread(pickUpTarget.Position, $"Game Object found - Going to {pickUpTarget.Name} to pick up {task.QuestTitle}.");
                 return;
             }
 

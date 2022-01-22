@@ -1,10 +1,8 @@
 ﻿using robotManager.Events;
-using robotManager.FiniteStateMachine;
 using robotManager.Helpful;
 using robotManager.Products;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,7 +27,7 @@ public class Main : IProduct {
     public static bool RequestImmediateTaskUpdate;
     public static bool RequestImmediateTaskReset;
 
-    public string version = "0.0.18"; // Must match version in Version.txt
+    public string version = "0.0.19"; // Must match version in Version.txt
 
     public bool IsStarted { get; private set; }
 
@@ -72,19 +70,18 @@ public class Main : IProduct {
             IsStarted = true;
             ToolBox.UpdateCompletedQuests();
             ToolBox.InitializeWAQSettings();
-            FiniteStateMachineEvents.OnRunState += SmoothMoveKiller;
+            //FiniteStateMachineEvents.OnRunState += SmoothMoveKiller;
             LoggingEvents.OnAddLog += AddLogHandler;
             MovementEvents.OnSeemStuck += SeemStuckHandler;
             EventsLuaWithArgs.OnEventsLuaStringWithArgs += EventsWithArgsHandler;
             EventsLua.AttachEventLua("PLAYER_DEAD", e => PlayerDeadHandler(e));
 
-            if (ToolBox.GetWoWVersion() == "3.3.5") {
-                var dbWotlk = new DBQueriesWotlk();
-                dbWotlk.GetAvailableQuests();
-                if (!Products.IsStarted) {
-                    IsStarted = false;
-                    return;
-                }
+            var dbWotlk = new DBQueriesWotlk();
+            dbWotlk.GetAvailableQuests();
+            if (!Products.IsStarted) 
+            {
+                IsStarted = false;
+                return;
             }
             
             Task.Factory.StartNew(() => {
@@ -164,7 +161,7 @@ public class Main : IProduct {
 
             QuestTrackerGui.HideWindow();
 
-            FiniteStateMachineEvents.OnRunState -= SmoothMoveKiller;
+            //FiniteStateMachineEvents.OnRunState -= SmoothMoveKiller;
             LoggingEvents.OnAddLog -= AddLogHandler;
             MovementEvents.OnSeemStuck -= SeemStuckHandler;
             EventsLuaWithArgs.OnEventsLuaStringWithArgs -= EventsWithArgsHandler;
@@ -203,7 +200,7 @@ public class Main : IProduct {
             return null;
         }
     }
-
+    /*
     private static void SmoothMoveKiller(Engine engine, State state, CancelEventArgs cancelable) {
         if (MoveHelper.IsMovementThreadRunning
             && state.DisplayName != "Security/Stop game"
@@ -212,7 +209,7 @@ public class Main : IProduct {
             MoveHelper.StopCurrentMovementThread();
         }
     }
-
+    */
     private static void Radar3DOnDrawEvent() {
         if (WAQTasks.TaskInProgress != null)
         {

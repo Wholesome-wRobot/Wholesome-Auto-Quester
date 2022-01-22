@@ -16,7 +16,7 @@ namespace Wholesome_Auto_Quester.Helpers {
         private static Task _currentMovementTask;
         private static CancellationTokenSource _currentMovementToken;
         private static Vector3 _currentMovementTarget;
-
+        /*
         public static bool IsMovementThreadRunning {
             get
             {
@@ -27,7 +27,7 @@ namespace Wholesome_Auto_Quester.Helpers {
                 }
             }
         }
-
+        */
         public static Vector3 CurrentMovementTarget {
             get {
                 lock (Lock) {
@@ -38,6 +38,7 @@ namespace Wholesome_Auto_Quester.Helpers {
 
         public static void StopAllMove()
         {
+            //Logger.Log("StopAllMove()");
             StopCurrentMovementThread();
             MovementManager.StopMoveOnly();
             MovementManager.StopMoveNewThread();
@@ -47,6 +48,7 @@ namespace Wholesome_Auto_Quester.Helpers {
         }
 
         public static void StopCurrentMovementThread() {
+            //Logger.Log("StopCurrentMovementThread()");
             try {
                 lock (Lock) {
                     _currentMovementToken?.Cancel();
@@ -60,8 +62,9 @@ namespace Wholesome_Auto_Quester.Helpers {
             }
         }
 
-        private static void ResetCurrentMovementCache() {
-            //Logger.Log("Reset movement cache");
+        private static void ResetCurrentMovementCache()
+        {
+            //Logger.Log("ResetCurrentMovementCache()");
             lock (Lock) {
                 _currentMovementTask = null;
                 _currentMovementToken = null;
@@ -69,6 +72,33 @@ namespace Wholesome_Auto_Quester.Helpers {
             }
         }
 
+        private static void ResetCurrentCache()
+        {
+            currentTask = null;
+            currentTarget = null;
+        }
+
+        private static CancellationTokenSource currenTokenSource;
+        public  static Vector3 currentTarget;
+        private static Task currentTask;
+        public static bool IsMovementThreadRunning => currentTask != null && !currentTask.IsCompleted;
+
+        public static void StartGoToThread(Vector3 target, string log)
+        {
+            if (currentTarget != null && currentTarget == target)
+                return;
+
+            if (log != null) Logger.Log(log);
+            currentTarget = target;
+            currenTokenSource?.Cancel();
+            currenTokenSource = new CancellationTokenSource();
+            Action goToAction = new Action(() => GoToTask.ToPosition(target, 1f, skipIfCannotMakePath: true));
+            Task goToTask = Task.Factory.StartNew(goToAction, currenTokenSource.Token)
+                .ContinueWith(task => ResetCurrentCache(), currenTokenSource.Token);
+            currentTask = goToTask;
+        }
+
+        /*
         public static CancellationTokenSource StartGoToThread(Vector3 target, string log,
             bool face = true, bool precise = false, Func<bool> abortIf = null, float randomizeEnd = 0,
             float randomization = 0, bool checkCurrent = true, float precision = 1,
@@ -77,12 +107,10 @@ namespace Wholesome_Auto_Quester.Helpers {
             lock (Lock) 
             {
                 if (_currentMovementTarget != null && _currentMovementTarget == target)
-                {
-                    Logger.LogError($"Called Move with same destination, ABORT");
                     return _currentMovementToken;
-                }
 
-                Logger.Log(log);
+                if (log != null) 
+                    Logger.Log($"{log} -- {target} -- {_currentMovementTarget} -- {_currentMovementTarget == null}");
 
                 var cts = new CancellationTokenSource();
                 Action goToAction = WholesomeAQSettings.CurrentSetting.SmoothMove ?
@@ -117,7 +145,7 @@ namespace Wholesome_Auto_Quester.Helpers {
                 return cts;
             }
         }
-
+        */
         private static bool Finished(this Task task) => task.IsCompleted || task.IsCanceled || task.IsFaulted;
 
         /*public static CancellationTokenSource StartMoveAlongToTaskThread(List<Vector3> path, WAQTask task,
@@ -176,7 +204,7 @@ namespace Wholesome_Auto_Quester.Helpers {
                 return cts;
             }
         }*/
-
+        /*
         public static (List<Vector3>, List<byte>) SplitPathData(this List<(Vector3, byte)> pathWithData) {
             var path = new List<Vector3>(pathWithData.Count);
             var rnds = new List<byte>(pathWithData.Count);
@@ -217,7 +245,7 @@ namespace Wholesome_Auto_Quester.Helpers {
 
             return startIndex != 0 ? path.GetRange(startIndex, path.Count - startIndex) : path;
         }
-
+        
         public static bool MoveToWait(Vector3 target, int targetPrecision = 4, int maxRestarts = 3,
             bool face = true, bool precise = false, Func<bool> abortIf = null, float randomizeEnd = 0,
             float randomization = 0, bool checkCurrent = true, float precision = 1,
@@ -241,7 +269,7 @@ namespace Wholesome_Auto_Quester.Helpers {
 
             return true;
         }
-
+        
         public static bool ToPositionAndInteractWithNpc(Vector3 expectedPosition, int npcEntry,
             long timeout = 60 * 1000) {
             WoWUnit foundNpc = ToolBox.FindClosestUnitByEntry(npcEntry);
@@ -287,7 +315,7 @@ namespace Wholesome_Auto_Quester.Helpers {
             Logger.LogDebug($"Interacting with {foundObject.Name}.");
             Interact.InteractGameObject(foundObject.GetBaseAddress);
             return true;
-        }
+        }*/
     }
 }
 

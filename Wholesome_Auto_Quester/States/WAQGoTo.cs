@@ -42,12 +42,8 @@ namespace Wholesome_Auto_Quester.States
                 return;
             }
             
-            if (!MoveHelper.IsMovementThreadRunning && task.Location.DistanceTo(ObjectManager.Me.Position) > 2) 
-            {
-                Logger.Log($"Traveling to Hotspot for {task.QuestTitle} (Explore).");
-                //MoveHelper.StartMoveAlongToTaskThread(pathToTask.Path, task);
-                MoveHelper.StartGoToThread(task.Location);
-            }
+            if (task.Location.DistanceTo(ObjectManager.Me.Position) > 2) 
+                MoveHelper.StartGoToThread(task.Location, $"Traveling to Hotspot for {task.QuestTitle} (Explore).");
         }
     }
 }

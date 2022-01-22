@@ -36,6 +36,7 @@ namespace Wholesome_Auto_Quester.States
 
             if (wManagerSetting.IsBlackListedZone(task.Location))
             {
+                Logger.Log("Aborted because BL");
                 MoveHelper.StopAllMove();
                 Main.RequestImmediateTaskReset = true;
                 return;
@@ -48,10 +49,7 @@ namespace Wholesome_Auto_Quester.States
             }
 
             if (task.Location.DistanceTo(ObjectManager.Me.Position) > 19)
-            {
-                Logger.Log($"Traveling to hotspot for {task.QuestTitle} ({task.TaskType})");
-                MoveHelper.StartGoToThread(task.Location);
-            }
+                MoveHelper.StartGoToThread(task.Location, $"Traveling to hotspot for {task.QuestTitle} ({task.TaskType})");
 
             /*
             if (MoveHelper.CurrentMovementTarget != task.Location)

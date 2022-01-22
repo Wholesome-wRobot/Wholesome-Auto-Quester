@@ -44,11 +44,7 @@ namespace Wholesome_Auto_Quester.States
 
             if (turnInTarget.GetDistance > 4) 
             {
-                if (!MoveHelper.IsMovementThreadRunning) 
-                {
-                    MoveHelper.StartGoToThread(turnInTarget.Position, randomizeEnd: 3f);
-                    Logger.Log($"Game Object found - Going to {turnInTarget.Name} to turn in {task.QuestTitle}.");
-                }
+                MoveHelper.StartGoToThread(turnInTarget.Position, $"Game Object found - Going to {turnInTarget.Name} to turn in {task.QuestTitle}.");
                 return;
             }
 
