@@ -24,6 +24,7 @@ namespace Wholesome_Auto_Quester.Bot {
         public static List<int> EntriesToLoot { get; set; }
         public static List<WoWObject> WAQObjectManager { get; set; } = new List<WoWObject>();
         public static int NbQuestsToTurnIn { get; set; }
+        public static int NbQuestsInProgress { get; set; }
 
         public static void AddQuests(List<ModelQuestTemplate> quests) {
             quests.ForEach(newQuest => {
@@ -585,8 +586,12 @@ namespace Wholesome_Auto_Quester.Bot {
                 quest.Status = QuestStatus.None;
             }
 
-            NbQuestsToTurnIn = TasksPile
-                .FindAll(t => t.TaskType == TaskType.TurnInQuestToCreature || t.TaskType == TaskType.TurnInQuestToGameObject)
+            NbQuestsToTurnIn = Quests
+                .FindAll(q => q.Status == QuestStatus.ToTurnIn)
+                .Count;
+
+            NbQuestsInProgress = Quests
+                .FindAll(q => q.Status == QuestStatus.InProgress)
                 .Count;
 
             // WAQ DNS List

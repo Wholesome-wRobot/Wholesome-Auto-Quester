@@ -156,7 +156,7 @@ namespace Wholesome_Auto_Quester.Bot {
             if (taskDistance > 0) // path found
             {
                 if (TaskType == TaskType.PickupQuestFromCreature || TaskType == TaskType.PickupQuestFromGameObject) 
-                    taskDistance *= (1 + (float)System.Math.Sqrt(WAQTasks.NbQuestsToTurnIn));
+                    taskDistance *= 1 + (float)System.Math.Sqrt(WAQTasks.NbQuestsInProgress);
                 if (TaskType == TaskType.TurnInQuestToCreature || TaskType == TaskType.TurnInQuestToGameObject) 
                     taskDistance /= (float)System.Math.Sqrt(WAQTasks.NbQuestsToTurnIn);
                 if (quest.QuestAddon?.AllowableClasses > 0) 
