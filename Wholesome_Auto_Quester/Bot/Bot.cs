@@ -106,7 +106,7 @@ namespace Wholesome_Auto_Quester.Bot
             CustomClass.ResetCustomClass();
             DBQueriesWotlk dbWotlk = new DBQueriesWotlk();
             dbWotlk.GetAvailableQuests();
-
+            Talent.DoTalents();
         }
 
         private static void ScreenReloaded()
