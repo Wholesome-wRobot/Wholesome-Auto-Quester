@@ -112,7 +112,6 @@ namespace Wholesome_Auto_Quester.Bot {
                 if (timeInSeconds < 30) timeInSeconds = 120;
                 Logger.Log($"Putting task {TaskName} on time out for {timeInSeconds} seconds. Reason: {reason}");
                 _timeOutTimer = new Timer(timeInSeconds * 1000);
-                //WAQTasks.UpdateTasks();
             }
         }
 
@@ -122,7 +121,6 @@ namespace Wholesome_Auto_Quester.Bot {
             {
                 Logger.Log($"Putting task {TaskName} on time out for {timeInSeconds} seconds. Reason: {reason}");
                 _timeOutTimer = new Timer(timeInSeconds * 1000);
-                //WAQTasks.UpdateTasks();
             }
         }
 

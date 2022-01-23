@@ -12,6 +12,7 @@ namespace Wholesome_Auto_Quester.Database.Models
 {
     public class ModelQuestTemplate
     {
+        private int _nbAttempsOjectiveRecord = 0;
         public ModelQuestTemplateAddon QuestAddon { get; set; }
         public QuestStatus Status { get; set; } = QuestStatus.None;
         public bool AreObjectivesRecorded { get; set; }
@@ -191,8 +192,16 @@ namespace Wholesome_Auto_Quester.Database.Models
         };
 
         public void RecordObjectiveIndices()
-        {            
-            Logger.Log($"Recording objective indices for {LogTitle}");
+        {
+            _nbAttempsOjectiveRecord++;
+
+            if (_nbAttempsOjectiveRecord > 5)
+            {
+                Logger.LogError($"Failed to record objectives for {LogTitle}");
+                AreObjectivesRecorded = true;
+            }
+
+            Logger.Log($"Recording objective indices for {LogTitle} ({_nbAttempsOjectiveRecord})");
             string[] objectives = Lua.LuaDoString<string[]>(@$"local numEntries, numQuests = GetNumQuestLogEntries()
                             local objectivesTable = {{}}
                             for i=1, numEntries do
@@ -207,22 +216,23 @@ namespace Wholesome_Auto_Quester.Database.Models
                             end
                             return unpack(objectivesTable)");
 
+            int nbObjectivesRecorded = 0;
             GetAllObjectives().ForEach(ob =>
             {
-                for (int i = 0; i < objectives.Length; i++)
+                string objectiveToRecord = objectives.FirstOrDefault(o => o.StartsWith(ob.ObjectiveName));
+                if (objectiveToRecord != null)
                 {
-                    if (objectives[i].StartsWith(ob.ObjectiveName))
-                    {
-                        ob.ObjectiveIndex = i + 1;
-                        AreObjectivesRecorded = true;
-                    }
+                    ob.ObjectiveIndex = Array.IndexOf(objectives, objectiveToRecord) + 1;
+                    nbObjectivesRecorded++;
+                }
+                else
+                {
+                    Logger.LogError($"Couldn't find matching objective for {ob.ObjectiveName}");
+                    return;
                 }
             });
-            if (!AreObjectivesRecorded)
-            {
-                Logger.LogError($"Couldn't record indices for {LogTitle}");
-                AreObjectivesRecorded = true;
-            }
+
+            AreObjectivesRecorded = true;
         }
 
         public List<Objective> GetAllObjectives()
