@@ -17,6 +17,13 @@ namespace Wholesome_Auto_Quester.GUI
             LevelDeltaPlus.Value = WholesomeAQSettings.CurrentSetting.LevelDeltaPlus;
             DeltaDetails.Text = GetDeltaDetailsString();
             SmoothMove.IsChecked = WholesomeAQSettings.CurrentSetting.SmoothMove;
+            GrindOnly.IsChecked = WholesomeAQSettings.CurrentSetting.GrindOnly;
+        }
+
+        private void GrindOnlyChanged(object sender, RoutedEventArgs e)
+        {
+            WholesomeAQSettings.CurrentSetting.GrindOnly = (bool)GrindOnly.IsChecked;
+            WholesomeAQSettings.CurrentSetting.Save();
         }
 
         private void SmoothMoveChanged(object sender, RoutedEventArgs e)

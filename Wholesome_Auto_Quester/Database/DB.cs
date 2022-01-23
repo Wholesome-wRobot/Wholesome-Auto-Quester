@@ -166,11 +166,15 @@ namespace Wholesome_Auto_Quester.Database
             ";
             List<ModelCreatureTemplate> result = _con.Query<ModelCreatureTemplate>(queryTemplates).ToList();
             if (result.Count <= 0) return null;
-            result.ForEach(ct => ct.Creatures = QueryCreaturesById(ct.entry));
+            result.ForEach(ct => ct.Creatures = QueryCreaturesById(ct.entry, false));
+            if (result.Exists(ct => ct.Creatures.Count > 10))
+                result.RemoveAll(ct => ct.Creatures.Count < 10);
+            else
+                result.RemoveAll(ct => ct.Creatures.Count < 2); // filter out uniques
             return result;
         }
 
-        public List<ModelCreature> QueryCreaturesById(int creatureId)
+        public List<ModelCreature> QueryCreaturesById(int creatureId, bool withWayPoints = true)
         {
             string queryCreature = $@"
                 SELECT *
@@ -184,7 +188,7 @@ namespace Wholesome_Auto_Quester.Database
                 result.ForEach(c =>
                 {
                     c.CreatureAddon = QueryCreaturesAddonsByGuid(c.guid);
-                    if (c.CreatureAddon?.WayPoints?.Count > 0)
+                    if (withWayPoints && c.CreatureAddon?.WayPoints?.Count > 0)
                     {
                         c.CreatureAddon.WayPoints.RemoveAll(cToRemove => c.CreatureAddon.WayPoints.IndexOf(cToRemove) % 2 != 0);
                         c.CreatureAddon.WayPoints.ForEach(wp =>
@@ -331,6 +335,9 @@ namespace Wholesome_Auto_Quester.Database
 
         public List<ModelQuestTemplate> QueryQuests()
         {
+            if (WholesomeAQSettings.CurrentSetting.GrindOnly)
+                return new List<ModelQuestTemplate>();
+
             Stopwatch stopwatch = Stopwatch.StartNew();
             int levelDeltaMinus = System.Math.Max((int)ObjectManager.Me.Level - WholesomeAQSettings.CurrentSetting.LevelDeltaMinus, 1);
             int levelDeltaPlus = (int)ObjectManager.Me.Level + WholesomeAQSettings.CurrentSetting.LevelDeltaPlus;

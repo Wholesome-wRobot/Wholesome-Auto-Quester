@@ -20,7 +20,7 @@ namespace Wholesome_Auto_Quester.States {
             Logger.Log(stateName);
             MoveHelper.StopAllMove();
             if (Fight.InFight) Fight.StopFight();
-            Fight.StartFight(_defendTarget.Guid, stopIfPlayerTargetChange: true);
+            Fight.StartFight(_defendTarget.Guid, stopIfPlayerTargetChange: true, skipIfPlayerAttackedButNotByTheTarget: false);
             _defendTarget = null;
         }
 

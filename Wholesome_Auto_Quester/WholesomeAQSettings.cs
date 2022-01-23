@@ -21,6 +21,7 @@ namespace Wholesome_Auto_Quester
         public List<int> BlacklistesQuests { get; set; }
         public bool SmoothMove { get; set; }
         public double LastUpdateDate { get; set; }
+        public bool GrindOnly { get; set; }
 
         public WholesomeAQSettings()
         {
@@ -33,6 +34,7 @@ namespace Wholesome_Auto_Quester
             SmoothMove = false;
             LastUpdateDate = 0;
             BlacklistesQuests = new List<int>();
+            GrindOnly = false;
         }
 
         public bool Save()

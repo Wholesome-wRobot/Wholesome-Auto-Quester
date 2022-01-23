@@ -123,5 +123,16 @@
                    HorizontalAlignment="Left"  VerticalAlignment="Center"
                    Click="SmoothMoveChanged" Name="SmoothMove" OnLabel="" OffLabel="" />
 
+        <TextBlock Grid.Row="2" 
+                    Grid.Column="2" 
+                    Margin="10" 
+                    HorizontalAlignment="Right" 
+                    VerticalAlignment="Center"  
+                    Text="Grind only :" 
+                    FontSize="13"  />
+        <Controls:ToggleSwitch Grid.Row="2" Grid.Column="3"  Margin="10,10,10,10"
+                   HorizontalAlignment="Left"  VerticalAlignment="Center"
+                   Click="GrindOnlyChanged" Name="GrindOnly" OnLabel="" OffLabel="" />
+
     </Grid>
 </UserControl>
