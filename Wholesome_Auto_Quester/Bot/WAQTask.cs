@@ -157,10 +157,14 @@ namespace Wholesome_Auto_Quester.Bot {
             ModelQuestTemplate quest = WAQTasks.Quests.Find(q => q.Id == QuestId);
             if (taskDistance > 0) // path found
             {
-                if (TaskType == TaskType.PickupQuestFromCreature) taskDistance *= 2.5f;
-                if (TaskType == TaskType.TurnInQuestToCreature) taskDistance *= 1.5f;
-                if (quest.QuestAddon?.AllowableClasses > 0) taskDistance /= 5;
-                if (quest.TimeAllowed > 0 && TaskType != TaskType.PickupQuestFromCreature) taskDistance /= 100;                
+                if (TaskType == TaskType.PickupQuestFromCreature || TaskType == TaskType.PickupQuestFromGameObject) 
+                    taskDistance *= 2.5f;
+                if (TaskType == TaskType.TurnInQuestToCreature || TaskType == TaskType.TurnInQuestToGameObject) 
+                    taskDistance /= (float)System.Math.Sqrt(WAQTasks.NbQuestsToTurnIn);
+                if (quest.QuestAddon?.AllowableClasses > 0) 
+                    taskDistance /= 5;
+                if (quest.TimeAllowed > 0 && TaskType != TaskType.PickupQuestFromCreature && TaskType != TaskType.PickupQuestFromGameObject) 
+                    taskDistance /= 100;                
             }
 
             return (int)taskDistance;
