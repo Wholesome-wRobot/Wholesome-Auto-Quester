@@ -2,21 +2,25 @@
 using System.Threading;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Helpers;
+using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
-using wManager.Wow.Enums;
 
-namespace Wholesome_Auto_Quester.States {
-    class WAQPickupQuestFromGameObject : State {
+namespace Wholesome_Auto_Quester.States
+{
+    class WAQPickupQuestFromGameObject : State
+    {
         public override string DisplayName { get; set; } = "Pick up quest [SmoothMove - Q]";
 
-        public override bool NeedToRun {
-            get {
+        public override bool NeedToRun
+        {
+            get
+            {
                 if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause
                     || !ObjectManager.Me.IsValid)
                     return false;
 
-                if (WAQTasks.TaskInProgress?.TaskType == TaskType.PickupQuestFromGameObject && WAQTasks.WoWObjectInProgress != null) 
+                if (WAQTasks.TaskInProgress?.TaskType == TaskType.PickupQuestFromGameObject && WAQTasks.WoWObjectInProgress != null)
                 {
                     DisplayName =
                         $"Pick up quest {WAQTasks.TaskInProgress.QuestTitle} at {WAQTasks.TaskInProgress.TargetName} [SmoothMove - Q]";
@@ -27,7 +31,8 @@ namespace Wholesome_Auto_Quester.States {
             }
         }
 
-        public override void Run() {
+        public override void Run()
+        {
             WAQTask task = WAQTasks.TaskInProgress;
             WoWObject gameObject = WAQTasks.WoWObjectInProgress;
             //WAQPath pathToTask = WAQTasks.PathToCurrentTask;
@@ -40,13 +45,13 @@ namespace Wholesome_Auto_Quester.States {
                 return;
             float interactDistance = 3.5f + pickUpTarget.Scale;
 
-            if (pickUpTarget.GetDistance > interactDistance) 
+            if (pickUpTarget.GetDistance > interactDistance)
             {
                 MoveHelper.StartGoToThread(pickUpTarget.Position, $"Game Object found - Going to {pickUpTarget.Name} to pick up {task.QuestTitle}.");
                 return;
             }
 
-            if (!ToolBox.IsNpcFrameActive()) 
+            if (!ToolBox.IsNpcFrameActive())
             {
                 MoveHelper.StopAllMove();
                 Interact.InteractGameObject(pickUpTarget.GetBaseAddress);
@@ -54,8 +59,8 @@ namespace Wholesome_Auto_Quester.States {
                 Thread.Sleep(500);
                 if (!ToolBox.IsNpcFrameActive())
                     task.PutTaskOnTimeout($"Couldn't open quest frame", true);
-            } 
-            else 
+            }
+            else
             {
                 if (ToolBox.GossipPickUpQuest(task.QuestTitle, task.QuestId))
                 {

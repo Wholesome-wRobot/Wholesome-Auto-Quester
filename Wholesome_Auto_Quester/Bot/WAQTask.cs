@@ -5,7 +5,8 @@ using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
-namespace Wholesome_Auto_Quester.Bot {
+namespace Wholesome_Auto_Quester.Bot
+{
     public class WAQTask
     {
         public ModelAreaTrigger Area { get; }
@@ -29,7 +30,7 @@ namespace Wholesome_Auto_Quester.Bot {
         private int _timeoutMultiplicator = 1;
 
         // Creatures
-        public WAQTask(TaskType taskType, string creatureName, int creatureEntry, string questTitle, int questId, 
+        public WAQTask(TaskType taskType, string creatureName, int creatureEntry, string questTitle, int questId,
             ModelCreature creature, int objectiveIndex)
         {
             TaskType = taskType;
@@ -65,10 +66,10 @@ namespace Wholesome_Auto_Quester.Bot {
             TargetName = creatureName;
             TaskName = $"Grind {creatureName}";
         }
-        
+
         // Game Objects
         public WAQTask(TaskType taskType, string gameObjectName, int gameObjectEntry, string questTitle, int questId,
-            ModelGameObject gameObject, int objectiveIndex) 
+            ModelGameObject gameObject, int objectiveIndex)
         {
             TaskType = taskType;
             GameObject = gameObject;
@@ -92,8 +93,8 @@ namespace Wholesome_Auto_Quester.Bot {
         }
 
         // Explore
-        public WAQTask(TaskType taskType, string questTitle, int questId, 
-            ModelAreaTrigger modelArea, int objectiveIndex) 
+        public WAQTask(TaskType taskType, string questTitle, int questId,
+            ModelAreaTrigger modelArea, int objectiveIndex)
         {
             TaskType = taskType;
             Area = modelArea;
@@ -106,7 +107,7 @@ namespace Wholesome_Auto_Quester.Bot {
             TaskName = $"Explore {Location} for {QuestTitle}";
         }
 
-        public void PutTaskOnTimeout(string reason, bool exponentiallyLonger = false) 
+        public void PutTaskOnTimeout(string reason, bool exponentiallyLonger = false)
         {
             if (!IsTimedOut)
             {
@@ -114,7 +115,7 @@ namespace Wholesome_Auto_Quester.Bot {
                 if (timeInSeconds < 30) timeInSeconds = 120;
                 Logger.Log($"Putting task {TaskName} on time out for {timeInSeconds * _timeoutMultiplicator} seconds. Reason: {reason}");
                 _timeOutTimer = new Timer(timeInSeconds * 1000 * _timeoutMultiplicator);
-                if (exponentiallyLonger) 
+                if (exponentiallyLonger)
                     _timeoutMultiplicator *= 2;
             }
         }
@@ -125,16 +126,16 @@ namespace Wholesome_Auto_Quester.Bot {
             {
                 Logger.Log($"Putting task {TaskName} on time out for {timeInSeconds * _timeoutMultiplicator} seconds. Reason: {reason}");
                 _timeOutTimer = new Timer(timeInSeconds * 1000 * _timeoutMultiplicator);
-                if (exponentiallyLonger) 
+                if (exponentiallyLonger)
                     _timeoutMultiplicator *= 2;
             }
-        }        
-        public bool IsSameTask(TaskType taskType, int questEntry, int objIndex, Func<int> getUniqueId = null) 
+        }
+        public bool IsSameTask(TaskType taskType, int questEntry, int objIndex, Func<int> getUniqueId = null)
         {
             return TaskType == taskType && QuestId == questEntry && ObjectiveIndex == objIndex
                    && ObjectDBGuid == (getUniqueId?.Invoke() ?? 0);
         }
-        
+
         public bool IsTimedOut => !_timeOutTimer.IsReady;
         public string TrackerColor => GetTrackerColor();
         public float GetDistance => ObjectManager.Me.PositionWithoutType.DistanceTo(Location);
@@ -142,13 +143,16 @@ namespace Wholesome_Auto_Quester.Bot {
         private static Vector3 _myPos = ObjectManager.Me.PositionWithoutType;
         private static uint _myLevel = ObjectManager.Me.Level;
 
-        public static void UpdatePriorityData() {
+        public static void UpdatePriorityData()
+        {
             _myPos = ObjectManager.Me.PositionWithoutType;
             _myLevel = ObjectManager.Me.Level;
         }
 
-        public int Priority {
-            get {
+        public int Priority
+        {
+            get
+            {
                 // Lowest priority == do first
                 return CalculatePriority(_myPos.DistanceTo(Location));
             }
@@ -164,10 +168,10 @@ namespace Wholesome_Auto_Quester.Bot {
                     taskDistance *= System.Math.Max(1.0f, WAQTasks.NbQuestsInProgress << 1);
                 if (TaskType == TaskType.TurnInQuestToCreature || TaskType == TaskType.TurnInQuestToGameObject)
                     taskDistance /= WAQTasks.NbQuestsToTurnIn << 1;
-                if (quest.QuestAddon?.AllowableClasses > 0) 
+                if (quest.QuestAddon?.AllowableClasses > 0)
                     taskDistance /= 5;
-                if (quest.TimeAllowed > 0 && TaskType != TaskType.PickupQuestFromCreature && TaskType != TaskType.PickupQuestFromGameObject) 
-                    taskDistance /= 100;                
+                if (quest.TimeAllowed > 0 && TaskType != TaskType.PickupQuestFromCreature && TaskType != TaskType.PickupQuestFromGameObject)
+                    taskDistance /= 100;
             }
 
             if (Continent != Usefuls.ContinentId)
@@ -176,7 +180,8 @@ namespace Wholesome_Auto_Quester.Bot {
             return (int)taskDistance;
         }
 
-        private string GetTrackerColor() {
+        private string GetTrackerColor()
+        {
             if (IsTimedOut)
                 return "Gray";
             if (WAQTasks.TaskInProgress == this)

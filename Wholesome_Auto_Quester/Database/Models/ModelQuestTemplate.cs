@@ -140,7 +140,7 @@ namespace Wholesome_Auto_Quester.Database.Models
 
         public float GetClosestQuestGiverDistance(Vector3 myPosition)
         {
-            List<float> closestsQg = new List<float>();            
+            List<float> closestsQg = new List<float>();
             CreatureQuestGivers.ForEach(cqg =>
             {
                 if (cqg.Creatures.Count > 0)
@@ -159,7 +159,7 @@ namespace Wholesome_Auto_Quester.Database.Models
             List<string> result = new List<string>();
             KillLootObjectives.ForEach(o =>
             {
-                if (!result.Contains(o.ItemName))  result.Add(o.ItemName);
+                if (!result.Contains(o.ItemName)) result.Add(o.ItemName);
             });
             GatherObjectives.ForEach(o =>
             {

@@ -15,7 +15,8 @@ using static wManager.Wow.Helpers.Quest.PlayerQuest;
 
 namespace Wholesome_Auto_Quester.Bot
 {
-    public class WAQTasks {
+    public class WAQTasks
+    {
         private static int _tick;
         public static List<WAQTask> TasksPile { get; set; } = new List<WAQTask>();
         public static List<ModelQuestTemplate> Quests { get; set; } = new List<ModelQuestTemplate>();
@@ -27,8 +28,10 @@ namespace Wholesome_Auto_Quester.Bot
         public static int NbQuestsToTurnIn { get; set; }
         public static int NbQuestsInProgress { get; set; }
 
-        public static void AddQuests(List<ModelQuestTemplate> quests) {
-            quests.ForEach(newQuest => {
+        public static void AddQuests(List<ModelQuestTemplate> quests)
+        {
+            quests.ForEach(newQuest =>
+            {
                 if (!Quests.Exists(quest => quest.Id == newQuest.Id))
                     Quests.Add(newQuest);
             });
@@ -70,7 +73,7 @@ namespace Wholesome_Auto_Quester.Bot
             foreach (ModelQuestTemplate quest in Quests)
             {
                 // Completed
-                if (quest.Status == QuestStatus.Completed || quest.Status == QuestStatus.Blacklisted) 
+                if (quest.Status == QuestStatus.Completed || quest.Status == QuestStatus.Blacklisted)
                 {
                     TasksPile.RemoveAll(t => t.QuestId == quest.Id);
                     continue;
@@ -85,7 +88,7 @@ namespace Wholesome_Auto_Quester.Bot
                 // Pickup quest from bag item
                 if (quest.Status != QuestStatus.InProgress
                     && quest.Status != QuestStatus.ToTurnIn
-                    && quest.StartItemTemplate?.startquest > 0 
+                    && quest.StartItemTemplate?.startquest > 0
                     && quest.Id == quest.StartItemTemplate?.startquest)
                 {
                     if (ItemsManager.HasItemById((uint)quest.StartItem))
@@ -98,12 +101,13 @@ namespace Wholesome_Auto_Quester.Bot
                 // Turn in quest
                 if (quest.Status == QuestStatus.ToTurnIn)
                 {
-                    TasksPile.RemoveAll(t => t.QuestId == quest.Id 
-                        && t.TaskType != TaskType.TurnInQuestToCreature 
+                    TasksPile.RemoveAll(t => t.QuestId == quest.Id
+                        && t.TaskType != TaskType.TurnInQuestToCreature
                         && t.TaskType != TaskType.TurnInQuestToGameObject);
                     if (quest.CreatureQuestTurners.Count > 0) // NPC
                     {
-                        quest.CreatureQuestTurners.ForEach(creatureTemplate => {
+                        quest.CreatureQuestTurners.ForEach(creatureTemplate =>
+                        {
                             creatureTemplate.Creatures.ForEach(creature =>
                             {
                                 if (/*creature.map == myContinent
@@ -116,7 +120,8 @@ namespace Wholesome_Auto_Quester.Bot
                     }
                     if (quest.GameObjectQuestTurners.Count > 0) // Game Object
                     {
-                        quest.GameObjectQuestTurners.ForEach(gameObjectTemplate => {
+                        quest.GameObjectQuestTurners.ForEach(gameObjectTemplate =>
+                        {
                             gameObjectTemplate.GameObjects.ForEach(gameObject =>
                             {
                                 if (/*gameObject.map == myContinent
@@ -133,12 +138,13 @@ namespace Wholesome_Auto_Quester.Bot
                 // Pick up quest
                 if (quest.Status == QuestStatus.ToPickup)
                 {
-                    TasksPile.RemoveAll(t => t.QuestId == quest.Id 
+                    TasksPile.RemoveAll(t => t.QuestId == quest.Id
                         && t.TaskType != TaskType.PickupQuestFromCreature
                         && t.TaskType != TaskType.PickupQuestFromGameObject);
                     if (quest.CreatureQuestGivers.Count > 0) // NPC
                     {
-                        quest.CreatureQuestGivers.ForEach(creatureTemplate => {
+                        quest.CreatureQuestGivers.ForEach(creatureTemplate =>
+                        {
                             creatureTemplate.Creatures.ForEach(creature =>
                             {
                                 if (/*creature.map == myContinent
@@ -151,7 +157,8 @@ namespace Wholesome_Auto_Quester.Bot
                     }
                     if (quest.GameObjectQuestGivers.Count > 0) // Game Object
                     {
-                        quest.GameObjectQuestGivers.ForEach(gameObjectTemplate => {
+                        quest.GameObjectQuestGivers.ForEach(gameObjectTemplate =>
+                        {
                             gameObjectTemplate.GameObjects.ForEach(gameObject =>
                             {
                                 if (/*gameObject.map == myContinent
@@ -166,10 +173,10 @@ namespace Wholesome_Auto_Quester.Bot
                 }
 
                 // Prerequisite gathers & loots
-                if (quest.Status == QuestStatus.InProgress) 
+                if (quest.Status == QuestStatus.InProgress)
                 {
                     TasksPile.RemoveAll(t => t.QuestId == quest.Id
-                                             && (t.TaskType == TaskType.PickupQuestFromCreature 
+                                             && (t.TaskType == TaskType.PickupQuestFromCreature
                                                 || t.TaskType == TaskType.TurnInQuestToCreature
                                                 || t.TaskType == TaskType.TurnInQuestToGameObject
                                                 || t.TaskType == TaskType.PickupQuestFromGameObject));
@@ -180,7 +187,8 @@ namespace Wholesome_Auto_Quester.Bot
                         if (ItemsManager.GetItemCountById((uint)obje.ItemEntry) <= 0)
                         {
                             needsPrerequisite = true;
-                            obje.Creatures.ForEach(creature => {
+                            obje.Creatures.ForEach(creature =>
+                            {
                                 if (/*creature.map == myContinent
                                     && */obje.CreatureMaxLevel <= myLevel + 2
                                     && !TasksPile.Exists(t =>
@@ -204,7 +212,8 @@ namespace Wholesome_Auto_Quester.Bot
                             if (ItemsManager.GetItemCountById((uint)got.GameObjectEntry) <= 0)
                             {
                                 needsPrerequisite = true;
-                                got.GameObjects.ForEach(gameObject => {
+                                got.GameObjects.ForEach(gameObject =>
+                                {
                                     if (/*gameObject.map == myContinent
                                         && */!TasksPile.Exists(t =>
                                             t.IsSameTask(TaskType.GatherGameObject, quest.Id,
@@ -243,13 +252,14 @@ namespace Wholesome_Auto_Quester.Bot
                         foreach (KillLootObjective obje in quest.KillLootObjectives)
                         {
                             if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, quest.Id))
-                                obje.Creatures.ForEach(creature => {
+                                obje.Creatures.ForEach(creature =>
+                                {
                                     if (/*creature.map == myContinent
                                         && */obje.CreatureMaxLevel <= myLevel + 2
                                         && !TasksPile.Exists(t =>
                                             t.IsSameTask(TaskType.KillAndLoot, quest.Id,
                                                 obje.ObjectiveIndex, () => (int)creature.guid)))
-                                        generatedQuestTasks.Add(new WAQTask(TaskType.KillAndLoot, obje.CreatureName, obje.CreatureEntry, 
+                                        generatedQuestTasks.Add(new WAQTask(TaskType.KillAndLoot, obje.CreatureName, obje.CreatureEntry,
                                             quest.LogTitle, quest.Id, creature, obje.ObjectiveIndex));
                                 });
                             else
@@ -261,13 +271,14 @@ namespace Wholesome_Auto_Quester.Bot
                         // Kill
                         foreach (KillObjective obje in quest.KillObjectives)
                             if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, quest.Id))
-                                obje.Creatures.ForEach(creature => {
+                                obje.Creatures.ForEach(creature =>
+                                {
                                     if (/*creature.map == myContinent
                                         && */obje.CreatureMaxLevel <= myLevel + 2
                                         && !TasksPile.Exists(t =>
                                             t.IsSameTask(TaskType.Kill, quest.Id,
                                                 obje.ObjectiveIndex, () => (int)creature.guid)))
-                                        generatedQuestTasks.Add(new WAQTask(TaskType.Kill, obje.CreatureName, obje.CreatureEntry, quest.LogTitle, 
+                                        generatedQuestTasks.Add(new WAQTask(TaskType.Kill, obje.CreatureName, obje.CreatureEntry, quest.LogTitle,
                                             quest.Id, creature, obje.ObjectiveIndex));
                                 });
                             else
@@ -281,7 +292,8 @@ namespace Wholesome_Auto_Quester.Bot
                             foreach (ObjGOTemplate got in obje.ObjGOTemplates)
                             {
                                 if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, quest.Id))
-                                    got.GameObjects.ForEach(gameObject => {
+                                    got.GameObjects.ForEach(gameObject =>
+                                    {
                                         if (/*gameObject.map == myContinent
                                             && */!TasksPile.Exists(t =>
                                                 t.IsSameTask(TaskType.GatherGameObject, quest.Id,
@@ -299,7 +311,8 @@ namespace Wholesome_Auto_Quester.Bot
                         // Interact with object
                         foreach (InteractObjective obje in quest.InteractObjectives)
                             if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, quest.Id))
-                                obje.GameObjects.ForEach(gameObject => {
+                                obje.GameObjects.ForEach(gameObject =>
+                                {
                                     if (/*gameObject.map == myContinent
                                         && */!TasksPile.Exists(t =>
                                             t.IsSameTask(TaskType.InteractWithWorldObject, quest.Id,
@@ -410,9 +423,11 @@ namespace Wholesome_Auto_Quester.Bot
             var wantedUnitEntries = new List<int>();
             var wantedObjectEntries = new List<int>();
             var wantedLootEntries = new List<int>();
-            TasksPile.ForEach(pileTask => {
+            TasksPile.ForEach(pileTask =>
+            {
                 if (!researchedTasks.Exists(poiTasks => poiTasks.ObjectDBGuid == pileTask.ObjectDBGuid) &&
-                    !pileTask.IsTimedOut) {
+                    !pileTask.IsTimedOut)
+                {
                     if (pileTask.Creature != null)
                     {
                         wantedUnitEntries.Add(pileTask.TargetEntry);
@@ -435,7 +450,8 @@ namespace Wholesome_Auto_Quester.Bot
                 .ToList();
 
             var watchObjectsShort = Stopwatch.StartNew();
-            List<WoWObject> filteredSurroundingObjects = WAQObjectManager.FindAll(o => {
+            List<WoWObject> filteredSurroundingObjects = WAQObjectManager.FindAll(o =>
+            {
                 int objectEntry = o.Entry;
                 WoWObjectType type = o.Type;
                 return (type == WoWObjectType.Unit && wantedUnitEntries.Contains(objectEntry)
@@ -443,7 +459,7 @@ namespace Wholesome_Auto_Quester.Bot
                     && !wManagerSetting.IsBlackListed(o.Guid)
                     && !wManagerSetting.IsBlackListedZone(o.Position)
                     && IsObjectValidForTask(o, researchedTasks.Find(task => task.TargetEntry == objectEntry));
-                }).ToList();
+            }).ToList();
 
             // Get objects real distance
             var watchObjectShort = Stopwatch.StartNew();
@@ -503,8 +519,8 @@ namespace Wholesome_Auto_Quester.Bot
                         .OrderBy(t => t.Location.DistanceTo(WoWObjectInProgress.Position))
                         .FirstOrDefault(task => task.TargetEntry == WoWObjectInProgress.Entry);
                 }
-            } 
-            else 
+            }
+            else
                 WoWObjectInProgress = null;
 
             TaskInProgress = closestTask;
@@ -512,15 +528,18 @@ namespace Wholesome_Auto_Quester.Bot
             if (_tick % 2 == 0) Main.QuestTrackerGui.UpdateTasksList();
         }
 
-        private static bool IsObjectValidForTask(WoWObject wowObject, WAQTask task) {
-            if (task.TaskType == TaskType.KillAndLoot) {
-                var unit = (WoWUnit) wowObject;
+        private static bool IsObjectValidForTask(WoWObject wowObject, WAQTask task)
+        {
+            if (task.TaskType == TaskType.KillAndLoot)
+            {
+                var unit = (WoWUnit)wowObject;
                 if (!unit.IsAlive && !unit.IsLootable)
                     return false;
             }
 
-            if (task.TaskType == TaskType.Kill || task.TaskType == TaskType.Grind) {
-                var unit = (WoWUnit) wowObject;
+            if (task.TaskType == TaskType.Kill || task.TaskType == TaskType.Grind)
+            {
+                var unit = (WoWUnit)wowObject;
                 if (!unit.IsAlive)
                     return false;
             }
@@ -528,7 +547,7 @@ namespace Wholesome_Auto_Quester.Bot
             return true;
         }
 
-        public static void UpdateStatuses() 
+        public static void UpdateStatuses()
         {
             Dictionary<int, Quest.PlayerQuest> logQuests = Quest.GetLogQuestId().ToDictionary(quest => quest.ID);
             List<string> itemsToAddToDNSList = new List<string>();
@@ -546,7 +565,8 @@ namespace Wholesome_Auto_Quester.Bot
             foreach (ModelQuestTemplate quest in Quests)
             {
                 // Quest blacklisted
-                if (WholesomeAQSettings.CurrentSetting.BlacklistesQuests.Contains(quest.Id)) {
+                if (WholesomeAQSettings.CurrentSetting.BlacklistesQuests.Contains(quest.Id))
+                {
                     quest.Status = QuestStatus.Blacklisted;
                     continue;
                 }
@@ -554,7 +574,7 @@ namespace Wholesome_Auto_Quester.Bot
                 // Mark quest as completed if it's part of an exclusive group
                 if (quest.QuestAddon.ExclusiveGroup > 0)
                 {
-                    if (quest.QuestAddon.ExclusiveQuests.Any(qId => qId != quest.Id 
+                    if (quest.QuestAddon.ExclusiveQuests.Any(qId => qId != quest.Id
                         && (ToolBox.IsQuestCompleted(qId) || logQuests.ContainsKey(qId))))
                     {
                         quest.Status = QuestStatus.Completed;
@@ -578,7 +598,7 @@ namespace Wholesome_Auto_Quester.Bot
                 }
 
                 // Log quests
-                if (logQuests.TryGetValue(quest.Id, out Quest.PlayerQuest foundQuest)) 
+                if (logQuests.TryGetValue(quest.Id, out Quest.PlayerQuest foundQuest))
                 {
                     // Quest to turn in
                     if (foundQuest.State == StateFlag.Complete)
@@ -621,17 +641,21 @@ namespace Wholesome_Auto_Quester.Bot
             List<string> initialWAQList = wManagerSetting.CurrentSetting.DoNotSellList.GetRange(WAQlistStartIndex + 1, WAQListLength);
             if (!initialWAQList.SequenceEqual(itemsToAddToDNSList))
             {
-                initialWAQList.ForEach(item => {
+                initialWAQList.ForEach(item =>
+                {
                     if (!itemsToAddToDNSList.Contains(item))
-                        Logger.Log($"Removed {item} from Do Not Sell List"); });
-                itemsToAddToDNSList.ForEach(item => {
+                        Logger.Log($"Removed {item} from Do Not Sell List");
+                });
+                itemsToAddToDNSList.ForEach(item =>
+                {
                     if (!initialWAQList.Contains(item))
-                        Logger.Log($"Added {item} to Do Not Sell List"); });
+                        Logger.Log($"Added {item} to Do Not Sell List");
+                });
                 wManagerSetting.CurrentSetting.DoNotSellList.RemoveRange(WAQlistStartIndex + 1, WAQListLength);
                 wManagerSetting.CurrentSetting.DoNotSellList.InsertRange(WAQlistStartIndex + 1, itemsToAddToDNSList);
                 wManagerSetting.CurrentSetting.Save();
             }
-            
+
             if ((_tick % 2) == 0) Main.QuestTrackerGui.UpdateQuestsList();
         }
 

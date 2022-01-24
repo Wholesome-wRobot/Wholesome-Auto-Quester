@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Dapper;
+using robotManager.Helpful;
+using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Diagnostics;
 using System.Linq;
-using Dapper;
-using robotManager.Helpful;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
@@ -19,9 +19,9 @@ namespace Wholesome_Auto_Quester.Database
 
         public DB()
         {
-             string baseDirectory = Others.GetCurrentDirectory + @"Data\WoWDb335;Cache=Shared;";
+            string baseDirectory = Others.GetCurrentDirectory + @"Data\WoWDb335;Cache=Shared;";
             _con = new SQLiteConnection("Data Source=" + baseDirectory);
-             _con.Open();
+            _con.Open();
             _cmd = _con.CreateCommand();
         }
 
@@ -351,7 +351,7 @@ namespace Wholesome_Auto_Quester.Database
             int myFaction = (int)ToolBox.GetFaction();
             int myLevel = (int)ObjectManager.Me.Level;
             int[] questSortIdsToIgnore =
-            { 
+            {
                 -24, -101, -121, -181, -182, -201, -264, -304, -324, -762, -371, -373, // profession sortIds
                 -1, -21, -22, -23, -25, -41, -221, -241, -284, -344, -364, -365, -366, -367, -368, -369, -370, -374, -375, -376 // misc (epic, seasonal etc)
                 // we leave the class sortIds in

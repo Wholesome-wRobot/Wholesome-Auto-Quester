@@ -18,13 +18,13 @@ namespace Wholesome_Auto_Quester.States
         {
             get
             {
-                if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause 
+                if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause
                     || !ObjectManager.Me.IsValid)
                     return false;
 
                 if (WAQTasks.TaskInProgress != null && WAQTasks.TaskInProgress.Continent != Usefuls.ContinentId)
                     return true;
-                                
+
                 return false;
             }
         }

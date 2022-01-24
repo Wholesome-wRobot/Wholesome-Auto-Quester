@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using robotManager.Helpful;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -6,8 +8,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using Newtonsoft.Json;
-using robotManager.Helpful;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Database.Models;
 using wManager;
@@ -18,8 +18,10 @@ using wManager.Wow.ObjectManager;
 using static wManager.Wow.Helpers.PathFinder;
 using Math = System.Math;
 
-namespace Wholesome_Auto_Quester.Helpers {
-    public static class ToolBox {
+namespace Wholesome_Auto_Quester.Helpers
+{
+    public static class ToolBox
+    {
         private static readonly Stopwatch Watch = Stopwatch.StartNew();
         public static readonly Random Rnd = new Random();
 
@@ -119,7 +121,7 @@ namespace Wholesome_Auto_Quester.Helpers {
             Dictionary<WoWUnit, float> hostileUnits = new Dictionary<WoWUnit, float>();
             foreach (WoWUnit unit in objectManager)
             {
-                if (unit.IsAlive && unit.IsAttackable && unit.Reaction == Reaction.Hostile && unit.Guid != POI.Guid 
+                if (unit.IsAlive && unit.IsAttackable && unit.Reaction == Reaction.Hostile && unit.Guid != POI.Guid
                     && unit.Position.DistanceTo(POI.Position) < clearDistance)
                 {
                     WAQPath pathFromPoi = GetWAQPath(unit.Position, POI.Position);
@@ -156,13 +158,16 @@ namespace Wholesome_Auto_Quester.Helpers {
             return false;
         }
 
-        public static T TakeHighest<T>(this IEnumerable<T> list, Func<T, int> takeValue, out int amount) {
+        public static T TakeHighest<T>(this IEnumerable<T> list, Func<T, int> takeValue, out int amount)
+        {
             var highest = int.MinValue;
             T curHighestElement = default;
 
-            foreach (T element in list) {
+            foreach (T element in list)
+            {
                 int curValue = takeValue(element);
-                if (curValue > highest) {
+                if (curValue > highest)
+                {
                     highest = curValue;
                     curHighestElement = element;
                 }
@@ -175,7 +180,8 @@ namespace Wholesome_Auto_Quester.Helpers {
         public static T TakeHighest<T>(this IEnumerable<T> list, Func<T, int> takeValue) =>
             list.TakeHighest(takeValue, out _);
 
-        public static float PathLength(List<Vector3> path) {
+        public static float PathLength(List<Vector3> path)
+        {
             var length = 0f;
             for (var i = 0; i < path.Count - 1; i++) length += path[i].DistanceTo(path[i + 1]);
 
@@ -184,25 +190,28 @@ namespace Wholesome_Auto_Quester.Helpers {
 
         public static bool InInteractDistance(this WoWUnit unit) => unit.GetDistance < unit.CombatReach + 4f;
 
-        public static WoWUnit FindClosestUnitByEntry(int entry) {
+        public static WoWUnit FindClosestUnitByEntry(int entry)
+        {
             Vector3 myPos = ObjectManager.Me.PositionWithoutType;
             return ObjectManager.GetWoWUnitByEntry(entry)
-                .TakeHighest(unit => (int) -unit.PositionWithoutType.DistanceTo(myPos));
+                .TakeHighest(unit => (int)-unit.PositionWithoutType.DistanceTo(myPos));
         }
 
-        public static WoWGameObject FindClosestGameObjectByEntry(int entry) {
+        public static WoWGameObject FindClosestGameObjectByEntry(int entry)
+        {
             Vector3 myPos = ObjectManager.Me.PositionWithoutType;
             return ObjectManager.GetWoWGameObjectByEntry(entry)
-                .TakeHighest(gameObject => (int) -gameObject.Position.DistanceTo(myPos));
+                .TakeHighest(gameObject => (int)-gameObject.Position.DistanceTo(myPos));
         }
 
         public static string EscapeLuaString(this string str) => str.Replace("\\", "\\\\").Replace("'", "\\'");
 
         public static float GetRealDistance(this WoWObject wObject) =>
-            wObject.Type switch {
-                WoWObjectType.Unit => ((WoWUnit) wObject).GetDistance,
-                WoWObjectType.GameObject => ((WoWGameObject) wObject).GetDistance,
-                WoWObjectType.Player => ((WoWPlayer) wObject).GetDistance,
+            wObject.Type switch
+            {
+                WoWObjectType.Unit => ((WoWUnit)wObject).GetDistance,
+                WoWObjectType.GameObject => ((WoWGameObject)wObject).GetDistance,
+                WoWObjectType.Player => ((WoWPlayer)wObject).GetDistance,
                 _ => 0f
             };
 
@@ -210,7 +219,8 @@ namespace Wholesome_Auto_Quester.Helpers {
             Lua.LuaDoString<bool>(
                 "return GetClickFrame('GossipFrame'):IsVisible() == 1 or GetClickFrame('QuestFrame'):IsVisible() == 1;");
 
-        public static bool GossipTurnInQuest(string questName) {
+        public static bool GossipTurnInQuest(string questName)
+        {
             // Select quest
             var exitCodeOpen = Lua.LuaDoString<int>($@"
             if GetClickFrame('QuestFrameAcceptButton'):IsVisible() == 1
@@ -241,7 +251,8 @@ namespace Wholesome_Auto_Quester.Helpers {
             	return 1;
             end
             return 2;");
-            switch (exitCodeOpen) {
+            switch (exitCodeOpen)
+            {
                 case 1:
                     Logger.LogError($"No Gossip window was open to hand in {questName}");
                     return false;
@@ -256,14 +267,16 @@ namespace Wholesome_Auto_Quester.Helpers {
             Thread.Sleep(200);
 
             var requiresItems = Lua.LuaDoString<bool>("return GetNumQuestItems() > 0;");
-            if (requiresItems) {
+            if (requiresItems)
+            {
                 Lua.LuaDoString("CompleteQuest();");
                 Thread.Sleep(200);
             }
 
             // Get reward
             var hasQuestReward = Lua.LuaDoString<bool>("return GetNumQuestChoices() > 0;");
-            if (hasQuestReward) {
+            if (hasQuestReward)
+            {
                 // Ugly workaround to trigger the selection event
                 Logger.LogDebug("Letting InventoryManager select quest reward.");
                 Quest.CompleteQuest();
@@ -286,7 +299,8 @@ namespace Wholesome_Auto_Quester.Helpers {
             return true;
         }
 
-        public static bool GossipPickUpQuest(string questName, int questId) {
+        public static bool GossipPickUpQuest(string questName, int questId)
+        {
             // Select quest
             var exitCodeOpen = Lua.LuaDoString<int>($@"
             if GetClickFrame('QuestFrameAcceptButton'):IsVisible() == 1 or GetClickFrame('QuestFrameCompleteButton'):IsVisible() == 1 then return 0; end
@@ -322,7 +336,8 @@ namespace Wholesome_Auto_Quester.Helpers {
             	return 1;
             end
             return 2;");
-            switch (exitCodeOpen) {
+            switch (exitCodeOpen)
+            {
                 case 1:
                     Logger.LogError($"No Gossip or Quest window was open to pick up {questName}");
                     return false;
@@ -339,7 +354,8 @@ namespace Wholesome_Auto_Quester.Helpers {
 
             Thread.Sleep(200);
 
-            if (Lua.LuaDoString<bool>("return GetClickFrame('QuestFrameCompleteButton'):IsVisible() == 1;")) {
+            if (Lua.LuaDoString<bool>("return GetClickFrame('QuestFrameCompleteButton'):IsVisible() == 1;"))
+            {
                 Logger.LogError($"The quest {questName} seems to be a trade quest.");
                 Lua.LuaDoString(@"
                 local closeButton = GetClickFrame('QuestFrameCloseButton');
@@ -363,16 +379,19 @@ namespace Wholesome_Auto_Quester.Helpers {
             return true;
         }
 
-        internal static int GetIndexOfClosestPoint(List<Vector3> path) {
+        internal static int GetIndexOfClosestPoint(List<Vector3> path)
+        {
             if (path == null || path.Count <= 0) return 0;
             Vector3 myPos = ObjectManager.Me.PositionWithoutType;
 
             var curIndex = 0;
             var curDistance = float.MaxValue;
 
-            for (var i = 0; i < path.Count; i++) {
+            for (var i = 0; i < path.Count; i++)
+            {
                 float distance = myPos.DistanceTo(path[i]);
-                if (distance < curDistance) {
+                if (distance < curDistance)
+                {
                     curDistance = distance;
                     curIndex = i;
                 }
@@ -381,7 +400,8 @@ namespace Wholesome_Auto_Quester.Helpers {
             return curIndex;
         }
 
-        internal static float PointDistanceToLine(Vector3 start, Vector3 end, Vector3 point) {
+        internal static float PointDistanceToLine(Vector3 start, Vector3 end, Vector3 point)
+        {
             float vLenSquared = (start.X - end.X) * (start.X - end.X) +
                                 (start.Y - end.Y) * (start.Y - end.Y) +
                                 (start.Z - end.Z) * (start.Z - end.Z);
@@ -399,7 +419,8 @@ namespace Wholesome_Auto_Quester.Helpers {
             WAQTasks.WoWObjectInProgress != null
             || !ObjectManager.Me.IsMounted && ObjectManager.Me.InCombatFlagOnly;
 
-        public static void UpdateCompletedQuests() {
+        public static void UpdateCompletedQuests()
+        {
             List<int> completedQuests = new List<int>();
             completedQuests.AddRange(Quest.FinishedQuestSet);
             completedQuests.AddRange(WholesomeAQSettings.CurrentSetting.ListCompletedQuests);
@@ -435,26 +456,35 @@ namespace Wholesome_Auto_Quester.Helpers {
 
         public static bool ZippedJSONIsPresent() => File.Exists(Others.GetCurrentDirectory + @"\Data\WAQquests.zip");
 
-        public static List<ModelQuestTemplate> GetAllQuestsFromJSON() {
-            try {
-                if (!JSONFileIsPresent()) {
+        public static List<ModelQuestTemplate> GetAllQuestsFromJSON()
+        {
+            try
+            {
+                if (!JSONFileIsPresent())
+                {
                     Logger.LogError("The JSON file is not present.");
                     return null;
                 }
 
-                using (StreamReader file = File.OpenText(Others.GetCurrentDirectory + @"\Data\WAQquests.json")) {
+                using (StreamReader file = File.OpenText(Others.GetCurrentDirectory + @"\Data\WAQquests.json"))
+                {
                     var serializer = new JsonSerializer();
-                    return (List<ModelQuestTemplate>) serializer.Deserialize(file, typeof(List<ModelQuestTemplate>));
+                    return (List<ModelQuestTemplate>)serializer.Deserialize(file, typeof(List<ModelQuestTemplate>));
                 }
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Logger.LogError(e.Message);
                 return null;
             }
         }
 
-        public static void ZipJSONFile() {
-            try {
-                if (!JSONFileIsPresent()) {
+        public static void ZipJSONFile()
+        {
+            try
+            {
+                if (!JSONFileIsPresent())
+                {
                     Logger.LogError("The JSON file is not present in Data");
                     return;
                 }
@@ -463,12 +493,14 @@ namespace Wholesome_Auto_Quester.Helpers {
                     File.Delete(Others.GetCurrentDirectory + @"\Data\WAQquests.zip");
 
                 using (ZipArchive zip = ZipFile.Open(Others.GetCurrentDirectory + @"\Data\WAQquests.zip",
-                    ZipArchiveMode.Create)) {
+                    ZipArchiveMode.Create))
+                {
                     ZipArchiveEntry entry = zip.CreateEntry("WAQquests.json");
                     entry.LastWriteTime = DateTimeOffset.Now;
 
                     using (FileStream stream = File.OpenRead(Others.GetCurrentDirectory + @"\Data\WAQquests.json"))
-                    using (Stream entryStream = entry.Open()) {
+                    using (Stream entryStream = entry.Open())
+                    {
                         stream.CopyTo(entryStream);
                     }
                 }
@@ -480,13 +512,17 @@ namespace Wholesome_Auto_Quester.Helpers {
                     File.Delete(compiledzip);
                 File.Copy(Others.GetCurrentDirectory + @"\Data\WAQquests.zip", compiledzip);
                 */
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Logger.LogError("ZipJSONFile > " + e.Message);
             }
         }
 
-        public static void WriteJSONFromDBResult(List<ModelQuestTemplate> resultFromDB) {
-            try {
+        public static void WriteJSONFromDBResult(List<ModelQuestTemplate> resultFromDB)
+        {
+            try
+            {
                 if (File.Exists(Others.GetCurrentDirectory + @"\Data\WAQquests.json"))
                     File.Delete(Others.GetCurrentDirectory + @"\Data\WAQquests.json");
 
@@ -496,20 +532,25 @@ namespace Wholesome_Auto_Quester.Helpers {
                 Logger.Log("Write");
                 File.WriteAllText(Others.GetCurrentDirectory + @"\Data\WAQquests.json", jsonString);
                 */
-                using (StreamWriter file = File.CreateText(Others.GetCurrentDirectory + @"\Data\WAQquests.json")) {
+                using (StreamWriter file = File.CreateText(Others.GetCurrentDirectory + @"\Data\WAQquests.json"))
+                {
                     var serializer = new JsonSerializer();
                     serializer.Serialize(file, resultFromDB);
                 }
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Logger.LogError("WriteJSONFromDBResult > " + e.Message);
             }
         }
 
-        public static List<string> GetAvailableQuestGossips() {
+        public static List<string> GetAvailableQuestGossips()
+        {
             var result = new List<string>();
             var numGossips = Lua.LuaDoString<int>(@"return GetNumGossipAvailableQuests()");
             var nameIndex = 1;
-            for (var i = 1; i <= numGossips; i++) {
+            for (var i = 1; i <= numGossips; i++)
+            {
                 result.Add(Lua.LuaDoString<string>(@"
                     local gossips = { GetGossipAvailableQuests() };
                     return gossips[" + nameIndex + "];"));
@@ -519,11 +560,13 @@ namespace Wholesome_Auto_Quester.Helpers {
             return result;
         }
 
-        public static List<string> GetActiveQuestGossips() {
+        public static List<string> GetActiveQuestGossips()
+        {
             var result = new List<string>();
             var numGossips = Lua.LuaDoString<int>(@"return GetNumGossipActiveQuests()");
             var nameIndex = 1;
-            for (var i = 1; i <= numGossips; i++) {
+            for (var i = 1; i <= numGossips; i++)
+            {
                 result.Add(Lua.LuaDoString<string>(@"
                     local gossips = { GetGossipActiveQuests() };
                     return gossips[" + nameIndex + "];"));
@@ -533,11 +576,13 @@ namespace Wholesome_Auto_Quester.Helpers {
             return result;
         }
 
-        public static List<string> GetAllGossips() {
+        public static List<string> GetAllGossips()
+        {
             var result = new List<string>();
             var numGossips = Lua.LuaDoString<int>(@"return GetNumGossipOptions()");
             var nameIndex = 1;
-            for (var i = 1; i <= numGossips; i++) {
+            for (var i = 1; i <= numGossips; i++)
+            {
                 result.Add(Lua.LuaDoString<string>(@"
                     local gossips = { GetGossipOptions() };
                     return gossips[" + nameIndex + "];"));
@@ -576,13 +621,15 @@ namespace Wholesome_Auto_Quester.Helpers {
         public static void UpdateObjectiveCompletionDict(int[] questIds)
             => _objectiveCompletionDict = GetObjectiveCompletionDict(questIds);
 
-        private static Dictionary<int, bool[]> GetObjectiveCompletionDict(int[] questIds) {
+        private static Dictionary<int, bool[]> GetObjectiveCompletionDict(int[] questIds)
+        {
             var resultDict = new Dictionary<int, bool[]>();
             if (questIds.Length <= 0) return resultDict;
             string[] questIdStrings = questIds.Select(id => id.ToString()).ToArray();
             var inputTable = new StringBuilder("{",
                 2 + questIdStrings.Aggregate(0, (last, str) => last + str.Length) + questIdStrings.Length - 1);
-            for (var i = 0; i < questIdStrings.Length; i++) {
+            for (var i = 0; i < questIdStrings.Length; i++)
+            {
                 inputTable.Append(questIdStrings[i]);
                 if (i < questIdStrings.Length - 1) inputTable.Append(",");
             }
@@ -619,13 +666,15 @@ namespace Wholesome_Auto_Quester.Helpers {
             end
             return unpack(outputTable)");
 
-            if (outputTable.Length != questIds.Length * 6) {
+            if (outputTable.Length != questIds.Length * 6)
+            {
                 Logging.Write(
                     $"Expected {questIds.Length * 6} entries in GetObjectiveCompletionArray but got {outputTable.Length} instead.");
                 return resultDict;
             }
 
-            for (var i = 0; i < questIds.Length; i++) {
+            for (var i = 0; i < questIds.Length; i++)
+            {
                 var completionArray = new bool[6];
                 for (var j = 0; j < completionArray.Length; j++)
                     completionArray[j] = outputTable[i * completionArray.Length + j];
@@ -636,11 +685,13 @@ namespace Wholesome_Auto_Quester.Helpers {
             return resultDict;
         }
 
-        public static bool IsObjectiveCompleted(int objectiveId, int questId) {
+        public static bool IsObjectiveCompleted(int objectiveId, int questId)
+        {
             if (objectiveId == -1)
                 return false;
 
-            if (objectiveId < 1 || objectiveId > 6) {
+            if (objectiveId < 1 || objectiveId > 6)
+            {
                 Logging.WriteError($"Tried to call GetObjectiveCompletion with objectiveId: {objectiveId}");
                 return false;
             }
@@ -652,10 +703,12 @@ namespace Wholesome_Auto_Quester.Helpers {
             return false;
         }
 
-        public static bool DangerousEnemiesAtLocation(Vector3 location) {
+        public static bool DangerousEnemiesAtLocation(Vector3 location)
+        {
             uint myLevel = ObjectManager.Me.Level;
             var unitCounter = 0;
-            foreach (WoWUnit unit in ObjectManager.GetWoWUnitHostile()) {
+            foreach (WoWUnit unit in ObjectManager.GetWoWUnitHostile())
+            {
                 float distance = unit.PositionWithoutType.DistanceTo(location);
                 if (distance > 40 || distance > unit.AggroDistance + 3) continue;
                 uint unitLevel = unit.Level;
@@ -686,7 +739,8 @@ namespace Wholesome_Auto_Quester.Helpers {
         public static string GetWoWVersion() => Lua.LuaDoString<string>("v, b, d, t = GetBuildInfo(); return v");
 
         public static Factions GetFaction() =>
-            (PlayerFactions) ObjectManager.Me.Faction switch {
+            (PlayerFactions)ObjectManager.Me.Faction switch
+            {
                 PlayerFactions.Human => Factions.Human,
                 PlayerFactions.Orc => Factions.Orc,
                 PlayerFactions.Dwarf => Factions.Dwarf,
@@ -703,7 +757,8 @@ namespace Wholesome_Auto_Quester.Helpers {
             };
 
         public static Classes GetClass() =>
-            ObjectManager.Me.WowClass switch {
+            ObjectManager.Me.WowClass switch
+            {
                 WoWClass.Warrior => Classes.Warrior,
                 WoWClass.Paladin => Classes.Paladin,
                 WoWClass.Hunter => Classes.Hunter,

@@ -1,23 +1,26 @@
 ﻿using robotManager.FiniteStateMachine;
 using System.Threading;
-using Wholesome_Auto_Quester.Helpers;
 using Wholesome_Auto_Quester.Bot;
+using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.States
 {
-    class WAQTurnInQuestToGameObject : State {
+    class WAQTurnInQuestToGameObject : State
+    {
         public override string DisplayName { get; set; } = "Turn in quest [SmoothMove - Q]";
 
-        public override bool NeedToRun {
-            get {
+        public override bool NeedToRun
+        {
+            get
+            {
                 if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause
                     || !ObjectManager.Me.IsValid)
                     return false;
 
-                if (WAQTasks.TaskInProgress?.TaskType == TaskType.TurnInQuestToGameObject && WAQTasks.WoWObjectInProgress != null) 
+                if (WAQTasks.TaskInProgress?.TaskType == TaskType.TurnInQuestToGameObject && WAQTasks.WoWObjectInProgress != null)
                 {
                     DisplayName =
                         $"Turning in {WAQTasks.TaskInProgress.QuestTitle} at game object {WAQTasks.TaskInProgress.TargetName} [SmoothMove - Q]";
@@ -28,7 +31,7 @@ namespace Wholesome_Auto_Quester.States
             }
         }
 
-        public override void Run() 
+        public override void Run()
         {
             WAQTask task = WAQTasks.TaskInProgress;
             WoWObject gameObject = WAQTasks.WoWObjectInProgress;
@@ -42,19 +45,19 @@ namespace Wholesome_Auto_Quester.States
             if (ToolBox.HostilesAreAround(turnInTarget))
                 return;
 
-            if (turnInTarget.GetDistance > 4) 
+            if (turnInTarget.GetDistance > 4)
             {
                 MoveHelper.StartGoToThread(turnInTarget.Position, $"Game Object found - Going to {turnInTarget.Name} to turn in {task.QuestTitle}.");
                 return;
             }
 
-            if (!ToolBox.IsNpcFrameActive()) 
+            if (!ToolBox.IsNpcFrameActive())
             {
                 MoveHelper.StopAllMove();
                 Interact.InteractGameObject(turnInTarget.GetBaseAddress);
                 Usefuls.WaitIsCasting();
-            } 
-            else 
+            }
+            else
             {
                 if (ToolBox.GossipTurnInQuest(task.QuestTitle))
                 {

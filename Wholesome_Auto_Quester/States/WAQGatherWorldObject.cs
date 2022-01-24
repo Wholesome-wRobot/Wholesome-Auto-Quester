@@ -1,22 +1,26 @@
 ﻿using robotManager.FiniteStateMachine;
-using Wholesome_Auto_Quester.Helpers;
+using System.Threading;
 using Wholesome_Auto_Quester.Bot;
+using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
-using System.Threading;
 
-namespace Wholesome_Auto_Quester.States {
-    class WAQGatherWorldObject : State {
+namespace Wholesome_Auto_Quester.States
+{
+    class WAQGatherWorldObject : State
+    {
         public override string DisplayName { get; set; } = "Gather world object [SmoothMove - Q]";
 
-        public override bool NeedToRun {
-            get {
+        public override bool NeedToRun
+        {
+            get
+            {
                 if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause
                     || !ObjectManager.Me.IsValid)
                     return false;
 
-                if (WAQTasks.TaskInProgress?.TaskType == TaskType.GatherGameObject && WAQTasks.WoWObjectInProgress != null) 
+                if (WAQTasks.TaskInProgress?.TaskType == TaskType.GatherGameObject && WAQTasks.WoWObjectInProgress != null)
                 {
                     DisplayName =
                         $"Gather world object {WAQTasks.TaskInProgress.TargetName} for {WAQTasks.TaskInProgress.QuestTitle} [SmoothMove - Q]";
@@ -27,7 +31,7 @@ namespace Wholesome_Auto_Quester.States {
             }
         }
 
-        public override void Run() 
+        public override void Run()
         {
             WAQTask task = WAQTasks.TaskInProgress;
             WoWObject gameObject = WAQTasks.WoWObjectInProgress;

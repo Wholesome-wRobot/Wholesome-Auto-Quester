@@ -1,87 +1,101 @@
-﻿using System;
+﻿using robotManager.Helpful;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using robotManager.Helpful;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Database.Objectives;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.ObjectManager;
 
-namespace Wholesome_Auto_Quester.GUI {
-    public partial class QuestsTrackerGUI {
-        public QuestsTrackerGUI() {
+namespace Wholesome_Auto_Quester.GUI
+{
+    public partial class QuestsTrackerGUI
+    {
+        public QuestsTrackerGUI()
+        {
             InitializeComponent();
             DiscordLink.RequestNavigate += (sender, e) => { System.Diagnostics.Process.Start(e.Uri.ToString()); };
             detailsPanel.Visibility = Visibility.Hidden;
         }
 
-        public void AddToBLClicked(object sender, RoutedEventArgs e) {
-            if (sourceQuestsList.SelectedItem != null) {
-                ModelQuestTemplate selected = (ModelQuestTemplate) sourceQuestsList.SelectedItem;
+        public void AddToBLClicked(object sender, RoutedEventArgs e)
+        {
+            if (sourceQuestsList.SelectedItem != null)
+            {
+                ModelQuestTemplate selected = (ModelQuestTemplate)sourceQuestsList.SelectedItem;
                 BlacklistHelper.AddQuestToBlackList(selected.Id);
                 UpdateQuestsList();
             }
         }
 
-        public void RmvFromBLClicked(object sender, RoutedEventArgs e) {
-            if (sourceQuestsList.SelectedItem != null) {
-                ModelQuestTemplate selected = (ModelQuestTemplate) sourceQuestsList.SelectedItem;
+        public void RmvFromBLClicked(object sender, RoutedEventArgs e)
+        {
+            if (sourceQuestsList.SelectedItem != null)
+            {
+                ModelQuestTemplate selected = (ModelQuestTemplate)sourceQuestsList.SelectedItem;
                 BlacklistHelper.RemoveQuestFromBlackList(selected.Id);
                 UpdateQuestsList();
             }
         }
 
-        public void ShowWindow() {
-            Dispatcher.BeginInvoke((Action) (() => 
-            { 
-                Show();
-                if (WholesomeAQSettings.CurrentSetting.QuestTrackerPositionLeft != 0)
-                    Left = WholesomeAQSettings.CurrentSetting.QuestTrackerPositionLeft;
-                if (WholesomeAQSettings.CurrentSetting.QuestTrackerPositionTop != 0)
-                    Top = WholesomeAQSettings.CurrentSetting.QuestTrackerPositionTop;
-            }));
+        public void ShowWindow()
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+           {
+               Show();
+               if (WholesomeAQSettings.CurrentSetting.QuestTrackerPositionLeft != 0)
+                   Left = WholesomeAQSettings.CurrentSetting.QuestTrackerPositionLeft;
+               if (WholesomeAQSettings.CurrentSetting.QuestTrackerPositionTop != 0)
+                   Top = WholesomeAQSettings.CurrentSetting.QuestTrackerPositionTop;
+           }));
         }
 
-        public void HideWindow() {
-            Dispatcher.BeginInvoke((Action) (() => 
-            { 
-                Hide();
-                WholesomeAQSettings.CurrentSetting.QuestTrackerPositionLeft = Left;
-                WholesomeAQSettings.CurrentSetting.QuestTrackerPositionTop = Top;
-                WholesomeAQSettings.CurrentSetting.Save();
-            }));
+        public void HideWindow()
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+           {
+               Hide();
+               WholesomeAQSettings.CurrentSetting.QuestTrackerPositionLeft = Left;
+               WholesomeAQSettings.CurrentSetting.QuestTrackerPositionTop = Top;
+               WholesomeAQSettings.CurrentSetting.Save();
+           }));
         }
 
-        public void UpdateQuestsList() {
-            Dispatcher.BeginInvoke((Action) (() => {                
+        public void UpdateQuestsList()
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
                 object selectedQuest = sourceQuestsList.SelectedItem;
-                
+
                 sourceQuestsList.ItemsSource = null;
                 Vector3 myPos = ObjectManager.Me.PositionWithoutType;
-                
+
                 List<ModelQuestTemplate> items = WAQTasks.Quests
-                    .OrderBy(q => q.Status)                    
-                    .ThenBy(q => {
+                    .OrderBy(q => q.Status)
+                    .ThenBy(q =>
+                    {
                         if (q.CreatureQuestGivers.Count <= 0) return float.MaxValue;
                         return q.GetClosestQuestGiverDistance(myPos);
                     }).ToList();
                 sourceQuestsList.ItemsSource = items;
-                
+
                 if (selectedQuest != null && sourceQuestsList.Items?.Count > 0 && sourceQuestsList.Items.Contains(selectedQuest))
                     sourceQuestsList.SelectedItem = selectedQuest;
                 else
                     detailsPanel.Visibility = Visibility.Hidden;
-                
+
                 questTitleTop.Text = $"Quests ({WAQTasks.Quests.Count})";
             }));
         }
 
-        public void UpdateTasksList() {            
-            Dispatcher.BeginInvoke((Action) (() => {
+        public void UpdateTasksList()
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
                 //object selectedTask = sourceTasksList.SelectedItem;
                 sourceTasksList.ItemsSource = null;
                 sourceTasksList.ItemsSource = WAQTasks.TasksPile;
@@ -91,9 +105,11 @@ namespace Wholesome_Auto_Quester.GUI {
             }));
         }
 
-        public void SelectQuest(object sender, RoutedEventArgs e) {
-            ModelQuestTemplate selected = (ModelQuestTemplate) sourceQuestsList.SelectedItem;
-            if (selected != null) {
+        public void SelectQuest(object sender, RoutedEventArgs e)
+        {
+            ModelQuestTemplate selected = (ModelQuestTemplate)sourceQuestsList.SelectedItem;
+            if (selected != null)
+            {
                 questTitle.Text = $"{selected.LogTitle}";
                 questId.Text = $"Entry: {selected.Id}";
                 questLevel.Text = $"Level: {selected.QuestLevel}";
@@ -265,10 +281,13 @@ namespace Wholesome_Auto_Quester.GUI {
                 else
                     objectiveStack.Visibility = Visibility.Collapsed;
 
-                if (WholesomeAQSettings.CurrentSetting.BlacklistesQuests.Contains(selected.Id)) {
+                if (WholesomeAQSettings.CurrentSetting.BlacklistesQuests.Contains(selected.Id))
+                {
                     ButtonAddToBl.IsEnabled = false;
                     ButtonRmvFromBl.IsEnabled = true;
-                } else {
+                }
+                else
+                {
                     ButtonAddToBl.IsEnabled = true;
                     ButtonRmvFromBl.IsEnabled = false;
                 }

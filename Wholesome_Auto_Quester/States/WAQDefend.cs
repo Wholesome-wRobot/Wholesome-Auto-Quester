@@ -1,19 +1,22 @@
-using System.Collections.Generic;
-using System.Linq;
-using Wholesome_Auto_Quester.Helpers;
 using robotManager.FiniteStateMachine;
 using robotManager.Helpful;
+using System.Collections.Generic;
+using System.Linq;
+using Wholesome_Auto_Quester.Bot;
+using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
-using Wholesome_Auto_Quester.Bot;
 
-namespace Wholesome_Auto_Quester.States {
-    internal class WAQDefend : State {
+namespace Wholesome_Auto_Quester.States
+{
+    internal class WAQDefend : State
+    {
         private WoWUnit _defendTarget;
         public override string DisplayName { get; set; } = "WAQ Defend";
 
-        public override void Run() {
+        public override void Run()
+        {
             if (_defendTarget == null) return;
             var stateName = $"Attacking {_defendTarget?.Name} to defend ourself.";
             DisplayName = stateName;
@@ -24,7 +27,8 @@ namespace Wholesome_Auto_Quester.States {
             _defendTarget = null;
         }
 
-        public override bool NeedToRun {
+        public override bool NeedToRun
+        {
             get
             {
                 if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause
@@ -45,15 +49,16 @@ namespace Wholesome_Auto_Quester.States {
                     return false;
 
                 IOrderedEnumerable<WoWUnit> attackingMe = justUnits
-                    .Where(unit => {
+                    .Where(unit =>
+                    {
                         uint unitLevel = unit.Level;
-                        if (/*unitLevel < myLevel - 5 || */unitLevel > myLevel + 3) 
+                        if (/*unitLevel < myLevel - 5 || */unitLevel > myLevel + 3)
                             return false;
                         return unit.IsAttackable && unit.InCombatFlagOnly && (unit.Target == myGuid || petGuid > 0 && unit.Target == petGuid);
                     })
                     .OrderBy(unit => unit.PositionWithoutType.DistanceTo(myPos));
 
-                if (attackingMe.Count() <= 0) 
+                if (attackingMe.Count() <= 0)
                     return false;
 
                 _defendTarget = attackingMe.FirstOrDefault();
@@ -62,7 +67,7 @@ namespace Wholesome_Auto_Quester.States {
 
                 MountTask.DismountMount(false, false);
 
-                if (_defendTarget != null) 
+                if (_defendTarget != null)
                     return true;
 
                 /*

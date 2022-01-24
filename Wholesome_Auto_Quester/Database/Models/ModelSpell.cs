@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Wholesome_Auto_Quester.Database.Models
+﻿namespace Wholesome_Auto_Quester.Database.Models
 {
     public class ModelSpell
     {

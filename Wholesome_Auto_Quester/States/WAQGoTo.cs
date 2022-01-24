@@ -1,6 +1,6 @@
 ﻿using robotManager.FiniteStateMachine;
-using Wholesome_Auto_Quester.Helpers;
 using Wholesome_Auto_Quester.Bot;
+using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
@@ -33,7 +33,7 @@ namespace Wholesome_Auto_Quester.States
             WAQTask task = WAQTasks.TaskInProgress;
             //WAQPath pathToTask = WAQTasks.PathToCurrentTask;
 
-            if (task.GetDistance < 3) 
+            if (task.GetDistance < 3)
             {
                 MoveHelper.StopAllMove();
                 Logger.Log($"Reached exploration hotspot for {task.QuestTitle}");
@@ -41,8 +41,8 @@ namespace Wholesome_Auto_Quester.States
                 Main.RequestImmediateTaskReset = true;
                 return;
             }
-            
-            if (task.Location.DistanceTo(ObjectManager.Me.Position) > 2) 
+
+            if (task.Location.DistanceTo(ObjectManager.Me.Position) > 2)
                 MoveHelper.StartGoToThread(task.Location, $"Traveling to Hotspot for {task.QuestTitle} (Explore).");
         }
     }

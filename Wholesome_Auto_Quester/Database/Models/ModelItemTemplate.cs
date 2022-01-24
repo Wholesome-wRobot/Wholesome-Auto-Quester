@@ -76,7 +76,7 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int shadow_res { get; set; }
         public int arcane_res { get; set; }*/
         public int delay { get; set; }
-        
+
         public int ammo_type { get; set; }
         public int RangedModRange { get; set; }
         public int spellid_1 { get; set; }

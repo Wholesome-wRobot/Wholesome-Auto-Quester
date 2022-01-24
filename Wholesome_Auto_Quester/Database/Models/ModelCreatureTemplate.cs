@@ -7,7 +7,7 @@ using wManager.Wow.ObjectManager;
 namespace Wholesome_Auto_Quester.Database.Models
 {
     public class ModelCreatureTemplate
-    {     
+    {
         public int entry { get; set; }
         public string name { get; set; }
         public uint faction { get; set; }
@@ -199,7 +199,7 @@ public enum UNIT_FLAGS_EXTRA : long
 }
 
 public enum UNIT_DYNAMIC_FLAGS : long
-{        
+{
     UNIT_DYNFLAG_NONE = 0,
     UNIT_DYNFLAG_LOOTABLE = 1,
     UNIT_DYNFLAG_TRACK_UNIT = 2,
@@ -212,7 +212,7 @@ public enum UNIT_DYNAMIC_FLAGS : long
 }
 
 public enum UNIT_FLAGS2 : long
-{        
+{
     UNIT_FLAG2_FEIGN_DEATH = 1,
     UNIT_FLAG2_HIDE_BODY = 2,
     UNIT_FLAG2_IGNORE_REPUTATION = 4,

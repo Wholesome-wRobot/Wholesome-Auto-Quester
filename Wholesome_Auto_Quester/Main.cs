@@ -17,7 +17,8 @@ using wManager.Plugin;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
-public class Main : IProduct {
+public class Main : IProduct
+{
     public const string ProductName = "Wholesome Auto Quester";
     public const string FileName = "Wholesome_Auto_Quester";
     public static QuestsTrackerGUI QuestTrackerGui = new QuestsTrackerGUI();
@@ -26,30 +27,39 @@ public class Main : IProduct {
     public static bool RequestImmediateTaskUpdate;
     public static bool RequestImmediateTaskReset;
 
-    public string version = "0.0.31"; // Must match version in Version.txt
+    public string version = "0.0.32"; // Must match version in Version.txt
 
     public bool IsStarted { get; private set; }
 
-    public void Initialize() {
-        try {
+    public void Initialize()
+    {
+        try
+        {
             WholesomeAQSettings.Load();
             Logger.Log($"{ProductName} version {version} loaded");
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             Logging.WriteError("Main > Initialize(): " + e);
         }
     }
 
-    public void Dispose() {
-        try {
+    public void Dispose()
+    {
+        try
+        {
             Stop();
             Logging.Status = "Dispose Product Complete";
             Logging.Write("Dispose Product Complete");
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             Logging.WriteError("Main > Dispose(): " + e);
         }
     }
 
-    public void Start() {        
+    public void Start()
+    {
         try
         {
             if (AutoUpdater.CheckUpdate(version))
@@ -70,15 +80,18 @@ public class Main : IProduct {
 
             var dbWotlk = new DBQueriesWotlk();
             dbWotlk.GetAvailableQuests();
-            if (!Products.IsStarted) 
+            if (!Products.IsStarted)
             {
                 IsStarted = false;
                 return;
             }
-            
-            Task.Factory.StartNew(() => {
-                while (IsStarted) {
-                    try {
+
+            Task.Factory.StartNew(() =>
+            {
+                while (IsStarted)
+                {
+                    try
+                    {
                         if (Conditions.InGameAndConnectedAndProductStartedNotInPause)
                         {
                             robotManager.Helpful.Timer maxWaitTime = new robotManager.Helpful.Timer(1000);
@@ -100,32 +113,40 @@ public class Main : IProduct {
                             RequestImmediateTaskUpdate = false;
                             RequestImmediateTaskReset = false;
                         }
-                    } catch (Exception arg) {
+                    }
+                    catch (Exception arg)
+                    {
                         Logging.WriteError(string.Concat(arg));
                     }
                 }
             });
 
-            Task.Factory.StartNew(() => {
-                while (IsStarted) {
-                    try {
-                        if (Conditions.InGameAndConnectedAndProductStartedNotInPause) {
+            Task.Factory.StartNew(() =>
+            {
+                while (IsStarted)
+                {
+                    try
+                    {
+                        if (Conditions.InGameAndConnectedAndProductStartedNotInPause)
+                        {
                             Quest.RequestQuestsCompleted();
                             Quest.ConsumeQuestsCompletedRequest();
                         }
-                    } catch (Exception arg) {
+                    }
+                    catch (Exception arg)
+                    {
                         Logging.WriteError(string.Concat(arg));
                     }
 
                     Thread.Sleep(1000 * 60 * 5);
                 }
             });
-            
+
             if (Bot.Pulse())
             {
                 if (WholesomeAQSettings.CurrentSetting.ActivateQuestsGUI)
                     QuestTrackerGui?.ShowWindow();
-                
+
                 Radar3D.OnDrawEvent += Radar3DOnDrawEvent;
                 Radar3D.Pulse();
 
@@ -133,20 +154,25 @@ public class Main : IProduct {
 
                 Logging.Status = "Start Product Complete";
                 Logging.Write("Start Product Complete");
-            } else {
+            }
+            else
+            {
                 IsStarted = false;
                 Logging.Status = "Start Product failed";
                 Logging.Write("Start Product failed");
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             IsStarted = false;
             Logging.WriteError("Main > Start(): " + e);
         }
     }
 
-    public void Stop() 
+    public void Stop()
     {
-        try {
+        try
+        {
             Lua.RunMacroText("/stopcasting");
             MoveHelper.StopAllMove();
 
@@ -165,7 +191,9 @@ public class Main : IProduct {
             PluginsManager.DisposeAllPlugins();
             Logging.Status = "Stop Product Complete";
             Logging.Write("Stop Product Complete");
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             Logging.WriteError("Main > Stop(): " + e);
         }
     }
@@ -181,13 +209,18 @@ public class Main : IProduct {
     }
 
     // GUI
-    public UserControl Settings {
-        get {
-            try {
+    public UserControl Settings
+    {
+        get
+        {
+            try
+            {
                 if (_settingsUserControl == null)
                     _settingsUserControl = new ProductSettingsControl();
                 return _settingsUserControl;
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Logger.Log("> Main > Settings(): " + e);
             }
 
@@ -204,14 +237,16 @@ public class Main : IProduct {
         }
     }
     */
-    private static void Radar3DOnDrawEvent() {
+    private static void Radar3DOnDrawEvent()
+    {
         if (WAQTasks.TaskInProgress != null)
         {
             Radar3D.DrawString(WAQTasks.TaskInProgress.TaskName, new Vector3(30, 200, 0), 10, Color.AliceBlue);
             Radar3D.DrawLine(ObjectManager.Me.Position, WAQTasks.TaskInProgress.Location, Color.AliceBlue);
         }
 
-        if (WAQTasks.WoWObjectInProgress != null) {
+        if (WAQTasks.WoWObjectInProgress != null)
+        {
             Radar3D.DrawLine(ObjectManager.Me.Position, WAQTasks.WoWObjectInProgress.Position, Color.Yellow);
             Radar3D.DrawCircle(WAQTasks.WoWObjectInProgress.Position, 1, Color.Yellow);
             Radar3D.DrawString(WAQTasks.WoWObjectInProgress.Name, new Vector3(30, 220, 0), 10, Color.Yellow);

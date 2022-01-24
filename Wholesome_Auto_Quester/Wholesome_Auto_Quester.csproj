@@ -298,7 +298,6 @@
     <Compile Include="Bot\WAQTasks.cs" />
     <Compile Include="Database\DB.cs" />
     <Compile Include="Database\DBQueriesWotlk.cs" />
-    <Compile Include="Database\DBQueriesTBC.cs" />
     <Compile Include="Database\Models\ModelCreature.cs" />
     <Compile Include="Database\Models\ModelCreatureAddon.cs" />
     <Compile Include="Database\Models\ModelGameObjectLootTemplate.cs" />

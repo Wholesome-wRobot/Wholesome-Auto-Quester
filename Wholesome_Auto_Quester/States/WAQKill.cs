@@ -1,11 +1,11 @@
 ﻿using robotManager.FiniteStateMachine;
-using Wholesome_Auto_Quester.Helpers;
+using System.Threading;
 using Wholesome_Auto_Quester.Bot;
+using Wholesome_Auto_Quester.Helpers;
+using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
-using wManager.Wow.Bot.Tasks;
-using System.Threading;
 
 namespace Wholesome_Auto_Quester.States
 {
@@ -17,11 +17,11 @@ namespace Wholesome_Auto_Quester.States
         {
             get
             {
-                if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause 
+                if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause
                     || !ObjectManager.Me.IsValid)
                     return false;
 
-                if ((WAQTasks.TaskInProgress?.TaskType == TaskType.Kill || WAQTasks.TaskInProgress?.TaskType == TaskType.KillAndLoot) 
+                if ((WAQTasks.TaskInProgress?.TaskType == TaskType.Kill || WAQTasks.TaskInProgress?.TaskType == TaskType.KillAndLoot)
                     && WAQTasks.WoWObjectInProgress != null)
                 {
                     DisplayName = $"Kill {WAQTasks.TaskInProgress.TargetName} for {WAQTasks.TaskInProgress.QuestTitle} [SmoothMove - Q]";

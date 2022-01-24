@@ -1,12 +1,10 @@
 ﻿using robotManager.FiniteStateMachine;
-using Wholesome_Auto_Quester.Helpers;
+using System.Collections.Generic;
 using Wholesome_Auto_Quester.Bot;
+using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
-using System.Collections.Generic;
-using System.Threading;
-using wManager.Wow.Bot.Tasks;
 
 namespace Wholesome_Auto_Quester.States
 {

@@ -1,9 +1,9 @@
 ﻿using robotManager.FiniteStateMachine;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Helpers;
+using wManager;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
-using wManager;
 
 namespace Wholesome_Auto_Quester.States
 {

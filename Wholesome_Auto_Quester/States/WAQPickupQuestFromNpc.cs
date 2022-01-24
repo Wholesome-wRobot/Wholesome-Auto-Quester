@@ -2,21 +2,25 @@
 using System.Threading;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Helpers;
+using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
-using wManager.Wow.Enums;
 
-namespace Wholesome_Auto_Quester.States {
-    class WAQPickupQuestFromNpc : State {
+namespace Wholesome_Auto_Quester.States
+{
+    class WAQPickupQuestFromNpc : State
+    {
         public override string DisplayName { get; set; } = "Pick up quest [SmoothMove - Q]";
 
-        public override bool NeedToRun {
-            get {
+        public override bool NeedToRun
+        {
+            get
+            {
                 if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause
                     || !ObjectManager.Me.IsValid)
                     return false;
 
-                if (WAQTasks.TaskInProgress?.TaskType == TaskType.PickupQuestFromCreature && WAQTasks.WoWObjectInProgress != null) 
+                if (WAQTasks.TaskInProgress?.TaskType == TaskType.PickupQuestFromCreature && WAQTasks.WoWObjectInProgress != null)
                 {
                     DisplayName =
                         $"Pick up quest {WAQTasks.TaskInProgress.QuestTitle} from {WAQTasks.TaskInProgress.TargetName} [SmoothMove - Q]";
@@ -27,7 +31,7 @@ namespace Wholesome_Auto_Quester.States {
             }
         }
 
-        public override void Run() 
+        public override void Run()
         {
             WAQTask task = WAQTasks.TaskInProgress;
             WoWObject npcObject = WAQTasks.WoWObjectInProgress;
@@ -41,7 +45,7 @@ namespace Wholesome_Auto_Quester.States {
             if (ToolBox.HostilesAreAround(pickUpTarget))
                 return;
 
-            if (!pickUpTarget.InInteractDistance()) 
+            if (!pickUpTarget.InInteractDistance())
             {
                 if (!MoveHelper.IsMovementThreadRunning || pickUpTarget.Position.DistanceTo(MoveHelper.currentTarget) > 10)
                     MoveHelper.StartGoToThread(pickUpTarget.PositionWithoutType, $"NPC found - Going to {pickUpTarget.Name} to pick up {task.QuestTitle}.");
@@ -56,7 +60,7 @@ namespace Wholesome_Auto_Quester.States {
                 if (!ToolBox.IsNpcFrameActive())
                     task.PutTaskOnTimeout($"Couldn't open quest frame", true);
             }
-            else 
+            else
             {
                 if (ToolBox.GossipPickUpQuest(task.QuestTitle, task.QuestId))
                 {

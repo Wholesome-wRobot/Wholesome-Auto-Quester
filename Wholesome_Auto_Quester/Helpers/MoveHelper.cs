@@ -1,17 +1,16 @@
+using robotManager.Helpful;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using robotManager.Helpful;
-using Wholesome_Auto_Quester.Bot;
 using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Helpers;
-using wManager.Wow.ObjectManager;
-using Move = SmoothMove.Move;
 
-namespace Wholesome_Auto_Quester.Helpers {
-    public static class MoveHelper {
+namespace Wholesome_Auto_Quester.Helpers
+{
+    public static class MoveHelper
+    {
         private static readonly object Lock = new object();
         private static Task _currentMovementTask;
         private static CancellationTokenSource _currentMovementToken;
@@ -28,9 +27,12 @@ namespace Wholesome_Auto_Quester.Helpers {
             }
         }
         */
-        public static Vector3 CurrentMovementTarget {
-            get {
-                lock (Lock) {
+        public static Vector3 CurrentMovementTarget
+        {
+            get
+            {
+                lock (Lock)
+                {
                     return IsMovementThreadRunning ? _currentMovementTarget : null;
                 }
             }
@@ -47,17 +49,22 @@ namespace Wholesome_Auto_Quester.Helpers {
             MovementManager.StopMoveOnly();
         }
 
-        public static void StopCurrentMovementThread() {
+        public static void StopCurrentMovementThread()
+        {
             //Logger.Log("StopCurrentMovementThread()");
-            try {
-                lock (Lock) {
+            try
+            {
+                lock (Lock)
+                {
                     _currentMovementToken?.Cancel();
                     if (!_currentMovementTask?.Wait(5000, _currentMovementToken?.Token ?? CancellationToken.None) ??
                         false)
                         Logger.LogError("Unable to end movement thread.");
                     ResetCurrentMovementCache();
                 }
-            } catch {
+            }
+            catch
+            {
                 // We can safely ignore this
             }
         }
@@ -65,7 +72,8 @@ namespace Wholesome_Auto_Quester.Helpers {
         private static void ResetCurrentMovementCache()
         {
             //Logger.Log("ResetCurrentMovementCache()");
-            lock (Lock) {
+            lock (Lock)
+            {
                 _currentMovementTask = null;
                 _currentMovementToken = null;
                 _currentMovementTarget = null;
@@ -79,7 +87,7 @@ namespace Wholesome_Auto_Quester.Helpers {
         }
 
         private static CancellationTokenSource currenTokenSource;
-        public  static Vector3 currentTarget;
+        public static Vector3 currentTarget;
         private static Task currentTask;
         public static bool IsMovementThreadRunning => currentTask != null && !currentTask.IsCompleted;
 

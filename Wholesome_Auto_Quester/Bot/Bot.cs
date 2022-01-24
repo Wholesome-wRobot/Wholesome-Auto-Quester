@@ -1,6 +1,6 @@
-﻿using System;
-using robotManager.FiniteStateMachine;
+﻿using robotManager.FiniteStateMachine;
 using robotManager.Helpful;
+using System;
 using Wholesome_Auto_Quester.Database;
 using Wholesome_Auto_Quester.States;
 using wManager.Wow.Bot.States;
@@ -28,7 +28,7 @@ namespace Wholesome_Auto_Quester.Bot
 
                 // FSM
                 Fsm.States.Clear();
-                
+
                 Fsm.AddState(new Relogger { Priority = 200 });
                 Fsm.AddState(new Pause { Priority = 36 });
                 Fsm.AddState(new Resurrect { Priority = 35 });
@@ -63,7 +63,7 @@ namespace Wholesome_Auto_Quester.Bot
                 Fsm.AddState(new MovementLoop { Priority = 1 });
 
                 Fsm.AddState(new Idle { Priority = 0 });
-                
+
                 Fsm.States.Sort();
                 Fsm.StartEngine(10, "_AutoQuester");
 

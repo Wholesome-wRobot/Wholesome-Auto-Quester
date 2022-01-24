@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using wManager;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
-using static robotManager.Helpful.Timer;
 
 namespace Wholesome_Auto_Quester.Helpers
 {
