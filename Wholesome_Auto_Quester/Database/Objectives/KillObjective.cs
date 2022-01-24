@@ -17,7 +17,7 @@ namespace Wholesome_Auto_Quester.Database.Objectives
             Creatures = creatureTemplate.Creatures;
             CreatureMaxLevel = creatureTemplate.maxLevel;
             CreatureEntry = creatureTemplate.entry;
-            ObjectiveName = objectiveName == null ? CreatureName + " slain" : objectiveName;
+            ObjectiveName = string.IsNullOrEmpty(objectiveName) ? CreatureName + " slain" : objectiveName;
         }
     }
 }

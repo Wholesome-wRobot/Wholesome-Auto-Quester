@@ -101,7 +101,7 @@ namespace Wholesome_Auto_Quester.Helpers
             currenTokenSource?.Cancel();
             currenTokenSource = new CancellationTokenSource();
             Action goToAction = new Action(() => GoToTask.ToPosition(target, skipIfCannotMakePath: true));
-            Task goToTask = Task.Factory.StartNew(goToAction, currenTokenSource.Token)
+            Task goToTask = Task.Run(goToAction, currenTokenSource.Token)
                 .ContinueWith(task => ResetCurrentCache(), currenTokenSource.Token);
             currentTask = goToTask;
         }

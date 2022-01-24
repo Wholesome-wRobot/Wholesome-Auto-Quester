@@ -32,7 +32,7 @@ namespace Wholesome_Auto_Quester.Database.Objectives
             CreatureEntry = creatureLootTemplate.CreatureTemplate.entry;
             ItemFLags = itemToLoot.Flags;
 
-            ObjectiveName = objectiveName == null ? ItemName : objectiveName;
+            ObjectiveName = string.IsNullOrEmpty(objectiveName) ? ItemName : objectiveName;
         }
     }
 }

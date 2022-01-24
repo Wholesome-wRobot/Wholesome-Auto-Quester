@@ -23,7 +23,7 @@ namespace Wholesome_Auto_Quester.Database.Objectives
             ItemSpell4 = itemToObtain.Spell4;
             ItemEntry = itemToObtain.Entry;
             Amount = amount;
-            ObjectiveName = objectiveName == null ? ItemName : objectiveName;
+            ObjectiveName = string.IsNullOrEmpty(objectiveName) ? ItemName : objectiveName;
         }
 
         public List<ModelGameObject> GetAllGameObjects()

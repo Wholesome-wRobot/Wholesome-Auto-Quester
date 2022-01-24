@@ -4,7 +4,6 @@ using robotManager.Products;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using Wholesome_Auto_Quester;
@@ -27,7 +26,7 @@ public class Main : IProduct
     public static bool RequestImmediateTaskUpdate;
     public static bool RequestImmediateTaskReset;
 
-    public string version = "0.0.32"; // Must match version in Version.txt
+    public string version = "0.0.33"; // Must match version in Version.txt
 
     public bool IsStarted { get; private set; }
 
@@ -86,7 +85,7 @@ public class Main : IProduct
                 return;
             }
 
-            Task.Factory.StartNew(() =>
+            Task.Run(async () =>
             {
                 while (IsStarted)
                 {
@@ -105,7 +104,7 @@ public class Main : IProduct
                                 }
                                 if (RequestImmediateTaskUpdate)
                                     break;
-                                Thread.Sleep(25);
+                                await Task.Delay(25);
                             }
                             BlacklistHelper.CleanupBlacklist();
                             WAQTasks.UpdateStatuses();
@@ -121,7 +120,7 @@ public class Main : IProduct
                 }
             });
 
-            Task.Factory.StartNew(() =>
+            Task.Run(async () =>
             {
                 while (IsStarted)
                 {
@@ -137,8 +136,7 @@ public class Main : IProduct
                     {
                         Logging.WriteError(string.Concat(arg));
                     }
-
-                    Thread.Sleep(1000 * 60 * 5);
+                    await Task.Delay(25);
                 }
             });
 

@@ -45,7 +45,7 @@ namespace Wholesome_Auto_Quester.States
                 ulong petGuid = ObjectManager.Pet?.Guid ?? 0U;
 
                 if (isMounted
-                    && WAQTasks.TaskInProgress?.Location.DistanceTo(myPos) > 60)
+                    && WAQTasks.TaskInProgress?.Location.DistanceTo(myPos) > 300)
                     return false;
 
                 IOrderedEnumerable<WoWUnit> attackingMe = justUnits
@@ -61,11 +61,21 @@ namespace Wholesome_Auto_Quester.States
                 if (attackingMe.Count() <= 0)
                     return false;
 
+                if (isMounted
+                    && WAQTasks.TaskInProgress?.Location.DistanceTo(myPos) > 200
+                    && attackingMe.Count() <= 2)
+                    return false;
+
+                if (isMounted
+                    && WAQTasks.TaskInProgress?.Location.DistanceTo(myPos) > 125
+                    && attackingMe.Count() <= 1)
+                    return false;
+
                 _defendTarget = attackingMe.FirstOrDefault();
                 //Logger.LogError($"{_defendTarget.Name} is attacking me, target is {_defendTarget.TargetObject?.Name}");
                 //Logger.Log($"DEF - Mounted = {isMounted}, incomb = {ObjectManager.Me.InCombatFlagOnly}, dist={myPos.DistanceTo(MoveHelper.CurrentMovementTarget)}");
 
-                MountTask.DismountMount(false, false);
+                MountTask.DismountMount(true, false);
 
                 if (_defendTarget != null)
                     return true;

@@ -1,15 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using robotManager.Products;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using Wholesome_Auto_Quester.Bot;
+using Wholesome_Auto_Quester.Database.Models;
+using Wholesome_Auto_Quester.Database.Objectives;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.ObjectManager;
-using Wholesome_Auto_Quester.Database.Models;
-using Wholesome_Auto_Quester.Bot;
-using robotManager.Products;
-using Wholesome_Auto_Quester.Database.Objectives;
-using System.Diagnostics;
-using wManager.Wow.Helpers;
 
-namespace Wholesome_Auto_Quester.Database {
+namespace Wholesome_Auto_Quester.Database
+{
     public class DBQueriesWotlk
     {
         private DB _database;
@@ -89,7 +89,7 @@ namespace Wholesome_Auto_Quester.Database {
                     //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Not for my faction)");
                     continue;
                 }
-                
+
                 if (q.StartItemTemplate?.Spell1 != null
                     || q.StartItemTemplate?.Spell2 != null
                     || q.StartItemTemplate?.Spell3 != null
@@ -125,11 +125,11 @@ namespace Wholesome_Auto_Quester.Database {
                 Products.ProductStop();
                 return;
             }
-            
+
             _database.CreateIndices();
 
             List<ModelQuestTemplate> quests = FilterDBQuestsBeforeFills(_database.QueryQuests());
-            
+
             // Query quest givers
             Stopwatch stopwatchQuestGivers = Stopwatch.StartNew();
             foreach (ModelQuestTemplate quest in quests)
@@ -147,7 +147,7 @@ namespace Wholesome_Auto_Quester.Database {
                 quest.GameObjectQuestTurners = _database.QueryGameObjectQuestEnders(quest.Id);
             }
             Logger.Log($"Process time (Quest enders) : {stopwatchQuestEnders.ElapsedMilliseconds} ms");
-            
+
             // Query previous quests Ids 
             Stopwatch stopwatchPrevQuests = Stopwatch.StartNew();
             foreach (ModelQuestTemplate quest in quests)
@@ -186,7 +186,7 @@ namespace Wholesome_Auto_Quester.Database {
                 quest.ItemDrop4Template = _database.QueryItemTemplateByItemEntry(quest.ItemDrop4);
             }
             Logger.Log($"Process time (ItemDrops) : {stopwatchItemDrops.ElapsedMilliseconds} ms");
-            
+
             // Query required Items 2Mo / 130k
             Stopwatch stopwatchRequiredItem = Stopwatch.StartNew();
             foreach (ModelQuestTemplate quest in quests)
@@ -199,7 +199,7 @@ namespace Wholesome_Auto_Quester.Database {
                 quest.RequiredItem6Template = _database.QueryItemTemplateByItemEntry(quest.RequiredItemId6);
             }
             Logger.Log($"Process time (RequiredItems) : {stopwatchRequiredItem.ElapsedMilliseconds} ms");
-            
+
             // Query Start Item 2mo / 126k
             Stopwatch stopwatchStartItem = Stopwatch.StartNew();
             foreach (ModelQuestTemplate quest in quests)
@@ -207,7 +207,7 @@ namespace Wholesome_Auto_Quester.Database {
                 quest.StartItemTemplate = _database.QueryItemTemplateByItemEntry(quest.StartItem);
             }
             Logger.Log($"Process time (StartItem) : {stopwatchStartItem.ElapsedMilliseconds} ms");
-            
+
             // Query required Npcs/Interacts 2mo / 133k
             Stopwatch stopwatchRequiredNPC = Stopwatch.StartNew();
             foreach (ModelQuestTemplate quest in quests)
@@ -252,19 +252,23 @@ namespace Wholesome_Auto_Quester.Database {
                     quest.AddObjective(new GatherObjective(quest.ItemDropQuantity4, goLootTemplate, quest.ItemDrop4Template)));
 
                 // Prerequisite objectives Kill&Loot 2mo/134k
-                quest.ItemDrop1Template?.CreatureLootTemplates.ForEach(creaLootTemplate => {
+                quest.ItemDrop1Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                {
                     if (creaLootTemplate.CreatureTemplate.rank <= 0)
                         quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity1, creaLootTemplate, quest.ItemDrop1Template));
                 });
-                quest.ItemDrop2Template?.CreatureLootTemplates.ForEach(creaLootTemplate => {
+                quest.ItemDrop2Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                {
                     if (creaLootTemplate.CreatureTemplate.rank <= 0)
                         quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity2, creaLootTemplate, quest.ItemDrop2Template));
                 });
-                quest.ItemDrop3Template?.CreatureLootTemplates.ForEach(creaLootTemplate => {
+                quest.ItemDrop3Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                {
                     if (creaLootTemplate.CreatureTemplate.rank <= 0)
                         quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity3, creaLootTemplate, quest.ItemDrop3Template));
                 });
-                quest.ItemDrop4Template?.CreatureLootTemplates.ForEach(creaLootTemplate => {
+                quest.ItemDrop4Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                {
                     if (creaLootTemplate.CreatureTemplate.rank <= 0)
                         quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity4, creaLootTemplate, quest.ItemDrop4Template));
                 });
@@ -284,27 +288,33 @@ namespace Wholesome_Auto_Quester.Database {
                     quest.AddObjective(new GatherObjective(quest.RequiredItemCount6, goLootTemplate, quest.RequiredItem6Template)));
 
                 // Required items Gather/Loot 300mo/20M                             
-                quest.RequiredItem1Template?.CreatureLootTemplates.ForEach(creaLootTemplate => {
+                quest.RequiredItem1Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                {
                     if (creaLootTemplate.CreatureTemplate.rank <= 0)
                         quest.AddObjective(new KillLootObjective(quest.RequiredItemCount1, creaLootTemplate, quest.RequiredItem1Template));
                 });
-                quest.RequiredItem2Template?.CreatureLootTemplates.ForEach(creaLootTemplate => {
+                quest.RequiredItem2Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                {
                     if (creaLootTemplate.CreatureTemplate.rank <= 0)
                         quest.AddObjective(new KillLootObjective(quest.RequiredItemCount2, creaLootTemplate, quest.RequiredItem2Template));
                 });
-                quest.RequiredItem3Template?.CreatureLootTemplates.ForEach(creaLootTemplate => {
+                quest.RequiredItem3Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                {
                     if (creaLootTemplate.CreatureTemplate.rank <= 0)
                         quest.AddObjective(new KillLootObjective(quest.RequiredItemCount3, creaLootTemplate, quest.RequiredItem3Template));
                 });
-                quest.RequiredItem4Template?.CreatureLootTemplates.ForEach(creaLootTemplate => {
+                quest.RequiredItem4Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                {
                     if (creaLootTemplate.CreatureTemplate.rank <= 0)
                         quest.AddObjective(new KillLootObjective(quest.RequiredItemCount4, creaLootTemplate, quest.RequiredItem4Template));
                 });
-                quest.RequiredItem5Template?.CreatureLootTemplates.ForEach(creaLootTemplate => {
+                quest.RequiredItem5Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                {
                     if (creaLootTemplate.CreatureTemplate.rank <= 0)
                         quest.AddObjective(new KillLootObjective(quest.RequiredItemCount5, creaLootTemplate, quest.RequiredItem5Template));
                 });
-                quest.RequiredItem6Template?.CreatureLootTemplates.ForEach(creaLootTemplate => {
+                quest.RequiredItem6Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                {
                     if (creaLootTemplate.CreatureTemplate.rank <= 0)
                         quest.AddObjective(new KillLootObjective(quest.RequiredItemCount6, creaLootTemplate, quest.RequiredItem6Template));
                 });
@@ -336,10 +346,10 @@ namespace Wholesome_Auto_Quester.Database {
                     quest.AddObjective(new InteractObjective(quest.RequiredNpcOrGoCount3, quest.RequiredGO3Template, quest.ObjectiveText3));
                 if (quest.RequiredGO4Template != null)
                     quest.AddObjective(new InteractObjective(quest.RequiredNpcOrGoCount4, quest.RequiredGO4Template, quest.ObjectiveText4));
-            }                
-            
+            }
+
             DisposeDb();
-            
+
             List<ModelQuestTemplate> allFilteredQuests = FilterDBQuestsAfterFills(quests);
 
             // Write JSON
@@ -351,7 +361,7 @@ namespace Wholesome_Auto_Quester.Database {
                 //ToolBox.ZipJSONFile();
                 Logger.Log($"Process time (JSON processing) : {stopwatchJSON.ElapsedMilliseconds} ms");
             }
-            
+
             Logger.Log($"DONE! Process time (TOTAL) : {stopwatch.ElapsedMilliseconds} ms");
 
             WAQTasks.AddQuests(allFilteredQuests);
