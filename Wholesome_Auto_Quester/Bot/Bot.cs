@@ -104,7 +104,8 @@ namespace Wholesome_Auto_Quester.Bot
         {
             Logging.Write("Level UP! Reload Fight Class.");
             SpellManager.UpdateSpellBook();
-            CustomClass.ResetCustomClass();
+            if (WholesomeAQSettings.CurrentSetting.RestartFCOnLevelUp)
+                CustomClass.ResetCustomClass();
             DBQueriesWotlk dbWotlk = new DBQueriesWotlk();
             dbWotlk.GetAvailableQuests();
             Talent.DoTalents();

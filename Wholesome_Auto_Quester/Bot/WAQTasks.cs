@@ -532,15 +532,15 @@ namespace Wholesome_Auto_Quester.Bot
         {
             if (task.TaskType == TaskType.KillAndLoot)
             {
-                var unit = (WoWUnit)wowObject;
-                if (!unit.IsAlive && !unit.IsLootable)
+                WoWUnit unit = (WoWUnit)wowObject;
+                if (!unit.IsAlive && !unit.IsLootable || unit.IsTaggedByOther)
                     return false;
             }
 
             if (task.TaskType == TaskType.Kill || task.TaskType == TaskType.Grind)
             {
-                var unit = (WoWUnit)wowObject;
-                if (!unit.IsAlive)
+                WoWUnit unit = (WoWUnit)wowObject;
+                if (!unit.IsAlive || unit.IsTaggedByOther)
                     return false;
             }
 

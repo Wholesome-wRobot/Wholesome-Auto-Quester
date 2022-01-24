@@ -17,13 +17,12 @@ namespace Wholesome_Auto_Quester.States
 
         public override void Run()
         {
-            if (_defendTarget == null) return;
-            var stateName = $"Attacking {_defendTarget?.Name} to defend ourself.";
+            var stateName = $"Defending against {_defendTarget?.Name}";
             DisplayName = stateName;
             Logger.Log(stateName);
             MoveHelper.StopAllMove();
             if (Fight.InFight) Fight.StopFight();
-            Fight.StartFight(_defendTarget.Guid, stopIfPlayerTargetChange: true, skipIfPlayerAttackedButNotByTheTarget: false);
+            Fight.StartFight(_defendTarget.Guid);
             _defendTarget = null;
         }
 

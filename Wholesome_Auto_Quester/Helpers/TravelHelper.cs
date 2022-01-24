@@ -60,11 +60,18 @@ namespace Wholesome_Auto_Quester.Helpers
 
         static readonly Vector3 bayBoreanTundraToStormwind = new Vector3(2231.234, 5135.821, 5.343364, "None");
         static readonly Vector3 insideShipBoreanTundraToStormwind = new Vector3(2232.324, 5114.973, 9.400736, "None");
+        /*
+        static readonly Vector3 bayDustwallowToMenethil = new Vector3(-4000.404, -4724.158, 4.876398, "None");    
+        static readonly Vector3 insideShipDustwallowToMenethil = new Vector3(-4010.497, -4741.962, 6.17096, "None");
 
-        /*static readonly int ShipAzuremystToDarkshoreId = 181646;
+        static readonly Vector3 bayMenethilToDustwallow = new Vector3(-3893.388, -602.8146, 5.425149, "None");
+        static readonly Vector3 insideShipMenethilToDustwallow = new Vector3(-3904.25, -577.7352, 6.059737, "None");
+
+        static readonly int ShipAzuremystToDarkshoreId = 181646;
         static readonly int ShipDarkshoreToDarnassusId = 176244;
         static readonly int ShipDarkshoreToStormwindId = 176310;*/
         static readonly int ShipStormwindToBoreanTundraId = 190536;
+        //static readonly int ShipMenethilToDustwallowId = 176231;
 
 
         // Portals
