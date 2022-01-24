@@ -7,7 +7,14 @@
     x:Class="Wholesome_Auto_Quester.GUI.QuestsTrackerGUI"
     mc:Ignorable="d"
     d:DesignHeight="650" d:DesignWidth="520"
-    VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="#FF252525">
+    VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="#FF252525"
+    SaveWindowPosition="True"
+    MaxWidth="520"
+    MaxHeight="650"
+    MinWidth="520"
+    MinHeight="650"
+    ResizeMode="NoResize"
+    Title="Wholesome Quest Tracker">
 
 
     <mah:MetroWindow.Resources>
@@ -330,7 +337,7 @@
                         Grid.Row="0"
                         FontSize="18"
                         Margin="0,5"/>
-                    <ScrollViewer VerticalScrollBarVisibility="Visible" Height="507" Grid.Row="1">
+                    <ScrollViewer VerticalScrollBarVisibility="Visible" Height="475" Grid.Row="1">
                         <ItemsControl Name="sourceTasksList" 
                              MinHeight="50"
                              HorizontalContentAlignment="Stretch"

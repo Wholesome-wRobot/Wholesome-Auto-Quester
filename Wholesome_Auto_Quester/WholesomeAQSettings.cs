@@ -22,6 +22,8 @@ namespace Wholesome_Auto_Quester
         public bool SmoothMove { get; set; }
         public double LastUpdateDate { get; set; }
         public bool GrindOnly { get; set; }
+        public double QuestTrackerPositionLeft { get; set; }
+        public double QuestTrackerPositionTop { get; set; }
 
         public WholesomeAQSettings()
         {

@@ -36,11 +36,24 @@ namespace Wholesome_Auto_Quester.GUI {
         }
 
         public void ShowWindow() {
-            Dispatcher.BeginInvoke((Action) (() => { Show(); }));
+            Dispatcher.BeginInvoke((Action) (() => 
+            { 
+                Show();
+                if (WholesomeAQSettings.CurrentSetting.QuestTrackerPositionLeft != 0)
+                    Left = WholesomeAQSettings.CurrentSetting.QuestTrackerPositionLeft;
+                if (WholesomeAQSettings.CurrentSetting.QuestTrackerPositionTop != 0)
+                    Top = WholesomeAQSettings.CurrentSetting.QuestTrackerPositionTop;
+            }));
         }
 
         public void HideWindow() {
-            Dispatcher.BeginInvoke((Action) (() => { Hide(); }));
+            Dispatcher.BeginInvoke((Action) (() => 
+            { 
+                Hide();
+                WholesomeAQSettings.CurrentSetting.QuestTrackerPositionLeft = Left;
+                WholesomeAQSettings.CurrentSetting.QuestTrackerPositionTop = Top;
+                WholesomeAQSettings.CurrentSetting.Save();
+            }));
         }
 
         public void UpdateQuestsList() {

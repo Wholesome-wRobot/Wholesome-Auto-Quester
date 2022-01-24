@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
 using Wholesome_Auto_Quester;
 using Wholesome_Auto_Quester.Bot;
@@ -21,13 +20,13 @@ using wManager.Wow.ObjectManager;
 public class Main : IProduct {
     public const string ProductName = "Wholesome Auto Quester";
     public const string FileName = "Wholesome_Auto_Quester";
-    public static readonly QuestsTrackerGUI QuestTrackerGui = new QuestsTrackerGUI();
+    public static QuestsTrackerGUI QuestTrackerGui = new QuestsTrackerGUI();
     private List<StuckCounter> ListStuckCounters = new List<StuckCounter>();
     private ProductSettingsControl _settingsUserControl;
     public static bool RequestImmediateTaskUpdate;
     public static bool RequestImmediateTaskReset;
 
-    public string version = "0.0.29"; // Must match version in Version.txt
+    public string version = "0.0.30"; // Must match version in Version.txt
 
     public bool IsStarted { get; private set; }
 
@@ -35,14 +34,6 @@ public class Main : IProduct {
         try {
             WholesomeAQSettings.Load();
             Logger.Log($"{ProductName} version {version} loaded");
-
-            QuestTrackerGui.MaxWidth = 520;
-            QuestTrackerGui.MaxHeight = 650;
-            QuestTrackerGui.MinWidth = 520;
-            QuestTrackerGui.MinHeight = 650;
-            QuestTrackerGui.ResizeMode = ResizeMode.CanResize;
-            QuestTrackerGui.Title = "Wholesome Quest Tracker";
-            QuestTrackerGui.SaveWindowPosition = true;
         } catch (Exception e) {
             Logging.WriteError("Main > Initialize(): " + e);
         }
@@ -129,9 +120,10 @@ public class Main : IProduct {
                 }
             });
             
-            if (Bot.Pulse()) {                
+            if (Bot.Pulse())
+            {
                 if (WholesomeAQSettings.CurrentSetting.ActivateQuestsGUI)
-                    QuestTrackerGui.ShowWindow();
+                    QuestTrackerGui?.ShowWindow();
                 
                 Radar3D.OnDrawEvent += Radar3DOnDrawEvent;
                 Radar3D.Pulse();
@@ -151,7 +143,8 @@ public class Main : IProduct {
         }
     }
 
-    public void Stop() {
+    public void Stop() 
+    {
         try {
             Lua.RunMacroText("/stopcasting");
             MoveHelper.StopAllMove();
@@ -159,7 +152,7 @@ public class Main : IProduct {
             Radar3D.OnDrawEvent -= Radar3DOnDrawEvent;
             // Radar3D.Stop();
 
-            QuestTrackerGui.HideWindow();
+            QuestTrackerGui?.HideWindow();
 
             //FiniteStateMachineEvents.OnRunState -= SmoothMoveKiller;
             LoggingEvents.OnAddLog -= AddLogHandler;
