@@ -54,7 +54,7 @@ namespace Wholesome_Auto_Quester.States
                         uint unitLevel = unit.Level;
                         if (/*unitLevel < myLevel - 5 || */unitLevel > myLevel + 3)
                             return false;
-                        return unit.IsAttackable && unit.InCombatFlagOnly && (unit.Target == myGuid || petGuid > 0 && unit.Target == petGuid);
+                        return unit.IsAttackable /*&& unit.InCombatFlagOnly*/ && (unit.Target == myGuid || petGuid > 0 && unit.Target == petGuid);
                     })
                     .OrderBy(unit => unit.PositionWithoutType.DistanceTo(myPos));
 

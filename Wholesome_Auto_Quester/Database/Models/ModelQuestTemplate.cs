@@ -199,6 +199,7 @@ namespace Wholesome_Auto_Quester.Database.Models
             {
                 Logger.LogError($"Failed to record objectives for {LogTitle}");
                 AreObjectivesRecorded = true;
+                return;
             }
 
             Logger.Log($"Recording objective indices for {LogTitle} ({_nbAttempsOjectiveRecord})");
@@ -216,7 +217,7 @@ namespace Wholesome_Auto_Quester.Database.Models
                             end
                             return unpack(objectivesTable)");
 
-            GetAllObjectives().ForEach(ob =>
+            foreach (Objective ob in GetAllObjectives())
             {
                 string objectiveToRecord = objectives.FirstOrDefault(o => ob.ObjectiveName != "" && o.StartsWith(ob.ObjectiveName));
                 if (objectiveToRecord != null)
@@ -226,8 +227,9 @@ namespace Wholesome_Auto_Quester.Database.Models
                     Logger.LogError($"Couldn't find matching objective {ob.ObjectiveName} for {LogTitle}");
                     return;
                 }
-            });
+            }
 
+            Logger.Log($"Objectives for {LogTitle} succesfully recorded");
             AreObjectivesRecorded = true;
         }
 
