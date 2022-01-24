@@ -329,6 +329,7 @@
     <Compile Include="Helpers\Enums.cs" />
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Helpers\MoveHelper.cs" />
+    <Compile Include="Helpers\TravelHelper.cs" />
     <Compile Include="States\WAQDefend.cs" />
     <Compile Include="States\WAQExitVehicle.cs" />
     <Compile Include="States\WAQGoTo.cs" />
@@ -338,6 +339,7 @@
     <Compile Include="States\WAQMoveToHotspot.cs" />
     <Compile Include="States\WAQPriorityLoot.cs" />
     <Compile Include="States\WAQPickupQuestFromGameObject.cs" />
+    <Compile Include="States\WAQTravel.cs" />
     <Compile Include="States\WAQTurnInQuestToGameObject.cs" />
     <Compile Include="States\WAQTurnInQuestToNpc.cs" />
     <Compile Include="States\WAQPickupQuestFromNpc.cs" />

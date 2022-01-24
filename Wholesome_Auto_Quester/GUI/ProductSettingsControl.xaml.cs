@@ -18,6 +18,13 @@ namespace Wholesome_Auto_Quester.GUI
             DeltaDetails.Text = GetDeltaDetailsString();
             SmoothMove.IsChecked = WholesomeAQSettings.CurrentSetting.SmoothMove;
             GrindOnly.IsChecked = WholesomeAQSettings.CurrentSetting.GrindOnly;
+            ContinentTravel.IsChecked = WholesomeAQSettings.CurrentSetting.ContinentTravel;
+        }
+
+        private void ContinentTravelChanged(object sender, RoutedEventArgs e)
+        {
+            WholesomeAQSettings.CurrentSetting.ContinentTravel = (bool)ContinentTravel.IsChecked;
+            WholesomeAQSettings.CurrentSetting.Save();
         }
 
         private void GrindOnlyChanged(object sender, RoutedEventArgs e)

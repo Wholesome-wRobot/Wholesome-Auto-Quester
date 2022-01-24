@@ -2,7 +2,6 @@
 using robotManager.FiniteStateMachine;
 using robotManager.Helpful;
 using Wholesome_Auto_Quester.Database;
-using Wholesome_Auto_Quester.Helpers;
 using Wholesome_Auto_Quester.States;
 using wManager.Wow.Bot.States;
 using wManager.Wow.Helpers;
@@ -35,18 +34,19 @@ namespace Wholesome_Auto_Quester.Bot
                 Fsm.AddState(new Resurrect { Priority = 35 });
                 Fsm.AddState(new WAQExitVehicle { Priority = 34 });
                 Fsm.AddState(new MyMacro { Priority = 33 });
-                // Fsm.AddState(new IsAttacked { Priority = 30 });
-                Fsm.AddState(new WAQPriorityLoot { Priority = 32 });
+                Fsm.AddState(new WAQPriorityLoot { Priority = 31 });
                 Fsm.AddState(new WAQDefend { Priority = 30 });
                 Fsm.AddState(new Regeneration { Priority = 29 });
                 Fsm.AddState(new WAQLoot { Priority = 28 });
                 Fsm.AddState(new Looting { Priority = 27 });
                 Fsm.AddState(new FlightMasterTakeTaxiState { Priority = 26 });
-                Fsm.AddState(new Farming { Priority = 25 });
+                //Fsm.AddState(new Farming { Priority = 25 });
 
-                Fsm.AddState(new Trainers { Priority = 22 });
-                Fsm.AddState(new ToTown { Priority = 21 });
-                
+                Fsm.AddState(new Trainers { Priority = 23 });
+                Fsm.AddState(new ToTown { Priority = 22 });
+
+                Fsm.AddState(new WAQTravel { Priority = 21 });
+
                 // WAQ tasks
                 Fsm.AddState(new WAQInteractWorldObject { Priority = 20 });
                 Fsm.AddState(new WAQGoTo { Priority = 19 });

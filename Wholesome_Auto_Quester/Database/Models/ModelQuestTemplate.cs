@@ -216,18 +216,14 @@ namespace Wholesome_Auto_Quester.Database.Models
                             end
                             return unpack(objectivesTable)");
 
-            int nbObjectivesRecorded = 0;
             GetAllObjectives().ForEach(ob =>
             {
-                string objectiveToRecord = objectives.FirstOrDefault(o => o.StartsWith(ob.ObjectiveName));
+                string objectiveToRecord = objectives.FirstOrDefault(o => ob.ObjectiveName != "" && o.StartsWith(ob.ObjectiveName));
                 if (objectiveToRecord != null)
-                {
                     ob.ObjectiveIndex = Array.IndexOf(objectives, objectiveToRecord) + 1;
-                    nbObjectivesRecorded++;
-                }
                 else
                 {
-                    Logger.LogError($"Couldn't find matching objective for {ob.ObjectiveName}");
+                    Logger.LogError($"Couldn't find matching objective {ob.ObjectiveName} for {LogTitle}");
                     return;
                 }
             });

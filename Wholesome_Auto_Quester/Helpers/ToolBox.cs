@@ -821,5 +821,17 @@ namespace Wholesome_Auto_Quester.Helpers {
             Logger.Log($"FAILED");
             return new WAQPath(new List<Vector3>(), 0);
         }
+
+        public static bool PlayerInBloodElfStartingZone()
+        {
+            string zone = Lua.LuaDoString<string>("return GetRealZoneText();");
+            return zone == "Eversong Woods" || zone == "Ghostlands" || zone == "Silvermoon City";
+        }
+
+        public static bool PlayerInDraneiStartingZone()
+        {
+            string zone = Lua.LuaDoString<string>("return GetRealZoneText();");
+            return zone == "Azuremyst Isle" || zone == "Bloodmyst Isle" || zone == "The Exodar";
+        }
     }
 }

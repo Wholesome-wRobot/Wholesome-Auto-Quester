@@ -106,8 +106,8 @@ namespace Wholesome_Auto_Quester.Bot
                         quest.CreatureQuestTurners.ForEach(creatureTemplate => {
                             creatureTemplate.Creatures.ForEach(creature =>
                             {
-                                if (creature.map == myContinent
-                                    && !TasksPile.Exists(t =>
+                                if (/*creature.map == myContinent
+                                    &&*/ !TasksPile.Exists(t =>
                                         t.IsSameTask(TaskType.TurnInQuestToCreature, quest.Id, 5, () => (int)creature.guid)))
                                     generatedQuestTasks.Add(new WAQTask(TaskType.TurnInQuestToCreature, creatureTemplate.name, creatureTemplate.entry,
                                         quest.LogTitle, quest.Id, creature, 5));
@@ -119,8 +119,8 @@ namespace Wholesome_Auto_Quester.Bot
                         quest.GameObjectQuestTurners.ForEach(gameObjectTemplate => {
                             gameObjectTemplate.GameObjects.ForEach(gameObject =>
                             {
-                                if (gameObject.map == myContinent
-                                    && !TasksPile.Exists(t =>
+                                if (/*gameObject.map == myContinent
+                                    && */!TasksPile.Exists(t =>
                                         t.IsSameTask(TaskType.TurnInQuestToGameObject, quest.Id, 5, () => (int)gameObject.guid)))
                                     generatedQuestTasks.Add(new WAQTask(TaskType.TurnInQuestToGameObject, gameObjectTemplate.name, gameObjectTemplate.entry,
                                         quest.LogTitle, quest.Id, gameObject, 5));
@@ -141,8 +141,8 @@ namespace Wholesome_Auto_Quester.Bot
                         quest.CreatureQuestGivers.ForEach(creatureTemplate => {
                             creatureTemplate.Creatures.ForEach(creature =>
                             {
-                                if (creature.map == myContinent
-                                    && !TasksPile.Exists(t =>
+                                if (/*creature.map == myContinent
+                                    && */!TasksPile.Exists(t =>
                                         t.IsSameTask(TaskType.PickupQuestFromCreature, quest.Id, 6, () => (int)creature.guid)))
                                     generatedQuestTasks.Add(new WAQTask(TaskType.PickupQuestFromCreature, creatureTemplate.name, creatureTemplate.entry,
                                         quest.LogTitle, quest.Id, creature, 6));
@@ -154,8 +154,8 @@ namespace Wholesome_Auto_Quester.Bot
                         quest.GameObjectQuestGivers.ForEach(gameObjectTemplate => {
                             gameObjectTemplate.GameObjects.ForEach(gameObject =>
                             {
-                                if (gameObject.map == myContinent
-                                    && !TasksPile.Exists(t =>
+                                if (/*gameObject.map == myContinent
+                                    && */!TasksPile.Exists(t =>
                                         t.IsSameTask(TaskType.PickupQuestFromGameObject, quest.Id, 6, () => (int)gameObject.guid)))
                                     generatedQuestTasks.Add(new WAQTask(TaskType.PickupQuestFromGameObject, gameObjectTemplate.name, gameObjectTemplate.entry,
                                         quest.LogTitle, quest.Id, gameObject, 6));
@@ -181,8 +181,8 @@ namespace Wholesome_Auto_Quester.Bot
                         {
                             needsPrerequisite = true;
                             obje.Creatures.ForEach(creature => {
-                                if (creature.map == myContinent
-                                    && obje.CreatureMaxLevel <= myLevel + 2
+                                if (/*creature.map == myContinent
+                                    && */obje.CreatureMaxLevel <= myLevel + 2
                                     && !TasksPile.Exists(t =>
                                         t.IsSameTask(TaskType.KillAndLoot, quest.Id,
                                             obje.ObjectiveIndex, () => (int)creature.guid)))
@@ -205,8 +205,8 @@ namespace Wholesome_Auto_Quester.Bot
                             {
                                 needsPrerequisite = true;
                                 got.GameObjects.ForEach(gameObject => {
-                                    if (gameObject.map == myContinent
-                                        && !TasksPile.Exists(t =>
+                                    if (/*gameObject.map == myContinent
+                                        && */!TasksPile.Exists(t =>
                                             t.IsSameTask(TaskType.GatherGameObject, quest.Id,
                                                 obje.ObjectiveIndex, () => (int)gameObject.guid)))
                                         generatedQuestTasks.Add(new WAQTask(TaskType.GatherGameObject, got.GameObjectName, got.GameObjectEntry,
@@ -226,8 +226,8 @@ namespace Wholesome_Auto_Quester.Bot
                         foreach (ExplorationObjective obje in quest.ExplorationObjectives)
                             if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, quest.Id))
                             {
-                                if (obje.Area.ContinentId == myContinent
-                                    && !TasksPile.Exists(t =>
+                                if (/*obje.Area.ContinentId == myContinent
+                                    && */!TasksPile.Exists(t =>
                                         t.IsSameTask(TaskType.Explore, quest.Id,
                                             obje.ObjectiveIndex)))
                                     generatedQuestTasks.Add(new WAQTask(TaskType.Explore, quest.LogTitle, quest.Id, obje.Area, obje.ObjectiveIndex));
@@ -244,8 +244,8 @@ namespace Wholesome_Auto_Quester.Bot
                         {
                             if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, quest.Id))
                                 obje.Creatures.ForEach(creature => {
-                                    if (creature.map == myContinent
-                                        && obje.CreatureMaxLevel <= myLevel + 2
+                                    if (/*creature.map == myContinent
+                                        && */obje.CreatureMaxLevel <= myLevel + 2
                                         && !TasksPile.Exists(t =>
                                             t.IsSameTask(TaskType.KillAndLoot, quest.Id,
                                                 obje.ObjectiveIndex, () => (int)creature.guid)))
@@ -262,8 +262,8 @@ namespace Wholesome_Auto_Quester.Bot
                         foreach (KillObjective obje in quest.KillObjectives)
                             if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, quest.Id))
                                 obje.Creatures.ForEach(creature => {
-                                    if (creature.map == myContinent
-                                        && obje.CreatureMaxLevel <= myLevel + 2
+                                    if (/*creature.map == myContinent
+                                        && */obje.CreatureMaxLevel <= myLevel + 2
                                         && !TasksPile.Exists(t =>
                                             t.IsSameTask(TaskType.Kill, quest.Id,
                                                 obje.ObjectiveIndex, () => (int)creature.guid)))
@@ -282,8 +282,8 @@ namespace Wholesome_Auto_Quester.Bot
                             {
                                 if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, quest.Id))
                                     got.GameObjects.ForEach(gameObject => {
-                                        if (gameObject.map == myContinent
-                                            && !TasksPile.Exists(t =>
+                                        if (/*gameObject.map == myContinent
+                                            && */!TasksPile.Exists(t =>
                                                 t.IsSameTask(TaskType.GatherGameObject, quest.Id,
                                                     obje.ObjectiveIndex, () => (int)gameObject.guid)))
                                             generatedQuestTasks.Add(new WAQTask(TaskType.GatherGameObject, got.GameObjectName, got.GameObjectEntry,
@@ -300,8 +300,8 @@ namespace Wholesome_Auto_Quester.Bot
                         foreach (InteractObjective obje in quest.InteractObjectives)
                             if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, quest.Id))
                                 obje.GameObjects.ForEach(gameObject => {
-                                    if (gameObject.map == myContinent
-                                        && !TasksPile.Exists(t =>
+                                    if (/*gameObject.map == myContinent
+                                        && */!TasksPile.Exists(t =>
                                             t.IsSameTask(TaskType.InteractWithWorldObject, quest.Id,
                                                 obje.ObjectiveIndex, () => (int)gameObject.guid)))
                                         generatedQuestTasks.Add(new WAQTask(TaskType.InteractWithWorldObject, obje.GameObjectName, obje.GameObjectEntry,
@@ -317,9 +317,9 @@ namespace Wholesome_Auto_Quester.Bot
 
             TasksPile.AddRange(generatedQuestTasks);
 
-            /*if (TasksPile.Count <= 0 || !TasksPile.Exists(t => !t.IsTimedOut))
-                return;*/
-            
+            if (!WholesomeAQSettings.CurrentSetting.ContinentTravel)
+                TasksPile.RemoveAll(t => !t.IsOnMyContinent);
+
             WAQTask.UpdatePriorityData();
             TasksPile = TasksPile.Where(task => !wManagerSetting.IsBlackListedZone(task.Location))
                 .OrderBy(t => t.Priority).ToList();
@@ -344,6 +344,12 @@ namespace Wholesome_Auto_Quester.Bot
                     ct.Creatures.ForEach(c =>
                         TasksPile.Add(new WAQTask(TaskType.Grind, ct.name, ct.entry, c)));
                 });
+                return;
+            }
+
+            if (!closestTask.IsOnMyContinent)
+            {
+                TaskInProgress = closestTask;
                 return;
             }
 

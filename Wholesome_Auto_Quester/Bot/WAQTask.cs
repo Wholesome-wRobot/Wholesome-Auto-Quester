@@ -171,7 +171,7 @@ namespace Wholesome_Auto_Quester.Bot {
             }
 
             if (Continent != Usefuls.ContinentId)
-                taskDistance += 10000;
+                taskDistance += 1000000;
 
             return (int)taskDistance;
         }
@@ -200,5 +200,7 @@ namespace Wholesome_Auto_Quester.Bot {
 
             return "Beige";
         }
+
+        public bool IsOnMyContinent => Continent == Usefuls.ContinentId;
     }
 }

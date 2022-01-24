@@ -23,7 +23,7 @@ namespace Wholesome_Auto_Quester.States
 
                 stateTimer = new Timer(3000);
 
-                if (ObjectManager.Me.PlayerUsingVehicle)
+                if (!ObjectManager.Me.IsOnTaxi && ObjectManager.Me.PlayerUsingVehicle)
                 {
                     DisplayName = $"Exit vehicle [SmoothMove - Q]";
                     return true;

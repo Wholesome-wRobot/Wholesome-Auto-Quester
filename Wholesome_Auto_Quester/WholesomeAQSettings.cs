@@ -24,6 +24,7 @@ namespace Wholesome_Auto_Quester
         public bool GrindOnly { get; set; }
         public double QuestTrackerPositionLeft { get; set; }
         public double QuestTrackerPositionTop { get; set; }
+        public bool ContinentTravel { get; set; }
 
         public WholesomeAQSettings()
         {
@@ -37,6 +38,7 @@ namespace Wholesome_Auto_Quester
             LastUpdateDate = 0;
             BlacklistesQuests = new List<int>();
             GrindOnly = false;
+            ContinentTravel = false;
         }
 
         public bool Save()
