@@ -1,8 +1,8 @@
 ﻿using robotManager.Helpful;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using Wholesome_Auto_Quester.Database;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Database.Objectives;
@@ -13,7 +13,8 @@ using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 using static wManager.Wow.Helpers.Quest.PlayerQuest;
 
-namespace Wholesome_Auto_Quester.Bot {
+namespace Wholesome_Auto_Quester.Bot
+{
     public class WAQTasks {
         private static int _tick;
         public static List<WAQTask> TasksPile { get; set; } = new List<WAQTask>();
@@ -349,10 +350,13 @@ namespace Wholesome_Auto_Quester.Bot {
             // Check if pathing distance of first entries is not too far (big detour)
             var watchTaskLong = Stopwatch.StartNew();
             WAQPath pathToClosestTask = ToolBox.GetWAQPath(myPosition, closestTask.Location);
-
+            /*
+            if (!pathToClosestTask.IsReachable)
+                pathToClosestTask = ToolBox.AdjustPathToTask(closestTask);
+            */
             if (!pathToClosestTask.IsReachable)
             {
-                closestTask.PutTaskOnTimeout(600, "Unreachable (1)");
+                closestTask.PutTaskOnTimeout(600, "Unreachable (1)", true);
                 BlacklistHelper.AddZone(closestTask.Location, 5, "Unreachable (1)");
                 Main.RequestImmediateTaskReset = true;
                 return;
@@ -369,9 +373,13 @@ namespace Wholesome_Auto_Quester.Bot {
                     if (!TasksPile[i].IsTimedOut)
                     {
                         WAQPath pathToNewTask = ToolBox.GetWAQPath(myPosition, TasksPile[i].Location);
+                        /*
+                        if (!pathToNewTask.IsReachable)
+                            pathToNewTask = ToolBox.AdjustPathToTask(TasksPile[i]);
+                        */
                         if (!pathToNewTask.IsReachable)
                         {
-                            TasksPile[i].PutTaskOnTimeout(600, "Unreachable (2)");
+                            TasksPile[i].PutTaskOnTimeout(600, "Unreachable (2)", true);
                             BlacklistHelper.AddZone(closestTask.Location, 5, "Unreachable (2)");
                             continue;
                         }
@@ -438,10 +446,13 @@ namespace Wholesome_Auto_Quester.Bot {
                 WoWObject closestObject = filteredSurroundingObjects[0];
                 WAQPath pathToClosestObject = ToolBox.GetWAQPath(myPosition, closestObject.Position);
                 //Logger.Log(closestObject.Name + " " + closestObject.Guid + " " + pathToClosestObject.IsReachable.ToString() + " " + pathToClosestObject.Distance);
-
+                /*
+                if (!pathToClosestObject.IsReachable)
+                    pathToClosestObject = ToolBox.AdjustPathToObject(closestObject);
+                */
                 if (!pathToClosestObject.IsReachable)
                 {
-                    BlacklistHelper.AddNPC(closestObject.Guid, "Unreachable");
+                    BlacklistHelper.AddNPC(closestObject.Guid, "Unreachable (3)");
                     Main.RequestImmediateTaskReset = true;
                     return;
                 }
@@ -452,11 +463,14 @@ namespace Wholesome_Auto_Quester.Bot {
                     for (int i = 1; i < nbObject - 1; i++)
                     {
                         WAQPath pathToNewObject = ToolBox.GetWAQPath(myPosition, filteredSurroundingObjects[i].Position);
-
+                        /*
+                        if (!pathToNewObject.IsReachable)
+                            pathToNewObject = ToolBox.AdjustPathToObject(filteredSurroundingObjects[i]);
+                        */
                         if (!pathToNewObject.IsReachable)
                         {
                             Logger.Log($"Blacklisting {filteredSurroundingObjects[i].Name} {filteredSurroundingObjects[i].Guid} because it's unreachable");
-                            BlacklistHelper.AddNPC(filteredSurroundingObjects[i].Guid, "Unreachable");
+                            BlacklistHelper.AddNPC(filteredSurroundingObjects[i].Guid, "Unreachable (4)");
                             break;
                         }
 

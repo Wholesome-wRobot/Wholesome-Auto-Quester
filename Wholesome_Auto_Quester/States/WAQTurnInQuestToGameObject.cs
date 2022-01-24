@@ -64,7 +64,7 @@ namespace Wholesome_Auto_Quester.States
                         WAQTasks.MarQuestAsCompleted(task.QuestId);
                 }
                 else
-                    task.PutTaskOnTimeout("Failed PickUp Gossip");
+                    task.PutTaskOnTimeout("Failed PickUp Gossip", true);
             }
         }
     }

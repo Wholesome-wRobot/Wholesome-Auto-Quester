@@ -53,7 +53,7 @@ namespace Wholesome_Auto_Quester.States {
                 Usefuls.WaitIsCasting();
                 Thread.Sleep(500);
                 if (!ToolBox.IsNpcFrameActive())
-                    task.PutTaskOnTimeout($"Couldn't open quest frame");
+                    task.PutTaskOnTimeout($"Couldn't open quest frame", true);
             } 
             else 
             {
@@ -63,7 +63,7 @@ namespace Wholesome_Auto_Quester.States {
                     Thread.Sleep(1000);
                 }
                 else
-                    task.PutTaskOnTimeout("Failed pickup gossip");
+                    task.PutTaskOnTimeout("Failed pickup gossip", true);
             }
         }
     }

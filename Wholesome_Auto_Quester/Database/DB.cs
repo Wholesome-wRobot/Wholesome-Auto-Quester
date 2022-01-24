@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using Dapper;
 using robotManager.Helpful;
+using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.ObjectManager;
@@ -336,7 +337,11 @@ namespace Wholesome_Auto_Quester.Database
         public List<ModelQuestTemplate> QueryQuests()
         {
             if (WholesomeAQSettings.CurrentSetting.GrindOnly)
+            {
+                WAQTasks.Quests.Clear();
+                WAQTasks.TasksPile.Clear();
                 return new List<ModelQuestTemplate>();
+            }
 
             Stopwatch stopwatch = Stopwatch.StartNew();
             int levelDeltaMinus = System.Math.Max((int)ObjectManager.Me.Level - WholesomeAQSettings.CurrentSetting.LevelDeltaMinus, 1);

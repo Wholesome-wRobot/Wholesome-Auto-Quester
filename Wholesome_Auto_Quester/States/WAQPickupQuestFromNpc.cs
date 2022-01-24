@@ -54,7 +54,7 @@ namespace Wholesome_Auto_Quester.States {
                 Interact.InteractGameObject(pickUpTarget.GetBaseAddress);
                 Thread.Sleep(500);
                 if (!ToolBox.IsNpcFrameActive())
-                    task.PutTaskOnTimeout($"Couldn't open quest frame");
+                    task.PutTaskOnTimeout($"Couldn't open quest frame", true);
             }
             else 
             {
@@ -64,7 +64,7 @@ namespace Wholesome_Auto_Quester.States {
                     Thread.Sleep(1000);
                 }
                 else
-                    task.PutTaskOnTimeout("Failed PickUp Gossip");
+                    task.PutTaskOnTimeout("Failed PickUp Gossip", true);
             }
         }
     }

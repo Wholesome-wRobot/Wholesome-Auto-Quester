@@ -776,5 +776,50 @@ namespace Wholesome_Auto_Quester.Helpers {
             	            closeButton:Click();
                         end");
         }
+
+        public static WAQPath AdjustPathToTask(WAQTask task)
+        {
+            Random rand = new Random();
+            Vector3 location = task.Location;
+            for (int i = 0; i < 10; i++)
+            {
+                Vector3 newdest = new Vector3(
+                    location.X + rand.NextDouble() * 4 - 2,
+                    location.Y + rand.NextDouble() * 4 - 2,
+                    location.Z + rand.NextDouble() * 4 - 2);
+                WAQPath newPath = GetWAQPath(ObjectManager.Me.Position, newdest);
+                Logger.Log($"Trying to adjust path for {task.TaskName} {i}");
+                if (newPath.IsReachable)
+                {
+                    Logger.Log($"FOUND");
+                    task.Location = newdest;
+                    return newPath;
+                }
+            }
+            Logger.Log($"FAILED");
+            return new WAQPath(new List<Vector3>(), 0);
+        }
+
+        public static WAQPath AdjustPathToObject(WoWObject wObject)
+        {
+            Random rand = new Random();
+            Vector3 location = wObject.Position;
+            for (int i = 0; i < 10; i++)
+            {
+                Vector3 newdest = new Vector3(
+                    location.X + rand.NextDouble() * 4 - 2,
+                    location.Y + rand.NextDouble() * 4 - 2,
+                    location.Z + rand.NextDouble() * 4 - 2);
+                WAQPath newPath = GetWAQPath(ObjectManager.Me.Position, newdest);
+                Logger.Log($"Trying to adjust path for {wObject.Name} {i}");
+                if (newPath.IsReachable)
+                {
+                    Logger.Log($"FOUND");
+                    return newPath;
+                }
+            }
+            Logger.Log($"FAILED");
+            return new WAQPath(new List<Vector3>(), 0);
+        }
     }
 }

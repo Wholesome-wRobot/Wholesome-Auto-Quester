@@ -27,7 +27,7 @@ public class Main : IProduct {
     public static bool RequestImmediateTaskUpdate;
     public static bool RequestImmediateTaskReset;
 
-    public string version = "0.0.27"; // Must match version in Version.txt
+    public string version = "0.0.28"; // Must match version in Version.txt
 
     public bool IsStarted { get; private set; }
 
@@ -231,7 +231,6 @@ public class Main : IProduct {
     private void PlayerDeadHandler(object context)
     {
         BlacklistHelper.AddZone(ObjectManager.Me.Position, 20, "Death");
-        //wManagerSetting.AddBlackListZone(ObjectManager.Me.Position, 20, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
     }
 
     private void SeemStuckHandler()
@@ -309,14 +308,14 @@ public class StuckCounter
                 Fight.StopFight();
                 BlacklistHelper.AddNPC(WowObject.Guid, $"Stuck {maxCOunt} times trying to reach");
                 BlacklistHelper.AddZone(WowObject.Position, 5, $"Stuck {maxCOunt} times trying to reach");
-                Task.PutTaskOnTimeout(15 * 60, $"Stuck {Count} times");
+                Task.PutTaskOnTimeout(15 * 60, $"Stuck {Count} times", true);
                 return;
             }
             if (Task != null)
             {
                 Fight.StopFight();
                 BlacklistHelper.AddZone(Task.Location, 5, $"Stuck {maxCOunt} times trying to reach");
-                Task.PutTaskOnTimeout(15 * 60, $"Stuck {Count} times");
+                Task.PutTaskOnTimeout(15 * 60, $"Stuck {Count} times", true);
             }
             Main.RequestImmediateTaskReset = true;
         }
