@@ -79,7 +79,7 @@
                     Text="Level Delta Minus :" 
                     FontSize="13"  />
         <mah:NumericUpDown  Grid.Row="5" 
-                    Minimum="0"
+                    Minimum="-100"
                     Grid.Column="1"  
                     Margin="10,10,0,10"
                     HorizontalAlignment="Left"
@@ -95,7 +95,7 @@
                     Text="Level Delta Plus :" 
                     FontSize="13"  />
         <mah:NumericUpDown  Grid.Row="6" 
-                    Minimum="0"
+                    Minimum="-100"
                     Grid.Column="1"  
                     Margin="10,10,0,10"
                     HorizontalAlignment="Left"

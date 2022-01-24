@@ -2,6 +2,7 @@
 using System;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
+using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.Bot {
@@ -12,7 +13,7 @@ namespace Wholesome_Auto_Quester.Bot {
         public ModelCreature Creature { get; }
 
         public Vector3 Location { get; set; }
-        public int Map { get; }
+        public int Continent { get; }
         public uint ObjectDBGuid { get; }
         public int ObjectiveIndex { get; }
         public int TargetEntry { get; }
@@ -33,7 +34,7 @@ namespace Wholesome_Auto_Quester.Bot {
         {
             TaskType = taskType;
             Creature = creature;
-            Map = creature.map;
+            Continent = creature.map;
             Location = creature.GetSpawnPosition;
             ObjectDBGuid = creature.guid;
             QuestId = questId;
@@ -57,7 +58,7 @@ namespace Wholesome_Auto_Quester.Bot {
         {
             TaskType = taskType;
             Creature = creature;
-            Map = creature.map;
+            Continent = creature.map;
             Location = creature.GetSpawnPosition;
             ObjectDBGuid = creature.guid;
             TargetEntry = creatureEntry;
@@ -71,7 +72,7 @@ namespace Wholesome_Auto_Quester.Bot {
         {
             TaskType = taskType;
             GameObject = gameObject;
-            Map = gameObject.map;
+            Continent = gameObject.map;
             Location = gameObject.GetSpawnPosition;
             ObjectDBGuid = gameObject.guid;
             QuestId = questId;
@@ -98,7 +99,7 @@ namespace Wholesome_Auto_Quester.Bot {
             Area = modelArea;
             Location = modelArea.GetPosition;
             ObjectiveIndex = objectiveIndex;
-            Map = modelArea.ContinentId;
+            Continent = modelArea.ContinentId;
             QuestTitle = questTitle;
             QuestId = questId;
 
@@ -159,15 +160,18 @@ namespace Wholesome_Auto_Quester.Bot {
             ModelQuestTemplate quest = WAQTasks.Quests.Find(q => q.Id == QuestId);
             if (taskDistance > 0) // path found
             {
-                if (TaskType == TaskType.PickupQuestFromCreature || TaskType == TaskType.PickupQuestFromGameObject) 
-                    taskDistance *= 1 + (float)System.Math.Sqrt(WAQTasks.NbQuestsInProgress);
-                if (TaskType == TaskType.TurnInQuestToCreature || TaskType == TaskType.TurnInQuestToGameObject) 
-                    taskDistance /= (float)System.Math.Sqrt(WAQTasks.NbQuestsToTurnIn);
+                if (TaskType == TaskType.PickupQuestFromCreature || TaskType == TaskType.PickupQuestFromGameObject)
+                    taskDistance *= System.Math.Max(1.0f, WAQTasks.NbQuestsInProgress << 1);
+                if (TaskType == TaskType.TurnInQuestToCreature || TaskType == TaskType.TurnInQuestToGameObject)
+                    taskDistance /= WAQTasks.NbQuestsToTurnIn << 1;
                 if (quest.QuestAddon?.AllowableClasses > 0) 
                     taskDistance /= 5;
                 if (quest.TimeAllowed > 0 && TaskType != TaskType.PickupQuestFromCreature && TaskType != TaskType.PickupQuestFromGameObject) 
                     taskDistance /= 100;                
             }
+
+            if (Continent != Usefuls.ContinentId)
+                taskDistance += 10000;
 
             return (int)taskDistance;
         }
@@ -175,9 +179,24 @@ namespace Wholesome_Auto_Quester.Bot {
         private string GetTrackerColor() {
             if (IsTimedOut)
                 return "Gray";
-
             if (WAQTasks.TaskInProgress == this)
                 return "Gold";
+            if (TaskType == TaskType.Explore)
+                return "Linen";
+            if (TaskType == TaskType.GatherGameObject)
+                return "Cyan";
+            if (TaskType == TaskType.Grind)
+                return "PaleGreen";
+            if (TaskType == TaskType.InteractWithWorldObject)
+                return "Aqua";
+            if (TaskType == TaskType.Kill)
+                return "OrangeRed";
+            if (TaskType == TaskType.KillAndLoot)
+                return "Orange";
+            if (TaskType == TaskType.PickupQuestFromCreature || TaskType == TaskType.PickupQuestFromGameObject)
+                return "DodgerBlue";
+            if (TaskType == TaskType.TurnInQuestToCreature || TaskType == TaskType.TurnInQuestToGameObject)
+                return "Lime";
 
             return "Beige";
         }

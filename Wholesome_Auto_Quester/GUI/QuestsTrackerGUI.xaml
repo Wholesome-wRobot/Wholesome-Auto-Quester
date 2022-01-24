@@ -330,29 +330,32 @@
                         Grid.Row="0"
                         FontSize="18"
                         Margin="0,5"/>
-
-                    <ListBox Name="sourceTasksList" 
+                    <ScrollViewer VerticalScrollBarVisibility="Visible" Height="507" Grid.Row="1">
+                        <ItemsControl Name="sourceTasksList" 
+                             MinHeight="50"
                              HorizontalContentAlignment="Stretch"
-                             Height="475"
+                             VerticalAlignment="Top"
+                             Height="Auto"
                              Grid.Row="1">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding Priority}"
-                                           Foreground="{Binding TrackerColor}"
-                                           HorizontalAlignment="Left"
-                                           Margin="0,0,10,0"
-                                           Grid.Column="0"
-                                           TextWrapping="Wrap"/>                                  
-                                    <TextBlock Text="{Binding TaskName}"
-                                           Foreground="{Binding TrackerColor}"
-                                           HorizontalAlignment="Left"
-                                           Grid.Column="1"
-                                           TextWrapping="Wrap"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Priority}"
+                                               Foreground="{Binding TrackerColor}"
+                                               HorizontalAlignment="Left"
+                                               Margin="0,0,10,0"
+                                               Grid.Column="0"
+                                               TextWrapping="Wrap"/>                                  
+                                        <TextBlock Text="{Binding TaskName}"
+                                               Foreground="{Binding TrackerColor}"
+                                               HorizontalAlignment="Left"
+                                               Grid.Column="1"
+                                               TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
 
                 </Grid>
             </TabItem>

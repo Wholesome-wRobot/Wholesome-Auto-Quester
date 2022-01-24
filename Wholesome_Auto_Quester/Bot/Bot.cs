@@ -33,9 +33,10 @@ namespace Wholesome_Auto_Quester.Bot
                 Fsm.AddState(new Relogger { Priority = 200 });
                 Fsm.AddState(new Pause { Priority = 36 });
                 Fsm.AddState(new Resurrect { Priority = 35 });
-                Fsm.AddState(new MyMacro { Priority = 34 });
+                Fsm.AddState(new WAQExitVehicle { Priority = 34 });
+                Fsm.AddState(new MyMacro { Priority = 33 });
                 // Fsm.AddState(new IsAttacked { Priority = 30 });
-                Fsm.AddState(new WAQPriorityLoot { Priority = 33 });
+                Fsm.AddState(new WAQPriorityLoot { Priority = 32 });
                 Fsm.AddState(new WAQDefend { Priority = 30 });
                 Fsm.AddState(new Regeneration { Priority = 29 });
                 Fsm.AddState(new WAQLoot { Priority = 28 });

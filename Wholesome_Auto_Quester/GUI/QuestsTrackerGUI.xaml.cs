@@ -69,11 +69,11 @@ namespace Wholesome_Auto_Quester.GUI {
 
         public void UpdateTasksList() {            
             Dispatcher.BeginInvoke((Action) (() => {
-                object selectedTask = sourceTasksList.SelectedItem;
+                //object selectedTask = sourceTasksList.SelectedItem;
                 sourceTasksList.ItemsSource = null;
                 sourceTasksList.ItemsSource = WAQTasks.TasksPile;
-                if (selectedTask != null && sourceTasksList.Items.Contains(selectedTask))
-                    sourceTasksList.SelectedItem = selectedTask;
+                /*if (selectedTask != null && sourceTasksList.Items.Contains(selectedTask))
+                    sourceTasksList.SelectedItem = selectedTask;*/
                 tasksTitleTop.Text = $"Current Tasks ({WAQTasks.TasksPile.Count})";
             }));
         }

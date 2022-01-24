@@ -330,6 +330,7 @@
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Helpers\MoveHelper.cs" />
     <Compile Include="States\WAQDefend.cs" />
+    <Compile Include="States\WAQExitVehicle.cs" />
     <Compile Include="States\WAQGoTo.cs" />
     <Compile Include="States\WAQInteractWorldObject.cs" />
     <Compile Include="States\WAQGrind.cs" />
