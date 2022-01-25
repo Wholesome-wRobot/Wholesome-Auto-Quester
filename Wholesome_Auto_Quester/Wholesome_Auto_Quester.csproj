@@ -98,9 +98,6 @@
       <HintPath>..\Dependencies\robotManager.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="SmoothMove">
-      <HintPath>..\Dependencies\SmoothMove.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.AppContext, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.AppContext.4.3.0\lib\net463\System.AppContext.dll</HintPath>
@@ -312,6 +309,7 @@
     <Compile Include="Database\Models\ModelQuestTemplate.cs" />
     <Compile Include="Database\Models\ModelSpell.cs" />
     <Compile Include="Database\Models\ModelWayPointData.cs" />
+    <Compile Include="Database\Models\ModelWorldMapArea.cs" />
     <Compile Include="Database\Objectives\ExplorationObjective.cs" />
     <Compile Include="Database\Objectives\GatherObjective.cs" />
     <Compile Include="Database\Objectives\InteractObjective.cs" />

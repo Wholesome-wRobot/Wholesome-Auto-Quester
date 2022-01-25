@@ -399,6 +399,15 @@ namespace Wholesome_Auto_Quester.Database
             return result;
         }
 
+        public List<ModelWorldMapArea> QueryWorldMapAreas()
+        {
+            string queryWMap = $@"
+                    SELECT *
+                    FROM world_map_area
+                ";
+            return _con.Query<ModelWorldMapArea>(queryWMap).ToList();
+        }
+
         public List<int> QueryQuestIdsByExclusiveGroup(int exclusiveGroup)
         {
             if (exclusiveGroup == 0) return new List<int>();
