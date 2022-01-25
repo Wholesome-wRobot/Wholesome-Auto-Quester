@@ -20,8 +20,8 @@ namespace Wholesome_Auto_Quester.States
             var stateName = $"Defending against {_defendTarget?.Name}";
             DisplayName = stateName;
             Logger.Log(stateName);
-            MoveHelper.StopAllMove();
             if (Fight.InFight) Fight.StopFight();
+            MoveHelper.StopAllMove(true);
             Fight.StartFight(_defendTarget.Guid);
             _defendTarget = null;
         }

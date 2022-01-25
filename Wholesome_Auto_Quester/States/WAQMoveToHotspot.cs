@@ -2,6 +2,7 @@
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Helpers;
 using wManager;
+using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
@@ -49,7 +50,7 @@ namespace Wholesome_Auto_Quester.States
             }
 
             if (task.Location.DistanceTo(ObjectManager.Me.Position) > 19)
-                MoveHelper.StartGoToThread(task.Location, $"Traveling to hotspot for {task.QuestTitle} ({task.TaskType})");
+                MoveHelper.StartGoToThread(task.Location, $"Moving to hotspot for {task.QuestTitle} ({task.TaskType})");
 
             /*
             if (MoveHelper.CurrentMovementTarget != task.Location)

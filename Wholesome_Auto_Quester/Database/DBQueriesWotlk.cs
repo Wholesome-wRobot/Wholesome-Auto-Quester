@@ -90,15 +90,16 @@ namespace Wholesome_Auto_Quester.Database
                     continue;
                 }
 
-                if (q.StartItemTemplate?.Spell1 != null
-                    || q.StartItemTemplate?.Spell2 != null
-                    || q.StartItemTemplate?.Spell3 != null
-                    || q.StartItemTemplate?.Spell4 != null
-                    || q.StartItemTemplate != null && (q.StartItemTemplate?.Flags & 64) != 0) // flag PLAYER_CAST
+                if (q.StartItemTemplate != null && q.StartItemTemplate.HasASpellAttached
+                    || q.ItemDrop1Template != null && q.ItemDrop1Template.HasASpellAttached
+                    || q.ItemDrop2Template != null && q.ItemDrop2Template.HasASpellAttached
+                    || q.ItemDrop3Template != null && q.ItemDrop3Template.HasASpellAttached
+                    || q.ItemDrop4Template != null && q.ItemDrop4Template.HasASpellAttached)
                 {
-                    //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Active item)");
+                    //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Active start/prerequisite item)");
                     continue;
                 }
+
                 if (q.KillLootObjectives.Any(klo => klo.ItemSpell1 != null)
                     || q.KillLootObjectives.Any(klo => klo.ItemSpell2 != null)
                     || q.KillLootObjectives.Any(klo => klo.ItemSpell3 != null)

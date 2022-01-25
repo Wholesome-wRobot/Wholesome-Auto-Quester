@@ -112,7 +112,7 @@ namespace Wholesome_Auto_Quester.Bot
             if (!IsTimedOut)
             {
                 int timeInSeconds = Creature?.spawnTimeSecs ?? GameObject.spawntimesecs;
-                if (timeInSeconds < 30) timeInSeconds = 120;
+                if (timeInSeconds < 30) timeInSeconds = 60 * 5;
                 Logger.Log($"Putting task {TaskName} on time out for {timeInSeconds * _timeoutMultiplicator} seconds. Reason: {reason}");
                 _timeOutTimer = new Timer(timeInSeconds * 1000 * _timeoutMultiplicator);
                 if (exponentiallyLonger)

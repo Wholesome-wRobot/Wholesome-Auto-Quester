@@ -2,6 +2,7 @@
 using robotManager.Helpful;
 using System;
 using Wholesome_Auto_Quester.Database;
+using Wholesome_Auto_Quester.Helpers;
 using Wholesome_Auto_Quester.States;
 using wManager.Wow.Bot.States;
 using wManager.Wow.Helpers;
@@ -92,7 +93,7 @@ namespace Wholesome_Auto_Quester.Bot
                 CustomClass.DisposeCustomClass();
                 Fsm.StopEngine();
                 Fight.StopFight();
-                MovementManager.StopMove();
+                MoveHelper.StopAllMove();
             }
             catch (Exception e)
             {

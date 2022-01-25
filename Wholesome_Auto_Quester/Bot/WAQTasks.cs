@@ -533,17 +533,27 @@ namespace Wholesome_Auto_Quester.Bot
             if (task.TaskType == TaskType.KillAndLoot)
             {
                 WoWUnit unit = (WoWUnit)wowObject;
-                if (!unit.IsAlive && !unit.IsLootable || unit.IsTaggedByOther)
+                if (!unit.IsAlive && !unit.IsLootable || unit.IsTaggedByOther || !unit.IsAttackable)
                     return false;
             }
 
             if (task.TaskType == TaskType.Kill || task.TaskType == TaskType.Grind)
             {
                 WoWUnit unit = (WoWUnit)wowObject;
-                if (!unit.IsAlive || unit.IsTaggedByOther)
+                if (!unit.IsAlive || unit.IsTaggedByOther || !unit.IsAttackable)
                     return false;
             }
-
+            /*
+            if (task.TaskType == TaskType.GatherGameObject 
+                || task.TaskType == TaskType.InteractWithWorldObject
+                || task.TaskType == TaskType.PickupQuestFromGameObject 
+                || task.TaskType == TaskType.TurnInQuestToGameObject)
+            {
+                WoWGameObject obj = (WoWGameObject)wowObject;
+                if (obj.GOType == WoWGameObjectType.Chest && !obj.CanOpen)
+                    return false;
+            }
+            */
             return true;
         }
 

@@ -191,6 +191,7 @@ namespace Wholesome_Auto_Quester.Database
                     c.CreatureAddon = QueryCreaturesAddonsByGuid(c.guid);
                     if (withWayPoints && c.CreatureAddon?.WayPoints?.Count > 0)
                     {
+                        c.CreatureAddon.WayPoints.Reverse();
                         c.CreatureAddon.WayPoints.RemoveAll(cToRemove => c.CreatureAddon.WayPoints.IndexOf(cToRemove) % 2 != 0);
                         c.CreatureAddon.WayPoints.ForEach(wp =>
                             creaturesToAddWP.Add(new ModelCreature(wp.position_x, wp.position_y, wp.position_z, c.guid, c.map, c.spawnTimeSecs)));

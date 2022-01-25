@@ -177,6 +177,12 @@ namespace Wholesome_Auto_Quester.Database.Models
             }
             return result;
         }
+
+        public bool HasASpellAttached => Spell1 != null
+            || Spell2 != null
+            || Spell3 != null
+            || Spell4 != null
+            || (Flags & 64) != 0; // PLAYER_CAST
     }
 }
 
