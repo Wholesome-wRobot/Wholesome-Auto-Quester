@@ -52,7 +52,7 @@ namespace Wholesome_Auto_Quester.States
             }
 
             Logger.Log($"Interacting with {interactObject.Name}");
-            MoveHelper.StopAllMove();
+            MoveHelper.StopAllMove(true);
             Interact.InteractGameObject(interactObject.GetBaseAddress);
             Usefuls.WaitIsCastingAndLooting();
             Thread.Sleep(200);

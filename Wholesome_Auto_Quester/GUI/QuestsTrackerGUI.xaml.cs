@@ -27,7 +27,7 @@ namespace Wholesome_Auto_Quester.GUI
             if (sourceQuestsList.SelectedItem != null)
             {
                 ModelQuestTemplate selected = (ModelQuestTemplate)sourceQuestsList.SelectedItem;
-                BlacklistHelper.AddQuestToBlackList(selected.Id);
+                BlacklistHelper.AddQuestToBlackList(selected.Id, "Blacklisted by user");
                 UpdateQuestsList();
             }
         }
@@ -37,7 +37,7 @@ namespace Wholesome_Auto_Quester.GUI
             if (sourceQuestsList.SelectedItem != null)
             {
                 ModelQuestTemplate selected = (ModelQuestTemplate)sourceQuestsList.SelectedItem;
-                BlacklistHelper.RemoveQuestFromBlackList(selected.Id);
+                BlacklistHelper.RemoveQuestFromBlackList(selected.Id, "Removed by user");
                 UpdateQuestsList();
             }
         }
@@ -115,6 +115,17 @@ namespace Wholesome_Auto_Quester.GUI
                 questLevel.Text = $"Level: {selected.QuestLevel}";
 
                 Vector3 myPos = ObjectManager.Me.PositionWithoutType;
+
+                // blacklisted
+                if (selected.IsQuestBlackListed)
+                {
+                    blacklisted.Text = $"Blacklisted : {BlacklistHelper.GetQuestBlacklistReason(selected.Id)}";
+                    blacklisted.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    blacklisted.Visibility = Visibility.Collapsed;
+                }
 
                 // quest givers
                 if (selected.CreatureQuestGivers.Count > 0)
@@ -281,7 +292,7 @@ namespace Wholesome_Auto_Quester.GUI
                 else
                     objectiveStack.Visibility = Visibility.Collapsed;
 
-                if (WholesomeAQSettings.CurrentSetting.BlacklistesQuests.Contains(selected.Id))
+                if (selected.IsQuestBlackListed)
                 {
                     ButtonAddToBl.IsEnabled = false;
                     ButtonRmvFromBl.IsEnabled = true;

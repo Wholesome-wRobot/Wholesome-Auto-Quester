@@ -18,7 +18,7 @@ namespace Wholesome_Auto_Quester
         public bool DevMode { get; set; }
         public bool ActivateQuestsGUI { get; set; }
         public List<int> ListCompletedQuests { get; set; }
-        public List<int> BlacklistesQuests { get; set; }
+        //public List<int> BlacklistesQuests { get; set; }
         public bool SmoothMove { get; set; }
         public double LastUpdateDate { get; set; }
         public bool GrindOnly { get; set; }
@@ -26,6 +26,8 @@ namespace Wholesome_Auto_Quester
         public double QuestTrackerPositionTop { get; set; }
         public bool ContinentTravel { get; set; }
         public bool RestartFCOnLevelUp { get; set; }
+        public List<BlackListedQuest> BlackListedQuests { get; set; }
+        public bool AbandonUnfitQuests { get; set; }
 
         public WholesomeAQSettings()
         {
@@ -37,10 +39,12 @@ namespace Wholesome_Auto_Quester
             LevelDeltaMinus = 5;
             SmoothMove = false;
             LastUpdateDate = 0;
-            BlacklistesQuests = new List<int>();
+            //BlacklistesQuests = new List<int>();
             GrindOnly = false;
             ContinentTravel = false;
             RestartFCOnLevelUp = true;
+            BlackListedQuests = new List<BlackListedQuest>();
+            AbandonUnfitQuests = false;
         }
 
         public bool Save()
@@ -77,5 +81,17 @@ namespace Wholesome_Auto_Quester
             }
             return false;
         }
+    }
+}
+
+public struct BlackListedQuest
+{
+    public int Id;
+    public string Reason;
+
+    public BlackListedQuest(int id, string reason)
+    {
+        Id = id;
+        Reason = reason;
     }
 }

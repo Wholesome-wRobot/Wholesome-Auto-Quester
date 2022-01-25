@@ -19,6 +19,13 @@ namespace Wholesome_Auto_Quester.GUI
             SmoothMove.IsChecked = WholesomeAQSettings.CurrentSetting.SmoothMove;
             GrindOnly.IsChecked = WholesomeAQSettings.CurrentSetting.GrindOnly;
             ContinentTravel.IsChecked = WholesomeAQSettings.CurrentSetting.ContinentTravel;
+            AbandonUnfit.IsChecked = WholesomeAQSettings.CurrentSetting.AbandonUnfitQuests;
+        }
+
+        private void AbandonUnfitChanged(object sender, RoutedEventArgs e)
+        {
+            WholesomeAQSettings.CurrentSetting.AbandonUnfitQuests = (bool)AbandonUnfit.IsChecked;
+            WholesomeAQSettings.CurrentSetting.Save();
         }
 
         private void ContinentTravelChanged(object sender, RoutedEventArgs e)

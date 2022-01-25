@@ -136,7 +136,7 @@ namespace Wholesome_Auto_Quester.Helpers
                 || hostileUnits.Where(u => u.Key.Level >= me.Level - 2 && POI.Position.DistanceTo(u.Key.Position) < 18).Count() >= maxCount + 1)
             {
                 if (Fight.InFight) Fight.StopFight();
-                MoveHelper.StopAllMove();
+                MoveHelper.StopAllMove(true);
                 BlacklistHelper.AddNPC(POI.Guid, "Surrounded by hostiles");
                 BlacklistHelper.AddZone(POI.Position, 20, "Surrounded by hostiles");
                 WAQTasks.TaskInProgress.PutTaskOnTimeout(600, $"{POI.Name} is surrounded by hostiles");
@@ -604,14 +604,14 @@ namespace Wholesome_Auto_Quester.Helpers
                 if (wManagerSetting.IsBlackListedZone(gameObject.Position)
                     || wManagerSetting.IsBlackListed(gameObject.Guid))
                 {
-                    MoveHelper.StopAllMove();
+                    MoveHelper.StopAllMove(true);
                     Main.RequestImmediateTaskReset = true;
                     return true;
                 }
             }
             if (wManagerSetting.IsBlackListedZone(task.Location))
             {
-                MoveHelper.StopAllMove();
+                MoveHelper.StopAllMove(true);
                 Main.RequestImmediateTaskReset = true;
                 return true;
             }
@@ -792,13 +792,13 @@ namespace Wholesome_Auto_Quester.Helpers
 
         public static void InitializeWAQSettings()
         {
-            BlacklistHelper.AddQuestToBlackList(1202); // Theramore docks
-            //WholesomeAQSettings.AddQuestToBlackList(1526); // Call of Fire. Requires active item from PREVIOUS quest
-            BlacklistHelper.AddQuestToBlackList(863); // Ignition, bugged platform
-            BlacklistHelper.AddQuestToBlackList(6383); // Ashenvale hunt, bugged 
-            BlacklistHelper.AddQuestToBlackList(891); // The Guns of NorthWatch, too many mobs
-            BlacklistHelper.AddQuestToBlackList(9612); // A hearty thanks, requires heal on mob
-            if (IsHorde()) BlacklistHelper.AddQuestToBlackList(4740); // Bugged, should only be alliance
+            BlacklistHelper.AddQuestToBlackList(1202, "Theramore docks, runs through ally city");
+            BlacklistHelper.AddQuestToBlackList(863, "Ignition, bugged platform");
+            BlacklistHelper.AddQuestToBlackList(6383, "Ashenvale hunt, bugged ");
+            BlacklistHelper.AddQuestToBlackList(891, "The Guns of NorthWatch, too many mobs");
+            BlacklistHelper.AddQuestToBlackList(9612, "A hearty thanks, requires heal on mob");
+            BlacklistHelper.AddQuestToBlackList(857, "The tear of the moons, way too many mobs");
+            if (IsHorde()) BlacklistHelper.AddQuestToBlackList(4740, "Bugged, should only be alliance");
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))
             {
@@ -887,6 +887,22 @@ namespace Wholesome_Auto_Quester.Helpers
         {
             string zone = Lua.LuaDoString<string>("return GetRealZoneText();");
             return zone == "Azuremyst Isle" || zone == "Bloodmyst Isle" || zone == "The Exodar";
+        }
+
+        public static void AbandonQuest(int questId)
+        {
+            Logger.Log($"Abandonning quest {questId}");
+            int logIndex = Lua.LuaDoString<int>(@$"
+                local nbLogQuests  = GetNumQuestLogEntries()
+                for i=1, nbLogQuests do
+                    local _, _, _, _, _, _, _, _, questID = GetQuestLogTitle(i);
+                    if questID == {questId} then
+                        return i;
+                    end
+                end
+            ");
+            Lua.LuaDoString($"SelectQuestLogEntry({logIndex}); SetAbandonQuest(); AbandonQuest();");
+            Thread.Sleep(500);
         }
     }
 }

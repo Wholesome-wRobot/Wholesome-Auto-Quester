@@ -54,7 +54,7 @@ namespace Wholesome_Auto_Quester.States
 
             if (!ToolBox.IsNpcFrameActive())
             {
-                MoveHelper.StopAllMove();
+                MoveHelper.StopAllMove(true);
                 Interact.InteractGameObject(turnInTarget.GetBaseAddress);
             }
             else

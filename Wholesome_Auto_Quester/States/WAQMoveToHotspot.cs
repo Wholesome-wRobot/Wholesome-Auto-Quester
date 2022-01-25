@@ -38,7 +38,7 @@ namespace Wholesome_Auto_Quester.States
             if (wManagerSetting.IsBlackListedZone(task.Location))
             {
                 Logger.Log("Aborted because BL");
-                MoveHelper.StopAllMove();
+                MoveHelper.StopAllMove(true);
                 Main.RequestImmediateTaskReset = true;
                 return;
             }

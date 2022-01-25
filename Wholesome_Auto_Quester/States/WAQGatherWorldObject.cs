@@ -56,7 +56,7 @@ namespace Wholesome_Auto_Quester.States
             }
 
             Logger.Log($"Gathering {gameObject.Name}");
-            MoveHelper.StopAllMove();
+            MoveHelper.StopAllMove(true);
             Interact.InteractGameObject(gameObject.GetBaseAddress);
             Usefuls.WaitIsCastingAndLooting();
             Thread.Sleep(200);

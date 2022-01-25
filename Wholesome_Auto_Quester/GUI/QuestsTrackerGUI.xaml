@@ -211,6 +211,11 @@
                                 </StackPanel.Resources>
 
                                 <TextBlock 
+                                    Name="blacklisted"
+                                    Foreground="IndianRed"
+                                    TextWrapping="Wrap"/>
+
+                                <TextBlock 
                                     Name="questId"
                                     TextWrapping="Wrap"/>
 

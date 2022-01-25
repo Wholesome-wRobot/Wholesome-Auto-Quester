@@ -93,7 +93,7 @@ namespace Wholesome_Auto_Quester.Bot
                 CustomClass.DisposeCustomClass();
                 Fsm.StopEngine();
                 Fight.StopFight();
-                MoveHelper.StopAllMove();
+                MoveHelper.StopAllMove(true);
             }
             catch (Exception e)
             {

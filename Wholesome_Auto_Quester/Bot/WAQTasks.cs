@@ -575,7 +575,7 @@ namespace Wholesome_Auto_Quester.Bot
             foreach (ModelQuestTemplate quest in Quests)
             {
                 // Quest blacklisted
-                if (WholesomeAQSettings.CurrentSetting.BlacklistesQuests.Contains(quest.Id))
+                if (quest.IsQuestBlackListed)
                 {
                     quest.Status = QuestStatus.Blacklisted;
                     continue;
@@ -627,6 +627,7 @@ namespace Wholesome_Auto_Quester.Bot
 
                     // Quest in progress
                     quest.Status = QuestStatus.InProgress;
+
                     itemsToAddToDNSList.AddRange(quest.GetItemsStringsList());
                     if (!quest.AreObjectivesRecorded && quest.GetAllObjectives().Count > 0)
                         quest.RecordObjectiveIndices();
@@ -634,6 +635,34 @@ namespace Wholesome_Auto_Quester.Bot
                 }
 
                 quest.Status = QuestStatus.None;
+            }
+
+            // Second loop for unfit quests in the log
+            if (WholesomeAQSettings.CurrentSetting.AbandonUnfitQuests)
+            {
+                foreach (KeyValuePair<int, Quest.PlayerQuest> logQuest in logQuests)
+                {
+                    ModelQuestTemplate waqQuest = Quests.Find(q => q.Id == logQuest.Key);
+                    if (waqQuest == null)
+                    {
+                        ToolBox.AbandonQuest(logQuest.Key);
+                    }
+                    else
+                    {
+                        if (logQuest.Value.State == StateFlag.None && waqQuest.GetAllObjectives().Count <= 0)
+                        {
+                            BlacklistHelper.AddQuestToBlackList(waqQuest.Id, "Abandonned because it was in progress with no objectives");
+                            ToolBox.AbandonQuest(waqQuest.Id);
+                            continue;
+                        }
+                        if (waqQuest.QuestLevel < ObjectManager.Me.Level - WholesomeAQSettings.CurrentSetting.LevelDeltaMinus - 1)
+                        {
+                            BlacklistHelper.AddQuestToBlackList(waqQuest.Id, "Abandonned because it was underleveld");
+                            ToolBox.AbandonQuest(waqQuest.Id);
+                            continue;
+                        }
+                    }
+                }
             }
 
             NbQuestsToTurnIn = Quests

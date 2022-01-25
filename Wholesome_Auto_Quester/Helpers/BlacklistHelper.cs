@@ -10,23 +10,30 @@ namespace Wholesome_Auto_Quester.Helpers
     {
         public static List<WAQBlacklistEntry> ListEntries = new List<WAQBlacklistEntry>();
 
-        public static void AddQuestToBlackList(int questId)
+        public static string GetQuestBlacklistReason(int questId)
         {
-            if (!WholesomeAQSettings.CurrentSetting.BlacklistesQuests.Contains(questId))
+            return WholesomeAQSettings.CurrentSetting.BlackListedQuests.Find(blq => blq.Id == questId).Reason;
+        }
+
+        public static void AddQuestToBlackList(int questId, string reason)
+        {
+            if (!WholesomeAQSettings.CurrentSetting.BlackListedQuests.Exists(blq => blq.Id == questId))
             {
-                WholesomeAQSettings.CurrentSetting.BlacklistesQuests.Add(questId);
+                WholesomeAQSettings.CurrentSetting.BlackListedQuests.Add(new BlackListedQuest(questId, reason));
                 WholesomeAQSettings.CurrentSetting.Save();
-                Logger.Log($"The quest {questId} has been blacklisted");
+                Logger.Log($"The quest {questId} has been blacklisted ({reason})");
             }
         }
 
-        public static void RemoveQuestFromBlackList(int questId)
+        public static void RemoveQuestFromBlackList(int questId, string reason)
         {
-            if (WholesomeAQSettings.CurrentSetting.BlacklistesQuests.Contains(questId))
+            BlackListedQuest questToRemove = WholesomeAQSettings.CurrentSetting.BlackListedQuests.Find(blq => blq.Id == questId);
+            if (questToRemove.Id != 0)
             {
-                WholesomeAQSettings.CurrentSetting.BlacklistesQuests.Remove(questId);
+                WholesomeAQSettings.CurrentSetting.BlackListedQuests.Remove(questToRemove);
                 WholesomeAQSettings.CurrentSetting.Save();
-                Logger.Log($"The quest {questId} has been removed from the blacklist");
+                Logger.Log($"The quest {questId} has been removed from the blacklist ({reason})");
+
             }
         }
 

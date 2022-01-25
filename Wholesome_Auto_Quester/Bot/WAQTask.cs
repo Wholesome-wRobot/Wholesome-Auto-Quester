@@ -157,7 +157,36 @@ namespace Wholesome_Auto_Quester.Bot
                 return CalculatePriority(_myPos.DistanceTo(Location));
             }
         }
+        public int CalculatePriority(float taskDistance)
+        {
+            var priority = (int)System.Math.Pow(taskDistance, 1.64);
+            if (TaskType == TaskType.Grind)
+            {
+                return priority;
+            };
 
+            var quest = WAQTasks.Quests.Find(q => q.Id == QuestId);
+            const double powerBase = 1.16;
+
+            if (priority > 0) // path found
+            {
+                if (TaskType == TaskType.PickupQuestFromCreature || TaskType == TaskType.PickupQuestFromGameObject)
+                    priority = (int)(priority * System.Math.Pow(powerBase, WAQTasks.NbQuestsInProgress));
+                if (TaskType == TaskType.TurnInQuestToCreature || TaskType == TaskType.TurnInQuestToGameObject)
+                    priority = (int)(priority / System.Math.Pow(powerBase, WAQTasks.NbQuestsToTurnIn));
+                if (quest.QuestAddon?.AllowableClasses > 0)
+                    priority /= 8;
+                if (quest.TimeAllowed > 0 && TaskType != TaskType.PickupQuestFromCreature && TaskType != TaskType.PickupQuestFromGameObject)
+                    priority /= 128;
+            }
+
+            if (Continent != Usefuls.ContinentId)
+                priority += 1 << 20;
+
+            return priority;
+        }
+
+        /*
         public int CalculatePriority(float taskDistance)
         {
             if (TaskType == TaskType.Grind) return (int)taskDistance;
@@ -179,7 +208,7 @@ namespace Wholesome_Auto_Quester.Bot
 
             return (int)taskDistance;
         }
-
+        */
         private string GetTrackerColor()
         {
             if (IsTimedOut)

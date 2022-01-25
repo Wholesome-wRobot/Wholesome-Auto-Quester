@@ -35,7 +35,7 @@ namespace Wholesome_Auto_Quester.States
 
             if (task.GetDistance < 3)
             {
-                MoveHelper.StopAllMove();
+                MoveHelper.StopAllMove(true);
                 Logger.Log($"Reached exploration hotspot for {task.QuestTitle}");
                 task.PutTaskOnTimeout("Completed");
                 Main.RequestImmediateTaskReset = true;

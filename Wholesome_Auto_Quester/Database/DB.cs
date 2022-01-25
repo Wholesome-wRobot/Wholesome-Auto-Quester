@@ -8,6 +8,7 @@ using System.Linq;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
+using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.Database
@@ -358,6 +359,12 @@ namespace Wholesome_Auto_Quester.Database
                 // we leave the class sortIds in
             };
 
+            List<int> logQuestsIds = new List<int>();
+            foreach (Quest.PlayerQuest quest in Quest.GetLogQuestId())
+            {
+                logQuestsIds.Add(quest.ID);
+            }
+
             string queryQuest = $@"
                     SELECT * 
                     FROM quest_template
@@ -371,7 +378,10 @@ namespace Wholesome_Auto_Quester.Database
                 if (ToolBox.QuestModifiedLevel.TryGetValue(q.Id, out int levelModifier))
                     q.QuestLevel += levelModifier;
             });
-            result.RemoveAll(q => (q.QuestLevel > levelDeltaPlus || q.QuestLevel < levelDeltaMinus) && q.QuestLevel != -1);
+            result.RemoveAll(q => 
+                (q.QuestLevel > levelDeltaPlus || q.QuestLevel < levelDeltaMinus) 
+                && q.QuestLevel != -1 
+                && !logQuestsIds.Contains(q.Id));
             result.RemoveAll(q => questSortIdsToIgnore.Contains(q.QuestSortID));
 
             result.ForEach(questTemplate =>

@@ -58,14 +58,17 @@ namespace Wholesome_Auto_Quester.States
 
         public override void Run()
         {
-            Fight.StopFight();
+            //if (Fight.InFight) Fight.StopFight();
             //LootingTask.Pulse(new List<WoWUnit> { UnitToLoot });
-            if (UnitToLoot.GetDistance > 3)
+            if (!MoveHelper.IsMovementThreadRunning && UnitToLoot.GetDistance > 3)
+            {
+                MoveHelper.StopAllMove(true);
                 MoveHelper.StartGoToThread(UnitToLoot.Position, null);
+            }
 
             if (UnitToLoot.GetDistance <= 4)
             {
-                MoveHelper.StopAllMove();
+                MoveHelper.StopAllMove(true);
                 Logger.Log($"Priority looting {UnitToLoot.Name}");
                 Interact.InteractGameObject(UnitToLoot.GetBaseAddress);
                 UnitsLooted.Add(UnitToLoot.Guid);
