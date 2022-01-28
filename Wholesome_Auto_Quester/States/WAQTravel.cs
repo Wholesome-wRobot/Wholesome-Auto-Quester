@@ -1,7 +1,8 @@
 ﻿using robotManager.FiniteStateMachine;
+using robotManager.Helpful;
 using Wholesome_Auto_Quester.Bot;
+using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
-using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
@@ -9,21 +10,31 @@ namespace Wholesome_Auto_Quester.States
 {
     public class WAQTravel : State
     {
-        public override string DisplayName
-        {
-            get { return "WAQ Travel  [SmoothMove - Q]"; }
-        }
+        public override string DisplayName { get; set; } = "WAQ Travel [SmoothMove - Q]";
+
+        private ModelWorldMapArea TravelDestinationWMArea;
+        private Vector3 TravelDestinationPosition;
+        public static bool InTravel = false;
 
         public override bool NeedToRun
         {
             get
             {
                 if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause
-                    || !ObjectManager.Me.IsValid)
+                    || !ObjectManager.Me.IsValid
+                    || MoveHelper.IsMovementThreadRunning
+                    || ObjectManager.Me.IsOnTaxi
+                    || ObjectManager.Me.InCombat
+                    || WAQTasks.TaskInProgress == null)
                     return false;
 
-                if (WAQTasks.TaskInProgress != null && WAQTasks.TaskInProgress.Continent != Usefuls.ContinentId)
+                if (TravelHelper.NeedToTravelTo(WAQTasks.TaskInProgress))
+                {
+                    TravelDestinationWMArea = WAQTasks.DestinationWMArea;
+                    TravelDestinationPosition = WAQTasks.TaskInProgress.Location;
+                    DisplayName = $"WAQ Travel to {TravelDestinationWMArea.areaName} [SmoothMove - Q]";
                     return true;
+                }
 
                 return false;
             }
@@ -31,103 +42,132 @@ namespace Wholesome_Auto_Quester.States
 
         public override void Run()
         {
-            ContinentId destinationContinent = (ContinentId)WAQTasks.TaskInProgress.Continent;
-
+            ModelWorldMapArea myCurrentWMArea = TravelHelper.GetWorldMapAreaFromPoint(ObjectManager.Me.Position, Usefuls.ContinentId);
+            InTravel = true;
+            MoveHelper.StopAllMove(true);
             // HORDE
             if (ToolBox.IsHorde())
             {
                 // From EK
-                if ((ContinentId)Usefuls.ContinentId == ContinentId.Azeroth)
+                if (myCurrentWMArea.Continent == WAQContinent.EasternKingdoms)
                 {
                     // To Kalimdor
-                    if (destinationContinent == ContinentId.Kalimdor)
+                    if (TravelDestinationWMArea.Continent == WAQContinent.Kalimdor)
                     {
-                        Logger.Log("Traveling to Kalimdor");
-                        TravelHelper.HordeEKToKalimdor();
+                        if (ObjectManager.Me.Position.X > -2384) // above wetlands)
+                        {
+                            TravelHelper.ZeppelinTirisfalToOrgrimmar();
+                        }
+                        else
+                        {
+                            TravelHelper.ShipBootyBayToRatchet();
+                        }
+                    }
+                    if (TravelDestinationWMArea.Continent == WAQContinent.EasternKingdoms)
+                    {
+                        // To EK south
+                        if (TravelHelper.ShouldTakeZeppelinTirisfalToStranglethorn(myCurrentWMArea, WAQTasks.TaskInProgress))
+                        {
+                            TravelHelper.ZeppelingTirisfalToStrangelthorn();
+                        }
+                        // To EK north
+                        if (TravelHelper.ShouldTakeZeppelinStranglethornToTirisfal(myCurrentWMArea, WAQTasks.TaskInProgress))
+                        {
+                            TravelHelper.ZeppelingStrangelthornToTirisfal();
+                        }
                     }
                     // To Outlands
-                    if (destinationContinent == ContinentId.Expansion01)
+                    if (TravelDestinationWMArea.Continent == WAQContinent.Outlands)
                     {
-                        Logger.Log("Traveling to Outland");
-                        TravelHelper.HordeEKToOutland();
+                        TravelHelper.PortalBlastedLandsToOutlands();
                     }
                     // To Northrend
-                    if (destinationContinent == ContinentId.Northrend)
+                    if (TravelDestinationWMArea.Continent == WAQContinent.Northrend)
                     {
-                        Logger.Log("Traveling to Northrend");
-                        TravelHelper.HordeEKToKalimdor();
+                        TravelHelper.ZeppelinTirisfalToOrgrimmar();
                     }
                 }
 
                 // From Kalimdor
-                if ((ContinentId)Usefuls.ContinentId == ContinentId.Kalimdor)
+                if (myCurrentWMArea.Continent == WAQContinent.Kalimdor)
                 {
                     // To EK
-                    if (destinationContinent == ContinentId.Azeroth)
+                    if (TravelDestinationWMArea.Continent == WAQContinent.EasternKingdoms)
                     {
-                        Logger.Log("Traveling to Eastern Kingdoms");
-                        TravelHelper.HordeKalimdorToEK();
+                        if (TravelDestinationPosition.X < -3240 && ObjectManager.Me.Level >= 58)
+                        {
+                            TravelHelper.PortalFromOrgrimmarToBlastedLands();
+                        }
+                        else
+                        {
+                            if (TravelDestinationPosition.X > -2384) // above wetlands
+                            {
+                                TravelHelper.ZeppelinKalimdorToTirisfal();
+                            }
+                            else
+                            {
+                                TravelHelper.ShipRatchetToBootyBay();
+                            }
+                        }
                     }
                     // To Outlands
-                    if (destinationContinent == ContinentId.Expansion01)
+                    if (TravelDestinationWMArea.Continent == WAQContinent.Outlands)
                     {
-                        Logger.Log("Traveling to Outland");
-                        TravelHelper.HordeKalimdorToEK();
+                        TravelHelper.PortalFromOrgrimmarToBlastedLands();
                     }
                     // To Northrend
-                    if (destinationContinent == ContinentId.Northrend)
+                    if (TravelDestinationWMArea.Continent == WAQContinent.Northrend)
                     {
-                        Logger.Log("Traveling to Northrend");
-                        TravelHelper.HordeKalimdorToNorthrend();
+                        TravelHelper.ZeppelinOrgrimmarToNorthrend();
                     }
                 }
 
                 // From Outlands
-                if ((ContinentId)Usefuls.ContinentId == ContinentId.Expansion01)
+                if (myCurrentWMArea.Continent == WAQContinent.Outlands)
                 {
                     // To Kalimdor
-                    if (destinationContinent == ContinentId.Kalimdor)
+                    if (TravelDestinationWMArea.Continent == WAQContinent.Kalimdor)
                     {
-                        Logger.Log("Traveling to Kalimdor");
-                        TravelHelper.HordeOutlandToKalimdor();
+                        TravelHelper.PortalShattrathToOrgrimmar();
                     }
                     // To EK
-                    if (destinationContinent == ContinentId.Azeroth)
+                    if (TravelDestinationWMArea.Continent == WAQContinent.EasternKingdoms)
                     {
-                        Logger.Log("Traveling to Eastern Kingdoms");
-                        TravelHelper.HordeOutlandToKalimdor();
+                        TravelHelper.PortalShattrathToOrgrimmar();
                     }
                     // To Northrend
-                    if (destinationContinent == ContinentId.Northrend)
+                    if (TravelDestinationWMArea.Continent == WAQContinent.Northrend)
                     {
-                        Logger.Log("Traveling to Northrend");
-                        TravelHelper.HordeOutlandToKalimdor();
+                        TravelHelper.PortalShattrathToOrgrimmar();
                     }
                 }
 
                 // From Northrend
-                if ((ContinentId)Usefuls.ContinentId == ContinentId.Northrend)
+                if (myCurrentWMArea.Continent == WAQContinent.Northrend)
                 {
                     // To Kalimdor
-                    if (destinationContinent == ContinentId.Kalimdor)
+                    if (TravelDestinationWMArea.Continent == WAQContinent.Kalimdor)
                     {
-                        Logger.Log("Traveling to Kalimdor");
-                        TravelHelper.HordeNorthrendToKalimdor();
+                        TravelHelper.PortalDalaranToOrgrimmar();
                     }
                     // To EK
-                    if (destinationContinent == ContinentId.Azeroth)
+                    if (TravelDestinationWMArea.Continent == WAQContinent.EasternKingdoms)
                     {
-                        Logger.Log("Traveling to Eastern Kingdoms");
-                        TravelHelper.HordeNorthrendToEK();
+                        TravelHelper.PortalDalaranToUndercity();
                     }
                     // To Outland
-                    if (destinationContinent == ContinentId.Expansion01)
+                    if (TravelDestinationWMArea.Continent == WAQContinent.Outlands)
                     {
-                        Logger.Log("Traveling to Outland");
-                        TravelHelper.HordeNorthrendToOutland();
+                        TravelHelper.HordePortalDalaranToShattrath();
                     }
                 }
             }
+
+            Logger.Log($"RESET TRAVELER");
+            MoveHelper.StopAllMove(true);
+            InTravel = false;
+            TravelDestinationPosition = null;
+            TravelDestinationWMArea = null;
         }
     }
 }

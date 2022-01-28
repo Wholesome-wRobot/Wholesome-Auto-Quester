@@ -219,7 +219,7 @@ namespace Wholesome_Auto_Quester.Helpers
             Lua.LuaDoString<bool>(
                 "return GetClickFrame('GossipFrame'):IsVisible() == 1 or GetClickFrame('QuestFrame'):IsVisible() == 1;");
 
-        public static bool GossipTurnInQuest(string questName)
+        public static bool GossipTurnInQuest(string questName, int questId)
         {
             // Select quest
             var exitCodeOpen = Lua.LuaDoString<int>($@"
@@ -294,6 +294,12 @@ namespace Wholesome_Auto_Quester.Helpers
             	closeButton:Click();
             end");
 
+            robotManager.Helpful.Timer timer = new robotManager.Helpful.Timer(3000);
+            while (!Quest.HasQuest(questId) && !timer.IsReady)
+                Thread.Sleep(100);
+            if (timer.IsReady)
+                return false;
+
             Logger.Log($"Turned in quest {questName}.");
 
             return true;
@@ -303,6 +309,7 @@ namespace Wholesome_Auto_Quester.Helpers
         {
             // Select quest
             var exitCodeOpen = Lua.LuaDoString<int>($@"
+            if GetClickFrame('QuestFrameCompleteQuestButton'):IsVisible() == 1 then return 3; end
             if GetClickFrame('QuestFrameAcceptButton'):IsVisible() == 1 or GetClickFrame('QuestFrameCompleteButton'):IsVisible() == 1 then return 0; end
             if GetClickFrame('QuestFrame'):IsVisible() == 1 then
             	for i=1, 32 do
@@ -373,6 +380,12 @@ namespace Wholesome_Auto_Quester.Helpers
             if closeButton:IsVisible() then
             	closeButton:Click();
             end");
+
+            robotManager.Helpful.Timer timer = new robotManager.Helpful.Timer(3000);
+            while (!Quest.HasQuest(questId) && !timer.IsReady)
+                Thread.Sleep(100);
+            if (timer.IsReady)
+                return false;
 
             Logger.Log($"Picked up quest {questName}.");
 
@@ -817,6 +830,8 @@ namespace Wholesome_Auto_Quester.Helpers
             { 6548, 3 }, // Avenge my village, too many mobs
             { 6629, 3 }, // Avenge my village follow up, too many mobs
             { 216, 2 }, // Between a rock and a Thistlefur, too many mobs
+            { 541, 4 }, // Battle of Hillsbrad, too many mobs
+            { 5501, 3 }, // Kodo bones, red enemies
         };
 
         public static void PickupQuestFromBagItem(string itemName)
@@ -831,7 +846,7 @@ namespace Wholesome_Auto_Quester.Helpers
             	            closeButton:Click();
                         end");
         }
-
+        /*
         public static WAQPath AdjustPathToTask(WAQTask task)
         {
             Random rand = new Random();
@@ -854,7 +869,7 @@ namespace Wholesome_Auto_Quester.Helpers
             Logger.Log($"FAILED");
             return new WAQPath(new List<Vector3>(), 0);
         }
-
+        */
         public static WAQPath AdjustPathToObject(WoWObject wObject)
         {
             Random rand = new Random();

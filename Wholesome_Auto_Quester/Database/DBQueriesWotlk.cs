@@ -13,7 +13,6 @@ namespace Wholesome_Auto_Quester.Database
     public class DBQueriesWotlk
     {
         private DB _database;
-        public static List<ModelWorldMapArea> WorlMapAreas;
 
         public DBQueriesWotlk()
         {
@@ -118,13 +117,7 @@ namespace Wholesome_Auto_Quester.Database
         public void GetAvailableQuests()
         {
             Stopwatch stopwatch = Stopwatch.StartNew();
-            WorlMapAreas = _database.QueryWorldMapAreas();
-            /*
-            WorlMapAreas.ForEach(wma =>
-            {
-                wma.PointInZone();
-            });
-            */
+            
             if (!ToolBox.WoWDBFileIsPresent())
             {
                 // DOWNLOAD ZIP ETC..

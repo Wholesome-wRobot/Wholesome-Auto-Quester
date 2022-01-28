@@ -43,7 +43,7 @@ namespace Wholesome_Auto_Quester.States
                 return;
             }
 
-            if (task.GetDistance <= 20)
+            if (task.GetDistance <= 20 && WholesomeAQSettings.CurrentSetting.GoToMobEntry <= 0)
             {
                 task.PutTaskOnTimeout($"Couldn't find {task.TargetName} ({task.TaskType})");
                 Main.RequestImmediateTaskReset = true;
@@ -51,21 +51,6 @@ namespace Wholesome_Auto_Quester.States
 
             if (task.Location.DistanceTo(ObjectManager.Me.Position) > 19)
                 MoveHelper.StartGoToThread(task.Location, $"Moving to hotspot for {task.QuestTitle} ({task.TaskType})");
-
-            /*
-            if (MoveHelper.CurrentMovementTarget != task.Location)
-            {
-                Logger.Log($"CHANGING to hotspot for {MoveHelper.CurrentMovementTarget} ({task.Location})");
-                MoveHelper.StartGoToThread(task.Location);
-                return;
-            }
-
-            if (!MoveHelper.IsMovementThreadRunning && task.Location.DistanceTo(ObjectManager.Me.Position) > 19
-                || MoveHelper.IsMovementThreadRunning && MoveHelper.CurrentMovementTarget != task.Location)
-            {
-                Logger.Log($"Traveling to hotspot for {task.QuestTitle} ({task.TaskType})");
-                MoveHelper.StartGoToThread(task.Location);
-            }*/
         }
     }
 }

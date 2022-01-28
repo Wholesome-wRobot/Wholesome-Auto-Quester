@@ -17,10 +17,9 @@ namespace Wholesome_Auto_Quester.States
 
         public override void Run()
         {
-            var stateName = $"Defending against {_defendTarget?.Name}";
+            var stateName = $"Defending against {_defendTarget.Name}";
             DisplayName = stateName;
             Logger.Log(stateName);
-            if (Fight.InFight) Fight.StopFight();
             MoveHelper.StopAllMove(true);
             Fight.StartFight(_defendTarget.Guid);
             _defendTarget = null;
@@ -36,37 +35,38 @@ namespace Wholesome_Auto_Quester.States
                     return false;
 
                 // Check directly attacking units
+                _defendTarget = null;
                 Vector3 myPos = ObjectManager.Me.PositionWithoutType;
                 bool isMounted = ObjectManager.Me.IsMounted;
                 int myLevel = (int)ObjectManager.Me.Level;
                 List<WoWUnit> justUnits = ObjectManager.GetObjectWoWUnit().ToList();
+                List<WoWUnit> myPets = justUnits.FindAll(u => u.IsMyPet);
                 ulong myGuid = ObjectManager.Me.Guid;
-                ulong petGuid = ObjectManager.Pet?.Guid ?? 0U;
 
                 if (isMounted
-                    && WAQTasks.TaskInProgress?.Location.DistanceTo(myPos) > 300)
+                    && MoveHelper.IsMovementThreadRunning
+                    && MoveHelper.GetCurrentPathRemainingDistance() > 300)
                     return false;
 
                 IOrderedEnumerable<WoWUnit> attackingMe = justUnits
-                    .Where(unit =>
-                    {
-                        uint unitLevel = unit.Level;
-                        if (/*unitLevel < myLevel - 5 || */unitLevel > myLevel + 3)
-                            return false;
-                        return unit.IsAttackable /*&& unit.InCombatFlagOnly*/ && (unit.Target == myGuid || petGuid > 0 && unit.Target == petGuid);
-                    })
+                    .Where(unit => /*unit.Level <= myLevel + 3 
+                        && */!unit.PlayerControlled
+                        && unit.IsAttackable 
+                        && (unit.Target == myGuid || myPets.Exists(pet => pet.Guid == unit.Target)))
                     .OrderBy(unit => unit.PositionWithoutType.DistanceTo(myPos));
 
                 if (attackingMe.Count() <= 0)
                     return false;
 
                 if (isMounted
-                    && WAQTasks.TaskInProgress?.Location.DistanceTo(myPos) > 200
+                    && MoveHelper.IsMovementThreadRunning
+                    && MoveHelper.GetCurrentPathRemainingDistance() > 200
                     && attackingMe.Count() <= 2)
                     return false;
 
                 if (isMounted
-                    && WAQTasks.TaskInProgress?.Location.DistanceTo(myPos) > 125
+                    && MoveHelper.IsMovementThreadRunning
+                    && MoveHelper.GetCurrentPathRemainingDistance() > 125
                     && attackingMe.Count() <= 1)
                     return false;
 
@@ -74,10 +74,11 @@ namespace Wholesome_Auto_Quester.States
                 //Logger.LogError($"{_defendTarget.Name} is attacking me, target is {_defendTarget.TargetObject?.Name}");
                 //Logger.Log($"DEF - Mounted = {isMounted}, incomb = {ObjectManager.Me.InCombatFlagOnly}, dist={myPos.DistanceTo(MoveHelper.CurrentMovementTarget)}");
 
-                MountTask.DismountMount(true, false);
-
                 if (_defendTarget != null)
+                {
+                    MountTask.DismountMount(true);
                     return true;
+                }
 
                 /*
                 // Check possible units on path

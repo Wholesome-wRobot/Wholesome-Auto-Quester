@@ -41,7 +41,13 @@ namespace Wholesome_Auto_Quester.States
                             break;
                         }
                         else
+                        {
+                            if (UnitsLooted.Count > 20)
+                            {
+                                UnitsLooted.RemoveRange(0, 10);
+                            }
                             UnitsLooted.Add(unit.Guid);
+                        }
                     }
                     UnitToLoot = null;
                 }

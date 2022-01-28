@@ -7,13 +7,13 @@ using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.Bot
 {
-    public class WAQTask
+    public class WAQTask : IWAQTask
     {
         public ModelAreaTrigger Area { get; }
         public ModelGameObject GameObject { get; }
         public ModelCreature Creature { get; }
 
-        public Vector3 Location { get; set; }
+        public Vector3 Location { get; }
         public int Continent { get; }
         public uint ObjectDBGuid { get; }
         public int ObjectiveIndex { get; }
@@ -139,24 +139,50 @@ namespace Wholesome_Auto_Quester.Bot
         public bool IsTimedOut => !_timeOutTimer.IsReady;
         public string TrackerColor => GetTrackerColor();
         public float GetDistance => ObjectManager.Me.PositionWithoutType.DistanceTo(Location);
+        public int Priority => CalculatePriority(ObjectManager.Me.Position.DistanceTo(Location));
 
-        private static Vector3 _myPos = ObjectManager.Me.PositionWithoutType;
-        private static uint _myLevel = ObjectManager.Me.Level;
-
-        public static void UpdatePriorityData()
+        public int CalculatePriority(float taskDistance)
         {
-            _myPos = ObjectManager.Me.PositionWithoutType;
-            _myLevel = ObjectManager.Me.Level;
-        }
+            const double magic = 1.32;
 
-        public int Priority
-        {
-            get
+            var priority = (int)System.Math.Pow(taskDistance, magic);
+
+            var locationWeight = 1.0;
+            var neighbours = WAQTasks.SpaceTree.RadialSearch(new float[] { Location.X, Location.Y, Location.Z }, 64.0f);
+            foreach (var (_, neighbour) in neighbours)
             {
-                // Lowest priority == do first
-                return CalculatePriority(_myPos.DistanceTo(Location));
+                locationWeight += neighbour.TaskType switch
+                {
+                    TaskType.TurnInQuestToCreature or TaskType.TurnInQuestToGameObject => 2.0,
+                    TaskType.PickupQuestFromCreature or TaskType.PickupQuestFromGameObject => 0.25,
+                    _ => 1.0,
+                };
             }
+            priority = (int)(priority / System.Math.Pow(locationWeight, magic));
+
+            if (TaskType == TaskType.Grind)
+            {
+                return priority;
+            };
+
+            if (priority > 0) // path found
+            {
+                var quest = WAQTasks.Quests.Find(q => q.Id == QuestId);
+                if (quest.QuestAddon?.AllowableClasses > 0)
+                    priority >>= 3;
+                if (quest.TimeAllowed > 0 && TaskType != TaskType.PickupQuestFromCreature && TaskType != TaskType.PickupQuestFromGameObject)
+                    priority >>= 7;
+            }
+
+            if (Continent != Usefuls.ContinentId)
+            {
+                priority <<= 10;
+            }
+
+            return priority;
         }
+
+        /*
         public int CalculatePriority(float taskDistance)
         {
             var priority = (int)System.Math.Pow(taskDistance, 1.64);
@@ -181,11 +207,11 @@ namespace Wholesome_Auto_Quester.Bot
             }
 
             if (Continent != Usefuls.ContinentId)
-                priority += 1 << 20;
+                priority += 1 << 24;
 
             return priority;
         }
-
+        */
         /*
         public int CalculatePriority(float taskDistance)
         {

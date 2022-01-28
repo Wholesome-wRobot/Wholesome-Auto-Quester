@@ -25,9 +25,9 @@ namespace Wholesome_Auto_Quester
         public double QuestTrackerPositionLeft { get; set; }
         public double QuestTrackerPositionTop { get; set; }
         public bool ContinentTravel { get; set; }
-        public bool RestartFCOnLevelUp { get; set; }
         public List<BlackListedQuest> BlackListedQuests { get; set; }
         public bool AbandonUnfitQuests { get; set; }
+        public int GoToMobEntry { get; set; }
 
         public WholesomeAQSettings()
         {
@@ -42,9 +42,9 @@ namespace Wholesome_Auto_Quester
             //BlacklistesQuests = new List<int>();
             GrindOnly = false;
             ContinentTravel = false;
-            RestartFCOnLevelUp = true;
             BlackListedQuests = new List<BlackListedQuest>();
             AbandonUnfitQuests = false;
+            GoToMobEntry = 0;
         }
 
         public bool Save()

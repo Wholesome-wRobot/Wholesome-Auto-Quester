@@ -1,7 +1,5 @@
 ﻿using robotManager.Helpful;
 using System.Windows;
-using Wholesome_Auto_Quester.Helpers;
-using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.Database.Models
 {
@@ -16,14 +14,33 @@ namespace Wholesome_Auto_Quester.Database.Models
         public double locTop { get; }
         public double locBottom { get; }
 
-        public void PointInZone()
+        public bool IsPointInZone(Vector3 point, int mapId)
         {
-            Rect zone = new Rect();
-            zone.Location = new Point(locBottom, locRight);
-            zone.Size = new Size(locTop - locBottom, locLeft - locRight);
-            Vector3 myPos = ObjectManager.Me.Position;
-            if (zone.Contains(myPos.Y, myPos.X))
-                Logger.LogError($"You are in {mapID}, {areaID}, {areaName}");
+            if (mapId != mapID) return false;
+            double realLeft = locBottom;
+            double realTop = locLeft;
+            double realRight = locTop;
+            double realBot = locRight;
+            Rect zone = new Rect(new Point(realLeft, realTop), new Point(realRight, realBot));
+            return zone.Contains(new Point(point.X, point.Y));
+        }
+
+        public WAQContinent Continent
+        {
+            get
+            {
+                // Teldrassil - Darnassus
+                if (areaID == 141 || areaID == 1657) return WAQContinent.Teldrassil;
+                // EversongWoods - Ghostlands - SilvermoonCity
+                if (areaID == 3430 || areaID == 3433 || areaID == 3487) return WAQContinent.BloodElfStartingZone;
+                // AzuremystIsle - TheExodar - BloodmystIsle
+                if (areaID == 3524 || areaID == 3557 || areaID == 3525) return WAQContinent.DraeneiStartingZone;
+                if (mapID == 0) return WAQContinent.EasternKingdoms;
+                if (mapID == 1) return WAQContinent.Kalimdor;
+                if (mapID == 571) return WAQContinent.Northrend;
+                if (mapID == 530) return WAQContinent.Outlands;
+                return WAQContinent.None;
+            }
         }
     }
 }

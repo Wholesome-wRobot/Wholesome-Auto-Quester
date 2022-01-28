@@ -18,6 +18,7 @@ using wManager.Wow.ObjectManager;
 
 public class Main : IProduct
 {
+    public static string version = "0.0.38"; // Must match version in Version.txt
     public const string ProductName = "Wholesome Auto Quester";
     public const string FileName = "Wholesome_Auto_Quester";
     public static QuestsTrackerGUI QuestTrackerGui = new QuestsTrackerGUI();
@@ -26,7 +27,6 @@ public class Main : IProduct
     public static bool RequestImmediateTaskUpdate;
     public static bool RequestImmediateTaskReset;
 
-    public string version = "0.0.38"; // Must match version in Version.txt
 
     public bool IsStarted { get; private set; }
 
@@ -93,7 +93,7 @@ public class Main : IProduct
                     {
                         if (Conditions.InGameAndConnectedAndProductStartedNotInPause)
                         {
-                            robotManager.Helpful.Timer maxWaitTime = new robotManager.Helpful.Timer(1000);
+                            Timer maxWaitTime = new Timer(1000);
                             while (!maxWaitTime.IsReady)
                             {
                                 if (RequestImmediateTaskReset)
@@ -107,8 +107,14 @@ public class Main : IProduct
                                 await Task.Delay(25);
                             }
                             BlacklistHelper.CleanupBlacklist();
+
                             WAQTasks.UpdateStatuses();
                             WAQTasks.UpdateTasks();
+                            WAQTasks.UpdateTree();
+
+                            QuestTrackerGui.UpdateQuestsList();
+                            QuestTrackerGui.UpdateTasksList();
+
                             RequestImmediateTaskUpdate = false;
                             RequestImmediateTaskReset = false;
                         }
@@ -118,6 +124,7 @@ public class Main : IProduct
                         Logging.WriteError(string.Concat(arg));
                     }
                 }
+                WAQTasks.ResetAll();
             });
 
             Task.Run(async () =>
@@ -136,7 +143,7 @@ public class Main : IProduct
                     {
                         Logging.WriteError(string.Concat(arg));
                     }
-                    await Task.Delay(25);
+                    await Task.Delay(1000 * 60);
                 }
             });
 
@@ -225,18 +232,16 @@ public class Main : IProduct
             return null;
         }
     }
-    /*
-    private static void SmoothMoveKiller(Engine engine, State state, CancelEventArgs cancelable) {
-        if (MoveHelper.IsMovementThreadRunning
-            && state.DisplayName != "Security/Stop game"
-            && !state.DisplayName.Contains("[SmoothMove - Q]")) {
-            Logger.LogDebug($"SmoothMove - Q was running while activating state '{state.DisplayName}'. Killing it.");
-            MoveHelper.StopCurrentMovementThread();
-        }
-    }
-    */
+
     private static void Radar3DOnDrawEvent()
     {
+        if (WAQTasks.MyWMArea != null && WAQTasks.DestinationWMArea != null)
+        {
+            Radar3D.DrawString($"{WAQTasks.MyWMArea.Continent} - {WAQTasks.MyWMArea.areaName} " +
+                $"=> {WAQTasks.DestinationWMArea.Continent} - {WAQTasks.DestinationWMArea.areaName}", 
+                new Vector3(30, 260, 0), 10, Color.BlueViolet);
+        }
+
         if (WAQTasks.TaskInProgress != null)
         {
             Radar3D.DrawString(WAQTasks.TaskInProgress.TaskName, new Vector3(30, 200, 0), 10, Color.AliceBlue);

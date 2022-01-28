@@ -98,6 +98,9 @@
       <HintPath>..\Dependencies\robotManager.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Supercluster.KDTree, Version=1.0.4.0, Culture=neutral, PublicKeyToken=4423da5f8ba350cf, processorArchitecture=MSIL">
+      <HintPath>..\packages\Supercluster.KDTree.1.0.4\lib\Supercluster.KDTree.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.AppContext, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.AppContext.4.3.0\lib\net463\System.AppContext.dll</HintPath>
@@ -291,6 +294,7 @@
   <ItemGroup>
     <Compile Include="AutoUpdater.cs" />
     <Compile Include="Bot\Bot.cs" />
+    <Compile Include="Bot\IWAQTask.cs" />
     <Compile Include="Bot\WAQTask.cs" />
     <Compile Include="Bot\WAQTasks.cs" />
     <Compile Include="Database\DB.cs" />

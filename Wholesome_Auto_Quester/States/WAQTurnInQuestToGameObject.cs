@@ -59,13 +59,8 @@ namespace Wholesome_Auto_Quester.States
             }
             else
             {
-                if (ToolBox.GossipTurnInQuest(task.QuestTitle))
-                {
+                if (ToolBox.GossipTurnInQuest(task.QuestTitle, task.QuestId))
                     Main.RequestImmediateTaskReset = true;
-                    Thread.Sleep(1000);
-                    if (!Quest.HasQuest(task.QuestId))
-                        WAQTasks.MarQuestAsCompleted(task.QuestId);
-                }
                 else
                     task.PutTaskOnTimeout("Failed PickUp Gossip", true);
             }

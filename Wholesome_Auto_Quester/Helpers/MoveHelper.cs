@@ -5,6 +5,7 @@ using System.Threading;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Helpers;
+using wManager.Wow.ObjectManager;
 
 public static class MoveHelper
 {
@@ -31,14 +32,47 @@ public static class MoveHelper
         if (stopWalking)
         {
             MovementManager.StopMove();
+            MovementManager.StopMoveTo();
         }
     }
 
     public static Vector3 CurrentTarget { get; private set; } = Empty;
 
-    public static bool IsMovementThreadRunning => CurrentTarget != Empty;
+    public static bool IsMovementThreadRunning => CurrentTarget != Empty/* || MovementManager.CurrentPath.Count > 0*/;
 
-    public static void StartGoToThread(Vector3 target, string log)
+    public static float GetCurrentPathRemainingDistance()
+    {
+        float result = 0;
+        List<Vector3> currentPath = MovementManager.CurrentPath;
+        Vector3 nextNode = MovementManager.CurrentMoveTo;
+        result += ObjectManager.Me.Position.DistanceTo(nextNode);
+        bool nextNodeFound = false;
+        for (int i = 0; i < currentPath.Count - 1; i++)
+        {
+            if (!nextNodeFound && currentPath[i] == nextNode)
+            {
+                nextNodeFound = true;
+            }
+            if (nextNodeFound)
+            {
+                result += currentPath[i].DistanceTo(currentPath[i + 1]);
+            }
+        }
+        return result;
+    }
+
+    public static float GetCurrentPathTotalDistance()
+    {
+        float result = 0;
+        List<Vector3> currentPath = MovementManager.CurrentPath;
+        for (int i = 0; i < currentPath.Count - 1; i++)
+        {
+            result += currentPath[i].DistanceTo(currentPath[i + 1]);
+        }
+        return result;
+    }
+
+    public static void StartGoToThread(Vector3 target, string log = null)
     {
         lock (Lock)
         {
@@ -53,9 +87,12 @@ public static class MoveHelper
             Running = true;
             ThreadPool.QueueUserWorkItem(_ =>
             {
-                //Logger.Log($"GoToTask started towards {target}");
+                if (log != null)
+                {
+                    Logger.Log(log);
+                }
                 GoToTask.ToPosition(target, conditionExit: _ => Running);
-                //Logger.Log($"GoToTask finished towards {target}");
+                Logger.Log($"GoToTask finished towards {target}");
                 lock (Lock)
                 {
                     CurrentTarget = Empty;

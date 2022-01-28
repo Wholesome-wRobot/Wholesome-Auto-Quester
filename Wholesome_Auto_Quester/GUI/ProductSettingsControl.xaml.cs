@@ -20,6 +20,16 @@ namespace Wholesome_Auto_Quester.GUI
             GrindOnly.IsChecked = WholesomeAQSettings.CurrentSetting.GrindOnly;
             ContinentTravel.IsChecked = WholesomeAQSettings.CurrentSetting.ContinentTravel;
             AbandonUnfit.IsChecked = WholesomeAQSettings.CurrentSetting.AbandonUnfitQuests;
+            GoToMobEntry.Value = WholesomeAQSettings.CurrentSetting.GoToMobEntry;
+        }
+
+        private void GoToMobEntryChanged(object sender, RoutedEventArgs e)
+        {
+            if (GoToMobEntry.Value != null)
+                WholesomeAQSettings.CurrentSetting.GoToMobEntry = (int)GoToMobEntry.Value;
+            else
+                WholesomeAQSettings.CurrentSetting.GoToMobEntry = 0;
+            WholesomeAQSettings.CurrentSetting.Save();
         }
 
         private void AbandonUnfitChanged(object sender, RoutedEventArgs e)
@@ -55,14 +65,20 @@ namespace Wholesome_Auto_Quester.GUI
 
         private void LevelDeltaMinusChanged(object sender, RoutedEventArgs e)
         {
-            WholesomeAQSettings.CurrentSetting.LevelDeltaMinus = (int)LevelDeltaMinus.Value;
+            if (LevelDeltaMinus.Value != null)
+                WholesomeAQSettings.CurrentSetting.LevelDeltaMinus = (int)LevelDeltaMinus.Value;
+            else
+                WholesomeAQSettings.CurrentSetting.LevelDeltaMinus = 0;
             WholesomeAQSettings.CurrentSetting.Save();
             DeltaDetails.Text = GetDeltaDetailsString();
         }
 
         private void LevelDeltaPlusChanged(object sender, RoutedEventArgs e)
         {
-            WholesomeAQSettings.CurrentSetting.LevelDeltaPlus = (int)LevelDeltaPlus.Value;
+            if (LevelDeltaPlus.Value != null)
+                WholesomeAQSettings.CurrentSetting.LevelDeltaPlus = (int)LevelDeltaPlus.Value;
+            else
+                WholesomeAQSettings.CurrentSetting.LevelDeltaPlus = 0;
             WholesomeAQSettings.CurrentSetting.Save();
             DeltaDetails.Text = GetDeltaDetailsString();
         }
