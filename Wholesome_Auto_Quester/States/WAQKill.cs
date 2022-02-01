@@ -1,6 +1,7 @@
-﻿using robotManager.FiniteStateMachine;
+﻿/*using robotManager.FiniteStateMachine;
 using System.Threading;
-using Wholesome_Auto_Quester.Bot;
+using Wholesome_Auto_Quester.Bot.TaskManagement;
+using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Enums;
@@ -11,6 +12,13 @@ namespace Wholesome_Auto_Quester.States
 {
     class WAQKill : State
     {
+        private IWowObjectScanner _scanner;
+        public WAQKill(IWowObjectScanner scanner, int priority)
+        {
+            _scanner = scanner;
+            Priority = priority;
+        }
+
         public override string DisplayName { get; set; } = "Kill creature [SmoothMove - Q]";
 
         public override bool NeedToRun
@@ -75,3 +83,4 @@ namespace Wholesome_Auto_Quester.States
         }
     }
 }
+*/

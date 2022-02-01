@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Database.Objectives;
 using Wholesome_Auto_Quester.Helpers;
@@ -19,7 +18,7 @@ namespace Wholesome_Auto_Quester.Database
             _database = new DB();
         }
 
-        public void DisposeDb()
+        private void DisposeDb()
         {
             _database.Dispose();
         }
@@ -100,11 +99,11 @@ namespace Wholesome_Auto_Quester.Database
                     continue;
                 }
 
-                if (q.KillLootObjectives.Any(klo => klo.ItemSpell1 != null)
-                    || q.KillLootObjectives.Any(klo => klo.ItemSpell2 != null)
-                    || q.KillLootObjectives.Any(klo => klo.ItemSpell3 != null)
-                    || q.KillLootObjectives.Any(klo => klo.ItemSpell4 != null)
-                    || q.KillLootObjectives.Any(klo => (klo.ItemFLags & 64) != 0)) // flag PLAYER_CAST
+                if (q.KillLootObjectives.Any(klo => klo.ItemTemplate.Spell1 != null)
+                    || q.KillLootObjectives.Any(klo => klo.ItemTemplate.Spell2 != null)
+                    || q.KillLootObjectives.Any(klo => klo.ItemTemplate.Spell3 != null)
+                    || q.KillLootObjectives.Any(klo => klo.ItemTemplate.Spell4 != null)
+                    || q.KillLootObjectives.Any(klo => (klo.ItemTemplate.Flags & 64) != 0)) // flag PLAYER_CAST
                 {
                     //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Active loot item)");
                     continue;
@@ -114,17 +113,16 @@ namespace Wholesome_Auto_Quester.Database
             return result;
         }
 
-        public void GetAvailableQuests()
+        public List<ModelQuestTemplate> GetAvailableQuests()
         {
             Stopwatch stopwatch = Stopwatch.StartNew();
-            
+
             if (!ToolBox.WoWDBFileIsPresent())
             {
                 // DOWNLOAD ZIP ETC..
-                Logger.LogError("Couldn't find the database in your wRobot/Data folder");
                 DisposeDb();
                 Products.ProductStop();
-                return;
+                throw new System.Exception("Couldn't find the database in your wRobot/Data folder");
             }
 
             _database.CreateIndices();
@@ -365,7 +363,7 @@ namespace Wholesome_Auto_Quester.Database
 
             Logger.Log($"DONE! Process time (TOTAL) : {stopwatch.ElapsedMilliseconds} ms");
 
-            WAQTasks.AddQuests(allFilteredQuests);
+            return allFilteredQuests;
         }
     }
 }

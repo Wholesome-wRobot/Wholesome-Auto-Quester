@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Diagnostics;
 using System.Linq;
-using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Helpers;
@@ -34,10 +33,10 @@ namespace Wholesome_Auto_Quester.Database
         public List<int> QueryPreviousQuestsIdsByQuestId(int questId)
         {
             string query = $@"
-                    SELECT ID FROM quest_template_addon
-                    WHERE NextQuestId = {questId}
-                    GROUP BY ID
-                ";
+                SELECT ID FROM quest_template_addon
+                WHERE NextQuestId = {questId}
+                GROUP BY ID
+            ";
             List<int> result = _con.Query<int>(query).ToList();
             return result;
         }
@@ -45,10 +44,10 @@ namespace Wholesome_Auto_Quester.Database
         public List<int> QueryNextQuestsIdsByQuestId(int questId)
         {
             string query = $@"
-                    SELECT ID FROM quest_template_addon
-                    WHERE PrevQuestId = {questId}
-                    GROUP BY ID
-                ";
+                SELECT ID FROM quest_template_addon
+                WHERE PrevQuestId = {questId}
+                GROUP BY ID
+            ";
             List<int> result = _con.Query<int>(query).ToList();
             return result;
         }
@@ -159,6 +158,7 @@ namespace Wholesome_Auto_Quester.Database
         public List<ModelCreatureTemplate> QueryCreatureTemplatesToGrind()
         {
             uint myLevel = ObjectManager.Me.Level;
+            if (myLevel == 1) myLevel = 3;
             string queryTemplates = $@"
                 SELECT * FROM creature_template ct
                 WHERE 
@@ -167,7 +167,6 @@ namespace Wholesome_Auto_Quester.Database
 	                AND ct.type = 1
             ";
             List<ModelCreatureTemplate> result = _con.Query<ModelCreatureTemplate>(queryTemplates).ToList();
-            if (result.Count <= 0) return null;
             result.ForEach(ct => ct.Creatures = QueryCreaturesById(ct.entry, false));
             if (result.Exists(ct => ct.Creatures.Count > 10))
                 result.RemoveAll(ct => ct.Creatures.Count < 10);
@@ -279,10 +278,10 @@ namespace Wholesome_Auto_Quester.Database
         public List<ModelGameObjectTemplate> QueryGameObjectQuestGivers(int questId)
         {
             string queryGOGiverssIds = $@"
-                    SELECT id
-                    FROM gameobject_queststarter
-                    WHERE quest = {questId}
-                ";
+                SELECT id
+                FROM gameobject_queststarter
+                WHERE quest = {questId}
+            ";
             List<int> ids = _con.Query<int>(queryGOGiverssIds).ToList();
 
             List<ModelGameObjectTemplate> result = new List<ModelGameObjectTemplate>();
@@ -294,10 +293,10 @@ namespace Wholesome_Auto_Quester.Database
         public List<ModelGameObjectTemplate> QueryGameObjectQuestEnders(int questId)
         {
             string queryGOEndersIds = $@"
-                    SELECT id
-                    FROM gameobject_questender
-                    WHERE quest = {questId}
-                ";
+                SELECT id
+                FROM gameobject_questender
+                WHERE quest = {questId}
+            ";
             List<int> ids = _con.Query<int>(queryGOEndersIds).ToList();
 
             List<ModelGameObjectTemplate> result = new List<ModelGameObjectTemplate>();
@@ -309,10 +308,10 @@ namespace Wholesome_Auto_Quester.Database
         public List<ModelCreatureTemplate> QueryCreatureQuestEnders(int questId)
         {
             string queryQuestEndersIds = $@"
-                    SELECT id
-                    FROM creature_questender
-                    WHERE quest = {questId}
-                ";
+                SELECT id
+                FROM creature_questender
+                WHERE quest = {questId}
+            ";
             List<int> questEndersIds = _con.Query<int>(queryQuestEndersIds).ToList();
 
             List<ModelCreatureTemplate> result = new List<ModelCreatureTemplate>();
@@ -324,10 +323,10 @@ namespace Wholesome_Auto_Quester.Database
         public List<ModelCreatureTemplate> QueryCreatureQuestGiver(int questId)
         {
             string queryQuestGiversIds = $@"
-                    SELECT id
-                    FROM creature_queststarter
-                    WHERE quest = {questId}
-                ";
+                SELECT id
+                FROM creature_queststarter
+                WHERE quest = {questId}
+            ";
             List<int> questGiversIds = _con.Query<int>(queryQuestGiversIds).ToList();
 
             List<ModelCreatureTemplate> result = new List<ModelCreatureTemplate>();
@@ -338,14 +337,6 @@ namespace Wholesome_Auto_Quester.Database
 
         public List<ModelQuestTemplate> QueryQuests()
         {
-            /*
-            if (WholesomeAQSettings.CurrentSetting.GrindOnly)
-            {
-                WAQTasks.Quests.Clear();
-                WAQTasks.TasksPile.Clear();
-                return new List<ModelQuestTemplate>();
-            }
-            */
             Stopwatch stopwatch = Stopwatch.StartNew();
             int levelDeltaMinus = System.Math.Max((int)ObjectManager.Me.Level - WholesomeAQSettings.CurrentSetting.LevelDeltaMinus, 1);
             int levelDeltaPlus = (int)ObjectManager.Me.Level + WholesomeAQSettings.CurrentSetting.LevelDeltaPlus;
@@ -367,11 +358,11 @@ namespace Wholesome_Auto_Quester.Database
             }
 
             string queryQuest = $@"
-                    SELECT * 
-                    FROM quest_template
-                    WHERE MinLevel <= {myLevel}
-                    AND (QuestType <> 0 OR Unknown0 <> 1);
-                ";
+                SELECT * 
+                FROM quest_template
+                WHERE MinLevel <= {myLevel}
+                AND (QuestType <> 0 OR Unknown0 <> 1);
+            ";
             List<ModelQuestTemplate> result = _con.Query<ModelQuestTemplate>(queryQuest).ToList();
 
             result.ForEach(q =>
@@ -381,9 +372,9 @@ namespace Wholesome_Auto_Quester.Database
                     q.QuestLevel += levelModifier;
                 }
             });
-            result.RemoveAll(q => 
-                (q.QuestLevel > levelDeltaPlus || q.QuestLevel < levelDeltaMinus) 
-                && q.QuestLevel != -1 
+            result.RemoveAll(q =>
+                (q.QuestLevel > levelDeltaPlus || q.QuestLevel < levelDeltaMinus)
+                && q.QuestLevel != -1
                 && (!logQuestsIds.Contains(q.Id) || q.QuestLevel > levelDeltaPlus));
             result.RemoveAll(q => questSortIdsToIgnore.Contains(q.QuestSortID));
 
@@ -405,9 +396,9 @@ namespace Wholesome_Auto_Quester.Database
         public List<ModelWorldMapArea> QueryWorldMapAreas()
         {
             string queryWMap = $@"
-                    SELECT *
-                    FROM world_map_area
-                ";
+                SELECT *
+                FROM world_map_area
+            ";
             return _con.Query<ModelWorldMapArea>(queryWMap).ToList();
         }
 
@@ -415,10 +406,10 @@ namespace Wholesome_Auto_Quester.Database
         {
             if (exclusiveGroup == 0) return new List<int>();
             string queryQuestExcl = $@"
-                    SELECT id
-                    FROM quest_template_addon
-                    WHERE ExclusiveGroup = {exclusiveGroup}
-                ";
+                SELECT id
+                FROM quest_template_addon
+                WHERE ExclusiveGroup = {exclusiveGroup}
+            ";
             List<int> result = _con.Query<int>(queryQuestExcl).ToList();
             return result;
         }

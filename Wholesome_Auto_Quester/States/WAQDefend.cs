@@ -2,7 +2,6 @@ using robotManager.FiniteStateMachine;
 using robotManager.Helpful;
 using System.Collections.Generic;
 using System.Linq;
-using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Helpers;
@@ -51,7 +50,7 @@ namespace Wholesome_Auto_Quester.States
                 IOrderedEnumerable<WoWUnit> attackingMe = justUnits
                     .Where(unit => /*unit.Level <= myLevel + 3 
                         && */!unit.PlayerControlled
-                        && unit.IsAttackable 
+                        && unit.IsAttackable
                         && (unit.Target == myGuid || myPets.Exists(pet => pet.Guid == unit.Target)))
                     .OrderBy(unit => unit.PositionWithoutType.DistanceTo(myPos));
 

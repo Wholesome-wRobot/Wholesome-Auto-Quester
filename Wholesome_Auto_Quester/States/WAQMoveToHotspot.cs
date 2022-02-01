@@ -1,8 +1,8 @@
 ﻿using robotManager.FiniteStateMachine;
-using Wholesome_Auto_Quester.Bot;
+using Wholesome_Auto_Quester.Bot.TaskManagement;
+using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Helpers;
 using wManager;
-using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
@@ -10,6 +10,14 @@ namespace Wholesome_Auto_Quester.States
 {
     class WAQMoveToHotspot : State
     {
+        private ITaskManager _taskManager;
+
+        public WAQMoveToHotspot(ITaskManager taskManager, int priority)
+        {
+            _taskManager = taskManager;
+            Priority = priority;
+        }
+
         public override string DisplayName { get; set; } = "Move to hotspot [SmoothMove - Q]";
 
         public override bool NeedToRun
@@ -20,10 +28,9 @@ namespace Wholesome_Auto_Quester.States
                     || !ObjectManager.Me.IsValid)
                     return false;
 
-                if (WAQTasks.TaskInProgress != null && WAQTasks.WoWObjectInProgress == null)
+                if (_taskManager.ActiveTask != null)
                 {
-                    DisplayName =
-                        $"Moving to hotspot for {WAQTasks.TaskInProgress.QuestTitle} ({WAQTasks.TaskInProgress.TaskType}) [SmoothMove - Q]";
+                    DisplayName = $"Moving to hotspot for {_taskManager.ActiveTask.TaskName} [SmoothMove - Q]";
                     return true;
                 }
 
@@ -33,24 +40,24 @@ namespace Wholesome_Auto_Quester.States
 
         public override void Run()
         {
-            WAQTask task = WAQTasks.TaskInProgress;
+            IWAQTask task = _taskManager.ActiveTask;
 
             if (wManagerSetting.IsBlackListedZone(task.Location))
             {
                 Logger.Log("Aborted because BL");
                 MoveHelper.StopAllMove(true);
-                Main.RequestImmediateTaskReset = true;
                 return;
             }
 
-            if (task.GetDistance <= 20 && WholesomeAQSettings.CurrentSetting.GoToMobEntry <= 0)
+            if (task.Location.DistanceTo(ObjectManager.Me.Position) <= task.SearchRadius && WholesomeAQSettings.CurrentSetting.GoToMobEntry <= 0)
             {
-                task.PutTaskOnTimeout($"Couldn't find {task.TargetName} ({task.TaskType})");
-                Main.RequestImmediateTaskReset = true;
+                task.PutTaskOnTimeout($"Couldn't find target for {task.TaskName}");
             }
 
             if (task.Location.DistanceTo(ObjectManager.Me.Position) > 19)
-                MoveHelper.StartGoToThread(task.Location, $"Moving to hotspot for {task.QuestTitle} ({task.TaskType})");
+            {
+                MoveHelper.StartGoToThread(task.Location, $"Moving to hotspot for {task.TaskName}");
+            }
         }
     }
 }

@@ -123,7 +123,7 @@
                             <DataTemplate>
                                 <Grid Margin="0,2">
                                     <TextBlock 
-                                            Text="{Binding LogTitle}"
+                                            Text="{Binding QuestTemplate.LogTitle}"
                                             Foreground="{Binding TrackerColor}"/>
                                 </Grid>
                             </DataTemplate>

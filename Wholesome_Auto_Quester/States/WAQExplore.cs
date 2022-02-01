@@ -1,13 +1,21 @@
-﻿using robotManager.FiniteStateMachine;
-using Wholesome_Auto_Quester.Bot;
+﻿/*using robotManager.FiniteStateMachine;
+using Wholesome_Auto_Quester.Bot.TaskManagement;
+using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.States
 {
-    class WAQGoTo : State
+    class WAQExplore : State
     {
+        private IWowObjectScanner _scanner;
+        public WAQExplore(IWowObjectScanner scanner, int priority)
+        {
+            _scanner = scanner;
+            Priority = priority;
+        }
+
         public override string DisplayName { get; set; } = "Go To [SmoothMove - Q]";
 
         public override bool NeedToRun
@@ -47,3 +55,4 @@ namespace Wholesome_Auto_Quester.States
         }
     }
 }
+*/

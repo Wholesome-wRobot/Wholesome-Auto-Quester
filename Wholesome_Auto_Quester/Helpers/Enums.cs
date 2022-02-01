@@ -32,17 +32,6 @@
         Druid = 1024
     }
 
-    public enum QuestStatus
-    {
-        ToTurnIn,
-        InProgress,
-        ToPickup,
-        Failed,
-        None,
-        Completed,
-        Blacklisted
-    }
-
     public enum TaskType
     {
         TurnInQuestToCreature,

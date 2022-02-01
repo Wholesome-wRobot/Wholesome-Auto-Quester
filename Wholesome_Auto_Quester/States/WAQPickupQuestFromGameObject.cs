@@ -1,6 +1,7 @@
-﻿using robotManager.FiniteStateMachine;
+﻿/*using robotManager.FiniteStateMachine;
 using System.Threading;
-using Wholesome_Auto_Quester.Bot;
+using Wholesome_Auto_Quester.Bot.TaskManagement;
+using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
@@ -10,6 +11,13 @@ namespace Wholesome_Auto_Quester.States
 {
     class WAQPickupQuestFromGameObject : State
     {
+        private IWowObjectScanner _scanner;
+        public WAQPickupQuestFromGameObject(IWowObjectScanner scanner, int priority)
+        {
+            _scanner = scanner;
+            Priority = priority;
+        }
+
         public override string DisplayName { get; set; } = "Pick up quest [SmoothMove - Q]";
 
         public override bool NeedToRun
@@ -72,4 +80,4 @@ namespace Wholesome_Auto_Quester.States
             }
         }
     }
-}
+}*/

@@ -1,6 +1,7 @@
-﻿using robotManager.FiniteStateMachine;
+﻿/*using robotManager.FiniteStateMachine;
 using System.Collections.Generic;
-using Wholesome_Auto_Quester.Bot;
+using Wholesome_Auto_Quester.Bot.TaskManagement;
+using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Helpers;
@@ -10,6 +11,16 @@ namespace Wholesome_Auto_Quester.States
 {
     class WAQLoot : State
     {
+        private IWowObjectScanner _scanner;
+        private ITaskManager _taskManager;
+
+        public WAQLoot(IWowObjectScanner scanner, ITaskManager taskManager, int priority)
+        {
+            _taskManager = taskManager;
+            _scanner = scanner;
+            Priority = priority;
+        }
+
         public override string DisplayName { get; set; } = "WAQLoot [SmoothMove - Q]";
 
         public override bool NeedToRun
@@ -18,18 +29,21 @@ namespace Wholesome_Auto_Quester.States
             {
                 if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause
                     || !ObjectManager.Me.IsValid
-                    || WAQTasks.WoWObjectInProgress == null)
+                    || _scanner.ActiveWoWObject == null)
                     return false;
 
-                WoWObject npc = WAQTasks.WoWObjectInProgress;
-                if (WAQTasks.TaskInProgress?.TaskType == TaskType.KillAndLoot && !ObjectManager.Me.InCombatFlagOnly)
+                if (_scanner.ActiveWoWObject is WoWUnit)
                 {
-                    WoWUnit lootTarget = (WoWUnit)WAQTasks.WoWObjectInProgress;
-                    if (lootTarget.IsDead)
+                    WoWUnit lootTarget = (WoWUnit)_scanner.ActiveWoWObject;
+                    if (lootTarget.IsDead && lootTarget.IsLootable)
                     {
-                        DisplayName = $"Loot {WAQTasks.TaskInProgress.TargetName} for {WAQTasks.TaskInProgress.QuestTitle} [SmoothMove - Q]";
+                        DisplayName = $"{_taskManager.ActiveTask.TaskName} [SmoothMove - Q]";
                         return true;
                     }
+                }
+                else
+                {
+                    throw new System.Exception($"Tried to loot {_scanner.ActiveWoWObject.Name} but it's not a WoWUnit");
                 }
 
                 return false;
@@ -38,19 +52,24 @@ namespace Wholesome_Auto_Quester.States
 
         public override void Run()
         {
-            WoWObject npc = WAQTasks.WoWObjectInProgress;
-            WAQTask task = WAQTasks.TaskInProgress;
+            WoWObject npc = _scanner.ActiveWoWObject;
+            IWAQTask task = _taskManager.ActiveTask;
 
             WoWUnit lootTarget = (WoWUnit)npc;
 
             if (ToolBox.HostilesAreAround(lootTarget))
+            {
                 return;
+            }
 
             Logger.Log($"Looting {lootTarget.Name}");
             LootingTask.Pulse(new List<WoWUnit> { lootTarget });
+
             if (!lootTarget.IsLootable)
+            {
                 task.PutTaskOnTimeout("Completed");
-            Main.RequestImmediateTaskReset = true;
+            }
         }
     }
 }
+*/

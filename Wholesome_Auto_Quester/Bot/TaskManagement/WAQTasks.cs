@@ -1,20 +1,19 @@
-﻿using robotManager.Helpful;
+﻿/*using robotManager.Helpful;
 using Supercluster.KDTree;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Database;
 using Wholesome_Auto_Quester.Database.Models;
-using Wholesome_Auto_Quester.Database.Objectives;
 using Wholesome_Auto_Quester.Helpers;
 using Wholesome_Auto_Quester.States;
 using wManager;
-using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 using static wManager.Wow.Helpers.Quest.PlayerQuest;
 
-namespace Wholesome_Auto_Quester.Bot
+namespace Wholesome_Auto_Quester.Bot.TaskManagement
 {
     public class WAQTasks
     {
@@ -30,24 +29,6 @@ namespace Wholesome_Auto_Quester.Bot
         public static int NbQuestsInProgress { get; set; }
         public static ModelWorldMapArea DestinationWMArea { get; set; }
         public static ModelWorldMapArea MyWMArea { get; set; }
-        public static KDTree<float, WAQTask> SpaceTree { get; private set; } = new KDTree<float, WAQTask>(3, new float[][] { new float[] { 0, 0, 0 } }, new WAQTask[] { null }, Distance);
-
-        private static double Distance(float[] x, float[] y)
-        {
-            double dist = 0f;
-            for (int i = 0; i < x.Length; i++)
-            {
-                dist += (x[i] - y[i]) * (x[i] - y[i]);
-            }
-            return dist;
-        }
-
-        private static KDTree<float, WAQTask> BuildTree(List<WAQTask> tasks)
-        {
-            var tasksVectors = tasks.Select(x => new float[] { x.Location.X, x.Location.Y, x.Location.Z }).ToArray();
-            var tasksArray = tasks.ToArray();
-            return new KDTree<float, WAQTask>(3, tasksVectors, tasksArray, Distance);
-        }
 
         public static void AddQuests(List<ModelQuestTemplate> quests)
         {
@@ -66,7 +47,7 @@ namespace Wholesome_Auto_Quester.Bot
             }
             SpaceTree = BuildTree(pile);
         }
-
+        /*
         public static void UpdateTasks()
         {
             _tick++;
@@ -91,8 +72,8 @@ namespace Wholesome_Auto_Quester.Bot
                     || me.HaveBuff("Drink")
                     || me.HaveBuff("Food"))
                     return;
-            }
-
+            }*/
+            /*
             // FORCE TRAVEL
             if (WholesomeAQSettings.CurrentSetting.GoToMobEntry > 0)
             {
@@ -113,15 +94,15 @@ namespace Wholesome_Auto_Quester.Bot
                     Logger.LogError($"NPC {WholesomeAQSettings.CurrentSetting.GoToMobEntry} couldn't be found");
                 return;
             }
-
+            
             var generatedQuestTasks = new List<WAQTask>();
             int myContinent = Usefuls.ContinentId;
             int myLevel = (int)ObjectManager.Me.Level;
             Vector3 myPosition = ObjectManager.Me.Position;
-
+            /*
             ToolBox.UpdateObjectiveCompletionDict(Quests.Where(quest => quest.Status == QuestStatus.InProgress)
                 .Select(quest => quest.Id).ToArray());
-
+            /*
             // TASK GENERATION
             if (WholesomeAQSettings.CurrentSetting.GoToMobEntry <= 0 && !WholesomeAQSettings.CurrentSetting.GrindOnly)
             {
@@ -374,28 +355,31 @@ namespace Wholesome_Auto_Quester.Bot
                         }
                     }
                 }
-            }
-
+            }*/
+            /*
             WAQTask closestTask = null;
 
             if (!MoveHelper.IsMovementThreadRunning || MoveHelper.GetCurrentPathRemainingDistance() < 100 || TaskInProgress == null)
             {
                 //Logger.Log("Updating Task pile");
                 TasksPile.AddRange(generatedQuestTasks);
-
+                
                 if (!WholesomeAQSettings.CurrentSetting.ContinentTravel)
                     TasksPile.RemoveAll(t => !t.IsOnMyContinent);
-
+                */
+                /*
                 TasksPile = TasksPile
                     .Where(t => !wManagerSetting.IsBlackListedZone(t.Location))
                     .OrderBy(t => t.Priority).ToList();
-
+                */
+                /*
                 if (TasksPile.Any(t => t.TaskType != TaskType.Grind && !t.IsTimedOut))
                     TasksPile.RemoveAll(t => t.TaskType == TaskType.Grind);
 
                 closestTask = TasksPile.Find(t => !t.IsTimedOut && !wManagerSetting.IsBlackListedZone(t.Location));
 
                 // If no task is found we generate Grind tasks
+                /*
                 if (closestTask == null)
                 {
                     Logger.Log("No task found");
@@ -411,9 +395,10 @@ namespace Wholesome_Auto_Quester.Bot
                             TasksPile.Add(new WAQTask(TaskType.Grind, ct.name, ct.entry, c)));
                     });
                     return;
-                }
+                }*/
 
                 // Check for travel
+                /*
                 if (TravelHelper.NeedToTravelTo(closestTask))
                 {
                     TaskInProgress = closestTask;
@@ -422,9 +407,10 @@ namespace Wholesome_Auto_Quester.Bot
                     DestinationWMArea = TravelHelper.GetWorldMapAreaFromPoint(TaskInProgress.Location, TaskInProgress.Continent);
                     return;
                 }
-
+                
                 // GET TASK PATH
                 //var watchTaskLong = Stopwatch.StartNew();
+
                 WAQPath pathToClosestTask = ToolBox.GetWAQPath(myPosition, closestTask.Location);
 
                 if (!pathToClosestTask.IsReachable)
@@ -471,6 +457,7 @@ namespace Wholesome_Auto_Quester.Bot
             // WOWOBJECT SCANNER
 
             // Get unique POIs
+            /*
             var researchedTasks = new List<WAQTask>();
             var wantedUnitEntries = new List<int>();
             var wantedObjectEntries = new List<int>();
@@ -494,8 +481,9 @@ namespace Wholesome_Auto_Quester.Bot
             });
 
             EntriesToLoot = wantedLootEntries;
-
+            */
             // Look for surrounding POIs
+            /*
             WAQObjectManager = ObjectManager.GetObjectWoW()
                 .OrderBy(o => o.GetDistance)
                 .ToList();
@@ -510,7 +498,7 @@ namespace Wholesome_Auto_Quester.Bot
                     && !wManagerSetting.IsBlackListedZone(o.Position)
                     && IsObjectValidForTask(o, researchedTasks.Find(task => task.TargetEntry == objectEntry));
             }).ToList();
-
+            
             //Logger.Log($"Scanning surroundings {filteredSurroundingObjects.Count}");
 
             // Get objects real distance
@@ -553,8 +541,8 @@ namespace Wholesome_Auto_Quester.Bot
                 }
 
                 if (!pathToClosestObject.IsReachable
-                    /*|| MoveHelper.IsMovementThreadRunning && pathToClosestObject.Distance > MoveHelper.GetCurrentPathTotalDistance() + 20*/) // ici pas bon
-                {
+                    /*|| MoveHelper.IsMovementThreadRunning && pathToClosestObject.Distance > MoveHelper.GetCurrentPathTotalDistance() + 20*///) // ici pas bon
+                /*{
                     WoWObjectInProgress = null;
                 }
                 else
@@ -579,8 +567,8 @@ namespace Wholesome_Auto_Quester.Bot
                 MyWMArea = TravelHelper.GetWorldMapAreaFromPoint(ObjectManager.Me.Position, Usefuls.ContinentId);
                 DestinationWMArea = TravelHelper.GetWorldMapAreaFromPoint(TaskInProgress.Location, TaskInProgress.Continent);
             }
-        }
-
+        }*/
+        /*
         private static bool IsObjectValidForTask(WoWObject wowObject, WAQTask task)
         {
             if (task.TaskType == TaskType.KillAndLoot)
@@ -598,7 +586,7 @@ namespace Wholesome_Auto_Quester.Bot
             }
             return true;
         }
-
+        /*
         public static void UpdateStatuses()
         {
             if (WAQTravel.InTravel || WholesomeAQSettings.CurrentSetting.GrindOnly || WholesomeAQSettings.CurrentSetting.GoToMobEntry > 0)
@@ -731,8 +719,8 @@ namespace Wholesome_Auto_Quester.Bot
                 wManagerSetting.CurrentSetting.DoNotSellList.InsertRange(WAQlistStartIndex + 1, itemsToAddToDNSList);
                 wManagerSetting.CurrentSetting.Save();
             }
-        }
-
+        }*/
+        /*
         public static void MarQuestAsCompleted(int questId)
         {
             if (!WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Contains(questId))
@@ -741,7 +729,8 @@ namespace Wholesome_Auto_Quester.Bot
                 WholesomeAQSettings.CurrentSetting.Save();
             }
         }
-
+        */
+        /*
         public static void ResetAll()
         {
             TaskInProgress = null;
@@ -750,6 +739,6 @@ namespace Wholesome_Auto_Quester.Bot
             Quests.Clear();
             MyWMArea = null;
             DestinationWMArea = null;
-        }
+        
     }
-}
+}*/

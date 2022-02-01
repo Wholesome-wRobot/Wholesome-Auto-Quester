@@ -1,11 +1,7 @@
-﻿using robotManager.FiniteStateMachine;
-using robotManager.Helpful;
-using System.Collections.Generic;
-using System.Linq;
+﻿/*using robotManager.FiniteStateMachine;
 using System.Threading;
-using Wholesome_Auto_Quester.Bot;
+using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Helpers;
-using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
@@ -14,6 +10,13 @@ namespace Wholesome_Auto_Quester.States
 {
     class WAQGatherWorldObject : State
     {
+        private IWowObjectScanner _scanner;
+        public WAQGatherWorldObject(IWowObjectScanner scanner, int priority)
+        {
+            _scanner = scanner;
+            Priority = priority;
+        }
+
         public override string DisplayName { get; set; } = "Gather world object [SmoothMove - Q]";
 
         public override bool NeedToRun
@@ -24,10 +27,10 @@ namespace Wholesome_Auto_Quester.States
                     || !ObjectManager.Me.IsValid)
                     return false;
 
-                if (WAQTasks.TaskInProgress?.TaskType == TaskType.GatherGameObject && WAQTasks.WoWObjectInProgress != null)
+                if (_scanner.ActiveWoWObject.Item1 != null)
                 {
                     DisplayName =
-                        $"Gather world object {WAQTasks.TaskInProgress.TargetName} for {WAQTasks.TaskInProgress.QuestTitle} [SmoothMove - Q]";
+                        $"Gather world object {_scanner.ActiveWoWObject.Item1.Name} for {_scanner.ActiveWoWObject.Item2.TaskName} [SmoothMove - Q]";
                     return true;
                 }
 
@@ -63,4 +66,4 @@ namespace Wholesome_Auto_Quester.States
             Main.RequestImmediateTaskReset = true;
         }
     }
-}
+}*/

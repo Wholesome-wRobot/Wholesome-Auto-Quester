@@ -8,7 +8,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using Wholesome_Auto_Quester.Bot;
+using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Database.Models;
 using wManager;
 using wManager.Wow.Bot.Tasks;
@@ -25,7 +25,6 @@ namespace Wholesome_Auto_Quester.Helpers
         private static readonly Stopwatch Watch = Stopwatch.StartNew();
         public static readonly Random Rnd = new Random();
 
-        private static HashSet<int> _completeQuests;
 
         private static Dictionary<int, bool[]> _objectiveCompletionDict = new Dictionary<int, bool[]>();
 
@@ -105,7 +104,7 @@ namespace Wholesome_Auto_Quester.Helpers
 
         public static long CurTime => Watch.ElapsedMilliseconds;
 
-        public static bool HostilesAreAround(WoWObject POI, float clearDistance = 25f)
+        public static bool HostilesAreAround(WoWObject POI, IWAQTask task, float clearDistance = 25f)
         {
             //Logger.Log($"CHECK - Mounted = {ObjectManager.Me.IsMounted}, incomb = {ObjectManager.Me.InCombatFlagOnly}, dist={POI.GetDistance}");
             WoWUnit poiUnit = POI is WoWUnit ? (WoWUnit)POI : null;
@@ -139,8 +138,7 @@ namespace Wholesome_Auto_Quester.Helpers
                 MoveHelper.StopAllMove(true);
                 BlacklistHelper.AddNPC(POI.Guid, "Surrounded by hostiles");
                 BlacklistHelper.AddZone(POI.Position, 20, "Surrounded by hostiles");
-                WAQTasks.TaskInProgress.PutTaskOnTimeout(600, $"{POI.Name} is surrounded by hostiles");
-                Main.RequestImmediateTaskReset = true;
+                task.PutTaskOnTimeout($"{POI.Name} is surrounded by hostiles", 60 * 5);
                 return true;
             }
 
@@ -251,6 +249,7 @@ namespace Wholesome_Auto_Quester.Helpers
             	return 1;
             end
             return 2;");
+
             switch (exitCodeOpen)
             {
                 case 1:
@@ -296,9 +295,13 @@ namespace Wholesome_Auto_Quester.Helpers
 
             robotManager.Helpful.Timer timer = new robotManager.Helpful.Timer(3000);
             while (!Quest.HasQuest(questId) && !timer.IsReady)
+            {
                 Thread.Sleep(100);
+            }
             if (timer.IsReady)
+            {
                 return false;
+            }
 
             Logger.Log($"Turned in quest {questName}.");
 
@@ -343,6 +346,7 @@ namespace Wholesome_Auto_Quester.Helpers
             	return 1;
             end
             return 2;");
+
             switch (exitCodeOpen)
             {
                 case 1:
@@ -355,7 +359,7 @@ namespace Wholesome_Auto_Quester.Helpers
                     Logger.Log($"The quest {questName} is an autocomplete.");
                     Thread.Sleep(200);
                     Quest.CompleteQuest();
-                    WAQTasks.MarQuestAsCompleted(questId);
+                    SaveQuestAsCompleted(questId);
                     return true;
             }
 
@@ -390,6 +394,15 @@ namespace Wholesome_Auto_Quester.Helpers
             Logger.Log($"Picked up quest {questName}.");
 
             return true;
+        }
+
+        public static void SaveQuestAsCompleted(int questId)
+        {
+            if (!WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Contains(questId))
+            {
+                WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Add(questId);
+                WholesomeAQSettings.CurrentSetting.Save();
+            }
         }
 
         internal static int GetIndexOfClosestPoint(List<Vector3> path)
@@ -427,37 +440,18 @@ namespace Wholesome_Auto_Quester.Helpers
             Vector3 projection = start + (end - start) * clippedSegment;
             return point.DistanceTo(projection);
         }
-
+        /*
         public static bool MoveToHotSpotAbortCondition(WAQTask task) =>
             WAQTasks.WoWObjectInProgress != null
             || !ObjectManager.Me.IsMounted && ObjectManager.Me.InCombatFlagOnly;
 
-        public static void UpdateCompletedQuests()
-        {
-            List<int> completedQuests = new List<int>();
-            completedQuests.AddRange(Quest.FinishedQuestSet);
-            completedQuests.AddRange(WholesomeAQSettings.CurrentSetting.ListCompletedQuests);
-            _completeQuests = completedQuests.Distinct().ToHashSet();
-            bool shouldSave = false;
-            foreach (int questId in _completeQuests)
-            {
-                if (!WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Contains(questId))
-                {
-                    WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Add(questId);
-                    Logger.Log($"Saved quest {questId} as completed");
-                    shouldSave = true;
-                }
-            }
-            if (shouldSave)
-                WholesomeAQSettings.CurrentSetting.Save();
-        }
-
+        */
         public static bool IsQuestCompleted(int questId) => WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Contains(questId);
         public static int GetServerNbCompletedQuests() => Quest.FinishedQuestSet.Count;
-
+        /*
         public static bool ShouldQuestBeFinished(this ModelQuestTemplate quest) => quest.Status == QuestStatus.InProgress
                                                                            || quest.Status == QuestStatus.ToTurnIn;
-
+        */
         public static Vector3 Position(this ModelCreature npc) => npc.GetSpawnPosition;
 
         public static bool WoWDBFileIsPresent() => File.Exists(Others.GetCurrentDirectory + @"\Data\WoWDb335");
@@ -605,29 +599,31 @@ namespace Wholesome_Auto_Quester.Helpers
             return result;
         }
 
-        public static bool ShouldStateBeInterrupted(WAQTask task, WoWObject gameObject, WoWObjectType expectedType)
-        {
+        public static bool ShouldStateBeInterrupted(IWAQTask task, WoWObject gameObject)
+        {            
             if (gameObject != null)
             {
+                /*
                 if (gameObject.Type != expectedType)
                 {
                     Logger.LogError($"Expected {expectedType} for PickUp Quest but got {gameObject.Type} instead.");
                     return true;
                 }
+                */
                 if (wManagerSetting.IsBlackListedZone(gameObject.Position)
                     || wManagerSetting.IsBlackListed(gameObject.Guid))
                 {
                     MoveHelper.StopAllMove(true);
-                    Main.RequestImmediateTaskReset = true;
                     return true;
                 }
             }
+            
             if (wManagerSetting.IsBlackListedZone(task.Location))
             {
                 MoveHelper.StopAllMove(true);
-                Main.RequestImmediateTaskReset = true;
                 return true;
             }
+
             return false;
         }
 
@@ -902,22 +898,6 @@ namespace Wholesome_Auto_Quester.Helpers
         {
             string zone = Lua.LuaDoString<string>("return GetRealZoneText();");
             return zone == "Azuremyst Isle" || zone == "Bloodmyst Isle" || zone == "The Exodar";
-        }
-
-        public static void AbandonQuest(int questId)
-        {
-            Logger.Log($"Abandonning quest {questId}");
-            int logIndex = Lua.LuaDoString<int>(@$"
-                local nbLogQuests  = GetNumQuestLogEntries()
-                for i=1, nbLogQuests do
-                    local _, _, _, _, _, _, _, _, questID = GetQuestLogTitle(i);
-                    if questID == {questId} then
-                        return i;
-                    end
-                end
-            ");
-            Lua.LuaDoString($"SelectQuestLogEntry({logIndex}); SetAbandonQuest(); AbandonQuest();");
-            Thread.Sleep(500);
         }
     }
 }

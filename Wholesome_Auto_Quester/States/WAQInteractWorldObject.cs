@@ -1,6 +1,7 @@
-﻿using robotManager.FiniteStateMachine;
+﻿/*using robotManager.FiniteStateMachine;
 using System.Threading;
-using Wholesome_Auto_Quester.Bot;
+using Wholesome_Auto_Quester.Bot.TaskManagement;
+using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
@@ -8,8 +9,15 @@ using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.States
 {
-    class WAQInteractWorldObject : State
+    class WAQInteractWorldObject : State, IWAQState
     {
+        private IWowObjectScanner _scanner;
+        public WAQInteractWorldObject(IWowObjectScanner scanner, int priority)
+        {
+            _scanner = scanner;
+            Priority = priority;
+        }
+
         public override string DisplayName { get; set; } = "Interact with world object [SmoothMove - Q]";
 
         public override bool NeedToRun
@@ -59,4 +67,4 @@ namespace Wholesome_Auto_Quester.States
             Main.RequestImmediateTaskUpdate = true;
         }
     }
-}
+}*/

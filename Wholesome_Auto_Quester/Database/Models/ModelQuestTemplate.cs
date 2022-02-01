@@ -2,8 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using Wholesome_Auto_Quester.Bot;
+using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Database.Objectives;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Enums;
@@ -13,10 +12,9 @@ namespace Wholesome_Auto_Quester.Database.Models
 {
     public class ModelQuestTemplate
     {
-        private int _nbAttempsOjectiveRecord = 0;
         public ModelQuestTemplateAddon QuestAddon { get; set; }
-        public QuestStatus Status { get; set; } = QuestStatus.None;
-        public bool AreObjectivesRecorded { get; set; }
+        //public QuestStatus Status { get; set; } = QuestStatus.None;
+        //public bool AreObjectivesRecorded { get; set; }
 
         private List<string> _questFlags;
         public List<string> QuestFlags
@@ -37,8 +35,6 @@ namespace Wholesome_Auto_Quester.Database.Models
                 return _questSpecialFlags;
             }
         }
-
-        public bool IsQuestBlackListed => WholesomeAQSettings.CurrentSetting.BlackListedQuests.Exists(blq => blq.Id == Id);
 
         public List<ModelCreatureTemplate> CreatureQuestGivers { get; set; } = new List<ModelCreatureTemplate>();
         public List<ModelCreatureTemplate> CreatureQuestTurners { get; set; } = new List<ModelCreatureTemplate>();
@@ -65,7 +61,7 @@ namespace Wholesome_Auto_Quester.Database.Models
         public ModelGameObjectTemplate RequiredGO2Template { get; set; }
         public ModelGameObjectTemplate RequiredGO3Template { get; set; }
         public ModelGameObjectTemplate RequiredGO4Template { get; set; }
-
+        
         // Objectives
         public List<ExplorationObjective> ExplorationObjectives { get; set; } = new List<ExplorationObjective>();
         public List<GatherObjective> GatherObjectives { get; set; } = new List<GatherObjective>();
@@ -74,7 +70,7 @@ namespace Wholesome_Auto_Quester.Database.Models
         public List<InteractObjective> InteractObjectives { get; set; } = new List<InteractObjective>();
         public List<GatherObjective> PrerequisiteGatherObjectives { get; set; } = new List<GatherObjective>();
         public List<KillLootObjective> PrerequisiteLootObjectives { get; set; } = new List<KillLootObjective>();
-
+        
         public List<int> NextQuestsIds { get; set; } = new List<int>();
         public List<int> PreviousQuestsIds { get; set; } = new List<int>();
 
@@ -128,7 +124,7 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int StartItem { get; set; }
         public int TimeAllowed { get; set; }
         public int Unknown0 { get; set; }
-
+        /*
         public bool IsPickable()
         {
             if (PreviousQuestsIds.Count > 0 && !PreviousQuestsIds.Any(ToolBox.IsQuestCompleted))
@@ -141,7 +137,8 @@ namespace Wholesome_Auto_Quester.Database.Models
 
             return true;
         }
-
+        */
+        /*
         public float GetClosestQuestGiverDistance(Vector3 myPosition)
         {
             List<float> closestsQg = new List<float>();
@@ -171,10 +168,10 @@ namespace Wholesome_Auto_Quester.Database.Models
             });
             return result;
         }
-
-        public bool IsCompleted => ToolBox.IsQuestCompleted(Id);
-        public string TrackerColor => WAQTasks.TaskInProgress?.QuestId == Id ? "White" : _trackerColorsDictionary[Status];
-
+        */
+        //public bool IsCompleted => ToolBox.IsQuestCompleted(Id);
+        //public string TrackerColor => WAQTasks.TaskInProgress?.QuestId == Id ? "White" : _trackerColorsDictionary[Status];
+        /*
         public string GetObjectiveText(int objectiveIndex)
         {
             if (objectiveIndex == 1) return ObjectiveText1;
@@ -183,18 +180,8 @@ namespace Wholesome_Auto_Quester.Database.Models
             if (objectiveIndex == 4) return ObjectiveText4;
             return "N/A";
         }
-
-        private readonly Dictionary<QuestStatus, string> _trackerColorsDictionary = new Dictionary<QuestStatus, string>
-        {
-            {  QuestStatus.Completed, "SkyBlue"},
-            {  QuestStatus.Failed, "Red"},
-            {  QuestStatus.InProgress, "Gold"},
-            {  QuestStatus.None, "Gray"},
-            {  QuestStatus.ToPickup, "MediumSeaGreen"},
-            {  QuestStatus.ToTurnIn, "RoyalBlue"},
-            {  QuestStatus.Blacklisted, "Red"}
-        };
-
+        */
+        /*
         public void RecordObjectiveIndices()
         {
             _nbAttempsOjectiveRecord++;
@@ -236,7 +223,7 @@ namespace Wholesome_Auto_Quester.Database.Models
             Logger.Log($"Objectives for {LogTitle} succesfully recorded");
             AreObjectivesRecorded = true;
         }
-
+        /*
         public List<Objective> GetAllObjectives()
         {
             List<Objective> result = new List<Objective>();
@@ -247,7 +234,7 @@ namespace Wholesome_Auto_Quester.Database.Models
             result.AddRange(KillObjectives);
             return result;
         }
-
+        */
         public void AddObjective(Objective objective)
         {
             if (objective is ExplorationObjective) ExplorationObjectives.Add((ExplorationObjective)objective);
@@ -256,7 +243,7 @@ namespace Wholesome_Auto_Quester.Database.Models
             if (objective is KillLootObjective) KillLootObjectives.Add((KillLootObjective)objective);
             if (objective is KillObjective) KillObjectives.Add((KillObjective)objective);
         }
-
+        
         public List<string> GetMatchingQuestFlags(long flag)
         {
             List<string> result = new List<string>();

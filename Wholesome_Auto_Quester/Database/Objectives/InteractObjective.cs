@@ -1,19 +1,14 @@
-﻿using System.Collections.Generic;
-using Wholesome_Auto_Quester.Database.Models;
+﻿using Wholesome_Auto_Quester.Database.Models;
 
 namespace Wholesome_Auto_Quester.Database.Objectives
 {
     public class InteractObjective : Objective
     {
-        public List<ModelGameObject> GameObjects { get; }
-        public int GameObjectEntry { get; }
-        public string GameObjectName { get; }
+        public ModelGameObjectTemplate GameObjectTemplate { get; }
 
         public InteractObjective(int amount, ModelGameObjectTemplate gameObjectTemplate, string objectiveName)
         {
-            GameObjects = gameObjectTemplate.GameObjects;
-            GameObjectEntry = gameObjectTemplate.entry;
-            GameObjectName = gameObjectTemplate.name;
+            GameObjectTemplate = gameObjectTemplate;
             Amount = amount;
             ObjectiveName = objectiveName;
         }
