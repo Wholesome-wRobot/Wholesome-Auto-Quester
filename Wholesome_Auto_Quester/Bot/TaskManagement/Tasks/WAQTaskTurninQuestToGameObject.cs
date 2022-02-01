@@ -56,6 +56,11 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
                 if (ToolBox.GossipTurnInQuest(_questTemplate.LogTitle, _questTemplate.Id))
                 {
                     Thread.Sleep(1000);
+                    if (!Quest.HasQuest(_questTemplate.Id))
+                    {
+                        ToolBox.SaveQuestAsCompleted(_questTemplate.Id);
+                        PutTaskOnTimeout($"Completed");
+                    }
                 }
                 else
                 {

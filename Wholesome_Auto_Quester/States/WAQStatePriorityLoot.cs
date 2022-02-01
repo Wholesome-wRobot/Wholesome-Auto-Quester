@@ -1,5 +1,6 @@
 ﻿using robotManager.FiniteStateMachine;
 using System.Collections.Generic;
+using System.Threading;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Helpers;
@@ -25,14 +26,20 @@ namespace Wholesome_Auto_Quester.States
             {
                 if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause
                     || !ObjectManager.Me.IsValid
-                    || _scanner.ActiveWoWObject == (null, null)
+                    || _scanner.ActiveWoWObject.wowObject == null
+                    || _scanner.ActiveWoWObject.task == null
+                    || _scanner.ActiveWoWObject.task.InteractionType != TaskInteraction.KillAndLoot
                     || ObjectManager.Me.HealthPercent < 20)
                     return false;
 
-                if (_scanner.ActiveWoWObject.Item2.InteractionType == TaskInteraction.KillAndLoot 
-                    && !UnitsLooted.Contains(_scanner.ActiveWoWObject.Item1.Guid))
+                var (gameObject, task) = _scanner.ActiveWoWObject;
+                WoWUnit unitToLoot = (WoWUnit)gameObject;
+
+                if (unitToLoot.IsDead
+                    && unitToLoot.IsLootable
+                    && !UnitsLooted.Contains(unitToLoot.Guid))
                 {
-                    DisplayName = $"Priority loot for {_scanner.ActiveWoWObject.Item2.TaskName} [SmoothMove - Q]";
+                    DisplayName = $"Priority loot for {_scanner.ActiveWoWObject.task.TaskName} [SmoothMove - Q]";
                     return true;
                 }
 
@@ -57,6 +64,7 @@ namespace Wholesome_Auto_Quester.States
                 Logger.Log($"Priority looting {unitToLoot.Name}");
                 Interact.InteractGameObject(unitToLoot.GetBaseAddress);
                 UnitsLooted.Add(unitToLoot.Guid);
+                Thread.Sleep(500);
             }
 
             task.PostInteraction(gameObject);

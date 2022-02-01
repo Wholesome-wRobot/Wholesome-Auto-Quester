@@ -50,6 +50,10 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
                 if (ToolBox.GossipPickUpQuest(_questTemplate.LogTitle, _questTemplate.Id))
                 {
                     Thread.Sleep(1000);
+                    if (Quest.HasQuest(_questTemplate.Id))
+                    {
+                        PutTaskOnTimeout($"Completed");
+                    }
                 }
                 else
                 {

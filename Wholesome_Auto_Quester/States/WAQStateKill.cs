@@ -25,17 +25,16 @@ namespace Wholesome_Auto_Quester.States
             get
             {
                 if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause
-                    || _scanner.ActiveWoWObject == (null, null)
+                    || _scanner.ActiveWoWObject.wowObject == null
+                    || _scanner.ActiveWoWObject.task == null
+                    || (_scanner.ActiveWoWObject.task.InteractionType != TaskInteraction.Kill 
+                        && _scanner.ActiveWoWObject.task.InteractionType != TaskInteraction.KillAndLoot)
                     || !ObjectManager.Me.IsValid)
                     return false;
 
-                if (_scanner.ActiveWoWObject.Item2.InteractionType == TaskInteraction.Kill)
-                {
-                    DisplayName = $"{_scanner.ActiveWoWObject.Item2.TaskName} [SmoothMove - Q]";
-                    return true;
-                }
-
-                return false;
+                var (gameObject, task) = _scanner.ActiveWoWObject;
+                DisplayName = $"Kill {gameObject.Name} for {task.TaskName} [SmoothMove - Q]";
+                return true;
             }
         }
 

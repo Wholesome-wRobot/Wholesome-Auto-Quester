@@ -22,12 +22,14 @@ namespace Wholesome_Auto_Quester.States
             get
             {
                 if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause
-                    || !ObjectManager.Me.IsValid)
+                    || !ObjectManager.Me.IsValid
+                    || _scanner.ActiveWoWObject.wowObject == null
+                    || _scanner.ActiveWoWObject.task == null)
                     return false;
 
-                if (_scanner.ActiveWoWObject.Item1 != null && _scanner.ActiveWoWObject.Item2.InteractionType == TaskInteraction.Interact)
+                if (_scanner.ActiveWoWObject.task.InteractionType == TaskInteraction.Interact)
                 {
-                    DisplayName = $"{_scanner.ActiveWoWObject.Item2.TaskName} [SmoothMove - Q]";
+                    DisplayName = $"{_scanner.ActiveWoWObject.task.TaskName} [SmoothMove - Q]";
                     return true;
                 }
 

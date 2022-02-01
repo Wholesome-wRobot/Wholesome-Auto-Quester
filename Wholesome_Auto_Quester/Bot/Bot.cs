@@ -3,6 +3,7 @@ using robotManager.Helpful;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading;
 using Wholesome_Auto_Quester.Bot.GrindManagement;
 using Wholesome_Auto_Quester.Bot.QuestManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
@@ -16,6 +17,7 @@ using wManager.Events;
 using wManager.Wow.Bot.States;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
+using Timer = robotManager.Helpful.Timer;
 
 namespace Wholesome_Auto_Quester.Bot
 {
@@ -40,10 +42,10 @@ namespace Wholesome_Auto_Quester.Bot
                 _objectScanner = new WowObjectScanner();
                 _questManager = new QuestManager(_objectScanner, _questTrackerGui);
                 _taskManager = new TaskManager(_objectScanner, _questManager, _grindManager, _questTrackerGui);
-
                 if (WholesomeAQSettings.CurrentSetting.ActivateQuestsGUI)
                 {
-                    _questTrackerGui.ShowWindow();
+                    new Thread(() => _questTrackerGui.ShowWindow()).Start();
+                    //_questTrackerGui.ShowWindow();
                 }
 
                 // Attach onlevelup for spell book:
@@ -79,18 +81,19 @@ namespace Wholesome_Auto_Quester.Bot
                 Fsm.AddState(new Trainers { Priority = 23 });
                 Fsm.AddState(new ToTown { Priority = 22 });
 
-                Fsm.AddState(new WAQTravel(_taskManager, _travelManager, 21));
+                Fsm.AddState(new WAQStateTravel(_taskManager, _travelManager, 21));
 
                 Fsm.AddState(new WAQStateInteract(_objectScanner, 15));
                 Fsm.AddState(new WAQStateKill(_objectScanner, 14));
 
-                Fsm.AddState(new WAQMoveToHotspot(_taskManager, 7));
+                Fsm.AddState(new WAQStateMoveToHotspot(_taskManager, 7));
 
                 Fsm.AddState(new MovementLoop { Priority = 1 });
 
                 Fsm.AddState(new Idle { Priority = 0 });
 
                 Fsm.States.Sort();
+
                 Fsm.StartEngine(10, "_AutoQuester");
 
                 StopBotIf.LaunchNewThread();
@@ -124,7 +127,10 @@ namespace Wholesome_Auto_Quester.Bot
                 _questManager.Dispose();
                 _taskManager.Dispose();
                 _travelManager.Dispose();
-                _questTrackerGui.HideWindow();
+
+                new Thread(() => _questTrackerGui.HideWindow()).Start();
+                //_questTrackerGui.HideWindow();
+
                 Radar3D.OnDrawEvent -= Radar3DOnDrawEvent;
                 MovementEvents.OnSeemStuck -= SeemStuckHandler;
 
@@ -168,11 +174,11 @@ namespace Wholesome_Auto_Quester.Bot
                 Radar3D.DrawLine(ObjectManager.Me.Position, _taskManager.ActiveTask.Location, Color.AliceBlue);
             }
 
-            if (_objectScanner.ActiveWoWObject.Item1 != null)
+            if (_objectScanner.ActiveWoWObject.wowObject != null)
             {
-                Radar3D.DrawLine(ObjectManager.Me.Position, _objectScanner.ActiveWoWObject.Item1.Position, Color.Yellow);
-                Radar3D.DrawCircle(_objectScanner.ActiveWoWObject.Item1.Position, 1, Color.Yellow);
-                Radar3D.DrawString($"{_objectScanner.ActiveWoWObject.Item1.Name} ({_objectScanner.ActiveWoWObject.Item2.TaskName})"
+                Radar3D.DrawLine(ObjectManager.Me.Position, _objectScanner.ActiveWoWObject.wowObject.Position, Color.Yellow);
+                Radar3D.DrawCircle(_objectScanner.ActiveWoWObject.wowObject.Position, 1, Color.Yellow);
+                Radar3D.DrawString($"{_objectScanner.ActiveWoWObject.wowObject.Name} ({_objectScanner.ActiveWoWObject.task.TaskName})"
                     , new Vector3(30, 220, 0), 10, Color.Yellow);
             }
             if (MoveHelper.IsMovementThreadRunning)
@@ -184,7 +190,7 @@ namespace Wholesome_Auto_Quester.Bot
         private void SeemStuckHandler()
         {
             IWAQTask task = _taskManager.ActiveTask;
-            WoWObject wowObject = _objectScanner.ActiveWoWObject.Item1;
+            WoWObject wowObject = _objectScanner.ActiveWoWObject.wowObject;
 
             if (wowObject != null)
             {

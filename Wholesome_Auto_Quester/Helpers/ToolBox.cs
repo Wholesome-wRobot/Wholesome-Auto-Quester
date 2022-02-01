@@ -359,7 +359,11 @@ namespace Wholesome_Auto_Quester.Helpers
                     Logger.Log($"The quest {questName} is an autocomplete.");
                     Thread.Sleep(200);
                     Quest.CompleteQuest();
-                    SaveQuestAsCompleted(questId);
+                    Thread.Sleep(1000);
+                    if (!Quest.HasQuest(questId))
+                    {
+                        SaveQuestAsCompleted(questId);
+                    }
                     return true;
             }
 

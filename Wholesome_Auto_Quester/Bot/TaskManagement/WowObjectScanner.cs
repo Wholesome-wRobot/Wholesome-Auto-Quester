@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Helpers;
 using wManager;
-using wManager.Events;
 using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.Bot.TaskManagement
@@ -15,7 +14,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
         private Dictionary<int, List<IWAQTask>> _dicEntriesWaqTasks = new Dictionary<int, List<IWAQTask>>(); // object entry => associated tasks
         private bool _isRunning = false;
 
-        public (WoWObject, IWAQTask) ActiveWoWObject { get; private set; }
+        public (WoWObject wowObject, IWAQTask task) ActiveWoWObject { get; private set; } = (null, null);
 
         public WowObjectScanner()
         {
@@ -44,7 +43,6 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
         private void OnObjectManagerPulse()
         {
-            Logger.Log($"ObjectManagerPulse Pulse");
             List<WoWObject> surroundingObjects = ObjectManager.GetObjectWoW()
                 .OrderBy(o => o.GetDistance)
                 .ToList();
@@ -52,10 +50,10 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             _listSurroundingPOIs = surroundingObjects
                 .FindAll(wowObject => !wManagerSetting.IsBlackListed(wowObject.Guid)
                     && !wManagerSetting.IsBlackListedZone(wowObject.Position)
-                    && _dicEntriesWaqTasks.ContainsKey(wowObject.Entry))
+                    && _dicEntriesWaqTasks.ContainsKey(wowObject.Entry)
+                    && _dicEntriesWaqTasks[wowObject.Entry].Count > 0
+                    && _dicEntriesWaqTasks[wowObject.Entry][0].IsObjectValidForTask(wowObject))
                 .ToList();
-
-            ActiveWoWObject = (null, null);
 
             if (_listSurroundingPOIs.Count > 0)
             {
@@ -96,11 +94,18 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                     }
                 }
 
-                if (pathToClosestObject.IsReachable) // ici pas bon
+                if (pathToClosestObject.IsReachable)
                 {
                     ActiveWoWObject = (closestObject, GetTaskMatchingWithObject(closestObject));
+                    return;
+                }
+                else
+                {
+                    ActiveWoWObject = (null, null);
                 }
             }
+
+            ActiveWoWObject = (null, null);
         }
 
         public IWAQTask GetTaskMatchingWithObject(WoWObject closestObject)
@@ -113,6 +118,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             if (_dicEntriesWaqTasks.TryGetValue(closestObject.Entry, out List<IWAQTask> taskList))
             {
                 return taskList
+                    .Where(task => !task.IsTimedOut)
                     .OrderBy(task => task.Location.DistanceTo(closestObject.Position))
                     .FirstOrDefault();
             }

@@ -5,7 +5,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 {
     public interface IWowObjectScanner : ICycleable
     {
-        (WoWObject, IWAQTask) ActiveWoWObject { get; }
+        (WoWObject wowObject, IWAQTask task) ActiveWoWObject { get; }
         void AddToDictionary(int entry, IWAQTask task);
         void RemoveFromDictionary(int entry, IWAQTask task);
         IWAQTask GetTaskMatchingWithObject(WoWObject closestObject);

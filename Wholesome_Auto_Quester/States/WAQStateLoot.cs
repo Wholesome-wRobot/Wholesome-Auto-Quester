@@ -17,20 +17,26 @@ namespace Wholesome_Auto_Quester.States
             Priority = priority;
         }
 
-        public override string DisplayName { get; set; } = "Kill and Loot [SmoothMove - Q]";
+        public override string DisplayName { get; set; } = "Loot [SmoothMove - Q]";
 
         public override bool NeedToRun
         {
             get
             {
                 if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause
-                    || _scanner.ActiveWoWObject == (null, null)
+                    || _scanner.ActiveWoWObject.wowObject == null
+                    || _scanner.ActiveWoWObject.task == null
+                    || _scanner.ActiveWoWObject.task.InteractionType != TaskInteraction.KillAndLoot
                     || !ObjectManager.Me.IsValid)
                     return false;
 
-                if (_scanner.ActiveWoWObject.Item2.InteractionType == TaskInteraction.KillAndLoot)
+                var (gameObject, task) = _scanner.ActiveWoWObject;
+                WoWUnit unitToLoot = (WoWUnit)gameObject;
+
+                if (unitToLoot.IsDead
+                    && unitToLoot.IsLootable)
                 {
-                    DisplayName = $"{_scanner.ActiveWoWObject.Item2.TaskName} [SmoothMove - Q]";
+                    DisplayName = $"{task.TaskName} [SmoothMove - Q]";
                     return true;
                 }
 

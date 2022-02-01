@@ -17,8 +17,6 @@ namespace Wholesome_Auto_Quester.GUI
 {
     public partial class QuestsTrackerGUI
     {
-        private static IQuestManager _questManager;
-        private static ITaskManager _taskManager;
 
         public QuestsTrackerGUI()
         {
@@ -26,22 +24,6 @@ namespace Wholesome_Auto_Quester.GUI
             DiscordLink.RequestNavigate += (sender, e) => { System.Diagnostics.Process.Start(e.Uri.ToString()); };
             Title = $"Wholesome quest tracker ({Main.ProductVersion})";
             detailsPanel.Visibility = Visibility.Hidden;
-        }
-
-        public QuestsTrackerGUI(ITaskManager taskManager, IQuestManager questManager)
-        {
-            _questManager = questManager;
-            _taskManager = taskManager;
-            InitializeComponent();
-            DiscordLink.RequestNavigate += (sender, e) => { System.Diagnostics.Process.Start(e.Uri.ToString()); };
-            Title = $"Wholesome quest tracker ({Main.ProductVersion})";
-            detailsPanel.Visibility = Visibility.Hidden;
-        }
-
-        public void Feed(ITaskManager taskManager, IQuestManager questManager)
-        {
-            _questManager = questManager;
-            _taskManager = taskManager;
         }
 
         public void AddToBLClicked(object sender, RoutedEventArgs e)
@@ -64,10 +46,8 @@ namespace Wholesome_Auto_Quester.GUI
 
         public void ShowWindow()
         {
-            Logger.LogError($"SHOW");
             Dispatcher.BeginInvoke((Action)(() =>
             {
-                Logger.LogError($"SHOW2");
                 Show();
                 if (WholesomeAQSettings.CurrentSetting.QuestTrackerPositionLeft != 0)
                     Left = WholesomeAQSettings.CurrentSetting.QuestTrackerPositionLeft;
@@ -78,10 +58,8 @@ namespace Wholesome_Auto_Quester.GUI
 
         public void HideWindow()
         {
-            Logger.LogError($"HIDE");
             Dispatcher.BeginInvoke((Action)(() =>
             {
-                Logger.LogError($"HIDE");
                 Hide();
                 WholesomeAQSettings.CurrentSetting.QuestTrackerPositionLeft = Left;
                 WholesomeAQSettings.CurrentSetting.QuestTrackerPositionTop = Top;
@@ -121,8 +99,19 @@ namespace Wholesome_Auto_Quester.GUI
             Dispatcher.BeginInvoke((Action)(() =>
             {
                 sourceTasksList.ItemsSource = null;
-                sourceTasksList.ItemsSource = taskPile;
-                tasksTitleTop.Text = $"Current Tasks ({taskPile.Count})";
+                string countText = "";
+                int limit = 200;
+                if (taskPile.Count >= limit)
+                {
+                    sourceTasksList.ItemsSource = taskPile.GetRange(0, limit);
+                    countText = $"{limit}+";
+                }
+                else
+                {
+                    sourceTasksList.ItemsSource = taskPile;
+                    countText = $"{taskPile.Count}";
+                }
+                tasksTitleTop.Text = $"Current Tasks ({countText})";
             }));
         }
 

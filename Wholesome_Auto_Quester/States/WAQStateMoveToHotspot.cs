@@ -8,11 +8,11 @@ using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.States
 {
-    class WAQMoveToHotspot : State
+    class WAQStateMoveToHotspot : State
     {
         private ITaskManager _taskManager;
 
-        public WAQMoveToHotspot(ITaskManager taskManager, int priority)
+        public WAQStateMoveToHotspot(ITaskManager taskManager, int priority)
         {
             _taskManager = taskManager;
             Priority = priority;

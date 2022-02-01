@@ -3,6 +3,7 @@ using Supercluster.KDTree;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Wholesome_Auto_Quester.Bot.GrindManagement;
 using Wholesome_Auto_Quester.Bot.QuestManagement;
@@ -22,12 +23,11 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
         private readonly IQuestManager _questManager;
         private readonly IGrindManager _grindManager;
         private readonly IWowObjectScanner _objectScanner;
-        private readonly QuestsTrackerGUI _questsTrackerGUI;
+        private readonly QuestsTrackerGUI _tracker;
         private bool _isRunning = false;
         private KDTree<float, IWAQTask> _spaceTree = new KDTree<float, IWAQTask>(3, new float[][] { new float[] { 0, 0, 0 } }, new IWAQTask[] { null }, Distance);
 
         public List<IWAQTask> TaskPile { get; } = new List<IWAQTask>();
-
         public IWAQTask ActiveTask { get; private set; }
 
         public TaskManager(IWowObjectScanner scanner, IQuestManager questManager, IGrindManager grindManager, QuestsTrackerGUI questTrackerGUI)
@@ -35,7 +35,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             _objectScanner = scanner;
             _questManager = questManager;
             _grindManager = grindManager;
-            _questsTrackerGUI = questTrackerGUI;
+            _tracker = questTrackerGUI;
             Initialize();
         }
 
@@ -71,7 +71,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
         public void UpdateTaskPile()
         {
-            _questsTrackerGUI.UpdateTasksList(TaskPile);
+            _tracker.UpdateTasksList(TaskPile);
 
             if (WholesomeAQSettings.CurrentSetting.GoToMobEntry > 0)
             {
@@ -96,7 +96,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             }
 
             // Add grind tasks if nothing else is valid
-            if (TaskPile.Count <= 0 || TaskPile.All(task => task.IsTimedOut))
+            if (WholesomeAQSettings.CurrentSetting.GrindOnly || TaskPile.Count > 0 & TaskPile.All(task => task.IsTimedOut))
             {
                 foreach (IWAQTask task in _grindManager.GetGrindTasks())
                 {
@@ -107,7 +107,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             // If a wow object is found, we force the closest task
             if (_objectScanner.ActiveWoWObject != (null, null))
             {
-                ActiveTask = _objectScanner.ActiveWoWObject.Item2;
+                ActiveTask = _objectScanner.ActiveWoWObject.task;
                 return;
             }
 
@@ -125,7 +125,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
             if (pathToClosestTask.Distance > myPosition.DistanceTo(closestTask.Location) * 2)
             {
-                int closestTaskPriorityScore = CalculatePriority(closestTask);
+                int closestTaskPriorityScore = CalculatePriority(myPosition, closestTask);
 
                 for (int i = 0; i < TaskPile.Count - 1; i++)
                 {
@@ -140,7 +140,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                             continue;
                         }
 
-                        int newTaskPriority = CalculatePriority(TaskPile[i]);
+                        int newTaskPriority = CalculatePriority(myPosition, TaskPile[i]);
 
                         if (newTaskPriority < closestTaskPriorityScore)
                         {
@@ -177,11 +177,11 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             }
         }
 
-        public int CalculatePriority(IWAQTask task)
+        public int CalculatePriority(Vector3 myPosition, IWAQTask task)
         {
             const double magic = 1.32;
 
-            float taskDistance = ObjectManager.Me.Position.DistanceTo(task.Location);
+            float taskDistance = myPosition.DistanceTo(task.Location);
             var priority = (int)System.Math.Pow(taskDistance, magic);
 
             var locationWeight = 1.0;

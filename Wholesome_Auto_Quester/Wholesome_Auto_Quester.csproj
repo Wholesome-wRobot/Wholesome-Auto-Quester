@@ -363,13 +363,13 @@
     <Compile Include="States\WAQInteractWorldObject.cs" />
     <Compile Include="States\WAQGrind.cs" />
     <Compile Include="States\WAQLoot.cs" />
-    <Compile Include="States\WAQMoveToHotspot.cs" />
+    <Compile Include="States\WAQStateMoveToHotspot.cs" />
     <Compile Include="States\WAQStatePriorityLoot.cs" />
     <Compile Include="States\WAQPickupQuestFromGameObject.cs" />
     <Compile Include="States\WAQStateInteract.cs" />
     <Compile Include="States\WAQStateKill.cs" />
     <Compile Include="States\WAQStateLoot.cs" />
-    <Compile Include="States\WAQTravel.cs" />
+    <Compile Include="States\WAQStateTravel.cs" />
     <Compile Include="States\WAQTurnInQuestToGameObject.cs" />
     <Compile Include="States\WAQTurnInQuestToNpc.cs" />
     <Compile Include="States\WAQPickupQuestFromNpc.cs" />

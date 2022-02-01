@@ -13,11 +13,9 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
         bool IsQuestBlackListed { get; }
         bool IsCompleted { get; }
         bool IsPickable { get; }
-        bool AreObjectivesRecorded { get; }
         string TrackerColor { get; }
 
         List<string> GetItemsStringsList();
-        void RecordObjectiveIndices();
         List<Objective> GetAllObjectives();
         List<IWAQTask> GetAllTasks();
         void ChangeStatusTo(QuestStatus newStatus);

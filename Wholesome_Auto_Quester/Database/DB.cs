@@ -158,7 +158,7 @@ namespace Wholesome_Auto_Quester.Database
         public List<ModelCreatureTemplate> QueryCreatureTemplatesToGrind()
         {
             uint myLevel = ObjectManager.Me.Level;
-            if (myLevel == 1) myLevel = 3;
+            if (myLevel <= 3) myLevel = 3;
             string queryTemplates = $@"
                 SELECT * FROM creature_template ct
                 WHERE 

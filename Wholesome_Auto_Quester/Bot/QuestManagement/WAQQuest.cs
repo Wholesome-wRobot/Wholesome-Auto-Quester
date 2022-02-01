@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Database.Models;
@@ -14,19 +15,18 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 {
     public class WAQQuest : IWAQQuest
     {
-        private int _nbAttempsOjectiveRecord = 0;
         private readonly IWowObjectScanner _objectScanner;
         private Dictionary<int, List<IWAQTask>> _questTasks = new Dictionary<int, List<IWAQTask>>(); // objective index => task list
+        private bool _objectivesRecorded;
+        private bool _objectivesRecordFailed;
 
-        public bool AreObjectivesRecorded { get; private set; }
         public ModelQuestTemplate QuestTemplate { get; }
-        public QuestStatus Status { get; private set; }
+        public QuestStatus Status { get; private set; } = QuestStatus.Unchecked;
 
         public WAQQuest(ModelQuestTemplate questTemplate, IWowObjectScanner objectScanner)
         {
             _objectScanner = objectScanner;
             QuestTemplate = questTemplate;
-            Status = QuestStatus.Unchecked;
         }
 
         public List<IWAQTask> GetAllTasks()
@@ -90,10 +90,13 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             // TASK GENERATION
 
             // Skip failed indices
-            if (Status == QuestStatus.InProgress
-                && GetAllObjectives().Exists(ob => ob.ObjectiveIndex == -1))
+            if (Status == QuestStatus.InProgress && !_objectivesRecorded && !_objectivesRecordFailed)
             {
-                return;
+                RecordObjectiveIndices();
+                if (_objectivesRecordFailed)
+                {
+                    return;
+                }
             }
 
             // Completed
@@ -310,19 +313,15 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             }
         }
 
-        public void RecordObjectiveIndices()
+        private void RecordObjectiveIndices()
         {
-            _nbAttempsOjectiveRecord++;
-
-            if (_nbAttempsOjectiveRecord > 5)
+            int nbAtempts = 0;
+            int nbMaxAttempts = 5;
+            while (nbAtempts <= nbMaxAttempts)
             {
-                Logger.LogError($"Failed to record objectives for {QuestTemplate.LogTitle}");
-                AreObjectivesRecorded = true;
-                return;
-            }
-
-            Logger.Log($"Recording objective indices for {QuestTemplate.LogTitle} ({_nbAttempsOjectiveRecord})");
-            string[] objectives = Lua.LuaDoString<string[]>(@$"local numEntries, numQuests = GetNumQuestLogEntries()
+                nbAtempts++;
+                Logger.Log($"Recording objective indices for {QuestTemplate.LogTitle} ({nbAtempts})");
+                string[] objectives = Lua.LuaDoString<string[]>(@$"local numEntries, numQuests = GetNumQuestLogEntries()
                             local objectivesTable = {{}}
                             for i=1, numEntries do
                                 local questLogTitleText, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(i)
@@ -336,22 +335,32 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                             end
                             return unpack(objectivesTable)");
 
-            foreach (Objective ob in GetAllObjectives())
+                foreach (Objective ob in GetAllObjectives())
+                {
+                    string objectiveToRecord = objectives.FirstOrDefault(o => ob.ObjectiveName != "" && o.StartsWith(ob.ObjectiveName));
+                    if (objectiveToRecord != null)
+                    {
+                        ob.ObjectiveIndex = Array.IndexOf(objectives, objectiveToRecord) + 1;
+                    }
+                    else
+                    {
+                        Logger.LogError($"Couldn't find matching objective {ob.ObjectiveName} for {QuestTemplate.LogTitle}");
+                        Thread.Sleep(1000);
+                        continue;
+                    }
+                }
+                break;
+            }
+
+            if (nbAtempts >= nbMaxAttempts)
             {
-                string objectiveToRecord = objectives.FirstOrDefault(o => ob.ObjectiveName != "" && o.StartsWith(ob.ObjectiveName));
-                if (objectiveToRecord != null)
-                {
-                    ob.ObjectiveIndex = Array.IndexOf(objectives, objectiveToRecord) + 1;
-                }
-                else
-                {
-                    Logger.LogError($"Couldn't find matching objective {ob.ObjectiveName} for {QuestTemplate.LogTitle}");
-                    return;
-                }
+                Logger.LogError($"Failed to record objectives for {QuestTemplate.LogTitle} after {nbMaxAttempts} attempts");
+                _objectivesRecordFailed = true;
+                return;
             }
 
             Logger.Log($"Objectives for {QuestTemplate.LogTitle} succesfully recorded");
-            AreObjectivesRecorded = true;
+            _objectivesRecorded = true;
         }
 
         public float GetClosestQuestGiverDistance(Vector3 myPosition)

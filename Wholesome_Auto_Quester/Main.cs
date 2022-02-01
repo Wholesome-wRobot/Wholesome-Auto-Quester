@@ -19,8 +19,8 @@ public class Main : IProduct
     public static readonly string ProductName = "Wholesome Auto Quester";
     public static readonly string FileName = "Wholesome_Auto_Quester";
     private ProductSettingsControl _settingsUserControl;
-    private readonly Bot _bot = new Bot();
     private QuestsTrackerGUI tracker = new QuestsTrackerGUI();
+    private Bot _bot = new Bot();
 
     public bool IsStarted { get; private set; }
 

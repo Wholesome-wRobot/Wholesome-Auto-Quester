@@ -69,6 +69,11 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             switch (eventid)
             {
                 case "QUEST_LOG_UPDATE": UpdateStatuses(); break;
+                case "QUEST_ACCEPTED": UpdateStatuses(); break;
+                case "QUEST_TURNED_IN": UpdateStatuses(); break;
+                case "QUEST_ITEM_UPDATE": UpdateStatuses(); break;
+                case "UNIT_QUEST_LOG_CHANGED": UpdateStatuses(); break;
+
                 case "BAG_UPDATE": CheckInventoryForQuestsGivenByItems(); break;
                 case "PLAYER_LEVEL_UP": RecordQuestsFromDB(); break;
             }
@@ -185,10 +190,6 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     quest.ChangeStatusTo(QuestStatus.InProgress);
 
                     itemsToAddToDNSList.AddRange(quest.GetItemsStringsList());
-                    if (!quest.AreObjectivesRecorded && quest.GetAllObjectives().Count > 0)
-                    {
-                        quest.RecordObjectiveIndices();
-                    }
                     continue;
                 }
 

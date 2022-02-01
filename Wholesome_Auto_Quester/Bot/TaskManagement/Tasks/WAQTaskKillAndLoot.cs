@@ -25,7 +25,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         {
             if (wowObject is WoWUnit unit)
             {
-                if (unit.IsAlive && unit.IsAttackable && !unit.IsTaggedByOther || unit.IsDead && unit.IsLootable)
+                if (unit.IsAlive && unit.IsAttackable || unit.IsDead && unit.IsLootable)
                 {
                     return true;
                 }
@@ -36,7 +36,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         public override void PostInteraction(WoWObject wowObject)
         {
             WoWUnit lootTarget = (WoWUnit)wowObject;
-            if (!lootTarget.IsLootable)
+            if (lootTarget.IsDead && !lootTarget.IsLootable)
             {
                 PutTaskOnTimeout("Completed");
             }
