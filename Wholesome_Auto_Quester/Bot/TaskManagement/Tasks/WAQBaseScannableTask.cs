@@ -15,8 +15,8 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             DefaultTimeOutDuration = defaultTimeOutDuration;
         }
 
-        public override void RegisterEntryToScanner(IWowObjectScanner scanner) => scanner.AddToDictionary(ObjectEntry, this);
-        public override void UnregisterEntryToScanner(IWowObjectScanner scanner) => scanner.RemoveFromDictionary(ObjectEntry, this);
+        public override void RegisterEntryToScanner(IWowObjectScanner scanner) => scanner.AddToScannerRegistry(ObjectEntry, this);
+        public override void UnregisterEntryToScanner(IWowObjectScanner scanner) => scanner.RemoveFromScannerRegistry(ObjectEntry, this);
         public override abstract bool IsObjectValidForTask(WoWObject wowObject);
     }
 }

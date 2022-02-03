@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using Wholesome_Auto_Quester.Database.Models;
+﻿using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
@@ -51,16 +50,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             }
             else
             {
-                if (ToolBox.GossipTurnInQuest(_questTemplate.LogTitle, _questTemplate.Id))
-                {
-                    Thread.Sleep(1000);
-                    if (!Quest.HasQuest(_questTemplate.Id))
-                    {
-                        ToolBox.SaveQuestAsCompleted(_questTemplate.Id);
-                        PutTaskOnTimeout($"Completed");
-                    }
-                }
-                else
+                if (!ToolBox.GossipTurnInQuest(_questTemplate.LogTitle, _questTemplate.Id))
                 {
                     PutTaskOnTimeout("Failed turnin Gossip", 15 * 60, true);
                 }

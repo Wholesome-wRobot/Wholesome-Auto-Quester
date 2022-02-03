@@ -15,7 +15,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         {
             if (wowObject is WoWUnit unit)
             {
-                return unit.IsAlive && unit.IsAttackable && !unit.IsTaggedByOther;
+                return unit.IsAlive && unit.IsAttackable;
             }
             return false;
         }

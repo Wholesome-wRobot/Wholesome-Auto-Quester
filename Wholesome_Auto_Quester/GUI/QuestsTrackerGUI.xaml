@@ -371,6 +371,65 @@
 
                 </Grid>
             </TabItem>
+
+            <TabItem Header="ScanReg">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock
+                        Text="Scanner registry"
+                        HorizontalAlignment="Center"
+                        Grid.Row="0"
+                        FontSize="18"
+                        Margin="0,5"/>
+                    <ScrollViewer VerticalScrollBarVisibility="Visible" Height="475" Grid.Row="1">
+                        <ItemsControl Name="sourceScanReg" 
+                             MinHeight="50"
+                             HorizontalContentAlignment="Stretch"
+                             VerticalAlignment="Top"
+                             Height="Auto"
+                             Grid.Row="1">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding ObjectId}"
+                                               Foreground="HotPink"
+                                               HorizontalAlignment="Left"
+                                               Margin="0,0,5,0"
+                                               Grid.Column="0"
+                                               TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding TaskName}"
+                                               Foreground="Bisque"
+                                               HorizontalAlignment="Left"
+                                               Margin="0,0,5,0"
+                                               Grid.Column="1"
+                                               TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding Amount, StringFormat=' {0} / '}"
+                                               Foreground="PowderBlue"
+                                               HorizontalAlignment="Left"
+                                               Grid.Column="0"
+                                               TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding AmountTimedOut}"
+                                               Foreground="Gray"
+                                               HorizontalAlignment="Left"
+                                               Grid.Column="0"
+                                               TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
         </TabControl>
     </Grid>
 </mah:MetroWindow>

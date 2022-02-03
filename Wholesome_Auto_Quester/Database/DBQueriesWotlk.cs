@@ -83,6 +83,11 @@ namespace Wholesome_Auto_Quester.Database
 
             foreach (ModelQuestTemplate q in dbResult)
             {
+                if (q.CreatureQuestGivers.Count <= 0 && q.CreatureQuestTurners.Count <= 0)
+                {
+                    continue;
+                }
+
                 if (q.CreatureQuestGivers.Count > 0 && !q.CreatureQuestGivers.Any(qg => qg.IsNeutralOrFriendly) && q.GameObjectQuestGivers.Count <= 0)
                 {
                     //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Not for my faction)");

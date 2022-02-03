@@ -294,9 +294,9 @@ namespace Wholesome_Auto_Quester.Helpers
             end");
 
             robotManager.Helpful.Timer timer = new robotManager.Helpful.Timer(3000);
-            while (!Quest.HasQuest(questId) && !timer.IsReady)
+            while (Quest.HasQuest(questId) && !timer.IsReady)
             {
-                Thread.Sleep(100);
+                Thread.Sleep(500);
             }
             if (timer.IsReady)
             {
@@ -304,6 +304,7 @@ namespace Wholesome_Auto_Quester.Helpers
             }
 
             Logger.Log($"Turned in quest {questName}.");
+            SaveQuestAsCompleted(questId);
 
             return true;
         }
@@ -360,9 +361,9 @@ namespace Wholesome_Auto_Quester.Helpers
                     Thread.Sleep(200);
                     Quest.CompleteQuest();
                     Thread.Sleep(1000);
-                    if (!Quest.HasQuest(questId))
+                    if (Quest.HasQuest(questId))
                     {
-                        SaveQuestAsCompleted(questId);
+                        return false;
                     }
                     return true;
             }
@@ -391,22 +392,28 @@ namespace Wholesome_Auto_Quester.Helpers
 
             robotManager.Helpful.Timer timer = new robotManager.Helpful.Timer(3000);
             while (!Quest.HasQuest(questId) && !timer.IsReady)
+            {
                 Thread.Sleep(100);
+            }
             if (timer.IsReady)
+            {
                 return false;
+            }
 
             Logger.Log($"Picked up quest {questName}.");
 
             return true;
         }
 
-        public static void SaveQuestAsCompleted(int questId)
+        public static bool SaveQuestAsCompleted(int questId)
         {
             if (!WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Contains(questId))
             {
+                Logger.Log($"Saved quest {questId} as completed");
                 WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Add(questId);
-                WholesomeAQSettings.CurrentSetting.Save();
+                return true;
             }
+            return false;
         }
 
         internal static int GetIndexOfClosestPoint(List<Vector3> path)
@@ -801,26 +808,6 @@ namespace Wholesome_Auto_Quester.Helpers
             return ObjectManager.Me.Faction == (uint)PlayerFactions.Orc || ObjectManager.Me.Faction == (uint)PlayerFactions.Tauren
                 || ObjectManager.Me.Faction == (uint)PlayerFactions.Undead || ObjectManager.Me.Faction == (uint)PlayerFactions.BloodElf
                 || ObjectManager.Me.Faction == (uint)PlayerFactions.Troll;
-        }
-
-        public static void InitializeWAQSettings()
-        {
-            BlacklistHelper.AddQuestToBlackList(1202, "Theramore docks, runs through ally city");
-            BlacklistHelper.AddQuestToBlackList(863, "Ignition, bugged platform");
-            BlacklistHelper.AddQuestToBlackList(6383, "Ashenvale hunt, bugged ");
-            BlacklistHelper.AddQuestToBlackList(891, "The Guns of NorthWatch, too many mobs");
-            BlacklistHelper.AddQuestToBlackList(9612, "A hearty thanks, requires heal on mob");
-            BlacklistHelper.AddQuestToBlackList(857, "The tear of the moons, way too many mobs");
-            if (IsHorde()) BlacklistHelper.AddQuestToBlackList(4740, "Bugged, should only be alliance");
-
-            if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))
-            {
-                wManagerSetting.CurrentSetting.DoNotSellList.Remove("WAQStart");
-                wManagerSetting.CurrentSetting.DoNotSellList.Remove("WAQEnd");
-                wManagerSetting.CurrentSetting.DoNotSellList.Add("WAQStart");
-                wManagerSetting.CurrentSetting.DoNotSellList.Add("WAQEnd");
-                wManagerSetting.CurrentSetting.Save();
-            }
         }
 
         public static Dictionary<int, int> QuestModifiedLevel = new Dictionary<int, int>()

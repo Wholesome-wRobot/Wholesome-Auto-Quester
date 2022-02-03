@@ -10,33 +10,6 @@ namespace Wholesome_Auto_Quester.Helpers
     {
         public static List<WAQBlacklistEntry> ListEntries = new List<WAQBlacklistEntry>();
 
-        public static string GetQuestBlacklistReason(int questId)
-        {
-            return WholesomeAQSettings.CurrentSetting.BlackListedQuests.Find(blq => blq.Id == questId).Reason;
-        }
-
-        public static void AddQuestToBlackList(int questId, string reason)
-        {
-            if (!WholesomeAQSettings.CurrentSetting.BlackListedQuests.Exists(blq => blq.Id == questId))
-            {
-                WholesomeAQSettings.CurrentSetting.BlackListedQuests.Add(new BlackListedQuest(questId, reason));
-                WholesomeAQSettings.CurrentSetting.Save();
-                Logger.Log($"The quest {questId} has been blacklisted ({reason})");
-            }
-        }
-
-        public static void RemoveQuestFromBlackList(int questId, string reason)
-        {
-            BlackListedQuest questToRemove = WholesomeAQSettings.CurrentSetting.BlackListedQuests.Find(blq => blq.Id == questId);
-            if (questToRemove.Id != 0)
-            {
-                WholesomeAQSettings.CurrentSetting.BlackListedQuests.Remove(questToRemove);
-                WholesomeAQSettings.CurrentSetting.Save();
-                Logger.Log($"The quest {questId} has been removed from the blacklist ({reason})");
-
-            }
-        }
-
         public static void AddZone(Vector3 position, int radius, string reason, int timeInMs = 1000 * 60 * 15)
         {
             if (!ListEntries.Exists(wbl => wbl.Position == position))

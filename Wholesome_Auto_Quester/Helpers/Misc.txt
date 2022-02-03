@@ -1,1 +1,7 @@
-﻿basically we return a pair, (InteractionType, InteractionScript), and InteractionScript will be a delegate that we need to execute after interacting with the object/npc
+﻿quest taken => QUEST_ACCEPTED + QUEST_LOG_UPDATE
+
+quest turned in => QUEST_COMPLETE + QUEST_LOG_UPDATE
+
+quest added progress / objective finished => QUEST_LOG_UPDATE
+
+quest finished, ready to turn in => QUEST_LOG_UPDATE

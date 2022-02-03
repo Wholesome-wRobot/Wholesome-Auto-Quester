@@ -6,7 +6,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
     public interface IQuestManager : ICycleable
     {
         List<IWAQTask> GetAllQuestTasks();
-        //IWAQQuest GetQuestByTask(IWAQTask taskToSearch);
-        List<IWAQQuest> Quests { get; }
+        public void AddQuestToBlackList(int questId, string reason, bool triggerStatusUpdate = true);
+        public void RemoveQuestFromBlackList(int questId, string reason, bool triggerStatusUpdate = true);
     }
 }

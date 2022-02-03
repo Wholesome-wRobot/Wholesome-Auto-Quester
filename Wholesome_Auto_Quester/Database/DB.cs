@@ -365,20 +365,22 @@ namespace Wholesome_Auto_Quester.Database
             ";
             List<ModelQuestTemplate> result = _con.Query<ModelQuestTemplate>(queryQuest).ToList();
 
-            result.ForEach(q =>
+            foreach (ModelQuestTemplate template in result)
             {
-                if (ToolBox.QuestModifiedLevel.TryGetValue(q.Id, out int levelModifier))
+                if (ToolBox.QuestModifiedLevel.TryGetValue(template.Id, out int levelModifier))
                 {
-                    q.QuestLevel += levelModifier;
+                    template.QuestLevel += levelModifier;
                 }
-            });
+            }
+
             result.RemoveAll(q =>
                 (q.QuestLevel > levelDeltaPlus || q.QuestLevel < levelDeltaMinus)
                 && q.QuestLevel != -1
                 && (!logQuestsIds.Contains(q.Id) || q.QuestLevel > levelDeltaPlus));
+
             result.RemoveAll(q => questSortIdsToIgnore.Contains(q.QuestSortID));
 
-            result.ForEach(questTemplate =>
+            foreach (ModelQuestTemplate questTemplate in result)
             {
                 string queryQuestAddon = $@"
                     SELECT * 
@@ -388,7 +390,7 @@ namespace Wholesome_Auto_Quester.Database
                 ModelQuestTemplateAddon addon = _con.Query<ModelQuestTemplateAddon>(queryQuestAddon).FirstOrDefault();
                 questTemplate.QuestAddon = addon ?? new ModelQuestTemplateAddon();
                 questTemplate.QuestAddon.ExclusiveQuests = QueryQuestIdsByExclusiveGroup(questTemplate.QuestAddon.ExclusiveGroup);
-            });
+            }
 
             return result;
         }

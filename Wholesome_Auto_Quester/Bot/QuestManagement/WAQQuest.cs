@@ -52,7 +52,6 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             }
 
             _questTasks[objectiveIndex].Add(task);
-            task.RegisterEntryToScanner(_objectScanner);
         }
 
         private void ClearTasksDictionary()
@@ -79,12 +78,30 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             }
         }
 
+        public void CheckForFinishedObjectives()
+        {
+            if (Status == QuestStatus.InProgress)
+            {
+                foreach (KeyValuePair<int, List<IWAQTask>> objective in _questTasks)
+                {
+                    if (Quest.IsObjectiveComplete(objective.Key, QuestTemplate.Id))
+                    {
+                        ClearDictionaryObjective(objective.Key);
+                    }
+                }
+            }
+        }
+
+        // Triggers on LOG_UPDATE from the quest manager's UpdateStatuses
         public void ChangeStatusTo(QuestStatus newStatus)
         {
             if (Status == newStatus)
             {
                 return;
             }
+            Logger.Log($"{QuestTemplate.LogTitle} changed status from {Status} to {newStatus}");
+            ClearTasksDictionary(); // il faut aussi refaire un tour pour les objectifs complétés
+
             Status = newStatus;
 
             // TASK GENERATION
@@ -102,7 +119,11 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             // Completed
             if (Status == QuestStatus.Completed || Status == QuestStatus.Blacklisted)
             {
-                ClearTasksDictionary(); // TODO make a separate method to deregister
+                if (ToolBox.SaveQuestAsCompleted(QuestTemplate.Id))
+                {
+                    WholesomeAQSettings.CurrentSetting.Save();
+                }
+                ClearTasksDictionary();
                 return;
             }
 

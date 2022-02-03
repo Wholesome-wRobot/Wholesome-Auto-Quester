@@ -3,7 +3,6 @@ using Supercluster.KDTree;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Wholesome_Auto_Quester.Bot.GrindManagement;
 using Wholesome_Auto_Quester.Bot.QuestManagement;
@@ -25,9 +24,8 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
         private readonly IWowObjectScanner _objectScanner;
         private readonly QuestsTrackerGUI _tracker;
         private bool _isRunning = false;
-        private KDTree<float, IWAQTask> _spaceTree = new KDTree<float, IWAQTask>(3, new float[][] { new float[] { 0, 0, 0 } }, new IWAQTask[] { null }, Distance);
+        private List<IWAQTask> _taskPile = new List<IWAQTask>();
 
-        public List<IWAQTask> TaskPile { get; } = new List<IWAQTask>();
         public IWAQTask ActiveTask { get; private set; }
 
         public TaskManager(IWowObjectScanner scanner, IQuestManager questManager, IGrindManager grindManager, QuestsTrackerGUI questTrackerGUI)
@@ -59,51 +57,73 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
         private void AddTaskToPile(IWAQTask task)
         {
-            if (!TaskPile.Contains(task))
+            if (!_taskPile.Contains(task))
             {
-                TaskPile.Add(task);
+                _taskPile.Add(task);
+                task.RegisterEntryToScanner(_objectScanner);
             }
             else
             {
                 throw new Exception($"Tried to add {task.TaskName} to the TaskPile but it already existed");
             }
         }
-
+        /*
+        private void RemoveFromTaskPile(IWAQTask task)
+        {
+            if (_taskPile.Contains(task))
+            {
+                _taskPile.Remove(task);
+                task.UnregisterEntryToScanner(_objectScanner);
+            }
+            else
+            {
+                throw new Exception($"Tried to remove {task.TaskName} from the TaskPile but it didn't exist");
+            }
+        }
+        */
         public void UpdateTaskPile()
         {
-            _tracker.UpdateTasksList(TaskPile);
-
             if (WholesomeAQSettings.CurrentSetting.GoToMobEntry > 0)
             {
                 GenerateSettingTravelTask();
                 return;
             }
 
-            TaskPile.Clear();
+            _taskPile.Clear();
             Vector3 myPosition = ObjectManager.Me.Position;
+            List<IWAQTask> tasksToAdd = new List<IWAQTask>();
 
             if (WholesomeAQSettings.CurrentSetting.GoToMobEntry <= 0 && !WholesomeAQSettings.CurrentSetting.GrindOnly)
             {
                 List<IWAQTask> allQuestTasks = _questManager.GetAllQuestTasks()
                     .Where(task => !wManagerSetting.IsBlackListedZone(task.Location))
-                    .OrderBy(task => myPosition.DistanceTo(task.Location))
                     .ToList();
 
-                foreach (IWAQTask task in allQuestTasks)
-                {
-                    AddTaskToPile(task);
-                }
+                tasksToAdd.AddRange(allQuestTasks);
             }
 
             // Add grind tasks if nothing else is valid
-            if (WholesomeAQSettings.CurrentSetting.GrindOnly || TaskPile.Count > 0 & TaskPile.All(task => task.IsTimedOut))
+            if (WholesomeAQSettings.CurrentSetting.GrindOnly || _taskPile.Count > 0 & _taskPile.All(task => task.IsTimedOut))
             {
-                foreach (IWAQTask task in _grindManager.GetGrindTasks())
-                {
-                    AddTaskToPile(task);
-                }
+                tasksToAdd.AddRange(_grindManager.GetGrindTasks());
+            }
+            
+            var spaceTree = BuildTree(tasksToAdd);
+            
+            List<GUITask> guiTasks = new List<GUITask>();
+            foreach (IWAQTask task in tasksToAdd)
+            {
+                guiTasks.Add(new GUITask(CalculatePriority(myPosition, spaceTree, task), task));
             }
 
+            guiTasks = guiTasks.OrderBy(task => task.Priority).ToList();
+            foreach (GUITask guiTask in guiTasks)
+            {
+                AddTaskToPile(guiTask.Task);
+            }
+
+            _tracker.UpdateTasksList(guiTasks);
+            
             // If a wow object is found, we force the closest task
             if (_objectScanner.ActiveWoWObject != (null, null))
             {
@@ -112,7 +132,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             }
 
             // Get closest task
-            IWAQTask closestTask = TaskPile.Find(task => !task.IsTimedOut && !wManagerSetting.IsBlackListedZone(task.Location));
+            IWAQTask closestTask = _taskPile.Find(task => !task.IsTimedOut && !wManagerSetting.IsBlackListedZone(task.Location));
             WAQPath pathToClosestTask = ToolBox.GetWAQPath(ObjectManager.Me.Position, closestTask.Location);
 
             if (!pathToClosestTask.IsReachable)
@@ -125,31 +145,31 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
             if (pathToClosestTask.Distance > myPosition.DistanceTo(closestTask.Location) * 2)
             {
-                int closestTaskPriorityScore = CalculatePriority(myPosition, closestTask);
+                int closestTaskPriorityScore = CalculatePriority(myPosition, spaceTree, closestTask);
 
-                for (int i = 0; i < TaskPile.Count - 1; i++)
+                for (int i = 0; i < _taskPile.Count - 1; i++)
                 {
                     if (i > 2) break;
-                    if (!TaskPile[i].IsTimedOut)
+                    if (!_taskPile[i].IsTimedOut)
                     {
-                        WAQPath pathToNewTask = ToolBox.GetWAQPath(myPosition, TaskPile[i].Location);
+                        WAQPath pathToNewTask = ToolBox.GetWAQPath(myPosition, _taskPile[i].Location);
                         if (!pathToNewTask.IsReachable)
                         {
-                            TaskPile[i].PutTaskOnTimeout("Unreachable (2)", 600, true);
+                            _taskPile[i].PutTaskOnTimeout("Unreachable (2)", 600, true);
                             BlacklistHelper.AddZone(closestTask.Location, 5, "Unreachable (2)");
                             continue;
                         }
 
-                        int newTaskPriority = CalculatePriority(myPosition, TaskPile[i]);
+                        int newTaskPriority = CalculatePriority(myPosition, spaceTree, _taskPile[i]);
 
                         if (newTaskPriority < closestTaskPriorityScore)
                         {
                             closestTaskPriorityScore = newTaskPriority;
-                            closestTask = TaskPile[i];
+                            closestTask = _taskPile[i];
                             pathToClosestTask = pathToNewTask;
                         }
 
-                        if (closestTaskPriorityScore < TaskPile[i + 1].Location.DistanceTo(myPosition))
+                        if (closestTaskPriorityScore < _taskPile[i + 1].Location.DistanceTo(myPosition))
                             break;
                     }
                 }
@@ -160,7 +180,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
         private void GenerateSettingTravelTask()
         {
-            if (TaskPile.Count <= 0)
+            if (_taskPile.Count <= 0)
             {
                 DB _db = new DB();
                 ModelCreatureTemplate template = _db.QueryCreatureTemplateByEntry(WholesomeAQSettings.CurrentSetting.GoToMobEntry);
@@ -177,7 +197,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             }
         }
 
-        public int CalculatePriority(Vector3 myPosition, IWAQTask task)
+        public int CalculatePriority(Vector3 myPosition, KDTree<float, IWAQTask> spaceTree, IWAQTask task)
         {
             const double magic = 1.32;
 
@@ -185,7 +205,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             var priority = (int)System.Math.Pow(taskDistance, magic);
 
             var locationWeight = 1.0;
-            var neighbours = _spaceTree.RadialSearch(new float[] { task.Location.X, task.Location.Y, task.Location.Z }, 64.0f);
+            var neighbours = spaceTree.RadialSearch(new float[] { task.Location.X, task.Location.Y, task.Location.Z }, 64.0f);
             foreach (var (_, neighbour) in neighbours)
             {
                 locationWeight += task.SpatialWeight;

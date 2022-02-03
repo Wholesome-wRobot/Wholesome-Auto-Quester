@@ -6,9 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Wholesome_Auto_Quester.Bot.QuestManagement;
-using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
-using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Database.Objectives;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.ObjectManager;
@@ -17,6 +15,7 @@ namespace Wholesome_Auto_Quester.GUI
 {
     public partial class QuestsTrackerGUI
     {
+        private IQuestManager _questManager;
 
         public QuestsTrackerGUI()
         {
@@ -26,12 +25,17 @@ namespace Wholesome_Auto_Quester.GUI
             detailsPanel.Visibility = Visibility.Hidden;
         }
 
+        public void Initialize(IQuestManager questManager)
+        {
+            _questManager = questManager;
+        }
+
         public void AddToBLClicked(object sender, RoutedEventArgs e)
         {
             if (sourceQuestsList.SelectedItem != null)
             {
-                ModelQuestTemplate selected = (ModelQuestTemplate)sourceQuestsList.SelectedItem;
-                BlacklistHelper.AddQuestToBlackList(selected.Id, "Blacklisted by user");
+                IWAQQuest selected = (IWAQQuest)sourceQuestsList.SelectedItem;
+                _questManager?.AddQuestToBlackList(selected.QuestTemplate.Id, "Blacklisted by user");
             }
         }
 
@@ -39,8 +43,8 @@ namespace Wholesome_Auto_Quester.GUI
         {
             if (sourceQuestsList.SelectedItem != null)
             {
-                ModelQuestTemplate selected = (ModelQuestTemplate)sourceQuestsList.SelectedItem;
-                BlacklistHelper.RemoveQuestFromBlackList(selected.Id, "Removed by user");
+                IWAQQuest selected = (IWAQQuest)sourceQuestsList.SelectedItem;
+                _questManager?.RemoveQuestFromBlackList(selected.QuestTemplate.Id, "Removed by user");
             }
         }
 
@@ -94,22 +98,46 @@ namespace Wholesome_Auto_Quester.GUI
             }));
         }
 
-        public void UpdateTasksList(List<IWAQTask> taskPile)
+        public void UpdateScanReg(Dictionary<int, List<IWAQTask>> scannerRegistry)
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                sourceScanReg.ItemsSource = null;
+                List<GUIScanEntry> scanEntries = new List<GUIScanEntry>();
+                foreach(KeyValuePair<int, List<IWAQTask>> entry in scannerRegistry)
+                {
+                    foreach (IWAQTask task in entry.Value)
+                    {
+                        if (!scanEntries.Exists(entry => entry.TaskName == task.TaskName))
+                        {
+                            scanEntries.Add(new GUIScanEntry(entry.Key, task));
+                        }
+                        else
+                        {
+                            scanEntries.Find(entry => entry.TaskName == task.TaskName).AddOne(task);
+                        }
+                    }
+                }
+                sourceScanReg.ItemsSource = scanEntries;
+            }));
+        }
+
+        public void UpdateTasksList(List<GUITask> guiTaskPile)
         {
             Dispatcher.BeginInvoke((Action)(() =>
             {
                 sourceTasksList.ItemsSource = null;
                 string countText = "";
                 int limit = 200;
-                if (taskPile.Count >= limit)
+                if (guiTaskPile.Count >= limit)
                 {
-                    sourceTasksList.ItemsSource = taskPile.GetRange(0, limit);
+                    sourceTasksList.ItemsSource = guiTaskPile.GetRange(0, limit);
                     countText = $"{limit}+";
                 }
                 else
                 {
-                    sourceTasksList.ItemsSource = taskPile;
-                    countText = $"{taskPile.Count}";
+                    sourceTasksList.ItemsSource = guiTaskPile;
+                    countText = $"{guiTaskPile.Count}";
                 }
                 tasksTitleTop.Text = $"Current Tasks ({countText})";
             }));
@@ -129,7 +157,8 @@ namespace Wholesome_Auto_Quester.GUI
                 // blacklisted
                 if (selected.IsQuestBlackListed)
                 {
-                    blacklisted.Text = $"Blacklisted : { BlacklistHelper.GetQuestBlacklistReason(selected.QuestTemplate.Id) }";
+                    blacklisted.Text = @$"Blacklisted : { WholesomeAQSettings.CurrentSetting.BlackListedQuests
+                        .Find(blq => blq.Id == selected.QuestTemplate.Id).Reason }";
                     blacklisted.Visibility = Visibility.Visible;
                 }
                 else
@@ -338,5 +367,49 @@ namespace Wholesome_Auto_Quester.GUI
                 Amount = amount;
             }
         }
+    }
+}
+
+public class GUIScanEntry
+{
+    public int ObjectId { get; }
+    public int Amount { get; private set; } = 0;
+    public int AmountTimedOut { get; private set; } = 0;
+    public string TaskName { get; }
+    public string TrackerColor { get; }
+
+    public GUIScanEntry(int objectId, IWAQTask task)
+    {
+        ObjectId = objectId;
+        TaskName = task.TaskName;
+        AddOne(task);
+    }
+
+    public void AddOne(IWAQTask task)
+    {
+        if (task.IsTimedOut)
+        {
+            AmountTimedOut++;
+        }
+        else
+        {
+            Amount++;
+        }
+    }
+}
+
+public class GUITask
+{
+    public int Priority { get; }
+    public string TaskName { get; }
+    public string TrackerColor { get; }
+    public IWAQTask Task { get; }
+
+    public GUITask(int priority, IWAQTask task)
+    {
+        Task = task;
+        Priority = priority;
+        TaskName = task.TaskName;
+        TrackerColor = task.TrackerColor;
     }
 }

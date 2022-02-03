@@ -6,6 +6,6 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
     public interface ITaskManager : ICycleable
     {
         IWAQTask ActiveTask { get; }
-        List<IWAQTask> TaskPile { get; }
+        //List<IWAQTask> _taskPile { get; }
     }
 }

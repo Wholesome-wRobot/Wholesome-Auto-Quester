@@ -318,7 +318,6 @@
     <Compile Include="Bot\TaskManagement\Tasks\WAQTaskTurninQuestToCreature.cs" />
     <Compile Include="Bot\TaskManagement\Tasks\WAQTaskExploreLocation.cs" />
     <Compile Include="Bot\QuestManagement\WAQQuest.cs" />
-    <Compile Include="Bot\TaskManagement\WAQTasks.cs" />
     <Compile Include="Bot\TaskManagement\WowObjectScanner.cs" />
     <Compile Include="Bot\TravelManagement\ITravelManager.cs" />
     <Compile Include="Database\DB.cs" />
@@ -359,24 +358,13 @@
     <Compile Include="States\IWAQState.cs" />
     <Compile Include="States\WAQDefend.cs" />
     <Compile Include="States\WAQExitVehicle.cs" />
-    <Compile Include="States\WAQExplore.cs" />
-    <Compile Include="States\WAQInteractWorldObject.cs" />
-    <Compile Include="States\WAQGrind.cs" />
-    <Compile Include="States\WAQLoot.cs" />
     <Compile Include="States\WAQStateMoveToHotspot.cs" />
     <Compile Include="States\WAQStatePriorityLoot.cs" />
-    <Compile Include="States\WAQPickupQuestFromGameObject.cs" />
     <Compile Include="States\WAQStateInteract.cs" />
     <Compile Include="States\WAQStateKill.cs" />
     <Compile Include="States\WAQStateLoot.cs" />
     <Compile Include="States\WAQStateTravel.cs" />
-    <Compile Include="States\WAQTurnInQuestToGameObject.cs" />
-    <Compile Include="States\WAQTurnInQuestToNpc.cs" />
-    <Compile Include="States\WAQPickupQuestFromNpc.cs" />
-    <Compile Include="States\WAQKill.cs" />
-    <Compile Include="States\WAQGatherWorldObject.cs" />
     <Compile Include="Helpers\ToolBox.cs" />
-    <Compile Include="OldMain.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WholesomeAQSettings.cs" />
   </ItemGroup>

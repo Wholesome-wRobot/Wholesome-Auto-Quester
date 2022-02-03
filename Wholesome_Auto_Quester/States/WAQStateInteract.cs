@@ -55,7 +55,7 @@ namespace Wholesome_Auto_Quester.States
 
             if (gameObject.GetDistance > interactDistance)
             {
-                MoveHelper.StartGoToThread(gameObject.Position, $"Going to {gameObject.Name} to interact.");
+                MoveHelper.StartGoToThread(gameObject.Position, $"Going to {gameObject.Name} for {task.TaskName}.");
                 return;
             }
 

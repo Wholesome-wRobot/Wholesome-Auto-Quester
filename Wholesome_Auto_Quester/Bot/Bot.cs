@@ -3,13 +3,11 @@ using robotManager.Helpful;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Threading;
 using Wholesome_Auto_Quester.Bot.GrindManagement;
 using Wholesome_Auto_Quester.Bot.QuestManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Bot.TravelManagement;
-using Wholesome_Auto_Quester.Database;
 using Wholesome_Auto_Quester.GUI;
 using Wholesome_Auto_Quester.Helpers;
 using Wholesome_Auto_Quester.States;
@@ -39,13 +37,12 @@ namespace Wholesome_Auto_Quester.Bot
                 _questTrackerGui = tracker;
                 _travelManager = new TravelManager();
                 _grindManager = new GrindManager();
-                _objectScanner = new WowObjectScanner();
+                _objectScanner = new WowObjectScanner(_questTrackerGui);
                 _questManager = new QuestManager(_objectScanner, _questTrackerGui);
                 _taskManager = new TaskManager(_objectScanner, _questManager, _grindManager, _questTrackerGui);
                 if (WholesomeAQSettings.CurrentSetting.ActivateQuestsGUI)
                 {
-                    new Thread(() => _questTrackerGui.ShowWindow()).Start();
-                    //_questTrackerGui.ShowWindow();
+                    _questTrackerGui.ShowWindow();
                 }
 
                 // Attach onlevelup for spell book:
@@ -128,8 +125,7 @@ namespace Wholesome_Auto_Quester.Bot
                 _taskManager.Dispose();
                 _travelManager.Dispose();
 
-                new Thread(() => _questTrackerGui.HideWindow()).Start();
-                //_questTrackerGui.HideWindow();
+                _questTrackerGui.HideWindow();
 
                 Radar3D.OnDrawEvent -= Radar3DOnDrawEvent;
                 MovementEvents.OnSeemStuck -= SeemStuckHandler;
@@ -149,8 +145,6 @@ namespace Wholesome_Auto_Quester.Bot
         {
             SpellManager.UpdateSpellBook();
             CustomClass.ResetCustomClass();
-            DBQueriesWotlk dbWotlk = new DBQueriesWotlk();
-            dbWotlk.GetAvailableQuests();
             Talent.DoTalents();
         }
 
@@ -178,9 +172,10 @@ namespace Wholesome_Auto_Quester.Bot
             {
                 Radar3D.DrawLine(ObjectManager.Me.Position, _objectScanner.ActiveWoWObject.wowObject.Position, Color.Yellow);
                 Radar3D.DrawCircle(_objectScanner.ActiveWoWObject.wowObject.Position, 1, Color.Yellow);
-                Radar3D.DrawString($"{_objectScanner.ActiveWoWObject.wowObject.Name} ({_objectScanner.ActiveWoWObject.task.TaskName})"
+                Radar3D.DrawString($"{_objectScanner.ActiveWoWObject.wowObject.Name} ({_objectScanner.ActiveWoWObject.wowObject.Entry})"
                     , new Vector3(30, 220, 0), 10, Color.Yellow);
             }
+
             if (MoveHelper.IsMovementThreadRunning)
                 Radar3D.DrawString("Movement thread running", new Vector3(30, 240, 0), 10, Color.Green);
             else

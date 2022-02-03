@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
+using Wholesome_Auto_Quester.GUI;
 using Wholesome_Auto_Quester.Helpers;
 using wManager;
 using wManager.Wow.ObjectManager;
@@ -11,13 +12,15 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
     internal class WowObjectScanner : IWowObjectScanner
     {
         private List<WoWObject> _listSurroundingPOIs = new List<WoWObject>();
-        private Dictionary<int, List<IWAQTask>> _dicEntriesWaqTasks = new Dictionary<int, List<IWAQTask>>(); // object entry => associated tasks
+        private Dictionary<int, List<IWAQTask>> _scannerRegistry = new Dictionary<int, List<IWAQTask>>(); // object entry => associated tasks
         private bool _isRunning = false;
+        private readonly QuestsTrackerGUI _guiTracker;
 
         public (WoWObject wowObject, IWAQTask task) ActiveWoWObject { get; private set; } = (null, null);
 
-        public WowObjectScanner()
+        public WowObjectScanner(QuestsTrackerGUI tracker)
         {
+            _guiTracker = tracker;
             Initialize();
         }
 
@@ -38,11 +41,19 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
         public void Dispose()
         {
             _isRunning = false;
+            _scannerRegistry.Clear();
             //ObjectManagerEvents.OnObjectManagerPulsed -= OnObjectManagerPulse;
         }
 
         private void OnObjectManagerPulse()
         {
+            /*foreach(KeyValuePair<int, List<IWAQTask>> entry in _dicEntriesWaqTasks)
+            {
+                Logger.Log($"{entry.Key} => {entry.Value.Count}");
+            }*/
+
+            _guiTracker.UpdateScanReg(_scannerRegistry);
+
             List<WoWObject> surroundingObjects = ObjectManager.GetObjectWoW()
                 .OrderBy(o => o.GetDistance)
                 .ToList();
@@ -50,9 +61,9 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             _listSurroundingPOIs = surroundingObjects
                 .FindAll(wowObject => !wManagerSetting.IsBlackListed(wowObject.Guid)
                     && !wManagerSetting.IsBlackListedZone(wowObject.Position)
-                    && _dicEntriesWaqTasks.ContainsKey(wowObject.Entry)
-                    && _dicEntriesWaqTasks[wowObject.Entry].Count > 0
-                    && _dicEntriesWaqTasks[wowObject.Entry][0].IsObjectValidForTask(wowObject))
+                    && _scannerRegistry.ContainsKey(wowObject.Entry)
+                    && _scannerRegistry[wowObject.Entry].Count > 0
+                    && _scannerRegistry[wowObject.Entry].Any(task => task.IsObjectValidForTask(wowObject)))
                 .ToList();
 
             if (_listSurroundingPOIs.Count > 0)
@@ -112,10 +123,10 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
         {
             if (closestObject == null)
             {
-                throw new System.Exception($"Tried to get a task matching with the active object entry but it was null");
+                throw new System.Exception($"[Scanner] Tried to get a task matching with the active object entry but it was null");
             }
 
-            if (_dicEntriesWaqTasks.TryGetValue(closestObject.Entry, out List<IWAQTask> taskList))
+            if (_scannerRegistry.TryGetValue(closestObject.Entry, out List<IWAQTask> taskList))
             {
                 return taskList
                     .Where(task => !task.IsTimedOut)
@@ -124,35 +135,46 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             }
             else
             {
-                throw new System.Exception($"Tried to get a task matching with the object entry {closestObject.Entry} but the entry didn't exist");
+                throw new System.Exception($"[Scanner] Tried to get a task matching with the object entry {closestObject.Entry} but the entry didn't exist");
             }
 
         }
 
-        public void AddToDictionary(int entry, IWAQTask task)
+        public void AddToScannerRegistry(int entry, IWAQTask task)
         {
-            if (_dicEntriesWaqTasks.TryGetValue(entry, out List<IWAQTask> taskList))
+            if (_scannerRegistry.TryGetValue(entry, out List<IWAQTask> taskList))
             {
-                taskList.Add(task);
-            }
-            else
-            {
-                _dicEntriesWaqTasks[entry] = new List<IWAQTask>() { task };
-            }
-        }
-
-        public void RemoveFromDictionary(int entry, IWAQTask task)
-        {
-            if (_dicEntriesWaqTasks.TryGetValue(entry, out List<IWAQTask> taskList))
-            {
-                if (!taskList.Remove(task))
+                if (!taskList.Contains(task))
                 {
-                    throw new System.Exception($"Tried to remove {task.TaskName} from the entry {entry} but it wasn't in the list");
+                    taskList.Add(task);
+                    Logger.Log($"Added ({entry}) {task.TaskName} to the scanner regsitry ({task.Location})");
                 }
             }
             else
             {
-                throw new System.Exception($"Tried to remove {task.TaskName} but the entry {entry} didn't exist");
+                _scannerRegistry[entry] = new List<IWAQTask>() { task };
+                Logger.Log($"Added ({entry}) {task.TaskName} to the scanner regsitry (didn't exist) ({task.Location})");
+            }
+        }
+
+        public void RemoveFromScannerRegistry(int entry, IWAQTask task)
+        {
+            if (_scannerRegistry.TryGetValue(entry, out List<IWAQTask> taskList))
+            {
+                if (!taskList.Remove(task))
+                {
+                    throw new System.Exception($"[Scanner] Tried to remove {task.TaskName} from the entry {entry} but it wasn't in the list ({task.Location})");
+                }
+                Logger.Log($"Removed ({entry}) {task.TaskName} from the scanner regsitry ({task.Location})");
+                if (taskList.Count <= 0)
+                {
+                    _scannerRegistry.Remove(entry);
+                    Logger.Log($"Removed ENTRY {entry} from the scanner regsitry ({task.Location})");
+                }
+            }
+            else
+            {
+                throw new System.Exception($"[Scanner] Tried to remove {task.TaskName} but the entry {entry} didn't exist ({task.Location})");
             }
         }
     }

@@ -52,7 +52,6 @@ public class Main : IProduct
             }
 
             IsStarted = true;
-            ToolBox.InitializeWAQSettings();
             LoggingEvents.OnAddLog += AddLogHandler;
             EventsLuaWithArgs.OnEventsLuaStringWithArgs += EventsWithArgsHandler;
             EventsLua.AttachEventLua("PLAYER_DEAD", e => PlayerDeadHandler(e));
@@ -69,12 +68,13 @@ public class Main : IProduct
                 {
                     try
                     {
-                        if (Conditions.InGameAndConnectedAndProductStartedNotInPause)
+                        if (Conditions.InGameAndConnectedAndProductStartedNotInPause
+                            && Quest.FinishedQuestSet.Count <= 0)
                         {
                             Quest.RequestQuestsCompleted();
                             Quest.ConsumeQuestsCompletedRequest();
                         }
-                        await Task.Delay(1000 * 60);
+                        await Task.Delay(5 * 1000);
                     }
                     catch (Exception arg)
                     {
