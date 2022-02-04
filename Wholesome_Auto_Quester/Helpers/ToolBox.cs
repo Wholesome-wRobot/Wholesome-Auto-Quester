@@ -304,7 +304,10 @@ namespace Wholesome_Auto_Quester.Helpers
             }
 
             Logger.Log($"Turned in quest {questName}.");
-            SaveQuestAsCompleted(questId);
+            if (SaveQuestAsCompleted(questId))
+            {
+                WholesomeAQSettings.CurrentSetting.Save();
+            }
 
             return true;
         }

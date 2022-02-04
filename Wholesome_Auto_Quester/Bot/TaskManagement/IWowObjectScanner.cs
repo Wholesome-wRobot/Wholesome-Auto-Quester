@@ -8,6 +8,5 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
         (WoWObject wowObject, IWAQTask task) ActiveWoWObject { get; }
         void AddToScannerRegistry(int entry, IWAQTask task);
         void RemoveFromScannerRegistry(int entry, IWAQTask task);
-        IWAQTask GetTaskMatchingWithObject(WoWObject closestObject);
     }
 }

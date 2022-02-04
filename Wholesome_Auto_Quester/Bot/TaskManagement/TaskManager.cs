@@ -52,6 +52,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
         public void Dispose()
         {
+            _taskPile.Clear();
             _isRunning = false;
         }
 
@@ -60,29 +61,27 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             if (!_taskPile.Contains(task))
             {
                 _taskPile.Add(task);
-                task.RegisterEntryToScanner(_objectScanner);
             }
             else
             {
                 throw new Exception($"Tried to add {task.TaskName} to the TaskPile but it already existed");
             }
         }
-        /*
-        private void RemoveFromTaskPile(IWAQTask task)
-        {
-            if (_taskPile.Contains(task))
-            {
-                _taskPile.Remove(task);
-                task.UnregisterEntryToScanner(_objectScanner);
-            }
-            else
-            {
-                throw new Exception($"Tried to remove {task.TaskName} from the TaskPile but it didn't exist");
-            }
-        }
-        */
+
         public void UpdateTaskPile()
         {
+            WoWLocalPlayer me = ObjectManager.Me;
+            if (me.IsOnTaxi
+                || me.IsDead
+                || !me.IsValid
+                || Fight.InFight
+                || me.HaveBuff("Drink")
+                || me.HaveBuff("Food")
+                || MoveHelper.IsMovementThreadRunning && MoveHelper.GetCurrentPathRemainingDistance() > 200)
+            {
+                return;
+            }
+
             if (WholesomeAQSettings.CurrentSetting.GoToMobEntry > 0)
             {
                 GenerateSettingTravelTask();

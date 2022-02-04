@@ -46,12 +46,21 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 return;
             }
 
+            // create the empty entry if it doesn't exist
             if (!_questTasks.ContainsKey(objectiveIndex))
             {
                 _questTasks[objectiveIndex] = new List<IWAQTask>();
             }
 
-            _questTasks[objectiveIndex].Add(task);
+            if (!_questTasks[objectiveIndex].Contains(task))
+            {
+                _questTasks[objectiveIndex].Add(task);
+                task.RegisterEntryToScanner(_objectScanner);
+            }
+            else
+            {
+                throw new Exception($"Tried to add {task.TaskName} to objective {objectiveIndex} but it already existed");
+            }
         }
 
         private void ClearTasksDictionary()
@@ -68,26 +77,29 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
         private void ClearDictionaryObjective(int objectiveId)
         {
-            if (_questTasks[objectiveId] != null)
-            {
-                foreach (IWAQTask task in _questTasks[objectiveId])
-                {
-                    task.UnregisterEntryToScanner(_objectScanner);
-                }
-                _questTasks[objectiveId].Clear();
-            }
+            _questTasks.Remove(objectiveId);
         }
 
         public void CheckForFinishedObjectives()
         {
             if (Status == QuestStatus.InProgress)
             {
-                foreach (KeyValuePair<int, List<IWAQTask>> objective in _questTasks)
+                List<int> keysToRemove = new List<int>();
+                foreach (KeyValuePair<int, List<IWAQTask>> objective in _questTasks.Reverse())
                 {
                     if (Quest.IsObjectiveComplete(objective.Key, QuestTemplate.Id))
                     {
-                        ClearDictionaryObjective(objective.Key);
+                        keysToRemove.Add(objective.Key);
+                        foreach (IWAQTask task in objective.Value)
+                        {
+                            task.UnregisterEntryToScanner(_objectScanner);
+                        }
                     }
+                }
+
+                foreach (int key in keysToRemove)
+                {
+                    _questTasks.Remove(key);
                 }
             }
         }
@@ -100,7 +112,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 return;
             }
             Logger.Log($"{QuestTemplate.LogTitle} changed status from {Status} to {newStatus}");
-            ClearTasksDictionary(); // il faut aussi refaire un tour pour les objectifs complétés
+            ClearTasksDictionary();
 
             Status = newStatus;
 

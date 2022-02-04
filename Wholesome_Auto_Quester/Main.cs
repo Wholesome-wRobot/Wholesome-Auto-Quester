@@ -68,8 +68,7 @@ public class Main : IProduct
                 {
                     try
                     {
-                        if (Conditions.InGameAndConnectedAndProductStartedNotInPause
-                            && Quest.FinishedQuestSet.Count <= 0)
+                        if (Conditions.InGameAndConnectedAndProductStartedNotInPause)
                         {
                             Quest.RequestQuestsCompleted();
                             Quest.ConsumeQuestsCompletedRequest();

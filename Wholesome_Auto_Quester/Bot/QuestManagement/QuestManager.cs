@@ -31,10 +31,9 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
         private void GetQuestsFromDB()
         {
-            _questList.Clear();
-
             if (WholesomeAQSettings.CurrentSetting.GoToMobEntry != 0 || WholesomeAQSettings.CurrentSetting.GrindOnly)
             {
+                _questList.Clear();
                 _tracker.UpdateQuestsList(_questList);
                 return;
             }
@@ -42,9 +41,14 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             DBQueriesWotlk wotlkQueries = new DBQueriesWotlk();
             List<ModelQuestTemplate> dbQuestTemplates = wotlkQueries.GetAvailableQuests();
 
+            _questList.RemoveAll(quest => !dbQuestTemplates.Exists(q => q.Id == quest.QuestTemplate.Id));
+
             foreach (ModelQuestTemplate qTemplate in dbQuestTemplates)
             {
-                _questList.Add(new WAQQuest(qTemplate, _objectScanner));
+                if (!_questList.Exists(quest => quest.QuestTemplate.Id == qTemplate.Id))
+                {
+                    _questList.Add(new WAQQuest(qTemplate, _objectScanner));
+                }
 
                 // Quest started by item
                 if (qTemplate.StartItemTemplate?.startquest > 0
@@ -68,6 +72,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
         public void Dispose()
         {
+            _questList.Clear();
             EventsLuaWithArgs.OnEventsLuaStringWithArgs -= LuaEventHandler;
         }
 
@@ -113,7 +118,6 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     break;*/
 
                 case "QUEST_QUERY_COMPLETE":
-                    Logger.Log("QUEST_QUERY_COMPLETE");
                     UpdateCompletedQuests();
                     break;
                 case "BAG_UPDATE":
@@ -301,7 +305,6 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 {
                     WholesomeAQSettings.CurrentSetting.Save();
                 }
-                Logger.LogError($"WE HAVE RECEIVED THE QUESTS FROM THE SERVER : {Quest.FinishedQuestSet.Count}");
                 return;
             }
             Logger.LogError($"Server has not sent our quests yet");

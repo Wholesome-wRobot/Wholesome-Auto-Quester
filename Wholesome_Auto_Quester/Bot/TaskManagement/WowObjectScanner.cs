@@ -31,7 +31,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             {
                 while (_isRunning)
                 {
-                    OnObjectManagerPulse();
+                    Scan();
                     await Task.Delay(1000);
                 }
             });
@@ -45,13 +45,13 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             //ObjectManagerEvents.OnObjectManagerPulsed -= OnObjectManagerPulse;
         }
 
-        private void OnObjectManagerPulse()
+        private void Scan()
         {
             /*foreach(KeyValuePair<int, List<IWAQTask>> entry in _dicEntriesWaqTasks)
             {
                 Logger.Log($"{entry.Key} => {entry.Value.Count}");
             }*/
-
+            Logger.Log("SCAN");
             _guiTracker.UpdateScanReg(_scannerRegistry);
 
             List<WoWObject> surroundingObjects = ObjectManager.GetObjectWoW()
@@ -63,6 +63,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                     && !wManagerSetting.IsBlackListedZone(wowObject.Position)
                     && _scannerRegistry.ContainsKey(wowObject.Entry)
                     && _scannerRegistry[wowObject.Entry].Count > 0
+                    && _scannerRegistry[wowObject.Entry].Any(task => !task.IsTimedOut)
                     && _scannerRegistry[wowObject.Entry].Any(task => task.IsObjectValidForTask(wowObject)))
                 .ToList();
 
@@ -129,7 +130,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             if (_scannerRegistry.TryGetValue(closestObject.Entry, out List<IWAQTask> taskList))
             {
                 return taskList
-                    .Where(task => !task.IsTimedOut)
+                    .Where(task => !task.IsTimedOut && task.IsObjectValidForTask(closestObject))
                     .OrderBy(task => task.Location.DistanceTo(closestObject.Position))
                     .FirstOrDefault();
             }
@@ -169,7 +170,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 if (taskList.Count <= 0)
                 {
                     _scannerRegistry.Remove(entry);
-                    Logger.Log($"Removed ENTRY {entry} from the scanner regsitry ({task.Location})");
+                    Logger.Log($"Removed ENTRY {entry} from the scanner registry ({task.Location})");
                 }
             }
             else
