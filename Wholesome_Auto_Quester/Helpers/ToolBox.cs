@@ -26,6 +26,10 @@ namespace Wholesome_Auto_Quester.Helpers
 
         public static bool HostilesAreAround(WoWObject POI, IWAQTask task, float clearDistance = 25f)
         {
+            if (POI.Entry == 1776) // exception for swamp of sorrows Magtoor
+            {
+                return false;
+            }
             //Logger.Log($"CHECK - Mounted = {ObjectManager.Me.IsMounted}, incomb = {ObjectManager.Me.InCombatFlagOnly}, dist={POI.GetDistance}");
             WoWUnit poiUnit = POI is WoWUnit ? (WoWUnit)POI : null;
             WoWUnit me = ObjectManager.Me;
@@ -688,6 +692,7 @@ namespace Wholesome_Auto_Quester.Helpers
             { 541, 4 }, // Battle of Hillsbrad, too many mobs
             { 5501, 3 }, // Kodo bones, red enemies
             { 8885, 3 }, // Ring of Mmmmmmrgll, too many freaking murlocs
+            { 1389, 3 }, // Draenethyst crystals, too many mobs
         };
 
         public static void PickupQuestFromBagItem(string itemName)

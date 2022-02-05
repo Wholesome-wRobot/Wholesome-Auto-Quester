@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Wholesome_Auto_Quester.Database;
 using Wholesome_Auto_Quester.Database.Models;
-using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
@@ -27,7 +26,7 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
             }
         }
 
-        public static ModelWorldMapArea GetWorldMapAreaFromPoint(Vector3 position, int mapdId) // return real continent enum later
+        public static ModelWorldMapArea GetWorldMapAreaFromPoint(Vector3 position, int mapdId)
         {
             List<ModelWorldMapArea> potentialResults = new List<ModelWorldMapArea>();
             foreach (ModelWorldMapArea wma in ListWorldMapAreas)
@@ -37,10 +36,10 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
                     potentialResults.Add(wma);
                 }
             }
+            // resort to returning continent
             if (potentialResults.Count <= 0)
             {
-                Logger.LogError($"Couldn't find world map area for {position}, {mapdId}");
-                return null;
+                return ListWorldMapAreas.Find(wma => wma.mapID == mapdId && wma.areaID == 0);
             }
             if (potentialResults.Count <= 1)
             {
@@ -54,7 +53,7 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
         public static bool PointIsOnMyContinent(Vector3 position, int continentId)
         {
             ModelWorldMapArea pointWma = GetWorldMapAreaFromPoint(position, continentId);
-            return pointWma.Continent == MyMapArea.Continent;
+            return pointWma?.Continent == MyMapArea.Continent;
         }
     }
 }
