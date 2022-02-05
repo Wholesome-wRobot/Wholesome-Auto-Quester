@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
+using Wholesome_Auto_Quester.Bot.TravelManagement;
 using Wholesome_Auto_Quester.Database;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
@@ -24,7 +25,9 @@ namespace Wholesome_Auto_Quester.Bot.GrindManagement
             List<ModelCreatureTemplate> ctToGrind = _database.QueryCreatureTemplatesToGrind();
             _database.Dispose();
 
-            ctToGrind.RemoveAll(ct => ct.Creatures.Any(c => c.map != Usefuls.ContinentId && !WholesomeAQSettings.CurrentSetting.ContinentTravel) 
+            ctToGrind.RemoveAll(ct =>
+                ct.Creatures.Any(c =>
+                    !ContinentHelper.PointIsOnMyContinent(c.GetSpawnPosition, c.map) && !WholesomeAQSettings.CurrentSetting.ContinentTravel)
                 || ct.IsFriendly
                 || ct.faction == 188);
             Logger.Log($"Found {ctToGrind.Count} templates to grind");

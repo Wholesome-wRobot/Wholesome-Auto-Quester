@@ -39,7 +39,7 @@ namespace Wholesome_Auto_Quester.Bot
                 _grindManager = new GrindManager();
                 _objectScanner = new WowObjectScanner(_questTrackerGui);
                 _questManager = new QuestManager(_objectScanner, _questTrackerGui);
-                _taskManager = new TaskManager(_objectScanner, _questManager, _grindManager, _questTrackerGui);
+                _taskManager = new TaskManager(_objectScanner, _questManager, _grindManager, _questTrackerGui, _travelManager);
                 if (WholesomeAQSettings.CurrentSetting.ActivateQuestsGUI)
                 {
                     _questTrackerGui.ShowWindow();
@@ -148,19 +148,19 @@ namespace Wholesome_Auto_Quester.Bot
 
         private void Radar3DOnDrawEvent()
         {
-            /*
-            if (WAQTasks.MyWMArea != null && WAQTasks.DestinationWMArea != null)
+            
+            if (_travelManager.TravelInProgress)
             {
-                Radar3D.DrawString($"{WAQTasks.MyWMArea.Continent} - {WAQTasks.MyWMArea.areaName} " +
-                    $"=> {WAQTasks.DestinationWMArea.Continent} - {WAQTasks.DestinationWMArea.areaName}",
-                    new Vector3(30, 280, 0), 10, Color.BlueViolet);
+                Radar3D.DrawString($"{ContinentHelper.MyMapArea.Continent} - {ContinentHelper.MyMapArea.areaName} " +
+                    $"=> {_taskManager.ActiveTask.WorldMapArea.Continent} - {_taskManager.ActiveTask.WorldMapArea.areaName}",
+                    new Vector3(30, 330, 0), 10, Color.PaleGoldenrod);
             }
-            */
+            
             if (_taskManager.ActiveTask != null)
             {
-                Radar3D.DrawString(_taskManager.ActiveTask.TaskName, new Vector3(30, 350, 0), 10, Color.DarkMagenta);
-                Radar3D.DrawLine(ObjectManager.Me.Position, _taskManager.ActiveTask.Location, Color.DarkMagenta);
-                Radar3D.DrawCircle(_taskManager.ActiveTask.Location, 1.3f, Color.DarkMagenta);
+                Radar3D.DrawString(_taskManager.ActiveTask.TaskName, new Vector3(30, 350, 0), 10, Color.PaleTurquoise);
+                Radar3D.DrawLine(ObjectManager.Me.Position, _taskManager.ActiveTask.Location, Color.PaleTurquoise);
+                Radar3D.DrawCircle(_taskManager.ActiveTask.Location, 1.3f, Color.PaleTurquoise);
             }
 
             if (_objectScanner.ActiveWoWObject.wowObject != null)

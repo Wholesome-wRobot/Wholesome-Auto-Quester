@@ -1,4 +1,6 @@
 ﻿using robotManager.Helpful;
+using Wholesome_Auto_Quester.Bot.TravelManagement;
+using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.ObjectManager;
 
@@ -11,7 +13,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
 
         public Vector3 Location { get; }
         public string TaskName { get; }
-        public int Continent { get; }
+        public ModelWorldMapArea WorldMapArea { get; }
         public double SpatialWeight { get; protected set; } = 1.0;
         public int PriorityShift { get; protected set; } = 1;
         public int SearchRadius { get; protected set; } = 20;
@@ -23,7 +25,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         {
             Location = location;
             TaskName = taskName;
-            Continent = continent;
+            WorldMapArea = ContinentHelper.GetWorldMapAreaFromPoint(location, continent);
         }
 
         public abstract bool IsObjectValidForTask(WoWObject wowObject);

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
-using Wholesome_Auto_Quester.Database;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Bot.Tasks;
@@ -15,7 +14,7 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
 {
     public class TravelManager : ITravelManager
     {
-        private readonly List<ModelWorldMapArea> _worldMapAreas = new List<ModelWorldMapArea>();
+        private bool _shouldTravel;
 
         public TravelManager()
         {
@@ -24,75 +23,48 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
 
         public void Initialize()
         {
-            _worldMapAreas.Clear();
-            DB _dataBase = new DB();
-            _worldMapAreas.AddRange(_dataBase.QueryWorldMapAreas());
-            _dataBase.Dispose();
             AddAllOffmeshConnections();
         }
 
         public void Dispose()
         {
-            
+
         }
 
-        public ModelWorldMapArea GetWorldMapAreaFromPoint(Vector3 position, int mapdId) // return real continent enum later
+        public void ResetTravel()
         {
-            List<ModelWorldMapArea> potentialResults = new List<ModelWorldMapArea>();
-            foreach (ModelWorldMapArea wma in _worldMapAreas)
-            {
-                if (wma.IsPointInZone(position, mapdId))
-                {
-                    potentialResults.Add(wma);
-                }
-            }
-            if (potentialResults.Count <= 0)
-            {
-                Logger.LogError($"Couldn't find world map area for {position}, {mapdId}");
-                return null;
-            }
-            if (potentialResults.Count <= 1)
-            {
-                return potentialResults.First();
-            }
-            potentialResults.RemoveAll(pr => pr.areaID == 0);
-            return potentialResults.FirstOrDefault();
+            _shouldTravel = false;
         }
 
-        public bool NeedToTravelTo(IWAQTask task, out (ModelWorldMapArea myPosition, ModelWorldMapArea destination) result)
+        public bool TravelInProgress => _shouldTravel;
+
+        public bool IsTravelRequired(IWAQTask task)
         {
-            ModelWorldMapArea myWMArea = GetWorldMapAreaFromPoint(ObjectManager.Me.Position, Usefuls.ContinentId);
-            ModelWorldMapArea destWMArea = GetWorldMapAreaFromPoint(task.Location, task.Continent);
-            result = (null, null);
+            ModelWorldMapArea myArea = ContinentHelper.MyMapArea;
+            ModelWorldMapArea destinationArea = task.WorldMapArea;
 
-            if (myWMArea == null
-                || destWMArea == null
-                || task == null)
+            if (myArea.Continent != destinationArea.Continent
+                || ShouldTakeZeppelinTirisfalToStranglethorn(task)
+                || ShouldTakeZeppelinStranglethornToTirisfal(task))
             {
-                return false;
-            }
-
-            if (myWMArea.Continent != destWMArea.Continent
-                || ShouldTakeZeppelinTirisfalToStranglethorn(myWMArea, task)
-                || ShouldTakeZeppelinStranglethornToTirisfal(myWMArea, task))
-            {
-                result = (myWMArea, destWMArea);
+                _shouldTravel = true;
                 return true;
             }
 
+            ResetTravel();
             return false;
         }
 
-        public bool ShouldTakeZeppelinTirisfalToStranglethorn(ModelWorldMapArea myWMArea, IWAQTask task)
+        public bool ShouldTakeZeppelinTirisfalToStranglethorn(IWAQTask task)
         {
-            return myWMArea.Continent == WAQContinent.EasternKingdoms
+            return ContinentHelper.MyMapArea.Continent == WAQContinent.EasternKingdoms
                 && ObjectManager.Me.Position.X > -2384 // above wetlands
                 && task.Location.X < -11301.69; // under duskwood
         }
 
-        public bool ShouldTakeZeppelinStranglethornToTirisfal(ModelWorldMapArea myWMArea, IWAQTask task)
+        public bool ShouldTakeZeppelinStranglethornToTirisfal(IWAQTask task)
         {
-            return myWMArea.Continent == WAQContinent.EasternKingdoms
+            return ContinentHelper.MyMapArea.Continent == WAQContinent.EasternKingdoms
                 && ObjectManager.Me.Position.X < -11301.69 // under duskwood
                 && task.Location.X > -2384; // above wetlands
         }

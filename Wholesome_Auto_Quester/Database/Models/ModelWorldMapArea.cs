@@ -1,5 +1,6 @@
 ﻿using robotManager.Helpful;
 using System.Windows;
+using Wholesome_Auto_Quester.Helpers;
 
 namespace Wholesome_Auto_Quester.Database.Models
 {
@@ -14,28 +15,59 @@ namespace Wholesome_Auto_Quester.Database.Models
         public double locTop { get; }
         public double locBottom { get; }
 
-        public bool IsPointInZone(Vector3 point, int mapId)
+        public bool IsPointInMapArea(Vector3 point, int mapId)
         {
             if (mapId != mapID) return false;
             Rect zone = new Rect(new Point(locBottom, locLeft), new Point(locTop, locRight));
             return zone.Contains(new Point(point.X, point.Y));
         }
 
+        private WAQContinent _continent = WAQContinent.None;
         public WAQContinent Continent
         {
             get
             {
-                // Teldrassil - Darnassus
-                if (areaID == 141 || areaID == 1657) return WAQContinent.Teldrassil;
-                // EversongWoods - Ghostlands - SilvermoonCity
-                if (areaID == 3430 || areaID == 3433 || areaID == 3487) return WAQContinent.BloodElfStartingZone;
-                // AzuremystIsle - TheExodar - BloodmystIsle
-                if (areaID == 3524 || areaID == 3557 || areaID == 3525) return WAQContinent.DraeneiStartingZone;
-                if (mapID == 0) return WAQContinent.EasternKingdoms;
-                if (mapID == 1) return WAQContinent.Kalimdor;
-                if (mapID == 571) return WAQContinent.Northrend;
-                if (mapID == 530) return WAQContinent.Outlands;
-                return WAQContinent.None;
+                if (_continent == WAQContinent.None)
+                {
+                    // Teldrassil - Darnassus
+                    if (areaID == 141 || areaID == 1657)
+                    {
+                        _continent = WAQContinent.Teldrassil;
+                    }
+                    // EversongWoods - Ghostlands - SilvermoonCity
+                    if (areaID == 3430 || areaID == 3433 || areaID == 3487)
+                    {
+                        _continent = WAQContinent.BloodElfStartingZone;
+                    }
+                    // AzuremystIsle - TheExodar - BloodmystIsle
+                    if (areaID == 3524 || areaID == 3557 || areaID == 3525)
+                    {
+                        _continent = WAQContinent.DraeneiStartingZone;
+                    }
+                    if (mapID == 0)
+                    {
+                        _continent = WAQContinent.EasternKingdoms;
+                    }
+                    if (mapID == 1)
+                    {
+                        _continent = WAQContinent.Kalimdor;
+                    }
+                    if (mapID == 571)
+                    {
+                        _continent = WAQContinent.Northrend;
+                    }
+                    if (mapID == 530)
+                    {
+                        _continent = WAQContinent.Outlands;
+                    }
+
+                    if (_continent == WAQContinent.None)
+                    {
+                        Logger.LogError($"Couldn't set continent for MapAreaId {mapID} - {areaID}");
+                    }
+                }
+
+                return _continent;
             }
         }
     }

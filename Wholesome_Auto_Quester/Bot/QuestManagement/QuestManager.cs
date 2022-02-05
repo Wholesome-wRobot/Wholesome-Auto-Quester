@@ -32,6 +32,18 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             Initialize();
         }
 
+        private void RemoveAllQuests(List<IWAQQuest> questsToRemove)
+        {
+            foreach (IWAQQuest questToRemove in questsToRemove)
+            {
+                foreach (IWAQTask taskToUnRegister in questToRemove.GetAllTasks())
+                {
+                    taskToUnRegister.UnregisterEntryToScanner(_objectScanner);
+                }
+                _questList.Remove(questToRemove);
+            }
+        }
+
         private void GetQuestsFromDB()
         {
             lock (_questManagerLock)
@@ -48,14 +60,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
                 // Remove quests that are not supposed to be here anymore
                 List<IWAQQuest> questsToRemove = _questList.FindAll(quest => !dbQuestTemplates.Contains(quest.QuestTemplate));
-                foreach (IWAQQuest questToRemove in questsToRemove)
-                {
-                    foreach (IWAQTask taskToUnRegister in questToRemove.GetAllTasks())
-                    {
-                        taskToUnRegister.UnregisterEntryToScanner(_objectScanner);
-                    }
-                    _questList.Remove(questToRemove);
-                }
+                RemoveAllQuests(questsToRemove);
 
                 // Add quests if they don't already exist
                 foreach (ModelQuestTemplate qTemplate in dbQuestTemplates)
@@ -312,23 +317,31 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
         private void UpdateCompletedQuests()
         {
-            if (Quest.FinishedQuestSet.Count > 0)
+            lock (_questManagerLock)
             {
-                bool shouldSave = false;
-                foreach (int questId in Quest.FinishedQuestSet)
+                if (Quest.FinishedQuestSet.Count > 0)
                 {
-                    if (ToolBox.SaveQuestAsCompleted(questId))
+                    List<int> questsSavedFromServer = new List<int>();
+                    foreach (int questId in Quest.FinishedQuestSet)
                     {
-                        shouldSave = true;
+                        if (ToolBox.SaveQuestAsCompleted(questId))
+                        {
+                            questsSavedFromServer.Add(questId);
+                        }
                     }
+
+                    if (questsSavedFromServer.Count > 0)
+                    {
+                        List<IWAQQuest> questsToRemove = _questList.FindAll(quest => questsSavedFromServer.Contains(quest.QuestTemplate.Id));
+                        RemoveAllQuests(questsToRemove);
+                        _tracker.UpdateQuestsList(_questList);
+                        UpdateStatuses();
+                        WholesomeAQSettings.CurrentSetting.Save();
+                    }
+                    return;
                 }
-                if (shouldSave)
-                {
-                    WholesomeAQSettings.CurrentSetting.Save();
-                }
-                return;
+                Logger.LogError($"Server has not sent our quests yet");
             }
-            Logger.LogError($"Server has not sent our quests yet");
         }
 
         public void AddQuestToBlackList(int questId, string reason, bool triggerStatusUpdate = true)

@@ -319,6 +319,7 @@
     <Compile Include="Bot\TaskManagement\Tasks\WAQTaskExploreLocation.cs" />
     <Compile Include="Bot\QuestManagement\WAQQuest.cs" />
     <Compile Include="Bot\TaskManagement\WowObjectScanner.cs" />
+    <Compile Include="Bot\TravelManagement\ContinentHelper.cs" />
     <Compile Include="Bot\TravelManagement\ITravelManager.cs" />
     <Compile Include="Database\DB.cs" />
     <Compile Include="Database\DBQueriesWotlk.cs" />

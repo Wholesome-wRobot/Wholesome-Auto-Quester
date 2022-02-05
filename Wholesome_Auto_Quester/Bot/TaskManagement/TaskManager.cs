@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Wholesome_Auto_Quester.Bot.GrindManagement;
 using Wholesome_Auto_Quester.Bot.QuestManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
+using Wholesome_Auto_Quester.Bot.TravelManagement;
 using Wholesome_Auto_Quester.Database;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.GUI;
@@ -22,15 +23,19 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
         private readonly IQuestManager _questManager;
         private readonly IGrindManager _grindManager;
         private readonly IWowObjectScanner _objectScanner;
+        private readonly ITravelManager _travelManager;
         private readonly QuestsTrackerGUI _tracker;
         private readonly List<IWAQTask> _taskPile = new List<IWAQTask>();
         private readonly List<IWAQTask> _grindTasks = new List<IWAQTask>();
         private bool _isRunning = false;
+        private int _tick;
 
         public IWAQTask ActiveTask { get; private set; }
 
-        public TaskManager(IWowObjectScanner scanner, IQuestManager questManager, IGrindManager grindManager, QuestsTrackerGUI questTrackerGUI)
+        public TaskManager(IWowObjectScanner scanner, IQuestManager questManager, IGrindManager grindManager,
+            QuestsTrackerGUI questTrackerGUI, ITravelManager travelManager)
         {
+            _travelManager = travelManager;
             _objectScanner = scanner;
             _questManager = questManager;
             _grindManager = grindManager;
@@ -75,6 +80,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
         public void UpdateTaskPile()
         {
+            _tick++;
             WoWLocalPlayer me = ObjectManager.Me;
             if (me.IsOnTaxi
                 || me.IsDead
@@ -82,7 +88,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 || Fight.InFight
                 || me.HaveBuff("Drink")
                 || me.HaveBuff("Food")
-                || MoveHelper.IsMovementThreadRunning && MoveHelper.GetCurrentPathRemainingDistance() > 100)
+                || MoveHelper.IsMovementThreadRunning && MoveHelper.GetCurrentPathRemainingDistance() > 100 && _tick % 5 != 0)
             {
                 return;
             }
@@ -156,6 +162,14 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
             // Get closest task
             IWAQTask closestTask = _taskPile.Find(task => !task.IsTimedOut && !wManagerSetting.IsBlackListedZone(task.Location));
+
+            // Check if travel is needed
+            if (_travelManager.IsTravelRequired(closestTask))
+            {
+                ActiveTask = closestTask;
+                return;
+            }
+
             WAQPath pathToClosestTask = ToolBox.GetWAQPath(ObjectManager.Me.Position, closestTask.Location);
 
             if (!pathToClosestTask.IsReachable)
@@ -237,7 +251,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
             priority >>= task.PriorityShift;
 
-            if (task.Continent != Usefuls.ContinentId)
+            if (task.WorldMapArea.Continent != ContinentHelper.MyMapArea.Continent)
             {
                 priority <<= 10;
             }

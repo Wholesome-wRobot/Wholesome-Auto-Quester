@@ -687,6 +687,7 @@ namespace Wholesome_Auto_Quester.Helpers
             { 216, 2 }, // Between a rock and a Thistlefur, too many mobs
             { 541, 4 }, // Battle of Hillsbrad, too many mobs
             { 5501, 3 }, // Kodo bones, red enemies
+            { 8885, 3 }, // Ring of Mmmmmmrgll, too many freaking murlocs
         };
 
         public static void PickupQuestFromBagItem(string itemName)

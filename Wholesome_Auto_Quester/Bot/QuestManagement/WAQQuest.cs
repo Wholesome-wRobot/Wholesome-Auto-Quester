@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
+using Wholesome_Auto_Quester.Bot.TravelManagement;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Database.Objectives;
 using Wholesome_Auto_Quester.Helpers;
@@ -40,7 +41,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
         private void AddTaskToDictionary(int objectiveIndex, IWAQTask task)
         {
-            if (!WholesomeAQSettings.CurrentSetting.ContinentTravel && task.Continent != Usefuls.ContinentId)
+            if (!WholesomeAQSettings.CurrentSetting.ContinentTravel && task.WorldMapArea.Continent != ContinentHelper.MyMapArea.Continent)
             {
                 return;
             }
