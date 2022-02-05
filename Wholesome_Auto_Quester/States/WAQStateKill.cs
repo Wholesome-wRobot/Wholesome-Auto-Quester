@@ -11,29 +11,28 @@ namespace Wholesome_Auto_Quester.States
 {
     class WAQStateKill : State
     {
-        private IWowObjectScanner _scanner;
+        private readonly IWowObjectScanner _scanner;
+
         public WAQStateKill(IWowObjectScanner scanner, int priority)
         {
             _scanner = scanner;
             Priority = priority;
         }
 
-        public override string DisplayName { get; set; } = "Grind creature [SmoothMove - Q]";
+        public override string DisplayName { get; set; } = "WAQ Grind";
 
         public override bool NeedToRun
         {
             get
             {
                 if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause
-                    || _scanner.ActiveWoWObject.wowObject == null
-                    || _scanner.ActiveWoWObject.task == null
+                    || _scanner.ActiveWoWObject == (null, null)
                     || (_scanner.ActiveWoWObject.task.InteractionType != TaskInteraction.Kill 
                         && _scanner.ActiveWoWObject.task.InteractionType != TaskInteraction.KillAndLoot)
                     || !ObjectManager.Me.IsValid)
                     return false;
 
-                var (gameObject, task) = _scanner.ActiveWoWObject;
-                DisplayName = $"Kill {gameObject.Name} for {task.TaskName} [SmoothMove - Q]";
+                DisplayName = _scanner.ActiveWoWObject.task.TaskName;
                 return true;
             }
         }

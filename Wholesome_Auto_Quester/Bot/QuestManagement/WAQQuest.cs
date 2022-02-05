@@ -8,7 +8,6 @@ using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Database.Objectives;
 using Wholesome_Auto_Quester.Helpers;
-using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 
 namespace Wholesome_Auto_Quester.Bot.QuestManagement
@@ -16,7 +15,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
     public class WAQQuest : IWAQQuest
     {
         private readonly IWowObjectScanner _objectScanner;
-        private Dictionary<int, List<IWAQTask>> _questTasks = new Dictionary<int, List<IWAQTask>>(); // objective index => task list
+        private readonly Dictionary<int, List<IWAQTask>> _questTasks = new Dictionary<int, List<IWAQTask>>(); // objective index => task list
         private bool _objectivesRecorded;
         private bool _objectivesRecordFailed;
 
@@ -87,7 +86,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 List<int> keysToRemove = new List<int>();
                 foreach (KeyValuePair<int, List<IWAQTask>> objective in _questTasks.Reverse())
                 {
-                    if (Quest.IsObjectiveComplete(objective.Key, QuestTemplate.Id))
+                    if (ToolBox.IsObjectiveCompleted(objective.Key, QuestTemplate.Id))
                     {
                         keysToRemove.Add(objective.Key);
                         foreach (IWAQTask task in objective.Value)
@@ -111,7 +110,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             {
                 return;
             }
-            Logger.Log($"{QuestTemplate.LogTitle} changed status from {Status} to {newStatus}");
+            Logger.LogDebug($"{QuestTemplate.LogTitle} changed status from {Status} to {newStatus}");
             ClearTasksDictionary();
 
             Status = newStatus;
@@ -129,12 +128,19 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             }
 
             // Completed
-            if (Status == QuestStatus.Completed || Status == QuestStatus.Blacklisted)
+            if (Status == QuestStatus.Completed)
             {
                 if (ToolBox.SaveQuestAsCompleted(QuestTemplate.Id))
                 {
                     WholesomeAQSettings.CurrentSetting.Save();
                 }
+                ClearTasksDictionary();
+                return;
+            }
+
+            // Blacklisted
+            if (Status == QuestStatus.Blacklisted)
+            {
                 ClearTasksDictionary();
                 return;
             }
@@ -326,26 +332,6 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             }
         }
 
-        public bool IsPickable 
-        { 
-            get
-            {
-                if (QuestTemplate.PreviousQuestsIds.Count > 0
-                    && !QuestTemplate.PreviousQuestsIds.Any(ToolBox.IsQuestCompleted))
-                {
-                    return false;
-                }
-
-                if (QuestTemplate.QuestAddon.RequiredSkillID > 0
-                    && Skill.GetValue((SkillLine)QuestTemplate.QuestAddon.RequiredSkillID) < QuestTemplate.QuestAddon.RequiredSkillPoints)
-                {
-                    return false;
-                }
-
-                return true;
-            }
-        }
-
         private void RecordObjectiveIndices()
         {
             int nbAtempts = 0;
@@ -418,29 +404,6 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             return closestsQg.Count > 0 ? closestsQg.Min() : float.MaxValue;
         }
 
-        public List<string> GetItemsStringsList()
-        {
-            List<string> result = new List<string>();
-
-            foreach (KillLootObjective klo in QuestTemplate.KillLootObjectives)
-            {
-                if (!result.Contains(klo.ItemTemplate.Name))
-                {
-                    result.Add(klo.ItemTemplate.Name);
-                }
-            }
-
-            foreach (GatherObjective go in QuestTemplate.GatherObjectives)
-            {
-                if (!result.Contains(go.ItemTemplate.Name))
-                {
-                    result.Add(go.ItemTemplate.Name);
-                }
-            }
-
-            return result;
-        }
-
         public List<Objective> GetAllObjectives()
         {
             List<Objective> result = new List<Objective>();
@@ -453,9 +416,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
         }
 
         public string TrackerColor => /*WAQTasks.TaskInProgress?.QuestId == QuestTemplate.Id ? "White" : */_trackerColorsDictionary[Status];
-
         public bool IsQuestBlackListed => WholesomeAQSettings.CurrentSetting.BlackListedQuests.Exists(blq => blq.Id == QuestTemplate.Id);
-        public bool IsCompleted => ToolBox.IsQuestCompleted(QuestTemplate.Id);
 
         private readonly Dictionary<QuestStatus, string> _trackerColorsDictionary = new Dictionary<QuestStatus, string>
         {

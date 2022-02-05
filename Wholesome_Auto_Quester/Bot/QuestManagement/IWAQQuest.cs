@@ -11,11 +11,8 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
         ModelQuestTemplate QuestTemplate { get; }
         public QuestStatus Status { get; }
         bool IsQuestBlackListed { get; }
-        bool IsCompleted { get; }
-        bool IsPickable { get; }
         string TrackerColor { get; }
 
-        List<string> GetItemsStringsList();
         List<Objective> GetAllObjectives();
         List<IWAQTask> GetAllTasks();
         void ChangeStatusTo(QuestStatus newStatus);

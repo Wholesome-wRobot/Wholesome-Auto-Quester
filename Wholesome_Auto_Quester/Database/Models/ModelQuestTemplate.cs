@@ -1,40 +1,63 @@
-﻿using robotManager.Helpful;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Database.Objectives;
-using Wholesome_Auto_Quester.Helpers;
-using wManager.Wow.Enums;
-using wManager.Wow.Helpers;
 
 namespace Wholesome_Auto_Quester.Database.Models
 {
     public class ModelQuestTemplate
     {
+        public int Id { get; }
+        public int AllowableRaces { get; }
+        public string AreaDescription { get; }
+        public long Flags { get; }
+        public int ItemDrop1 { get; }
+        public int ItemDrop2 { get; }
+        public int ItemDrop3 { get; }
+        public int ItemDrop4 { get; }
+        public int ItemDropQuantity1 { get; }
+        public int ItemDropQuantity2 { get; }
+        public int ItemDropQuantity3 { get; }
+        public int ItemDropQuantity4 { get; }
+        public string LogTitle { get; }
+        public int MinLevel { get; }
+        public int NextQuestInChain { get; } // TBC DB Only
+        public string ObjectiveText1 { get; }
+        public string ObjectiveText2 { get; }
+        public string ObjectiveText3 { get; }
+        public string ObjectiveText4 { get; }
+        public int QuestLevel { get; set; }
+        public int QuestSortID { get; }
+        public int QuestInfoID { get; }
+        public int QuestType { get; }
+        public int RequiredFactionId1 { get; }
+        public int RequiredFactionId2 { get; }
+        public int RequiredFactionValue1 { get; }
+        public int RequiredFactionValue2 { get; }
+        public int RequiredItemCount1 { get; }
+        public int RequiredItemCount2 { get; }
+        public int RequiredItemCount3 { get; }
+        public int RequiredItemCount4 { get; }
+        public int RequiredItemCount5 { get; }
+        public int RequiredItemCount6 { get; }
+        public int RequiredItemId1 { get; }
+        public int RequiredItemId2 { get; }
+        public int RequiredItemId3 { get; }
+        public int RequiredItemId4 { get; }
+        public int RequiredItemId5 { get; }
+        public int RequiredItemId6 { get; }
+        public int RequiredNpcOrGo1 { get; }
+        public int RequiredNpcOrGo2 { get; }
+        public int RequiredNpcOrGo3 { get; }
+        public int RequiredNpcOrGo4 { get; }
+        public int RequiredNpcOrGoCount1 { get; }
+        public int RequiredNpcOrGoCount2 { get; }
+        public int RequiredNpcOrGoCount3 { get; }
+        public int RequiredNpcOrGoCount4 { get; }
+        public int StartItem { get; }
+        public int TimeAllowed { get; }
+        public int Unknown0 { get; }
+
         public ModelQuestTemplateAddon QuestAddon { get; set; }
-        //public QuestStatus Status { get; set; } = QuestStatus.None;
-        //public bool AreObjectivesRecorded { get; set; }
-
-        private List<string> _questFlags;
-        public List<string> QuestFlags
-        {
-            get
-            {
-                if (_questFlags == null) _questFlags = GetMatchingQuestFlags(Flags);
-                return _questFlags;
-            }
-        }
-
-        private List<string> _questSpecialFlags;
-        public List<string> QuestSpecialFlags
-        {
-            get
-            {
-                if (_questSpecialFlags == null) _questSpecialFlags = GetMatchingQuestSpecialFlags(QuestAddon.SpecialFlags);
-                return _questSpecialFlags;
-            }
-        }
 
         public List<ModelCreatureTemplate> CreatureQuestGivers { get; set; } = new List<ModelCreatureTemplate>();
         public List<ModelCreatureTemplate> CreatureQuestTurners { get; set; } = new List<ModelCreatureTemplate>();
@@ -61,7 +84,7 @@ namespace Wholesome_Auto_Quester.Database.Models
         public ModelGameObjectTemplate RequiredGO2Template { get; set; }
         public ModelGameObjectTemplate RequiredGO3Template { get; set; }
         public ModelGameObjectTemplate RequiredGO4Template { get; set; }
-        
+
         // Objectives
         public List<ExplorationObjective> ExplorationObjectives { get; set; } = new List<ExplorationObjective>();
         public List<GatherObjective> GatherObjectives { get; set; } = new List<GatherObjective>();
@@ -70,171 +93,11 @@ namespace Wholesome_Auto_Quester.Database.Models
         public List<InteractObjective> InteractObjectives { get; set; } = new List<InteractObjective>();
         public List<GatherObjective> PrerequisiteGatherObjectives { get; set; } = new List<GatherObjective>();
         public List<KillLootObjective> PrerequisiteLootObjectives { get; set; } = new List<KillLootObjective>();
-        
+
         public List<int> NextQuestsIds { get; set; } = new List<int>();
         public List<int> PreviousQuestsIds { get; set; } = new List<int>();
 
-        public int Id { get; set; }
-        public int AllowableRaces { get; set; }
-        public string AreaDescription { get; set; }
-        public long Flags { get; set; }
-        public int ItemDrop1 { get; set; }
-        public int ItemDrop2 { get; set; }
-        public int ItemDrop3 { get; set; }
-        public int ItemDrop4 { get; set; }
-        public int ItemDropQuantity1 { get; set; }
-        public int ItemDropQuantity2 { get; set; }
-        public int ItemDropQuantity3 { get; set; }
-        public int ItemDropQuantity4 { get; set; }
-        public string LogTitle { get; set; }
-        public int MinLevel { get; set; }
-        public int NextQuestInChain { get; set; } // TBC DB Only
-        public string ObjectiveText1 { get; set; }
-        public string ObjectiveText2 { get; set; }
-        public string ObjectiveText3 { get; set; }
-        public string ObjectiveText4 { get; set; }
-        public int QuestLevel { get; set; }
-        public int QuestSortID { get; set; }
-        public int QuestInfoID { get; set; }
-        public int QuestType { get; set; }
-        public int RequiredFactionId1 { get; set; }
-        public int RequiredFactionId2 { get; set; }
-        public int RequiredFactionValue1 { get; set; }
-        public int RequiredFactionValue2 { get; set; }
-        public int RequiredItemCount1 { get; set; }
-        public int RequiredItemCount2 { get; set; }
-        public int RequiredItemCount3 { get; set; }
-        public int RequiredItemCount4 { get; set; }
-        public int RequiredItemCount5 { get; set; }
-        public int RequiredItemCount6 { get; set; }
-        public int RequiredItemId1 { get; set; }
-        public int RequiredItemId2 { get; set; }
-        public int RequiredItemId3 { get; set; }
-        public int RequiredItemId4 { get; set; }
-        public int RequiredItemId5 { get; set; }
-        public int RequiredItemId6 { get; set; }
-        public int RequiredNpcOrGo1 { get; set; }
-        public int RequiredNpcOrGo2 { get; set; }
-        public int RequiredNpcOrGo3 { get; set; }
-        public int RequiredNpcOrGo4 { get; set; }
-        public int RequiredNpcOrGoCount1 { get; set; }
-        public int RequiredNpcOrGoCount2 { get; set; }
-        public int RequiredNpcOrGoCount3 { get; set; }
-        public int RequiredNpcOrGoCount4 { get; set; }
-        public int StartItem { get; set; }
-        public int TimeAllowed { get; set; }
-        public int Unknown0 { get; set; }
-        /*
-        public bool IsPickable()
-        {
-            if (PreviousQuestsIds.Count > 0 && !PreviousQuestsIds.Any(ToolBox.IsQuestCompleted))
-                return false;
 
-            if (QuestAddon.RequiredSkillID > 0 && Skill.GetValue((SkillLine)QuestAddon.RequiredSkillID) < QuestAddon.RequiredSkillPoints)
-                return false;
-
-            // Add reputation req
-
-            return true;
-        }
-        */
-        /*
-        public float GetClosestQuestGiverDistance(Vector3 myPosition)
-        {
-            List<float> closestsQg = new List<float>();
-            CreatureQuestGivers.ForEach(cqg =>
-            {
-                if (cqg.Creatures.Count > 0)
-                    closestsQg.Add(cqg.Creatures.Min(c => c.GetSpawnPosition.DistanceTo(myPosition)));
-            });
-            GameObjectQuestGivers.ForEach(goqg =>
-            {
-                if (goqg.GameObjects.Count > 0)
-                    closestsQg.Add(goqg.GameObjects.Min(c => c.GetSpawnPosition.DistanceTo(myPosition)));
-            });
-            return closestsQg.Count > 0 ? closestsQg.Min() : float.MaxValue;
-        }
-
-        public List<string> GetItemsStringsList()
-        {
-            List<string> result = new List<string>();
-            KillLootObjectives.ForEach(o =>
-            {
-                if (!result.Contains(o.ItemName)) result.Add(o.ItemName);
-            });
-            GatherObjectives.ForEach(o =>
-            {
-                if (!result.Contains(o.ItemName)) result.Add(o.ItemName);
-            });
-            return result;
-        }
-        */
-        //public bool IsCompleted => ToolBox.IsQuestCompleted(Id);
-        //public string TrackerColor => WAQTasks.TaskInProgress?.QuestId == Id ? "White" : _trackerColorsDictionary[Status];
-        /*
-        public string GetObjectiveText(int objectiveIndex)
-        {
-            if (objectiveIndex == 1) return ObjectiveText1;
-            if (objectiveIndex == 2) return ObjectiveText2;
-            if (objectiveIndex == 3) return ObjectiveText3;
-            if (objectiveIndex == 4) return ObjectiveText4;
-            return "N/A";
-        }
-        */
-        /*
-        public void RecordObjectiveIndices()
-        {
-            _nbAttempsOjectiveRecord++;
-
-            if (_nbAttempsOjectiveRecord > 5)
-            {
-                Logger.LogError($"Failed to record objectives for {LogTitle}");
-                AreObjectivesRecorded = true;
-                return;
-            }
-
-            Logger.Log($"Recording objective indices for {LogTitle} ({_nbAttempsOjectiveRecord})");
-            string[] objectives = Lua.LuaDoString<string[]>(@$"local numEntries, numQuests = GetNumQuestLogEntries()
-                            local objectivesTable = {{}}
-                            for i=1, numEntries do
-                                local questLogTitleText, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(i)
-                                if questID == {Id} then
-                                    local numObjectives = GetNumQuestLeaderBoards(i)
-                                    for j=1, numObjectives do
-                                        local text, objetype, finished = GetQuestLogLeaderBoard(j, i)
-                                        table.insert(objectivesTable, text)
-                                    end
-                                end
-                            end
-                            return unpack(objectivesTable)");
-
-            foreach (Objective ob in GetAllObjectives())
-            {
-                string objectiveToRecord = objectives.FirstOrDefault(o => ob.ObjectiveName != "" && o.StartsWith(ob.ObjectiveName));
-                if (objectiveToRecord != null)
-                    ob.ObjectiveIndex = Array.IndexOf(objectives, objectiveToRecord) + 1;
-                else
-                {
-                    Logger.LogError($"Couldn't find matching objective {ob.ObjectiveName} for {LogTitle}");
-                    return;
-                }
-            }
-
-            Logger.Log($"Objectives for {LogTitle} succesfully recorded");
-            AreObjectivesRecorded = true;
-        }
-        /*
-        public List<Objective> GetAllObjectives()
-        {
-            List<Objective> result = new List<Objective>();
-            result.AddRange(ExplorationObjectives);
-            result.AddRange(GatherObjectives);
-            result.AddRange(InteractObjectives);
-            result.AddRange(KillLootObjectives);
-            result.AddRange(KillObjectives);
-            return result;
-        }
-        */
         public void AddObjective(Objective objective)
         {
             if (objective is ExplorationObjective) ExplorationObjectives.Add((ExplorationObjective)objective);
@@ -243,7 +106,27 @@ namespace Wholesome_Auto_Quester.Database.Models
             if (objective is KillLootObjective) KillLootObjectives.Add((KillLootObjective)objective);
             if (objective is KillObjective) KillObjectives.Add((KillObjective)objective);
         }
-        
+
+        private List<string> _questFlags;
+        public List<string> QuestFlags
+        {
+            get
+            {
+                if (_questFlags == null) _questFlags = GetMatchingQuestFlags(Flags);
+                return _questFlags;
+            }
+        }
+
+        private List<string> _questSpecialFlags;
+        public List<string> QuestSpecialFlags
+        {
+            get
+            {
+                if (_questSpecialFlags == null) _questSpecialFlags = GetMatchingQuestSpecialFlags(QuestAddon.SpecialFlags);
+                return _questSpecialFlags;
+            }
+        }
+
         public List<string> GetMatchingQuestFlags(long flag)
         {
             List<string> result = new List<string>();

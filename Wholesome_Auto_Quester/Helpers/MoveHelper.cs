@@ -7,10 +7,9 @@ using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
-public static class MoveHelper
+public class MoveHelper
 {
     private static readonly Vector3 Empty = Vector3.Empty;
-
     private static readonly object Lock = new();
     private static bool Running = false;
 
@@ -92,7 +91,7 @@ public static class MoveHelper
                     Logger.Log(log);
                 }
                 GoToTask.ToPosition(target, conditionExit: _ => Running);
-                Logger.Log($"GoToTask finished towards {target}");
+                Logger.LogDebug($"GoToTask finished towards {target}");
                 lock (Lock)
                 {
                     CurrentTarget = Empty;

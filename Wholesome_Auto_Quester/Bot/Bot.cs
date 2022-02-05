@@ -22,12 +22,12 @@ namespace Wholesome_Auto_Quester.Bot
     internal class Bot
     {
         private readonly Engine Fsm = new Engine();
+        private readonly List<StuckCounter> ListStuckCounters = new List<StuckCounter>();
         private IWowObjectScanner _objectScanner;
         private ITaskManager _taskManager;
         private IQuestManager _questManager;
         private IGrindManager _grindManager;
         private TravelManager _travelManager;
-        private List<StuckCounter> ListStuckCounters = new List<StuckCounter>();
         private QuestsTrackerGUI _questTrackerGui;
 
         internal bool Pulse(QuestsTrackerGUI tracker)
@@ -103,13 +103,7 @@ namespace Wholesome_Auto_Quester.Bot
             }
             catch (Exception e)
             {
-                try
-                {
-                    Dispose();
-                }
-                catch
-                {
-                }
+                Dispose();
                 Logging.WriteError("Bot > Bot  > Pulse(): " + e);
                 return false;
             }
@@ -159,27 +153,32 @@ namespace Wholesome_Auto_Quester.Bot
             {
                 Radar3D.DrawString($"{WAQTasks.MyWMArea.Continent} - {WAQTasks.MyWMArea.areaName} " +
                     $"=> {WAQTasks.DestinationWMArea.Continent} - {WAQTasks.DestinationWMArea.areaName}",
-                    new Vector3(30, 260, 0), 10, Color.BlueViolet);
+                    new Vector3(30, 280, 0), 10, Color.BlueViolet);
             }
             */
             if (_taskManager.ActiveTask != null)
             {
-                Radar3D.DrawString(_taskManager.ActiveTask.TaskName, new Vector3(30, 200, 0), 10, Color.AliceBlue);
-                Radar3D.DrawLine(ObjectManager.Me.Position, _taskManager.ActiveTask.Location, Color.AliceBlue);
+                Radar3D.DrawString(_taskManager.ActiveTask.TaskName, new Vector3(30, 350, 0), 10, Color.DarkMagenta);
+                Radar3D.DrawLine(ObjectManager.Me.Position, _taskManager.ActiveTask.Location, Color.DarkMagenta);
+                Radar3D.DrawCircle(_taskManager.ActiveTask.Location, 1.3f, Color.DarkMagenta);
             }
 
             if (_objectScanner.ActiveWoWObject.wowObject != null)
             {
                 Radar3D.DrawLine(ObjectManager.Me.Position, _objectScanner.ActiveWoWObject.wowObject.Position, Color.Yellow);
                 Radar3D.DrawCircle(_objectScanner.ActiveWoWObject.wowObject.Position, 1, Color.Yellow);
+                Radar3D.DrawLine(ObjectManager.Me.Position, _objectScanner.ActiveWoWObject.task.Location, Color.GreenYellow);
+                Radar3D.DrawCircle(_objectScanner.ActiveWoWObject.task.Location, 0.7f, Color.GreenYellow);
                 Radar3D.DrawString($"{_objectScanner.ActiveWoWObject.wowObject.Name} ({_objectScanner.ActiveWoWObject.wowObject.Entry})"
-                    , new Vector3(30, 220, 0), 10, Color.Yellow);
+                    , new Vector3(30, 370, 0), 10, Color.Yellow);
+                Radar3D.DrawString($"{_objectScanner.ActiveWoWObject.task.TaskName}"
+                    , new Vector3(30, 390, 0), 10, Color.GreenYellow);
             }
 
             if (MoveHelper.IsMovementThreadRunning)
-                Radar3D.DrawString("Movement thread running", new Vector3(30, 240, 0), 10, Color.Green);
+                Radar3D.DrawString("Movement thread running", new Vector3(30, 410, 0), 10, Color.Green);
             else
-                Radar3D.DrawString("Movement thread not running", new Vector3(30, 240, 0), 10, Color.Red);
+                Radar3D.DrawString("Movement thread not running", new Vector3(30, 410, 0), 10, Color.Red);
         }
 
         private void SeemStuckHandler()

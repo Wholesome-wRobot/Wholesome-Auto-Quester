@@ -18,7 +18,6 @@ namespace Wholesome_Auto_Quester
         public bool DevMode { get; set; }
         public bool ActivateQuestsGUI { get; set; }
         public List<int> ListCompletedQuests { get; set; }
-        //public List<int> BlacklistesQuests { get; set; }
         public bool SmoothMove { get; set; }
         public double LastUpdateDate { get; set; }
         public bool GrindOnly { get; set; }
@@ -39,7 +38,6 @@ namespace Wholesome_Auto_Quester
             LevelDeltaMinus = 5;
             SmoothMove = false;
             LastUpdateDate = 0;
-            //BlacklistesQuests = new List<int>();
             GrindOnly = false;
             ContinentTravel = false;
             BlackListedQuests = new List<BlackListedQuest>();

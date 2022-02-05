@@ -2,17 +2,17 @@
 {
     public class ModelCreatureLootTemplate
     {
-        public ModelCreatureTemplate CreatureTemplate { get; set; }
+        public int Entry { get; }
+        public int Item { get; }
+        public int Reference { get; }
+        public int Chance { get; }
+        public int QuestRequired { get; }
+        public int LootMode { get; }
+        public int GroupId { get; }
+        public int MinCount { get; }
+        public int MaxCount { get; }
+        public string Comment { get; }
 
-        public int Entry { get; set; }
-        public int Item { get; set; }
-        public int Reference { get; set; }
-        public int Chance { get; set; }
-        public int QuestRequired { get; set; }
-        public int LootMode { get; set; }
-        public int GroupId { get; set; }
-        public int MinCount { get; set; }
-        public int MaxCount { get; set; }
-        public string Comment { get; set; }
+        public ModelCreatureTemplate CreatureTemplate { get; set; }
     }
 }

@@ -9,8 +9,9 @@ namespace Wholesome_Auto_Quester.States
 {
     class WAQExitVehicle : State
     {
-        public override string DisplayName { get; set; } = "Exit Vehicle [SmoothMove - Q]";
-        private Timer stateTimer = new Timer();
+        private Timer _stateTimer = new Timer();
+
+        public override string DisplayName { get; set; } = "WAQ Exit Vehicle";
 
         public override bool NeedToRun
         {
@@ -18,14 +19,13 @@ namespace Wholesome_Auto_Quester.States
             {
                 if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause
                     || !ObjectManager.Me.IsValid
-                    || !stateTimer.IsReady)
+                    || !_stateTimer.IsReady)
                     return false;
 
-                stateTimer = new Timer(3000);
+                _stateTimer = new Timer(3000);
 
                 if (!ObjectManager.Me.IsOnTaxi && ObjectManager.Me.PlayerUsingVehicle)
                 {
-                    DisplayName = $"Exit vehicle [SmoothMove - Q]";
                     return true;
                 }
 

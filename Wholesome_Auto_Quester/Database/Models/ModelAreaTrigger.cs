@@ -4,11 +4,11 @@ namespace Wholesome_Auto_Quester.Database.Models
 {
     public class ModelAreaTrigger
     {
-        public int ContinentId { get; set; }
-        public float PositionX { get; set; }
-        public float PositionY { get; set; }
-        public float PositionZ { get; set; }
-        public int Radius { get; set; }
+        public int ContinentId { get; }
+        public float PositionX { get; }
+        public float PositionY { get; }
+        public float PositionZ { get; }
+        public int Radius { get; }
 
         public Vector3 GetPosition => new Vector3(PositionX, PositionY, PositionZ);
     }

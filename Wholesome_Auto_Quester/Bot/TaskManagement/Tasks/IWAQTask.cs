@@ -1,4 +1,5 @@
 ﻿using robotManager.Helpful;
+using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
@@ -14,7 +15,6 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         string TrackerColor { get; }
         int SearchRadius { get; } // limit for MoveToHotspot state
         TaskInteraction InteractionType { get; }
-        //int Priority { get; }
 
         void PostInteraction(WoWObject wowObject);
         void RegisterEntryToScanner(IWowObjectScanner scanner);
@@ -22,12 +22,4 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         void PutTaskOnTimeout(string reason, int timeInSeconds = 0, bool exponentiallyLonger = false);
         bool IsObjectValidForTask(WoWObject wowObject);
     }
-}
-
-public enum TaskInteraction
-{
-    None,
-    Kill,
-    KillAndLoot,
-    Interact
 }

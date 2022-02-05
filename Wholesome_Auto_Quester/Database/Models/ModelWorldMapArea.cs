@@ -17,11 +17,7 @@ namespace Wholesome_Auto_Quester.Database.Models
         public bool IsPointInZone(Vector3 point, int mapId)
         {
             if (mapId != mapID) return false;
-            double realLeft = locBottom;
-            double realTop = locLeft;
-            double realRight = locTop;
-            double realBot = locRight;
-            Rect zone = new Rect(new Point(realLeft, realTop), new Point(realRight, realBot));
+            Rect zone = new Rect(new Point(locBottom, locLeft), new Point(locTop, locRight));
             return zone.Contains(new Point(point.X, point.Y));
         }
 

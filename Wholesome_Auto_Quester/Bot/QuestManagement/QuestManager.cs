@@ -5,9 +5,11 @@ using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Database;
 using Wholesome_Auto_Quester.Database.Models;
+using Wholesome_Auto_Quester.Database.Objectives;
 using Wholesome_Auto_Quester.GUI;
 using Wholesome_Auto_Quester.Helpers;
 using wManager;
+using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 using static wManager.Wow.Helpers.Quest.PlayerQuest;
@@ -16,10 +18,11 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 {
     public class QuestManager : IQuestManager
     {
-        private List<int> _itemsGivingQuest = new List<int>();
+        private readonly List<int> _itemsGivingQuest = new List<int>();
         private readonly IWowObjectScanner _objectScanner;
         private readonly QuestsTrackerGUI _tracker;
-        private List<IWAQQuest> _questList = new List<IWAQQuest>();
+        private readonly List<IWAQQuest> _questList = new List<IWAQQuest>();
+        private readonly object _questManagerLock = new object();
 
         public QuestManager(IWowObjectScanner objectScanner, QuestsTrackerGUI questTrackerGUI)
         {
@@ -31,36 +34,39 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
         private void GetQuestsFromDB()
         {
-            if (WholesomeAQSettings.CurrentSetting.GoToMobEntry != 0 || WholesomeAQSettings.CurrentSetting.GrindOnly)
+            lock (_questManagerLock)
             {
-                _questList.Clear();
-                _tracker.UpdateQuestsList(_questList);
-                return;
-            }
-
-            DBQueriesWotlk wotlkQueries = new DBQueriesWotlk();
-            List<ModelQuestTemplate> dbQuestTemplates = wotlkQueries.GetAvailableQuests();
-
-            _questList.RemoveAll(quest => !dbQuestTemplates.Exists(q => q.Id == quest.QuestTemplate.Id));
-
-            foreach (ModelQuestTemplate qTemplate in dbQuestTemplates)
-            {
-                if (!_questList.Exists(quest => quest.QuestTemplate.Id == qTemplate.Id))
+                if (WholesomeAQSettings.CurrentSetting.GoToMobEntry != 0 || WholesomeAQSettings.CurrentSetting.GrindOnly)
                 {
-                    _questList.Add(new WAQQuest(qTemplate, _objectScanner));
+                    _questList.Clear();
+                    _tracker.UpdateQuestsList(_questList);
+                    return;
                 }
 
-                // Quest started by item
-                if (qTemplate.StartItemTemplate?.startquest > 0
-                    && qTemplate.Id == qTemplate.StartItemTemplate?.startquest
-                    && !Quest.HasQuest(qTemplate.Id)
-                    && !_itemsGivingQuest.Contains(qTemplate.StartItemTemplate.Entry))
-                {
-                    _itemsGivingQuest.Add(qTemplate.StartItemTemplate.Entry);
-                }
-            }
+                DBQueriesWotlk wotlkQueries = new DBQueriesWotlk();
+                List<ModelQuestTemplate> dbQuestTemplates = wotlkQueries.GetAvailableQuests();
 
-            UpdateStatuses();
+                //_questList.RemoveAll(quest => !dbQuestTemplates.Exists(q => q.Id == quest.QuestTemplate.Id));
+
+                foreach (ModelQuestTemplate qTemplate in dbQuestTemplates)
+                {
+                    if (!_questList.Exists(quest => quest.QuestTemplate.Id == qTemplate.Id))
+                    {
+                        _questList.Add(new WAQQuest(qTemplate, _objectScanner));
+                    }
+
+                    // Quest started by item
+                    if (qTemplate.StartItemTemplate?.startquest > 0
+                        && qTemplate.Id == qTemplate.StartItemTemplate?.startquest
+                        && !Quest.HasQuest(qTemplate.Id)
+                        && !_itemsGivingQuest.Contains(qTemplate.StartItemTemplate.Entry))
+                    {
+                        _itemsGivingQuest.Add(qTemplate.StartItemTemplate.Entry);
+                    }
+                }
+
+                UpdateStatuses();
+            }
         }
 
         public void Initialize()
@@ -72,8 +78,11 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
         public void Dispose()
         {
-            _questList.Clear();
             EventsLuaWithArgs.OnEventsLuaStringWithArgs -= LuaEventHandler;
+            lock (_questManagerLock)
+            {
+                _questList.Clear();
+            }
         }
 
         private void LuaEventHandler(string eventid, List<string> args)
@@ -81,42 +90,12 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             switch (eventid)
             {
                 case "QUEST_LOG_UPDATE":
-                    Logger.Log("QUEST_LOG_UPDATE");
-                    UpdateStatuses();
+                    Logger.LogDebug("QUEST_LOG_UPDATE");
+                    lock (_questManagerLock)
+                    {
+                        UpdateStatuses();
+                    }
                     break;
-                // This event fires whenever the player accepts a quest.
-                /*case "QUEST_ACCEPTED":
-                    Logger.Log("QUEST_ACCEPTED");
-                    args.ForEach((arg) => Logger.Log($"QUEST_ACCEPTED arg : {arg}"));
-                    UpdateStatuses();
-                    break;
-                // Fired upon completion of a world quest, or turning in a quest with the "Complete Quest" button
-                case "QUEST_TURNED_IN":
-                    Logger.Log("QUEST_TURNED_IN");
-                    args.ForEach((arg) => Logger.Log($"QUEST_TURNED_IN arg : {arg}"));
-                    UpdateStatuses();
-                    break;
-                // Fired when the quest items are updated
-                /*case "QUEST_ITEM_UPDATE": 
-                    UpdateStatuses(); 
-                    Logger.Log("QUEST_ITEM_UPDATE"); 
-                    break;
-                // Fired whenever the quest log changes. (Frequently, but not as frequently as QUEST_LOG_UPDATE)
-                case "UNIT_QUEST_LOG_CHANGED":
-                    UpdateStatuses(); 
-                    Logger.Log("UNIT_QUEST_LOG_CHANGED"); 
-                    break;
-                // Fired after the player hits the "Continue" button in the quest-information page, before the "Complete Quest" button.
-                case "QUEST_COMPLETE": 
-                    UpdateStatuses(); 
-                    Logger.Log("QUEST_COMPLETE"); 
-                    break;
-                // Fired whenever the quest frame changes (Detail to Progress to Reward, etc.) or is closed.
-                case "QUEST_FINISHED": 
-                    UpdateStatuses(); 
-                    Logger.Log("QUEST_FINISHED"); 
-                    break;*/
-
                 case "QUEST_QUERY_COMPLETE":
                     UpdateCompletedQuests();
                     break;
@@ -124,7 +103,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     CheckInventoryForQuestsGivenByItems();
                     break;
                 case "PLAYER_LEVEL_UP":
-                    Logger.Log("PLAYER_LEVEL_UP");
+                    Logger.LogDebug("PLAYER_LEVEL_UP");
                     GetQuestsFromDB();
                     break;
             }
@@ -166,6 +145,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
         {
             Dictionary<int, Quest.PlayerQuest> logQuests = Quest.GetLogQuestId().ToDictionary(quest => quest.ID);
             List<string> itemsToAddToDNSList = new List<string>();
+            ToolBox.UpdateObjectiveCompletionDict(_questList.Select(quest => quest.QuestTemplate.Id).ToArray());
 
             foreach (IWAQQuest quest in _questList)
             {
@@ -188,16 +168,17 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 }
 
                 // Quest completed
-                if (quest.IsCompleted || quest.Status == QuestStatus.ToTurnIn && !logQuests.ContainsKey(quest.QuestTemplate.Id))
+                if (ToolBox.IsQuestCompleted(quest.QuestTemplate.Id)
+                    || quest.Status == QuestStatus.ToTurnIn && !logQuests.ContainsKey(quest.QuestTemplate.Id))
                 {
                     quest.ChangeStatusTo(QuestStatus.Completed);
                     continue;
                 }
 
                 // Quest to pickup
-                if (quest.IsPickable && !logQuests.ContainsKey(quest.QuestTemplate.Id))
+                if (IsQuestPickable(quest) && !logQuests.ContainsKey(quest.QuestTemplate.Id))
                 {
-                    itemsToAddToDNSList.AddRange(quest.GetItemsStringsList());
+                    itemsToAddToDNSList.AddRange(GetItemsStringsList(quest));
                     quest.ChangeStatusTo(QuestStatus.ToPickup);
                     continue;
                 }
@@ -208,7 +189,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     // Quest to turn in
                     if (foundQuest.State == StateFlag.Complete)
                     {
-                        itemsToAddToDNSList.AddRange(quest.GetItemsStringsList());
+                        itemsToAddToDNSList.AddRange(GetItemsStringsList(quest));
                         quest.ChangeStatusTo(QuestStatus.ToTurnIn);
                         continue;
                     }
@@ -223,7 +204,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     // Quest in progress
                     quest.ChangeStatusTo(QuestStatus.InProgress);
 
-                    itemsToAddToDNSList.AddRange(quest.GetItemsStringsList());
+                    itemsToAddToDNSList.AddRange(GetItemsStringsList(quest));
                     continue;
                 }
 
@@ -274,12 +255,12 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 foreach (string item in initialWAQList)
                 {
                     if (!itemsToAddToDNSList.Contains(item))
-                        Logger.Log($"Removed {item} from Do Not Sell List");
+                        Logger.LogDebug($"Removed {item} from Do Not Sell List");
                 }
                 foreach (string item in itemsToAddToDNSList)
                 {
                     if (!initialWAQList.Contains(item))
-                        Logger.Log($"Added {item} to Do Not Sell List");
+                        Logger.LogDebug($"Added {item} to Do Not Sell List");
                 }
                 wManagerSetting.CurrentSetting.DoNotSellList.RemoveRange(WAQlistStartIndex + 1, WAQListLength);
                 wManagerSetting.CurrentSetting.DoNotSellList.InsertRange(WAQlistStartIndex + 1, itemsToAddToDNSList);
@@ -328,31 +309,54 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
         public void AddQuestToBlackList(int questId, string reason, bool triggerStatusUpdate = true)
         {
-            if (!WholesomeAQSettings.CurrentSetting.BlackListedQuests.Exists(blq => blq.Id == questId))
+            lock (_questManagerLock)
             {
-                WholesomeAQSettings.CurrentSetting.BlackListedQuests.Add(new BlackListedQuest(questId, reason));
-                WholesomeAQSettings.CurrentSetting.Save();
-                Logger.Log($"The quest {questId} has been blacklisted ({reason})");
-                if (triggerStatusUpdate)
+                if (!WholesomeAQSettings.CurrentSetting.BlackListedQuests.Exists(blq => blq.Id == questId))
                 {
-                    UpdateStatuses();
+                    WholesomeAQSettings.CurrentSetting.BlackListedQuests.Add(new BlackListedQuest(questId, reason));
+                    WholesomeAQSettings.CurrentSetting.Save();
+                    Logger.Log($"The quest {questId} has been blacklisted ({reason})");
+                    if (triggerStatusUpdate)
+                    {
+                        UpdateStatuses();
+                    }
                 }
             }
         }
 
         public void RemoveQuestFromBlackList(int questId, string reason, bool triggerStatusUpdate = true)
         {
-            BlackListedQuest questToRemove = WholesomeAQSettings.CurrentSetting.BlackListedQuests.Find(blq => blq.Id == questId);
-            if (questToRemove.Id != 0)
+            lock (_questManagerLock)
             {
-                WholesomeAQSettings.CurrentSetting.BlackListedQuests.Remove(questToRemove);
-                WholesomeAQSettings.CurrentSetting.Save();
-                Logger.Log($"The quest {questId} has been removed from the blacklist ({reason})");
-                if (triggerStatusUpdate)
+                BlackListedQuest questToRemove = WholesomeAQSettings.CurrentSetting.BlackListedQuests.Find(blq => blq.Id == questId);
+                if (questToRemove.Id != 0)
                 {
-                    UpdateStatuses();
+                    WholesomeAQSettings.CurrentSetting.BlackListedQuests.Remove(questToRemove);
+                    WholesomeAQSettings.CurrentSetting.Save();
+                    Logger.Log($"The quest {questId} has been removed from the blacklist ({reason})");
+                    if (triggerStatusUpdate)
+                    {
+                        UpdateStatuses();
+                    }
                 }
             }
+        }
+
+        private bool IsQuestPickable(IWAQQuest quest)
+        {
+            if (quest.QuestTemplate.PreviousQuestsIds.Count > 0
+                && !quest.QuestTemplate.PreviousQuestsIds.Any(ToolBox.IsQuestCompleted))
+            {
+                return false;
+            }
+
+            if (quest.QuestTemplate.QuestAddon.RequiredSkillID > 0
+                && Skill.GetValue((SkillLine)quest.QuestTemplate.QuestAddon.RequiredSkillID) < quest.QuestTemplate.QuestAddon.RequiredSkillPoints)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private void InitializeWAQSettings()
@@ -373,6 +377,29 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 wManagerSetting.CurrentSetting.DoNotSellList.Add("WAQEnd");
                 wManagerSetting.CurrentSetting.Save();
             }
+        }
+
+        private List<string> GetItemsStringsList(IWAQQuest quest)
+        {
+            List<string> result = new List<string>();
+
+            foreach (KillLootObjective klo in quest.QuestTemplate.KillLootObjectives)
+            {
+                if (!result.Contains(klo.ItemTemplate.Name))
+                {
+                    result.Add(klo.ItemTemplate.Name);
+                }
+            }
+
+            foreach (GatherObjective go in quest.QuestTemplate.GatherObjectives)
+            {
+                if (!result.Contains(go.ItemTemplate.Name))
+                {
+                    result.Add(go.ItemTemplate.Name);
+                }
+            }
+
+            return result;
         }
     }
 }

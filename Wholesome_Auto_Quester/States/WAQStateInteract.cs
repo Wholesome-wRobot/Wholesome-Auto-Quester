@@ -8,14 +8,15 @@ namespace Wholesome_Auto_Quester.States
 {
     class WAQStateInteract : State
     {
-        private IWowObjectScanner _scanner;
+        private readonly IWowObjectScanner _scanner;
+
+        public override string DisplayName { get; set; } = "WAQ Interact";
+
         public WAQStateInteract(IWowObjectScanner scanner, int priority)
         {
             _scanner = scanner;
             Priority = priority;
         }
-
-        public override string DisplayName { get; set; } = "Kill [SmoothMove - Q]";
 
         public override bool NeedToRun
         {
@@ -23,13 +24,12 @@ namespace Wholesome_Auto_Quester.States
             {
                 if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause
                     || !ObjectManager.Me.IsValid
-                    || _scanner.ActiveWoWObject.wowObject == null
-                    || _scanner.ActiveWoWObject.task == null)
+                    || _scanner.ActiveWoWObject == (null, null))
                     return false;
 
                 if (_scanner.ActiveWoWObject.task.InteractionType == TaskInteraction.Interact)
                 {
-                    DisplayName = $"{_scanner.ActiveWoWObject.task.TaskName} [SmoothMove - Q]";
+                    DisplayName = _scanner.ActiveWoWObject.task.TaskName;
                     return true;
                 }
 

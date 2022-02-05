@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using Wholesome_Auto_Quester.Database.Models;
+using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 

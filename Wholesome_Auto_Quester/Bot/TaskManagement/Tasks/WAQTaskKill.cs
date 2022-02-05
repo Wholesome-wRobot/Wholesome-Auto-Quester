@@ -1,4 +1,5 @@
 ﻿using Wholesome_Auto_Quester.Database.Models;
+using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks

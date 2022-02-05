@@ -32,17 +32,11 @@
         Druid = 1024
     }
 
-    public enum TaskType
+    public enum TaskInteraction
     {
-        TurnInQuestToCreature,
-        TurnInQuestToGameObject,
-        PickupQuestFromCreature,
-        PickupQuestFromGameObject,
+        None,
         Kill,
         KillAndLoot,
-        GatherGameObject,
-        Explore,
-        InteractWithWorldObject,
-        Grind
+        Interact
     }
 }

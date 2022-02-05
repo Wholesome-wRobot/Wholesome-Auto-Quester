@@ -23,7 +23,7 @@ namespace Wholesome_Auto_Quester.Database
             _database.Dispose();
         }
 
-        private static List<ModelQuestTemplate> FilterDBQuestsBeforeFills(List<ModelQuestTemplate> dbResult)
+        private List<ModelQuestTemplate> FilterDBQuestsBeforeFills(List<ModelQuestTemplate> dbResult)
         {
             List<ModelQuestTemplate> result = new List<ModelQuestTemplate>();
 
@@ -73,7 +73,7 @@ namespace Wholesome_Auto_Quester.Database
             return result;
         }
 
-        private static List<ModelQuestTemplate> FilterDBQuestsAfterFills(List<ModelQuestTemplate> dbResult)
+        private List<ModelQuestTemplate> FilterDBQuestsAfterFills(List<ModelQuestTemplate> dbResult)
         {
             List<ModelQuestTemplate> result = new List<ModelQuestTemplate>();
 

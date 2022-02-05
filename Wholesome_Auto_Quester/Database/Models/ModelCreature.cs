@@ -16,7 +16,6 @@ namespace Wholesome_Auto_Quester.Database.Models
 
         public ModelCreature() { }
 
-        public ModelCreatureAddon CreatureAddon { get; set; }
         public uint guid { get; }
         public int map { get; }
         public int spawnTimeSecs { get; }
@@ -24,6 +23,7 @@ namespace Wholesome_Auto_Quester.Database.Models
         public float position_y { get; }
         public float position_z { get; }
 
+        public ModelCreatureAddon CreatureAddon { get; set; }
         public Vector3 GetSpawnPosition => new Vector3(position_x, position_y, position_z);
     }
 }

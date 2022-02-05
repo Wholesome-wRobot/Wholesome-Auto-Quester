@@ -3,7 +3,7 @@ using System.Drawing;
 
 namespace Wholesome_Auto_Quester.Helpers
 {
-    public static class Logger
+    public class Logger
     {
         public static void Log(string str)
         {
@@ -13,7 +13,9 @@ namespace Wholesome_Auto_Quester.Helpers
         public static void LogDebug(string str)
         {
             if (WholesomeAQSettings.CurrentSetting.LogDebug)
-                Logging.Write($"[{Main.ProductName}] " + str, Logging.LogType.Debug, Color.BlueViolet);
+            {
+                Logging.Write($"[{Main.ProductName}] " + str, Logging.LogType.Debug, Color.Chocolate);
+            }
         }
 
         public static void LogError(string str)

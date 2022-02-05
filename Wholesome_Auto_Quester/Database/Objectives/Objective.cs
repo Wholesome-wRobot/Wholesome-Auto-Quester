@@ -3,7 +3,7 @@
     public class Objective
     {
         public int ObjectiveIndex { get; set; } = -1;
-        public int Amount { get; set; }
-        public string ObjectiveName { get; set; }
+        public int Amount { get; protected set; }
+        public string ObjectiveName { get; protected set; }
     }
 }

@@ -451,7 +451,7 @@ namespace Wholesome_Auto_Quester.Database
             Logger.Log($"Process time (Indices) : {stopwatchIndices.ElapsedMilliseconds} ms");
         }
 
-        public void ExecuteQuery(string query)
+        private void ExecuteQuery(string query)
         {
             _cmd.CommandText = query;
             _cmd.ExecuteNonQuery();

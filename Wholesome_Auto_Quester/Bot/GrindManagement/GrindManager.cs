@@ -24,7 +24,9 @@ namespace Wholesome_Auto_Quester.Bot.GrindManagement
             List<ModelCreatureTemplate> ctToGrind = _database.QueryCreatureTemplatesToGrind();
             _database.Dispose();
 
-            ctToGrind.RemoveAll(ct => ct.Creatures.Any(c => c.map != Usefuls.ContinentId && !WholesomeAQSettings.CurrentSetting.ContinentTravel) || ct.IsFriendly);
+            ctToGrind.RemoveAll(ct => ct.Creatures.Any(c => c.map != Usefuls.ContinentId && !WholesomeAQSettings.CurrentSetting.ContinentTravel) 
+                || ct.IsFriendly
+                || ct.faction == 188);
             Logger.Log($"Found {ctToGrind.Count} templates to grind");
             foreach (ModelCreatureTemplate template in ctToGrind)
             {

@@ -11,14 +11,13 @@ namespace Wholesome_Auto_Quester.States
     class WAQStateMoveToHotspot : State
     {
         private ITaskManager _taskManager;
+        public override string DisplayName { get; set; } = "WAQ Move to hotspot";
 
         public WAQStateMoveToHotspot(ITaskManager taskManager, int priority)
         {
             _taskManager = taskManager;
             Priority = priority;
         }
-
-        public override string DisplayName { get; set; } = "Move to hotspot [SmoothMove - Q]";
 
         public override bool NeedToRun
         {
@@ -30,7 +29,7 @@ namespace Wholesome_Auto_Quester.States
 
                 if (_taskManager.ActiveTask != null)
                 {
-                    DisplayName = $"Moving to hotspot for {_taskManager.ActiveTask.TaskName} [SmoothMove - Q]";
+                    DisplayName = $"Moving to hotspot for {_taskManager.ActiveTask.TaskName}";
                     return true;
                 }
 

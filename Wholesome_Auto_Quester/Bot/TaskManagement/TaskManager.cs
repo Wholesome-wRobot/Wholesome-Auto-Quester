@@ -23,8 +23,9 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
         private readonly IGrindManager _grindManager;
         private readonly IWowObjectScanner _objectScanner;
         private readonly QuestsTrackerGUI _tracker;
+        private readonly List<IWAQTask> _taskPile = new List<IWAQTask>();
+        private readonly List<IWAQTask> _grindTasks = new List<IWAQTask>();
         private bool _isRunning = false;
-        private List<IWAQTask> _taskPile = new List<IWAQTask>();
 
         public IWAQTask ActiveTask { get; private set; }
 
@@ -44,8 +45,12 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             {
                 while (_isRunning)
                 {
-                    UpdateTaskPile();
-                    await Task.Delay(1000);
+                    if (Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause)
+                    {
+                        UpdateTaskPile();
+                        BlacklistHelper.CleanupBlacklist();
+                        await Task.Delay(1000);
+                    }
                 }
             });
         }
@@ -77,7 +82,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 || Fight.InFight
                 || me.HaveBuff("Drink")
                 || me.HaveBuff("Food")
-                || MoveHelper.IsMovementThreadRunning && MoveHelper.GetCurrentPathRemainingDistance() > 200)
+                || MoveHelper.IsMovementThreadRunning && MoveHelper.GetCurrentPathRemainingDistance() > 100)
             {
                 return;
             }
@@ -102,13 +107,32 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             }
 
             // Add grind tasks if nothing else is valid
-            if (WholesomeAQSettings.CurrentSetting.GrindOnly || _taskPile.Count > 0 & _taskPile.All(task => task.IsTimedOut))
+            if (tasksToAdd.Count <= 0 || tasksToAdd.All(task => task.IsTimedOut))
             {
-                tasksToAdd.AddRange(_grindManager.GetGrindTasks());
+                if (_grindTasks.Count <= 0)
+                {
+                    _grindTasks.AddRange(_grindManager.GetGrindTasks());
+                    foreach (IWAQTask grindTask in _grindManager.GetGrindTasks())
+                    {
+                        grindTask.RegisterEntryToScanner(_objectScanner);
+                    }
+                }
+                tasksToAdd.AddRange(_grindTasks);
             }
-            
+            else
+            {
+                if (_grindTasks.Count > 0)
+                {
+                    foreach (IWAQTask grindTask in _grindTasks)
+                    {
+                        grindTask.UnregisterEntryToScanner(_objectScanner);
+                    }
+                    _grindTasks.Clear();
+                }
+            }
+
             var spaceTree = BuildTree(tasksToAdd);
-            
+
             List<GUITask> guiTasks = new List<GUITask>();
             foreach (IWAQTask task in tasksToAdd)
             {
@@ -122,7 +146,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             }
 
             _tracker.UpdateTasksList(guiTasks);
-            
+
             // If a wow object is found, we force the closest task
             if (_objectScanner.ActiveWoWObject != (null, null))
             {
@@ -196,7 +220,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             }
         }
 
-        public int CalculatePriority(Vector3 myPosition, KDTree<float, IWAQTask> spaceTree, IWAQTask task)
+        private int CalculatePriority(Vector3 myPosition, KDTree<float, IWAQTask> spaceTree, IWAQTask task)
         {
             const double magic = 1.32;
 
@@ -221,7 +245,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             return priority;
         }
 
-        private static double Distance(float[] x, float[] y)
+        private double Distance(float[] x, float[] y)
         {
             double dist = 0f;
             for (int i = 0; i < x.Length; i++)
@@ -231,7 +255,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             return dist;
         }
 
-        private static KDTree<float, IWAQTask> BuildTree(List<IWAQTask> tasks)
+        private KDTree<float, IWAQTask> BuildTree(List<IWAQTask> tasks)
         {
             var tasksVectors = tasks.Select(x => new float[] { x.Location.X, x.Location.Y, x.Location.Z }).ToArray();
             var tasksArray = tasks.ToArray();

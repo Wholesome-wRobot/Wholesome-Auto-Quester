@@ -98,8 +98,6 @@ public static class AutoUpdater
 
     private static void ShowReloadMessage()
     {
-        /*MessageBox.Show($"A new version of {Main.ProductName} has been downloaded. Please restart WRobot." +
-            $"\rversion {_currentVersion} to version {_onlineVersion}");*/
         Logger.LogError($"A new version of {Main.ProductName} has been downloaded, please restart WRobot.".ToUpper() +
             $"\r{_currentVersion} => {_onlineVersion}".ToUpper());
         Products.DisposeProduct();

@@ -22,87 +22,7 @@ namespace Wholesome_Auto_Quester.Helpers
 {
     public static class ToolBox
     {
-        private static readonly Stopwatch Watch = Stopwatch.StartNew();
-        public static readonly Random Rnd = new Random();
-
-
         private static Dictionary<int, bool[]> _objectiveCompletionDict = new Dictionary<int, bool[]>();
-
-        public static readonly Dictionary<int, int> ZoneLevelDictionary = new Dictionary<int, int> {
-            {14, 10}, //Kalimdor
-            {15, 10}, //Azeroth
-            {465, 1}, //AzuremystIsle
-            {28, 1}, //DunMorogh
-            {5, 1}, //Durotar
-            {31, 1}, //Elwynn
-            {463, 1}, //EversongWoods
-            {42, 1}, //Teldrassil
-            {21, 1}, //Tirisfal
-            {481, 10}, //SilvermoonCity
-            {11, 10}, //Barrens
-            {477, 10}, //BloodmystIsle
-            {43, 10}, //Darkshore
-            {464, 10}, //Ghostlands
-            {342, 10}, //Ironforge
-            {36, 10}, //LochModan
-            {10, 1}, //Mulgore
-            {322, 10}, //Ogrimmar
-            {22, 10}, //Silverpine
-            {302, 10}, //Stormwind
-            {472, 10}, //TheExodar
-            {363, 10}, //ThunderBluff
-            {383, 10}, //Undercity
-            {40, 10}, //Westfall
-            {37, 15}, //Redridge
-            {82, 15}, //StonetalonMountains
-            {44, 18}, //Ashenvale
-            {35, 18}, //Duskwood
-            {25, 20}, //Hilsbrad
-            {41, 20}, //Wetlands
-            {62, 25}, //ThousandNeedles
-            {16, 30}, //Alterac
-            {17, 30}, //Arathi
-            {102, 30}, //Desolace
-            {142, 30}, //Dustwallow
-            {38, 30}, //Stranglethorn
-            {18, 35}, //Badlands
-            {39, 35}, //SwampOfSorrows
-            {27, 40}, //Hinterlands
-            {162, 40}, //Tanaris
-            {122, 42}, //Feralas
-            {182, 45}, //Aszhara
-            {20, 45}, //BlastedLands
-            {29, 45}, //SearingGorge
-            {183, 48}, //Felwood
-            {202, 48}, //UngoroCrater
-            {30, 50}, //BurningSteppes
-            {23, 51}, //WesternPlaguelands
-            {24, 53}, //EasternPlaguelands
-            {282, 53}, //Winterspring
-            {242, 55}, //Moonglade
-            {262, 55}, //Silithus
-            {466, 58}, //Hellfire
-            {467, 60}, //Zangarmarsh
-            {479, 62}, //TerokkarForest
-            {476, 65}, //BladesEdgeMountains
-            {478, 65}, //Nagrand
-            {480, 67}, //Netherstorm
-            {474, 67}, //ShadowmoonValley
-            {482, 65}, //ShattrathCity
-            {487, 68}, //BoreanTundra
-            {32, 68}, //DeadwindPass
-            {492, 68}, //HowlingFjord
-            {489, 71}, //Dragonblight
-            {491, 73}, //GrizzlyHills
-            {497, 75}, //ZulDrak
-            {494, 76}, //SholazarBasin
-            {511, 77}, //CrystalsongForest
-            {542, 77}, //HrothgarsLanding
-            {605, 77}, //IcecrownCitadel
-            {505, 80} //Dalaran
-        };
-
-        public static long CurTime => Watch.ElapsedMilliseconds;
 
         public static bool HostilesAreAround(WoWObject POI, IWAQTask task, float clearDistance = 25f)
         {
@@ -454,51 +374,14 @@ namespace Wholesome_Auto_Quester.Helpers
             Vector3 projection = start + (end - start) * clippedSegment;
             return point.DistanceTo(projection);
         }
-        /*
-        public static bool MoveToHotSpotAbortCondition(WAQTask task) =>
-            WAQTasks.WoWObjectInProgress != null
-            || !ObjectManager.Me.IsMounted && ObjectManager.Me.InCombatFlagOnly;
 
-        */
         public static bool IsQuestCompleted(int questId) => WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Contains(questId);
-        public static int GetServerNbCompletedQuests() => Quest.FinishedQuestSet.Count;
-        /*
-        public static bool ShouldQuestBeFinished(this ModelQuestTemplate quest) => quest.Status == QuestStatus.InProgress
-                                                                           || quest.Status == QuestStatus.ToTurnIn;
-        */
-        public static Vector3 Position(this ModelCreature npc) => npc.GetSpawnPosition;
 
         public static bool WoWDBFileIsPresent() => File.Exists(Others.GetCurrentDirectory + @"\Data\WoWDb335");
 
         public static bool JSONFileIsPresent() => File.Exists(Others.GetCurrentDirectory + @"\Data\WAQquests.json");
 
-        public static bool CompiledJSONFileIsPresent() =>
-            File.Exists(@"F:\WoW\Dev\Wholesome-Auto-Quester\Wholesome_Auto_Quester\Compiled\WAQquests.zip");
-
         public static bool ZippedJSONIsPresent() => File.Exists(Others.GetCurrentDirectory + @"\Data\WAQquests.zip");
-
-        public static List<ModelQuestTemplate> GetAllQuestsFromJSON()
-        {
-            try
-            {
-                if (!JSONFileIsPresent())
-                {
-                    Logger.LogError("The JSON file is not present.");
-                    return null;
-                }
-
-                using (StreamReader file = File.OpenText(Others.GetCurrentDirectory + @"\Data\WAQquests.json"))
-                {
-                    var serializer = new JsonSerializer();
-                    return (List<ModelQuestTemplate>)serializer.Deserialize(file, typeof(List<ModelQuestTemplate>));
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(e.Message);
-                return null;
-            }
-        }
 
         public static void ZipJSONFile()
         {
@@ -525,14 +408,6 @@ namespace Wholesome_Auto_Quester.Helpers
                         stream.CopyTo(entryStream);
                     }
                 }
-
-                /*
-                // Copy to Compiled folder
-                var compiledzip = @"F:\WoW\Dev\Wholesome-Auto-Quester\Wholesome_Auto_Quester\Compiled\WAQquests.zip";
-                if (File.Exists(compiledzip))
-                    File.Delete(compiledzip);
-                File.Copy(Others.GetCurrentDirectory + @"\Data\WAQquests.zip", compiledzip);
-                */
             }
             catch (Exception e)
             {
@@ -547,12 +422,6 @@ namespace Wholesome_Auto_Quester.Helpers
                 if (File.Exists(Others.GetCurrentDirectory + @"\Data\WAQquests.json"))
                     File.Delete(Others.GetCurrentDirectory + @"\Data\WAQquests.json");
 
-                /*
-                Logger.Log("Serialize");
-                string jsonString = JsonConvert.SerializeObject(resultFromDB, Formatting.Indented);
-                Logger.Log("Write");
-                File.WriteAllText(Others.GetCurrentDirectory + @"\Data\WAQquests.json", jsonString);
-                */
                 using (StreamWriter file = File.CreateText(Others.GetCurrentDirectory + @"\Data\WAQquests.json"))
                 {
                     var serializer = new JsonSerializer();
@@ -617,13 +486,6 @@ namespace Wholesome_Auto_Quester.Helpers
         {            
             if (gameObject != null)
             {
-                /*
-                if (gameObject.Type != expectedType)
-                {
-                    Logger.LogError($"Expected {expectedType} for PickUp Quest but got {gameObject.Type} instead.");
-                    return true;
-                }
-                */
                 if (wManagerSetting.IsBlackListedZone(gameObject.Position)
                     || wManagerSetting.IsBlackListed(gameObject.Guid))
                 {
@@ -642,7 +504,9 @@ namespace Wholesome_Auto_Quester.Helpers
         }
 
         public static void UpdateObjectiveCompletionDict(int[] questIds)
-            => _objectiveCompletionDict = GetObjectiveCompletionDict(questIds);
+        {
+            _objectiveCompletionDict = GetObjectiveCompletionDict(questIds);
+        }
 
         private static Dictionary<int, bool[]> GetObjectiveCompletionDict(int[] questIds)
         {
@@ -715,17 +579,17 @@ namespace Wholesome_Auto_Quester.Helpers
 
             if (objectiveId < 1 || objectiveId > 6)
             {
-                Logging.WriteError($"Tried to call GetObjectiveCompletion with objectiveId: {objectiveId}");
+                Logger.LogError($"Tried to call GetObjectiveCompletion with objectiveId: {objectiveId}");
                 return false;
             }
 
             if (_objectiveCompletionDict.TryGetValue(questId, out bool[] completionArray))
                 return completionArray[objectiveId - 1];
 
-            Logging.WriteDebug($"Did not have quest {questId} in completion dictionary.");
+            Logger.LogDebug($"Did not have quest {questId} in completion dictionary.");
             return false;
         }
-
+        /*
         public static bool DangerousEnemiesAtLocation(Vector3 location)
         {
             uint myLevel = ObjectManager.Me.Level;
@@ -742,7 +606,7 @@ namespace Wholesome_Auto_Quester.Helpers
 
             return unitCounter > 3;
         }
-
+        */
         // public static string GetTaskId(WAQTask task) => task.TaskId;
 
         // public static string GetTaskIdLegacy(WAQTask task) {
@@ -808,9 +672,10 @@ namespace Wholesome_Auto_Quester.Helpers
 
         public static bool IsHorde()
         {
-            return ObjectManager.Me.Faction == (uint)PlayerFactions.Orc || ObjectManager.Me.Faction == (uint)PlayerFactions.Tauren
-                || ObjectManager.Me.Faction == (uint)PlayerFactions.Undead || ObjectManager.Me.Faction == (uint)PlayerFactions.BloodElf
-                || ObjectManager.Me.Faction == (uint)PlayerFactions.Troll;
+            uint myFaction = ObjectManager.Me.Faction;
+            return myFaction == (uint)PlayerFactions.Orc || myFaction == (uint)PlayerFactions.Tauren
+                || myFaction == (uint)PlayerFactions.Undead || myFaction == (uint)PlayerFactions.BloodElf
+                || myFaction == (uint)PlayerFactions.Troll;
         }
 
         public static Dictionary<int, int> QuestModifiedLevel = new Dictionary<int, int>()
@@ -859,7 +724,7 @@ namespace Wholesome_Auto_Quester.Helpers
             Logger.Log($"FAILED");
             return new WAQPath(new List<Vector3>(), 0);
         }
-        */
+        
         public static WAQPath AdjustPathToObject(WoWObject wObject)
         {
             Random rand = new Random();
@@ -892,6 +757,6 @@ namespace Wholesome_Auto_Quester.Helpers
         {
             string zone = Lua.LuaDoString<string>("return GetRealZoneText();");
             return zone == "Azuremyst Isle" || zone == "Bloodmyst Isle" || zone == "The Exodar";
-        }
+        }*/
     }
 }

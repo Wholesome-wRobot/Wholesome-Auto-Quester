@@ -8,7 +8,7 @@ namespace Wholesome_Auto_Quester.Helpers
 {
     public class BlacklistHelper
     {
-        public static List<WAQBlacklistEntry> ListEntries = new List<WAQBlacklistEntry>();
+        private readonly static List<WAQBlacklistEntry> ListEntries = new List<WAQBlacklistEntry>();
 
         public static void AddZone(Vector3 position, int radius, string reason, int timeInMs = 1000 * 60 * 15)
         {
@@ -43,10 +43,10 @@ namespace Wholesome_Auto_Quester.Helpers
 
     public class WAQBlacklistEntry
     {
+        private Timer _timer;
         public Vector3 Position;
         public ulong Guid;
         public int Radius;
-        Timer _timer;
 
         public WAQBlacklistEntry(Vector3 position, int radius, int timeInMs)
         {
@@ -55,6 +55,7 @@ namespace Wholesome_Auto_Quester.Helpers
             _timer = new Timer(timeInMs);
             wManagerSetting.AddBlackListZone(position, radius, (ContinentId)Usefuls.ContinentId, isSessionBlacklist: true);
         }
+
         public WAQBlacklistEntry(ulong guid, int timeInMs)
         {
             Guid = guid;

@@ -11,13 +11,13 @@ namespace Wholesome_Auto_Quester.States
 {
     public class WAQStateTravel : State
     {
-        private ITaskManager _taskManager;
-        private TravelManager _travelManager;
+        private readonly ITaskManager _taskManager;
+        private readonly TravelManager _travelManager;
         private ModelWorldMapArea _travelDestinationWMArea;
         private ModelWorldMapArea _myWMArea;
         private Vector3 _travelDestinationPosition;
 
-        public override string DisplayName { get; set; } = "WAQ Travel [SmoothMove - Q]";
+        public override string DisplayName { get; set; } = "WAQ Travel";
         public static bool InTravel { get; private set; } = false;
 
         public WAQStateTravel(ITaskManager taskManager, TravelManager travelManager, int priority)
@@ -44,7 +44,7 @@ namespace Wholesome_Auto_Quester.States
                     _myWMArea = travel.myWma;
                     _travelDestinationWMArea = travel.destWma;
                     _travelDestinationPosition = _taskManager.ActiveTask.Location;
-                    DisplayName = $"WAQ Travel to {_travelDestinationWMArea.areaName} [SmoothMove - Q]";
+                    DisplayName = $"Travel to {_travelDestinationWMArea.areaName}";
                     return true;
                 }
 

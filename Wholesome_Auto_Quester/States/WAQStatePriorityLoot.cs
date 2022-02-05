@@ -10,15 +10,16 @@ namespace Wholesome_Auto_Quester.States
 {
     class WAQStatePriorityLoot : State
     {
-        private IWowObjectScanner _scanner;
+        private readonly IWowObjectScanner _scanner;
+
+        public override string DisplayName { get; set; } = "WAQ PriorityLoot";
+        private List<ulong> UnitsLooted { get; set; } = new List<ulong>();
+
         public WAQStatePriorityLoot(IWowObjectScanner scanner, int priority)
         {
             _scanner = scanner;
             Priority = priority;
         }
-
-        public override string DisplayName { get; set; } = "WAQPriorityLoot [SmoothMove - Q]";
-        private List<ulong> UnitsLooted { get; set; } = new List<ulong>();
 
         public override bool NeedToRun
         {
@@ -26,8 +27,7 @@ namespace Wholesome_Auto_Quester.States
             {
                 if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause
                     || !ObjectManager.Me.IsValid
-                    || _scanner.ActiveWoWObject.wowObject == null
-                    || _scanner.ActiveWoWObject.task == null
+                    || _scanner.ActiveWoWObject == (null, null)
                     || _scanner.ActiveWoWObject.task.InteractionType != TaskInteraction.KillAndLoot
                     || ObjectManager.Me.HealthPercent < 20)
                     return false;
@@ -39,7 +39,7 @@ namespace Wholesome_Auto_Quester.States
                     && unitToLoot.IsLootable
                     && !UnitsLooted.Contains(unitToLoot.Guid))
                 {
-                    DisplayName = $"Priority loot for {_scanner.ActiveWoWObject.task.TaskName} [SmoothMove - Q]";
+                    DisplayName = $"Priority loot for {_scanner.ActiveWoWObject.task.TaskName}";
                     return true;
                 }
 
@@ -51,6 +51,13 @@ namespace Wholesome_Auto_Quester.States
         {
             var (gameObject, task) = _scanner.ActiveWoWObject;
             WoWUnit unitToLoot = (WoWUnit)gameObject;
+            WAQPath pathToCorpse = ToolBox.GetWAQPath(ObjectManager.Me.Position, gameObject.Position);
+
+            if (!pathToCorpse.IsReachable)
+            {
+                UnitsLooted.Add(unitToLoot.Guid);
+                return;
+            }
 
             if (!MoveHelper.IsMovementThreadRunning && unitToLoot.GetDistance > 3)
             {

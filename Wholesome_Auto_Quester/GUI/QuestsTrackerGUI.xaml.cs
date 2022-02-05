@@ -30,7 +30,7 @@ namespace Wholesome_Auto_Quester.GUI
             _questManager = questManager;
         }
 
-        public void AddToBLClicked(object sender, RoutedEventArgs e)
+        private void AddToBLClicked(object sender, RoutedEventArgs e)
         {
             if (sourceQuestsList.SelectedItem != null)
             {
@@ -39,7 +39,7 @@ namespace Wholesome_Auto_Quester.GUI
             }
         }
 
-        public void RmvFromBLClicked(object sender, RoutedEventArgs e)
+        private void RmvFromBLClicked(object sender, RoutedEventArgs e)
         {
             if (sourceQuestsList.SelectedItem != null)
             {
@@ -104,7 +104,7 @@ namespace Wholesome_Auto_Quester.GUI
             {
                 sourceScanReg.ItemsSource = null;
                 List<GUIScanEntry> scanEntries = new List<GUIScanEntry>();
-                foreach(KeyValuePair<int, List<IWAQTask>> entry in scannerRegistry)
+                foreach (KeyValuePair<int, List<IWAQTask>> entry in scannerRegistry)
                 {
                     foreach (IWAQTask task in entry.Value)
                     {
@@ -143,7 +143,7 @@ namespace Wholesome_Auto_Quester.GUI
             }));
         }
 
-        public void SelectQuest(object sender, RoutedEventArgs e)
+        private void SelectQuest(object sender, RoutedEventArgs e)
         {
             IWAQQuest selected = (IWAQQuest)sourceQuestsList.SelectedItem;
             if (selected != null)

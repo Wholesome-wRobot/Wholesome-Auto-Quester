@@ -19,8 +19,8 @@ public class Main : IProduct
     public static readonly string ProductName = "Wholesome Auto Quester";
     public static readonly string FileName = "Wholesome_Auto_Quester";
     private ProductSettingsControl _settingsUserControl;
-    private QuestsTrackerGUI tracker = new QuestsTrackerGUI();
-    private Bot _bot = new Bot();
+    private readonly QuestsTrackerGUI tracker = new QuestsTrackerGUI();
+    private readonly Bot _bot = new Bot();
 
     public bool IsStarted { get; private set; }
 
@@ -143,6 +143,11 @@ public class Main : IProduct
         if (log.Text == "[Fight] Mob seem bugged" && ObjectManager.Target.Guid > 0)
         {
             BlacklistHelper.AddNPC(ObjectManager.Target.Guid, "Mob seem bugged");
+        }
+        else if (log.Text == "PathFinder server seem down, use offline pathfinder.")
+        {
+            Logger.LogError($"The pathfinder server is down, please close and resart WRobot");
+            Stop();
         }
     }
 

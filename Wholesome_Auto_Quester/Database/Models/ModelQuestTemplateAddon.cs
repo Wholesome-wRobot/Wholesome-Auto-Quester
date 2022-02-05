@@ -4,13 +4,14 @@ namespace Wholesome_Auto_Quester.Database.Models
 {
     public class ModelQuestTemplateAddon
     {
+        public int AllowableClasses { get; }
+        public int PrevQuestID { get; }
+        public int NextQuestID { get; }
+        public int ExclusiveGroup { get; }
+        public int RequiredSkillID { get; }
+        public int RequiredSkillPoints { get; }
+        public int SpecialFlags { get; }
+
         public List<int> ExclusiveQuests { get; set; }
-        public int AllowableClasses { get; set; }
-        public int PrevQuestID { get; set; }
-        public int NextQuestID { get; set; }
-        public int ExclusiveGroup { get; set; }
-        public int RequiredSkillID { get; set; }
-        public int RequiredSkillPoints { get; set; }
-        public int SpecialFlags { get; set; }
     }
 }
