@@ -86,6 +86,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 || me.IsDead
                 || !me.IsValid
                 || Fight.InFight
+                || _travelManager.TravelInProgress
                 || me.HaveBuff("Drink")
                 || me.HaveBuff("Food")
                 || MoveHelper.IsMovementThreadRunning && MoveHelper.GetCurrentPathRemainingDistance() > 100 && _tick % 5 != 0)
