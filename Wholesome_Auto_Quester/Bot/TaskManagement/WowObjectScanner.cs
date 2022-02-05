@@ -86,6 +86,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 _guiTracker.UpdateScanReg(_scannerRegistry);
 
                 List<WoWObject> allObjects = ObjectManager.GetObjectWoW()
+                    .Where(o => o.GetDistance < 60)
                     .OrderBy(o => o.GetDistance)
                     .ToList();
 

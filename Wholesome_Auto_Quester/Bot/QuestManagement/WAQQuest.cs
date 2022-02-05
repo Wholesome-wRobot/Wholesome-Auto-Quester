@@ -148,9 +148,12 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             // quest is in progress but we don't have the starting item
             if (Status == QuestStatus.InProgress
                 && QuestTemplate.StartItem > 0
-                && !ItemsManager.HasItemById((uint)QuestTemplate.StartItem))
+                && QuestTemplate.StartItemTemplate != null)
             {
-                return;
+                if (!Bag.GetBagItem().Any(item => item.Entry == QuestTemplate.StartItemTemplate.Entry))
+                {
+                    return;
+                }
             }
 
             // Turn in quest
@@ -363,7 +366,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     }
                     else
                     {
-                        Logger.LogError($"Couldn't find matching objective {ob.ObjectiveName} for {QuestTemplate.LogTitle}");
+                        Logger.Log($"Couldn't find matching objective {ob.ObjectiveName} for {QuestTemplate.LogTitle}");
                         Thread.Sleep(1000);
                         continue;
                     }

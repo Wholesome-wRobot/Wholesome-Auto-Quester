@@ -46,8 +46,18 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 DBQueriesWotlk wotlkQueries = new DBQueriesWotlk();
                 List<ModelQuestTemplate> dbQuestTemplates = wotlkQueries.GetAvailableQuests();
 
-                //_questList.RemoveAll(quest => !dbQuestTemplates.Exists(q => q.Id == quest.QuestTemplate.Id));
+                // Remove quests that are not supposed to be here anymore
+                List<IWAQQuest> questsToRemove = _questList.FindAll(quest => !dbQuestTemplates.Contains(quest.QuestTemplate));
+                foreach (IWAQQuest questToRemove in questsToRemove)
+                {
+                    foreach (IWAQTask taskToUnRegister in questToRemove.GetAllTasks())
+                    {
+                        taskToUnRegister.UnregisterEntryToScanner(_objectScanner);
+                    }
+                    _questList.Remove(questToRemove);
+                }
 
+                // Add quests if they don't already exist
                 foreach (ModelQuestTemplate qTemplate in dbQuestTemplates)
                 {
                     if (!_questList.Exists(quest => quest.QuestTemplate.Id == qTemplate.Id))
@@ -122,22 +132,28 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
         private void CheckInventoryForQuestsGivenByItems()
         {
+            int itemFound = 0;
             foreach (int itemId in _itemsGivingQuest)
             {
                 if (ItemsManager.HasItemById((uint)itemId))
                 {
-                    IWAQQuest questToPickup = _questList.Find(quest => quest.QuestTemplate.StartItem == itemId && quest.Status == QuestStatus.Unchecked);
+                    IWAQQuest questToPickup = _questList.Find(quest => quest.QuestTemplate.StartItem == itemId && quest.Status == QuestStatus.ToPickup);
                     if (questToPickup != null)
                     {
                         Logger.Log($"Starting {questToPickup.QuestTemplate.LogTitle} from {questToPickup.QuestTemplate.StartItemTemplate.Name}");
                         ToolBox.PickupQuestFromBagItem(questToPickup.QuestTemplate.StartItemTemplate.Name);
-                        _itemsGivingQuest.Remove(itemId);
+                        itemFound = itemId;
+                        break;
                     }
                     else
                     {
                         throw new System.Exception($"Couldn't find quest associated with item {itemId}");
                     }
                 }
+            }
+            if (itemFound > 0)
+            {
+                _itemsGivingQuest.Remove(itemFound);
             }
         }
 

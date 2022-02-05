@@ -15,8 +15,7 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
 {
     public class TravelManager : ITravelManager
     {
-
-        private List<ModelWorldMapArea> _worldMapAreas;
+        private readonly List<ModelWorldMapArea> _worldMapAreas = new List<ModelWorldMapArea>();
 
         public TravelManager()
         {
@@ -25,8 +24,9 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
 
         public void Initialize()
         {
+            _worldMapAreas.Clear();
             DB _dataBase = new DB();
-            _worldMapAreas = _dataBase.QueryWorldMapAreas();
+            _worldMapAreas.AddRange(_dataBase.QueryWorldMapAreas());
             _dataBase.Dispose();
             AddAllOffmeshConnections();
         }
@@ -561,7 +561,6 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
             };
 
             OffMeshConnections.MeshConnection.AddRange(offmeshConnections);
-            OffMeshConnections.MeshConnection.ForEach(mc => Logger.LogError(mc.ToString()));
             OffMeshConnections.Save();
         }
 

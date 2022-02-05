@@ -50,7 +50,7 @@ namespace Wholesome_Auto_Quester.States
 
             if (task.Location.DistanceTo(ObjectManager.Me.Position) <= task.SearchRadius && WholesomeAQSettings.CurrentSetting.GoToMobEntry <= 0)
             {
-                task.PutTaskOnTimeout($"Couldn't find target for {task.TaskName}");
+                task.PutTaskOnTimeout($"Couldn't find target");
             }
 
             if (task.Location.DistanceTo(ObjectManager.Me.Position) > 19)

@@ -10,7 +10,7 @@ namespace Wholesome_Auto_Quester.Bot.GrindManagement
 {
     public class GrindManager : IGrindManager
     {
-        private List<IWAQTask> _grindTasks = new List<IWAQTask>();
+        private readonly List<IWAQTask> _grindTasks = new List<IWAQTask>();
 
         public GrindManager()
         {

@@ -1,7 +1,3 @@
-﻿quest taken => QUEST_ACCEPTED + QUEST_LOG_UPDATE
+﻿quest removal on lvl up
 
-quest turned in => QUEST_COMPLETE + QUEST_LOG_UPDATE
-
-quest added progress / objective finished => QUEST_LOG_UPDATE
-
-quest finished, ready to turn in => QUEST_LOG_UPDATE
+continents

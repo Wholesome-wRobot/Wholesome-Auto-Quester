@@ -30,13 +30,17 @@ namespace Wholesome_Auto_Quester.Helpers
 
         public static void CleanupBlacklist()
         {
-            ListEntries.ForEach(le =>
+            foreach (WAQBlacklistEntry entry in ListEntries)
             {
-                if (le.Guid > 0 && le.ShouldBeRemoved)
-                    wManagerSetting.RemoveBlackList(le.Guid);
-                if (le.Position != null && le.ShouldBeRemoved)
-                    wManagerSetting.GetListZoneBlackListed().RemoveAll(bl => bl.GetPosition() == le.Position);
-            });
+                if (entry.Guid > 0 && entry.ShouldBeRemoved)
+                {
+                    wManagerSetting.RemoveBlackList(entry.Guid);
+                }
+                if (entry.Position != null && entry.ShouldBeRemoved)
+                {
+                    wManagerSetting.GetListZoneBlackListed().RemoveAll(bl => bl.GetPosition() == entry.Position);
+                }
+            }
             ListEntries.RemoveAll(le => le.ShouldBeRemoved);
         }
     }
