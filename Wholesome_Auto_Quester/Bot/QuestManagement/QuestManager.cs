@@ -247,12 +247,20 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     {
                         if (logQuest.Value.State == StateFlag.None && waqQuest.GetAllObjectives().Count <= 0)
                         {
+                            foreach (IWAQTask task in waqQuest.GetAllTasks())
+                            {
+                                task.UnregisterEntryToScanner(_objectScanner);
+                            }
                             AddQuestToBlackList(waqQuest.QuestTemplate.Id, "In progress with no objectives");
                             AbandonQuest(waqQuest.QuestTemplate.Id, "In progress with no objectives");
                             continue;
                         }
                         if (waqQuest.QuestTemplate.QuestLevel < ObjectManager.Me.Level - WholesomeAQSettings.CurrentSetting.LevelDeltaMinus - 1)
                         {
+                            foreach (IWAQTask task in waqQuest.GetAllTasks())
+                            {
+                                task.UnregisterEntryToScanner(_objectScanner);
+                            }
                             AddQuestToBlackList(waqQuest.QuestTemplate.Id, "Underleveled");
                             AbandonQuest(waqQuest.QuestTemplate.Id, "Underleveled");
                             continue;
@@ -286,6 +294,22 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             _tracker.UpdateQuestsList(_questList);
         }
 
+        private void AbandonQuest(int questId, string reason)
+        {
+            Logger.Log($"Abandonning quest {questId} ({reason})");
+            int logIndex = Lua.LuaDoString<int>(@$"
+                local nbLogQuests  = GetNumQuestLogEntries()
+                for i=1, nbLogQuests do
+                    local _, _, _, _, _, _, _, _, questID = GetQuestLogTitle(i);
+                    if questID == {questId} then
+                        return i;
+                    end
+                end
+            ");
+            Lua.LuaDoString($"SelectQuestLogEntry({logIndex}); SetAbandonQuest(); AbandonQuest();");
+            Thread.Sleep(500);
+        }
+
         private void UpdateCompletedQuests()
         {
             if (Quest.FinishedQuestSet.Count > 0)
@@ -305,22 +329,6 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 return;
             }
             Logger.LogError($"Server has not sent our quests yet");
-        }
-
-        private void AbandonQuest(int questId, string reason)
-        {
-            Logger.Log($"Abandonning quest {questId} ({reason})");
-            int logIndex = Lua.LuaDoString<int>(@$"
-                local nbLogQuests  = GetNumQuestLogEntries()
-                for i=1, nbLogQuests do
-                    local _, _, _, _, _, _, _, _, questID = GetQuestLogTitle(i);
-                    if questID == {questId} then
-                        return i;
-                    end
-                end
-            ");
-            Lua.LuaDoString($"SelectQuestLogEntry({logIndex}); SetAbandonQuest(); AbandonQuest();");
-            Thread.Sleep(500);
         }
 
         public void AddQuestToBlackList(int questId, string reason, bool triggerStatusUpdate = true)
@@ -383,6 +391,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(891, "The Guns of NorthWatch, too many mobs", false);
             AddQuestToBlackList(9612, "A hearty thanks, requires heal on mob", false);
             AddQuestToBlackList(857, "The tear of the moons, way too many mobs", false);
+            AddQuestToBlackList(8483, "A dwarven spy, gossip required", false);
             if (ToolBox.IsHorde()) AddQuestToBlackList(4740, "Bugged, should only be alliance", false);
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))

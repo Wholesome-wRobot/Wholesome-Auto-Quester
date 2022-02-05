@@ -82,7 +82,6 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                     return;
                 }
 
-                Logger.LogDebug("SCAN");
                 _guiTracker.UpdateScanReg(_scannerRegistry);
 
                 List<WoWObject> allObjects = ObjectManager.GetObjectWoW()
