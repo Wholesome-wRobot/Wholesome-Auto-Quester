@@ -142,8 +142,13 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                     if (pathToClosestObject.IsReachable)
                     {
                         IWAQTask associatedTask = GetTaskMatchingWithObject(closestObject);
-                        if (associatedTask != null && associatedTask.IsObjectValidForTask(closestObject))
+                        if (associatedTask != null)
                         {
+                            if (!associatedTask.IsObjectValidForTask(closestObject))
+                            {
+                                associatedTask.PutTaskOnTimeout($"{closestObject.Name} is of the wrong type for {associatedTask.TaskName}", 60 * 60 * 1000);
+                                return;
+                            }
                             ActiveWoWObject = (closestObject, associatedTask);
                             return;
                         }
