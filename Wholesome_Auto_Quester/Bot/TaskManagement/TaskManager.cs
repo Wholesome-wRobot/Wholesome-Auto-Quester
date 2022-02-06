@@ -106,11 +106,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
             if (WholesomeAQSettings.CurrentSetting.GoToMobEntry <= 0 && !WholesomeAQSettings.CurrentSetting.GrindOnly)
             {
-                List<IWAQTask> allQuestTasks = _questManager.GetAllQuestTasks()
-                    .Where(task => !wManagerSetting.IsBlackListedZone(task.Location))
-                    .ToList();
-
-                tasksToAdd.AddRange(allQuestTasks);
+                tasksToAdd.AddRange(_questManager.GetAllQuestTasks().FindAll(task => task.WorldMapArea != null));
             }
 
             // Add grind tasks if nothing else is valid
@@ -177,7 +173,6 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             {
                 closestTask.PutTaskOnTimeout("Unreachable (1)", 600, true);
                 BlacklistHelper.AddZone(closestTask.Location, 5, "Unreachable (1)");
-                //Main.RequestImmediateTaskReset = true;
                 return;
             }
 
@@ -256,7 +251,6 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             {
                 priority <<= 10;
             }
-
             return priority;
         }
 

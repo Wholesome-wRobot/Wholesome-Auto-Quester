@@ -1,7 +1,6 @@
 ﻿using robotManager.FiniteStateMachine;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
-using Wholesome_Auto_Quester.Helpers;
 using wManager;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
@@ -43,7 +42,7 @@ namespace Wholesome_Auto_Quester.States
 
             if (wManagerSetting.IsBlackListedZone(task.Location))
             {
-                Logger.Log("Aborted because BL");
+                task.PutTaskOnTimeout("Zone is blacklisted");
                 MoveHelper.StopAllMove(true);
                 return;
             }

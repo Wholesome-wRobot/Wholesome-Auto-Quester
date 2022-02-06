@@ -26,7 +26,7 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
             }
         }
 
-        public static ModelWorldMapArea GetWorldMapAreaFromPoint(Vector3 position, int mapdId)
+        public static ModelWorldMapArea GetWorldMapAreaFromPoint(Vector3 position, int mapdId) // CAN BE NULL!
         {
             List<ModelWorldMapArea> potentialResults = new List<ModelWorldMapArea>();
             foreach (ModelWorldMapArea wma in ListWorldMapAreas)

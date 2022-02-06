@@ -66,7 +66,6 @@ namespace Wholesome_Auto_Quester.Database.Models
                         Logger.LogError($"Couldn't set continent for MapAreaId {mapID} - {areaID}");
                     }
                 }
-
                 return _continent;
             }
         }

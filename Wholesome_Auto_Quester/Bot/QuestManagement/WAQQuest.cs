@@ -41,7 +41,8 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
         private void AddTaskToDictionary(int objectiveIndex, IWAQTask task)
         {
-            if (!WholesomeAQSettings.CurrentSetting.ContinentTravel && task.WorldMapArea.Continent != ContinentHelper.MyMapArea.Continent)
+            if (task.WorldMapArea == null || 
+                !WholesomeAQSettings.CurrentSetting.ContinentTravel && task.WorldMapArea.Continent != ContinentHelper.MyMapArea.Continent)
             {
                 return;
             }
