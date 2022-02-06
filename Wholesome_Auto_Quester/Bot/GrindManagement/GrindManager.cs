@@ -38,6 +38,7 @@ namespace Wholesome_Auto_Quester.Bot.GrindManagement
                     _grindTasks.Add(new WAQTaskGrind(template, creature));
                 }
             }
+            _grindTasks.RemoveAll(task => task.WorldMapArea == null);
         }
 
         public void Initialize()

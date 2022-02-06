@@ -132,6 +132,8 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 allTasks.AddRange(quest.GetAllTasks());
             }
 
+            allTasks.RemoveAll(task => task.WorldMapArea == null);
+
             return allTasks;
         }
 

@@ -106,7 +106,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
             if (WholesomeAQSettings.CurrentSetting.GoToMobEntry <= 0 && !WholesomeAQSettings.CurrentSetting.GrindOnly)
             {
-                tasksToAdd.AddRange(_questManager.GetAllQuestTasks().FindAll(task => task.WorldMapArea != null));
+                tasksToAdd.AddRange(_questManager.GetAllQuestTasks());
             }
 
             // Add grind tasks if nothing else is valid
