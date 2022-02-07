@@ -693,6 +693,7 @@ namespace Wholesome_Auto_Quester.Helpers
             { 5501, 3 }, // Kodo bones, red enemies
             { 8885, 3 }, // Ring of Mmmmmmrgll, too many freaking murlocs
             { 1389, 3 }, // Draenethyst crystals, too many mobs
+            { 582, 3 }, // Headhunting, too many mobs
         };
 
         public static void PickupQuestFromBagItem(string itemName)

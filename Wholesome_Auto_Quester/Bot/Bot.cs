@@ -113,13 +113,13 @@ namespace Wholesome_Auto_Quester.Bot
         {
             try
             {
-                _grindManager.Dispose();
-                _objectScanner.Dispose();
-                _questManager.Dispose();
-                _taskManager.Dispose();
-                _travelManager.Dispose();
+                _grindManager?.Dispose();
+                _objectScanner?.Dispose();
+                _questManager?.Dispose();
+                _taskManager?.Dispose();
+                _travelManager?.Dispose();
 
-                _questTrackerGui.HideWindow();
+                _questTrackerGui?.HideWindow();
 
                 Radar3D.OnDrawEvent -= Radar3DOnDrawEvent;
                 MovementEvents.OnSeemStuck -= SeemStuckHandler;

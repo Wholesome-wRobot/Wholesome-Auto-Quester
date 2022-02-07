@@ -34,37 +34,37 @@ namespace Wholesome_Auto_Quester.Database
             {
                 if ((q.QuestAddon?.SpecialFlags & 1) != 0)
                 {
-                    //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Repeatable)");
+                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (Repeatable)");
                     continue;
                 }
                 if ((q.QuestAddon?.SpecialFlags & 2) != 0)
                 {
-                    //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Escort?)");
+                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (Escort?)");
                     continue;
                 }
                 if (q.QuestLevel == -1 && q.QuestAddon?.AllowableClasses == 0)
                 {
-                    //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (-1, not class quest)");
+                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (-1, not class quest)");
                     continue;
                 }
                 if (q.QuestAddon?.AllowableClasses > 0 && (q.QuestAddon?.AllowableClasses & myClass) == 0)
                 {
-                    //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Not for my class)");
+                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (Not for my class)");
                     continue;
                 }
                 if (q.AllowableRaces > 0 && (q.AllowableRaces & myFaction) == 0)
                 {
-                    //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Not for my race)");
+                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (Not for my race)");
                     continue;
                 }
                 if (q.QuestInfoID != 0)
                 {
-                    //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Dungeon/Group/Raid/PvP)");
+                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (Dungeon/Group/Raid/PvP)");
                     continue;
                 }
                 if (q.RequiredFactionId1 != 0 || q.RequiredFactionId2 != 0)
                 {
-                    //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Reputation quest)");
+                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (Reputation quest)");
                     continue;
                 }
 
@@ -82,15 +82,34 @@ namespace Wholesome_Auto_Quester.Database
             int myLevel = (int)ObjectManager.Me.Level;
 
             foreach (ModelQuestTemplate q in dbResult)
-            {
+            {                
+                if (q.KillLootObjectives.Count > 0 && q.KillLootObjectives.All(klo => !klo.CreatureLootTemplate.CreatureTemplate.IsValidForKill))
+                {
+                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (all enemies are invalid 0)");
+                    continue;
+                }
+
+                if (q.KillObjectives.Count > 0 && q.KillObjectives.All(ko => !ko.CreatureTemplate.IsValidForKill))
+                {
+                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (all enemies are invalid 1)");
+                    continue;
+                }
+
+                if (q.KillLootObjectives.Any(klo => klo.ItemTemplate.Class != 12))
+                {
+                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (kill loot objective is not quest item)");
+                    continue;
+                }
+
                 if (q.CreatureQuestGivers.Count <= 0 && q.CreatureQuestTurners.Count <= 0)
                 {
+                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (no quest giver, no quest turner)");
                     continue;
                 }
 
                 if (q.CreatureQuestGivers.Count > 0 && !q.CreatureQuestGivers.Any(qg => qg.IsNeutralOrFriendly) && q.GameObjectQuestGivers.Count <= 0)
                 {
-                    //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Not for my faction)");
+                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (Not for my faction)");
                     continue;
                 }
 
@@ -100,15 +119,11 @@ namespace Wholesome_Auto_Quester.Database
                     || q.ItemDrop3Template != null && q.ItemDrop3Template.HasASpellAttached
                     || q.ItemDrop4Template != null && q.ItemDrop4Template.HasASpellAttached)
                 {
-                    //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Active start/prerequisite item)");
+                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (Active start/prerequisite item)");
                     continue;
                 }
 
-                if (q.KillLootObjectives.Any(klo => klo.ItemTemplate.Spell1 != null)
-                    || q.KillLootObjectives.Any(klo => klo.ItemTemplate.Spell2 != null)
-                    || q.KillLootObjectives.Any(klo => klo.ItemTemplate.Spell3 != null)
-                    || q.KillLootObjectives.Any(klo => klo.ItemTemplate.Spell4 != null)
-                    || q.KillLootObjectives.Any(klo => (klo.ItemTemplate.Flags & 64) != 0)) // flag PLAYER_CAST
+                if (q.KillLootObjectives.Any(klo => klo.ItemTemplate.HasASpellAttached))
                 {
                     //Logger.Log($"[{q.Id}] {q.LogTitle} has been removed (Active loot item)");
                     continue;
@@ -218,23 +233,39 @@ namespace Wholesome_Auto_Quester.Database
             {
                 // NPCs
                 if (quest.RequiredNpcOrGo1 > 0)
+                {
                     quest.RequiredNPC1Template = _database.QueryCreatureTemplateByEntry(quest.RequiredNpcOrGo1);
+                }
                 if (quest.RequiredNpcOrGo2 > 0)
+                {
                     quest.RequiredNPC2Template = _database.QueryCreatureTemplateByEntry(quest.RequiredNpcOrGo2);
+                }
                 if (quest.RequiredNpcOrGo3 > 0)
+                {
                     quest.RequiredNPC3Template = _database.QueryCreatureTemplateByEntry(quest.RequiredNpcOrGo3);
+                }
                 if (quest.RequiredNpcOrGo4 > 0)
+                {
                     quest.RequiredNPC4Template = _database.QueryCreatureTemplateByEntry(quest.RequiredNpcOrGo4);
+                }
 
                 // Interacts
                 if (quest.RequiredNpcOrGo1 < 0)
+                {
                     quest.RequiredGO1Template = _database.QueryGameObjectTemplateByEntry(-quest.RequiredNpcOrGo1);
+                }
                 if (quest.RequiredNpcOrGo2 < 0)
+                {
                     quest.RequiredGO2Template = _database.QueryGameObjectTemplateByEntry(-quest.RequiredNpcOrGo2);
+                }
                 if (quest.RequiredNpcOrGo3 < 0)
+                {
                     quest.RequiredGO3Template = _database.QueryGameObjectTemplateByEntry(-quest.RequiredNpcOrGo3);
+                }
                 if (quest.RequiredNpcOrGo4 < 0)
+                {
                     quest.RequiredGO4Template = _database.QueryGameObjectTemplateByEntry(-quest.RequiredNpcOrGo4);
+                }
             }
             Logger.Log($"Process time (RequiredNpcs) : {stopwatchRequiredNPC.ElapsedMilliseconds} ms");
 
@@ -242,86 +273,158 @@ namespace Wholesome_Auto_Quester.Database
             foreach (ModelQuestTemplate quest in quests)
             {
                 // Exploration objectives 2mo/133k
-                quest.ModelAreasTriggers.ForEach(modelArea =>
-                    quest.AddObjective(new ExplorationObjective((int)modelArea.PositionX, modelArea, quest.AreaDescription)));
+                foreach (ModelAreaTrigger modelAreaTrigger in quest.ModelAreasTriggers)
+                {
+                    quest.AddObjective(new ExplorationObjective(modelAreaTrigger, quest.AreaDescription));
+                }
 
                 // Prerequisite objectives Gather 2mo/134k
-                quest.ItemDrop1Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
-                    quest.AddObjective(new GatherObjective(quest.ItemDropQuantity1, goLootTemplate, quest.ItemDrop1Template)));
-                quest.ItemDrop2Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
-                    quest.AddObjective(new GatherObjective(quest.ItemDropQuantity2, goLootTemplate, quest.ItemDrop2Template)));
-                quest.ItemDrop3Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
-                    quest.AddObjective(new GatherObjective(quest.ItemDropQuantity3, goLootTemplate, quest.ItemDrop3Template)));
-                quest.ItemDrop4Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
-                    quest.AddObjective(new GatherObjective(quest.ItemDropQuantity4, goLootTemplate, quest.ItemDrop4Template)));
+                if (quest.ItemDrop1Template != null)
+                {
+                    foreach (ModelGameObjectLootTemplate goLootTemplate in quest.ItemDrop1Template.GameObjectLootTemplates)
+                    {
+                        quest.AddObjective(new GatherObjective(quest.ItemDropQuantity1, goLootTemplate, quest.ItemDrop1Template));
+                    }
+                }
+                if (quest.ItemDrop2Template != null)
+                {
+                    foreach (ModelGameObjectLootTemplate goLootTemplate in quest.ItemDrop2Template.GameObjectLootTemplates)
+                    {
+                        quest.AddObjective(new GatherObjective(quest.ItemDropQuantity2, goLootTemplate, quest.ItemDrop2Template));
+                    }
+                }
+                if (quest.ItemDrop3Template != null)
+                {
+                    foreach (ModelGameObjectLootTemplate goLootTemplate in quest.ItemDrop3Template.GameObjectLootTemplates)
+                    {
+                        quest.AddObjective(new GatherObjective(quest.ItemDropQuantity3, goLootTemplate, quest.ItemDrop3Template));
+                    }
+                }
+                if (quest.ItemDrop4Template != null)
+                {
+                    foreach (ModelGameObjectLootTemplate goLootTemplate in quest.ItemDrop4Template.GameObjectLootTemplates)
+                    {
+                        quest.AddObjective(new GatherObjective(quest.ItemDropQuantity4, goLootTemplate, quest.ItemDrop4Template));
+                    }
+                }
 
                 // Prerequisite objectives Kill&Loot 2mo/134k
-                quest.ItemDrop1Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                if (quest.ItemDrop1Template != null)
                 {
-                    if (creaLootTemplate.CreatureTemplate.rank <= 0)
+                    foreach (ModelCreatureLootTemplate creaLootTemplate in quest.ItemDrop1Template.CreatureLootTemplates)
+                    {
                         quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity1, creaLootTemplate, quest.ItemDrop1Template));
-                });
-                quest.ItemDrop2Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                    }
+                }
+                if (quest.ItemDrop2Template != null)
                 {
-                    if (creaLootTemplate.CreatureTemplate.rank <= 0)
+                    foreach (ModelCreatureLootTemplate creaLootTemplate in quest.ItemDrop2Template.CreatureLootTemplates)
+                    {
                         quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity2, creaLootTemplate, quest.ItemDrop2Template));
-                });
-                quest.ItemDrop3Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                    }
+                }
+                if (quest.ItemDrop3Template != null)
                 {
-                    if (creaLootTemplate.CreatureTemplate.rank <= 0)
+                    foreach (ModelCreatureLootTemplate creaLootTemplate in quest.ItemDrop3Template.CreatureLootTemplates)
+                    {
                         quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity3, creaLootTemplate, quest.ItemDrop3Template));
-                });
-                quest.ItemDrop4Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                    }
+                }
+                if (quest.ItemDrop4Template != null)
                 {
-                    if (creaLootTemplate.CreatureTemplate.rank <= 0)
+                    foreach (ModelCreatureLootTemplate creaLootTemplate in quest.ItemDrop4Template.CreatureLootTemplates)
+                    {
                         quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity4, creaLootTemplate, quest.ItemDrop4Template));
-                });
+                    }
+                }
 
-                // Required items Gather/Loot 5mo/327k
-                quest.RequiredItem1Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
-                    quest.AddObjective(new GatherObjective(quest.RequiredItemCount1, goLootTemplate, quest.RequiredItem1Template)));
-                quest.RequiredItem2Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
-                    quest.AddObjective(new GatherObjective(quest.RequiredItemCount2, goLootTemplate, quest.RequiredItem2Template)));
-                quest.RequiredItem3Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
-                    quest.AddObjective(new GatherObjective(quest.RequiredItemCount3, goLootTemplate, quest.RequiredItem3Template)));
-                quest.RequiredItem4Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
-                    quest.AddObjective(new GatherObjective(quest.RequiredItemCount4, goLootTemplate, quest.RequiredItem4Template)));
-                quest.RequiredItem5Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
-                    quest.AddObjective(new GatherObjective(quest.RequiredItemCount5, goLootTemplate, quest.RequiredItem5Template)));
-                quest.RequiredItem6Template?.GameObjectLootTemplates.ForEach(goLootTemplate =>
-                    quest.AddObjective(new GatherObjective(quest.RequiredItemCount6, goLootTemplate, quest.RequiredItem6Template)));
-
-                // Required items Gather/Loot 300mo/20M                             
-                quest.RequiredItem1Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                // Required items Gather
+                if (quest.RequiredItem1Template != null)
                 {
-                    if (creaLootTemplate.CreatureTemplate.rank <= 0)
+                    foreach (ModelGameObjectLootTemplate goLootTemplate in quest.RequiredItem1Template.GameObjectLootTemplates)
+                    {
+                        quest.AddObjective(new GatherObjective(quest.RequiredItemCount1, goLootTemplate, quest.RequiredItem1Template));
+                    }
+                }
+                if (quest.RequiredItem2Template != null)
+                {
+                    foreach (ModelGameObjectLootTemplate goLootTemplate in quest.RequiredItem2Template.GameObjectLootTemplates)
+                    {
+                        quest.AddObjective(new GatherObjective(quest.RequiredItemCount2, goLootTemplate, quest.RequiredItem2Template));
+                    }
+                }
+                if (quest.RequiredItem3Template != null)
+                {
+                    foreach (ModelGameObjectLootTemplate goLootTemplate in quest.RequiredItem3Template.GameObjectLootTemplates)
+                    {
+                        quest.AddObjective(new GatherObjective(quest.RequiredItemCount3, goLootTemplate, quest.RequiredItem3Template));
+                    }
+                }
+                if (quest.RequiredItem4Template != null)
+                {
+                    foreach (ModelGameObjectLootTemplate goLootTemplate in quest.RequiredItem4Template.GameObjectLootTemplates)
+                    {
+                        quest.AddObjective(new GatherObjective(quest.RequiredItemCount4, goLootTemplate, quest.RequiredItem4Template));
+                    }
+                }
+                if (quest.RequiredItem5Template != null)
+                {
+                    foreach (ModelGameObjectLootTemplate goLootTemplate in quest.RequiredItem5Template.GameObjectLootTemplates)
+                    {
+                        quest.AddObjective(new GatherObjective(quest.RequiredItemCount5, goLootTemplate, quest.RequiredItem5Template));
+                    }
+                }
+                if (quest.RequiredItem6Template != null)
+                {
+                    foreach (ModelGameObjectLootTemplate goLootTemplate in quest.RequiredItem6Template.GameObjectLootTemplates)
+                    {
+                        quest.AddObjective(new GatherObjective(quest.RequiredItemCount6, goLootTemplate, quest.RequiredItem6Template));
+                    }
+                }
+
+                // Required items Loot
+                if (quest.RequiredItem1Template != null)
+                {
+                    foreach (ModelCreatureLootTemplate creaLootTemplate in quest.RequiredItem1Template.CreatureLootTemplates)
+                    {
                         quest.AddObjective(new KillLootObjective(quest.RequiredItemCount1, creaLootTemplate, quest.RequiredItem1Template));
-                });
-                quest.RequiredItem2Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                    }
+                }
+                if (quest.RequiredItem2Template != null)
                 {
-                    if (creaLootTemplate.CreatureTemplate.rank <= 0)
+                    foreach (ModelCreatureLootTemplate creaLootTemplate in quest.RequiredItem2Template.CreatureLootTemplates)
+                    {
                         quest.AddObjective(new KillLootObjective(quest.RequiredItemCount2, creaLootTemplate, quest.RequiredItem2Template));
-                });
-                quest.RequiredItem3Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                    }
+                }
+                if (quest.RequiredItem3Template != null)
                 {
-                    if (creaLootTemplate.CreatureTemplate.rank <= 0)
+                    foreach (ModelCreatureLootTemplate creaLootTemplate in quest.RequiredItem3Template.CreatureLootTemplates)
+                    {
                         quest.AddObjective(new KillLootObjective(quest.RequiredItemCount3, creaLootTemplate, quest.RequiredItem3Template));
-                });
-                quest.RequiredItem4Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                    }
+                }
+                if (quest.RequiredItem4Template != null)
                 {
-                    if (creaLootTemplate.CreatureTemplate.rank <= 0)
+                    foreach (ModelCreatureLootTemplate creaLootTemplate in quest.RequiredItem4Template.CreatureLootTemplates)
+                    {
                         quest.AddObjective(new KillLootObjective(quest.RequiredItemCount4, creaLootTemplate, quest.RequiredItem4Template));
-                });
-                quest.RequiredItem5Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                    }
+                }
+                if (quest.RequiredItem5Template != null)
                 {
-                    if (creaLootTemplate.CreatureTemplate.rank <= 0)
+                    foreach (ModelCreatureLootTemplate creaLootTemplate in quest.RequiredItem5Template.CreatureLootTemplates)
+                    {
                         quest.AddObjective(new KillLootObjective(quest.RequiredItemCount5, creaLootTemplate, quest.RequiredItem5Template));
-                });
-                quest.RequiredItem6Template?.CreatureLootTemplates.ForEach(creaLootTemplate =>
+                    }
+                }
+                if (quest.RequiredItem6Template != null && quest.RequiredItem6Template.Class != 12)
                 {
-                    if (creaLootTemplate.CreatureTemplate.rank <= 0)
+                    foreach (ModelCreatureLootTemplate creaLootTemplate in quest.RequiredItem6Template.CreatureLootTemplates)
+                    {
                         quest.AddObjective(new KillLootObjective(quest.RequiredItemCount6, creaLootTemplate, quest.RequiredItem6Template));
-                });
+                    }
+                }
 
                 // KILL / INTERACT
 
@@ -332,24 +435,40 @@ namespace Wholesome_Auto_Quester.Database
                 // NOTE: If RequiredSpellCast is != 0 and the spell has effects Send Event or Quest Complete, this field may be left empty.
 
                 // Kill
-                if (quest.RequiredNPC1Template != null && !quest.RequiredNPC1Template.IsFriendly && quest.RequiredNPC1Template.rank <= 0)
+                if (quest.RequiredNPC1Template != null)
+                {
                     quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount1, quest.RequiredNPC1Template, quest.ObjectiveText1));
-                if (quest.RequiredNPC2Template != null && !quest.RequiredNPC2Template.IsFriendly && quest.RequiredNPC2Template.rank <= 0)
+                }
+                if (quest.RequiredNPC2Template != null)
+                {
                     quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount2, quest.RequiredNPC2Template, quest.ObjectiveText2));
-                if (quest.RequiredNPC3Template != null && !quest.RequiredNPC3Template.IsFriendly && quest.RequiredNPC3Template.rank <= 0)
+                }
+                if (quest.RequiredNPC3Template != null)
+                {
                     quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount3, quest.RequiredNPC3Template, quest.ObjectiveText3));
-                if (quest.RequiredNPC4Template != null && !quest.RequiredNPC4Template.IsFriendly && quest.RequiredNPC4Template.rank <= 0)
+                }
+                if (quest.RequiredNPC4Template != null)
+                {
                     quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount4, quest.RequiredNPC4Template, quest.ObjectiveText4));
+                }
 
                 // Interact
                 if (quest.RequiredGO1Template != null)
+                {
                     quest.AddObjective(new InteractObjective(quest.RequiredNpcOrGoCount1, quest.RequiredGO1Template, quest.ObjectiveText1));
+                }
                 if (quest.RequiredGO2Template != null)
+                {
                     quest.AddObjective(new InteractObjective(quest.RequiredNpcOrGoCount2, quest.RequiredGO2Template, quest.ObjectiveText2));
+                }
                 if (quest.RequiredGO3Template != null)
+                {
                     quest.AddObjective(new InteractObjective(quest.RequiredNpcOrGoCount3, quest.RequiredGO3Template, quest.ObjectiveText3));
+                }
                 if (quest.RequiredGO4Template != null)
+                {
                     quest.AddObjective(new InteractObjective(quest.RequiredNpcOrGoCount4, quest.RequiredGO4Template, quest.ObjectiveText4));
+                }
             }
 
             DisposeDb();
@@ -362,7 +481,6 @@ namespace Wholesome_Auto_Quester.Database
                 Stopwatch stopwatchJSON = Stopwatch.StartNew();
                 Logger.Log($"{allFilteredQuests.Count} results. Building JSON. Please wait.");
                 ToolBox.WriteJSONFromDBResult(allFilteredQuests);
-                //ToolBox.ZipJSONFile();
                 Logger.Log($"Process time (JSON processing) : {stopwatchJSON.ElapsedMilliseconds} ms");
             }
 

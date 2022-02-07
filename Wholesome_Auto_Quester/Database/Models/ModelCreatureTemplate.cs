@@ -131,6 +131,8 @@ namespace Wholesome_Auto_Quester.Database.Models
             }
             return result;
         }
+
+        public bool IsValidForKill => !IsFriendly && (rank <= 0 || rank == 4);
     }
 }
 public enum UNIT_TYPE_FLAGS : long

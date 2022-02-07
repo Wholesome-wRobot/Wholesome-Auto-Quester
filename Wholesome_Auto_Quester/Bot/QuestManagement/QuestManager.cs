@@ -407,7 +407,6 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(9612, "A hearty thanks, requires heal on mob", false);
             AddQuestToBlackList(857, "The tear of the moons, way too many mobs", false);
             AddQuestToBlackList(8483, "A dwarven spy, gossip required", false);
-            AddQuestToBlackList(705, "Pearl diving, Bugged + requires interact", false);
             if (ToolBox.IsHorde()) AddQuestToBlackList(4740, "Bugged, should only be alliance", false);
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))
