@@ -37,7 +37,6 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                     {
                         Pulse();
                         await Task.Delay(1000);
-
                     }
                 }
             });
@@ -160,21 +159,24 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
         private IWAQTask GetTaskMatchingWithObject(WoWObject closestObject)
         {
-            if (closestObject == null)
+            lock (_scannerLock)
             {
-                throw new System.Exception($"[Scanner] Tried to get a task matching with the active object entry but it was null");
-            }
+                if (closestObject == null)
+                {
+                    throw new System.Exception($"[Scanner] Tried to get a task matching with the active object entry but it was null");
+                }
 
-            if (_scannerRegistry.TryGetValue(closestObject.Entry, out List<IWAQTask> taskList))
-            {
-                return taskList
-                    .Where(task => !task.IsTimedOut && task.IsObjectValidForTask(closestObject))
-                    .OrderBy(task => task.Location.DistanceTo(closestObject.Position))
-                    .FirstOrDefault();
-            }
-            else
-            {
-                throw new System.Exception($"[Scanner] Tried to get a task matching with the object entry {closestObject.Entry} but the entry didn't exist");
+                if (_scannerRegistry.TryGetValue(closestObject.Entry, out List<IWAQTask> taskList))
+                {
+                    return taskList
+                        .Where(task => !task.IsTimedOut && task.IsObjectValidForTask(closestObject))
+                        .OrderBy(task => task.Location.DistanceTo(closestObject.Position))
+                        .FirstOrDefault();
+                }
+                else
+                {
+                    throw new System.Exception($"[Scanner] Tried to get a task matching with the object entry {closestObject.Entry} but the entry didn't exist");
+                }
             }
 
         }

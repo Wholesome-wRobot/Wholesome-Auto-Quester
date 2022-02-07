@@ -667,10 +667,11 @@ namespace Wholesome_Auto_Quester.Helpers
         public static WAQPath GetWAQPath(Vector3 from, Vector3 to)
         {
             float distance = 0f;
-            bool isReachable;
-            List<Vector3> path = FindPath(from, to, skipIfPartiel: false, resultSuccess: out isReachable);
+            List<Vector3> path = FindPath(from, to, skipIfPartiel: false, resultSuccess: out bool isReachable);
             if (isReachable)
+            {
                 for (var i = 0; i < path.Count - 1; ++i) distance += path[i].DistanceTo(path[i + 1]);
+            }
             return new WAQPath(path, distance);
         }
 
@@ -694,6 +695,7 @@ namespace Wholesome_Auto_Quester.Helpers
             { 8885, 3 }, // Ring of Mmmmmmrgll, too many freaking murlocs
             { 1389, 3 }, // Draenethyst crystals, too many mobs
             { 582, 3 }, // Headhunting, too many mobs
+            { 1177, 3 }, // Hungry!, too many murlocs
         };
 
         public static void PickupQuestFromBagItem(string itemName)
