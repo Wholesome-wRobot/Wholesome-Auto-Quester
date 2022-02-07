@@ -183,6 +183,11 @@ namespace Wholesome_Auto_Quester.Bot
 
         private void SeemStuckHandler()
         {
+            if (!MoveHelper.IsMovementThreadRunning)
+            {
+                return;
+            }
+
             IWAQTask task = _taskManager.ActiveTask;
             WoWObject wowObject = _objectScanner.ActiveWoWObject.wowObject;
 

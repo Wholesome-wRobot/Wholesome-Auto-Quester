@@ -2,7 +2,6 @@
 using robotManager.Helpful;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -180,8 +179,12 @@ namespace Wholesome_Auto_Quester.Helpers
                     Logger.LogError($"No Gossip window was open to hand in {questName}");
                     return false;
                 case 2:
-                    Logger.LogError($"The quest {questName} has not been found to hand in.");
-                    return false;
+                    if (!IsQuestCompleted(questId))
+                    {
+                        Logger.LogError($"The quest {questName} has not been found to hand in.");
+                        return false;
+                    }
+                    return true;
                 case 3:
                     Logger.LogError($"The quest {questName} has been found but is not completed yet.");
                     return false;
@@ -487,7 +490,7 @@ namespace Wholesome_Auto_Quester.Helpers
         }
 
         public static bool ShouldStateBeInterrupted(IWAQTask task, WoWObject gameObject)
-        {            
+        {
             if (gameObject != null)
             {
                 if (wManagerSetting.IsBlackListedZone(gameObject.Position)
@@ -497,7 +500,7 @@ namespace Wholesome_Auto_Quester.Helpers
                     return true;
                 }
             }
-            
+
             if (wManagerSetting.IsBlackListedZone(task.Location))
             {
                 MoveHelper.StopAllMove(true);
@@ -668,9 +671,10 @@ namespace Wholesome_Auto_Quester.Helpers
         {
             float distance = 0f;
             List<Vector3> path = FindPath(from, to, skipIfPartiel: false, resultSuccess: out bool isReachable);
-            if (isReachable)
+            for (var i = 0; i < path.Count - 1; ++i) distance += path[i].DistanceTo(path[i + 1]);
+            if (!isReachable && distance < 100)
             {
-                for (var i = 0; i < path.Count - 1; ++i) distance += path[i].DistanceTo(path[i + 1]);
+                return new WAQPath(path, 0);
             }
             return new WAQPath(path, distance);
         }

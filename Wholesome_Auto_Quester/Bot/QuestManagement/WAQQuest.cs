@@ -113,9 +113,9 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 return;
             }
             Logger.LogDebug($"{QuestTemplate.LogTitle} changed status from {Status} to {newStatus}");
-            ClearTasksDictionary();
 
             Status = newStatus;
+            ClearTasksDictionary();
 
             // TASK GENERATION
 

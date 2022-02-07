@@ -171,7 +171,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
             if (!pathToClosestTask.IsReachable)
             {
-                closestTask.PutTaskOnTimeout("Unreachable (1)", 600, true);
+                closestTask.PutTaskOnTimeout("Unreachable (1)", 60*60*3, true);
                 BlacklistHelper.AddZone(closestTask.Location, 5, "Unreachable (1)");
                 return;
             }
@@ -188,7 +188,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                         WAQPath pathToNewTask = ToolBox.GetWAQPath(myPosition, _taskPile[i].Location);
                         if (!pathToNewTask.IsReachable)
                         {
-                            _taskPile[i].PutTaskOnTimeout("Unreachable (2)", 600, true);
+                            _taskPile[i].PutTaskOnTimeout("Unreachable (2)", 60*60*3, true);
                             BlacklistHelper.AddZone(closestTask.Location, 5, "Unreachable (2)");
                             continue;
                         }

@@ -34,37 +34,37 @@ namespace Wholesome_Auto_Quester.Database
             {
                 if ((q.QuestAddon?.SpecialFlags & 1) != 0)
                 {
-                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (Repeatable)");
+                    //Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (Repeatable)");
                     continue;
                 }
                 if ((q.QuestAddon?.SpecialFlags & 2) != 0)
                 {
-                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (Escort?)");
+                    //Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (Escort?)");
                     continue;
                 }
                 if (q.QuestLevel == -1 && q.QuestAddon?.AllowableClasses == 0)
                 {
-                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (-1, not class quest)");
+                    //Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (-1, not class quest)");
                     continue;
                 }
                 if (q.QuestAddon?.AllowableClasses > 0 && (q.QuestAddon?.AllowableClasses & myClass) == 0)
                 {
-                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (Not for my class)");
+                    //Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (Not for my class)");
                     continue;
                 }
                 if (q.AllowableRaces > 0 && (q.AllowableRaces & myFaction) == 0)
                 {
-                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (Not for my race)");
+                    //Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (Not for my race)");
                     continue;
                 }
                 if (q.QuestInfoID != 0)
                 {
-                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (Dungeon/Group/Raid/PvP)");
+                    //Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (Dungeon/Group/Raid/PvP)");
                     continue;
                 }
                 if (q.RequiredFactionId1 != 0 || q.RequiredFactionId2 != 0)
                 {
-                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (Reputation quest)");
+                    //Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (Reputation quest)");
                     continue;
                 }
 
@@ -85,31 +85,31 @@ namespace Wholesome_Auto_Quester.Database
             {                
                 if (q.KillLootObjectives.Count > 0 && q.KillLootObjectives.All(klo => !klo.CreatureLootTemplate.CreatureTemplate.IsValidForKill))
                 {
-                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (all enemies are invalid 0)");
+                    //Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (all enemies are invalid 0)");
                     continue;
                 }
 
                 if (q.KillObjectives.Count > 0 && q.KillObjectives.All(ko => !ko.CreatureTemplate.IsValidForKill))
                 {
-                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (all enemies are invalid 1)");
+                    //Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (all enemies are invalid 1)");
                     continue;
                 }
 
                 if (q.KillLootObjectives.Any(klo => klo.ItemTemplate.Class != 12))
                 {
-                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (kill loot objective is not quest item)");
+                    //Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (kill loot objective is not quest item)");
                     continue;
                 }
 
                 if (q.CreatureQuestGivers.Count <= 0 && q.CreatureQuestTurners.Count <= 0)
                 {
-                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (no quest giver, no quest turner)");
+                    //Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (no quest giver, no quest turner)");
                     continue;
                 }
 
                 if (q.CreatureQuestGivers.Count > 0 && !q.CreatureQuestGivers.Any(qg => qg.IsNeutralOrFriendly) && q.GameObjectQuestGivers.Count <= 0)
                 {
-                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (Not for my faction)");
+                    //Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (Not for my faction)");
                     continue;
                 }
 
@@ -119,7 +119,7 @@ namespace Wholesome_Auto_Quester.Database
                     || q.ItemDrop3Template != null && q.ItemDrop3Template.HasASpellAttached
                     || q.ItemDrop4Template != null && q.ItemDrop4Template.HasASpellAttached)
                 {
-                    Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (Active start/prerequisite item)");
+                    //Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (Active start/prerequisite item)");
                     continue;
                 }
 
