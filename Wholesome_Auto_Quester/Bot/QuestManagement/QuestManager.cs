@@ -252,22 +252,20 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     }
                     else
                     {
+                        if (logQuest.Value.State == StateFlag.Failed)
+                        {
+                            AddQuestToBlackList(waqQuest.QuestTemplate.Id, "Failed");
+                            AbandonQuest(waqQuest.QuestTemplate.Id, "Failed");
+                            continue;
+                        }
                         if (logQuest.Value.State == StateFlag.None && waqQuest.GetAllObjectives().Count <= 0)
                         {
-                            foreach (IWAQTask task in waqQuest.GetAllTasks())
-                            {
-                                task.UnregisterEntryToScanner(_objectScanner);
-                            }
                             AddQuestToBlackList(waqQuest.QuestTemplate.Id, "In progress with no objectives");
                             AbandonQuest(waqQuest.QuestTemplate.Id, "In progress with no objectives");
                             continue;
                         }
                         if (waqQuest.QuestTemplate.QuestLevel < ObjectManager.Me.Level - WholesomeAQSettings.CurrentSetting.LevelDeltaMinus - 1)
                         {
-                            foreach (IWAQTask task in waqQuest.GetAllTasks())
-                            {
-                                task.UnregisterEntryToScanner(_objectScanner);
-                            }
                             AddQuestToBlackList(waqQuest.QuestTemplate.Id, "Underleveled");
                             AbandonQuest(waqQuest.QuestTemplate.Id, "Underleveled");
                             continue;
@@ -408,6 +406,8 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(857, "The tear of the moons, way too many mobs", false);
             AddQuestToBlackList(1177, "Hungry!, way too many mobs", false);
             AddQuestToBlackList(8483, "A dwarven spy, gossip required", false);
+            AddQuestToBlackList(629, "Vile Reef, underwater", false);
+            AddQuestToBlackList(1107, "Encrusted tail fins, underwater", false);
             if (ToolBox.IsHorde()) AddQuestToBlackList(4740, "Bugged, should only be alliance", false);
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))

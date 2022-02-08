@@ -49,6 +49,11 @@ namespace Wholesome_Auto_Quester.States
             WoWUnit killTarget = (WoWUnit)gameObject;
             float distanceToTarget = killTarget.GetDistance;
 
+            if (ToolBox.HostilesAreAround(killTarget, task))
+            {
+                return;
+            }
+
             //Check if we have vision, it might be a big detour
             if (TraceLine.TraceLineGo(ObjectManager.Me.Position, killTarget.Position, CGWorldFrameHitFlags.HitTestSpellLoS | CGWorldFrameHitFlags.HitTestLOS))
             {
@@ -66,11 +71,6 @@ namespace Wholesome_Auto_Quester.States
             }
 
             MountTask.DismountMount(false, false);
-
-            if (ToolBox.HostilesAreAround(killTarget, task))
-            {
-                return;
-            }
 
             Logger.Log($"Unit found - Fighting {killTarget.Name}");
             Fight.StartFight(killTarget.Guid);

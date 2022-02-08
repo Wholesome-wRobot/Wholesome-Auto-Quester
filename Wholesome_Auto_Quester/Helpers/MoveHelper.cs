@@ -91,7 +91,7 @@ public class MoveHelper
                     Logger.Log(log);
                 }
                 GoToTask.ToPosition(target, conditionExit: _ => Running);
-                Logger.LogDebug($"GoToTask finished towards {target}");
+                //Logger.LogDebug($"GoToTask finished towards {target}");
                 lock (Lock)
                 {
                     CurrentTarget = Empty;

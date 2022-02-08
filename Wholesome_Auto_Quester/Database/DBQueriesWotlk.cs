@@ -32,6 +32,14 @@ namespace Wholesome_Auto_Quester.Database
 
             foreach (ModelQuestTemplate q in dbResult)
             {
+                if (q.Id == 338
+                    || q.Id == 339
+                    || q.Id == 340
+                    || q.Id == 341) // stranglethorn pages
+                {
+                    continue;
+                }
+
                 if ((q.QuestAddon?.SpecialFlags & 1) != 0)
                 {
                     //Logger.LogDebug($"[{q.Id}] {q.LogTitle} has been removed (Repeatable)");

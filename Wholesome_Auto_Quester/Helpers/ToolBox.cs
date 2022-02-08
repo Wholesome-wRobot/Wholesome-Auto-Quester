@@ -23,37 +23,46 @@ namespace Wholesome_Auto_Quester.Helpers
     {
         private static Dictionary<int, bool[]> _objectiveCompletionDict = new Dictionary<int, bool[]>();
 
-        public static bool HostilesAreAround(WoWObject POI, IWAQTask task, float clearDistance = 25f)
+        public static bool HostilesAreAround(WoWObject POI, IWAQTask task)
         {
             if (POI.Entry == 1776) // exception for swamp of sorrows Magtoor
             {
                 return false;
             }
-            //Logger.Log($"CHECK - Mounted = {ObjectManager.Me.IsMounted}, incomb = {ObjectManager.Me.InCombatFlagOnly}, dist={POI.GetDistance}");
             WoWUnit poiUnit = POI is WoWUnit ? (WoWUnit)POI : null;
             WoWUnit me = ObjectManager.Me;
+            Vector3 myPosition = me.Position;
             if (me.IsMounted && (me.InCombatFlagOnly || POI.GetDistance < 60 && poiUnit?.Reaction == Reaction.Hostile))
+            {
                 MountTask.DismountMount(false, false);
+            }
 
             if (ObjectManager.Me.InCombatFlagOnly)
+            {
                 return true;
+            }
 
-            List<WoWObject> objectManager = ObjectManager.GetObjectWoW()
-                .FindAll(o => o.Type == WoWObjectType.Unit);
+            List<WoWUnit> objectManager = ObjectManager.GetWoWUnitHostile();
             Dictionary<WoWUnit, float> hostileUnits = new Dictionary<WoWUnit, float>();
+            float distanceToPOI = me.Position.DistanceTo(POI.Position);
+            //Logger.LogError($"I am {distanceToPOI} away from POI");
             foreach (WoWUnit unit in objectManager)
             {
-                if (unit.IsAlive && unit.IsAttackable && unit.Reaction == Reaction.Hostile && unit.Guid != POI.Guid
-                    && unit.Position.DistanceTo(POI.Position) < clearDistance)
+                if (unit.Guid != POI.Guid && unit.Position.DistanceTo(POI.Position) < distanceToPOI)
                 {
                     WAQPath pathFromPoi = GetWAQPath(unit.Position, POI.Position);
-                    if (pathFromPoi.Distance < clearDistance)
+                    if (pathFromPoi.Distance < distanceToPOI)
+                    {
                         hostileUnits.Add(unit, pathFromPoi.Distance);
+                        //Logger.LogError($"{unit.Guid} - {unit.Name} is {pathFromPoi.Distance} away from POI and {myPosition.DistanceTo(unit.Position)} away from me");
+                    }
                 }
             }
 
             bool poiIsHostileUnit = poiUnit != null && poiUnit.Reaction == Reaction.Hostile;
             int maxCount = poiIsHostileUnit ? 2 : 3;
+
+            // Detect high concentration of enemies
             if (hostileUnits.Where(u => u.Key.Level >= me.Level && POI.Position.DistanceTo(u.Key.Position) < 18).Count() >= maxCount
                 || hostileUnits.Where(u => u.Key.Level >= me.Level - 2 && POI.Position.DistanceTo(u.Key.Position) < 18).Count() >= maxCount + 1)
             {
@@ -65,14 +74,16 @@ namespace Wholesome_Auto_Quester.Helpers
                 return true;
             }
 
+            // Clear POI zone
             int addedDistCheck = poiIsHostileUnit ? 0 : 15; // We check further if it's not an enemy
             IOrderedEnumerable<KeyValuePair<WoWUnit, float>> hostilesInFront = hostileUnits
-                .Where(u => u.Key.GetDistance < POI.GetDistance + addedDistCheck)
-                .OrderBy(u => u.Key.GetDistance);
+                .Where(u => u.Key.Position.DistanceTo(myPosition) < distanceToPOI + addedDistCheck
+                    && !wManagerSetting.IsBlackListedZone(u.Key.Position))
+                .OrderBy(u => u.Key.Position.DistanceTo(myPosition));
             if (hostilesInFront.Count() > 0)
             {
                 if (Fight.InFight) Fight.StopFight();
-                Logger.Log($"Fighting {hostileUnits.FirstOrDefault().Key.Name} to clear POI zone");
+                Logger.Log($"Fighting {hostileUnits.FirstOrDefault().Key.Name} ({hostileUnits.FirstOrDefault().Key.Guid}) to clear POI zone");
                 Fight.StartFight(hostileUnits.FirstOrDefault().Key.Guid);
                 return true;
             }

@@ -143,7 +143,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             // Blacklisted
             if (Status == QuestStatus.Blacklisted)
             {
-                ClearTasksDictionary();
+                //ClearTasksDictionary();
                 return;
             }
 
@@ -343,6 +343,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             int nbMaxAttempts = 5;
             while (nbAtempts <= nbMaxAttempts)
             {
+                bool recordFailed = false;
                 nbAtempts++;
                 Logger.Log($"Recording objective indices for {QuestTemplate.LogTitle} ({nbAtempts})");
                 string[] objectives = Lua.LuaDoString<string[]>(@$"local numEntries, numQuests = GetNumQuestLogEntries()
@@ -368,12 +369,16 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     }
                     else
                     {
-                        Logger.Log($"Couldn't find matching objective {ob.ObjectiveName} for {QuestTemplate.LogTitle}");
+                        Logger.Log($"Couldn't find matching objective {ob.ObjectiveName} for {QuestTemplate.LogTitle} ({nbAtempts})");
+                        recordFailed = true;
                         Thread.Sleep(1000);
-                        continue;
+                        break;
                     }
                 }
-                break;
+                if (!recordFailed)
+                {
+                    break;
+                }
             }
 
             if (nbAtempts >= nbMaxAttempts)
@@ -383,7 +388,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 return;
             }
 
-            Logger.Log($"Objectives for {QuestTemplate.LogTitle} succesfully recorded");
+            Logger.Log($"Objectives for {QuestTemplate.LogTitle} succesfully recorded after {nbAtempts} attempts");
             _objectivesRecorded = true;
         }
 

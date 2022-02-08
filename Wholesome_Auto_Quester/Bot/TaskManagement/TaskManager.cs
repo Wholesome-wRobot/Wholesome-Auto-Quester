@@ -89,7 +89,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 || _travelManager.TravelInProgress
                 || me.HaveBuff("Drink")
                 || me.HaveBuff("Food")
-                || MoveHelper.IsMovementThreadRunning && MoveHelper.GetCurrentPathRemainingDistance() > 100 && _tick % 5 != 0)
+                || MoveHelper.IsMovementThreadRunning && MoveHelper.GetCurrentPathRemainingDistance() > 50 && _tick % 5 != 0)
             {
                 return;
             }
