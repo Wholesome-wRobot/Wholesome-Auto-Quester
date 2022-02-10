@@ -12,9 +12,11 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             SearchRadius = 2;
         }
 
+        public override bool IsRecordedAsUnreachable => false;
         public override bool IsObjectValidForTask(WoWObject wowObject) => throw new System.Exception($"Tried to scan for {TaskName}");
         public override void RegisterEntryToScanner(IWowObjectScanner scanner) { }
         public override void UnregisterEntryToScanner(IWowObjectScanner scanner) { }
+        public override void RecordAsUnreachable() => throw new System.Exception($"Tried to record unreachable for {TaskName}");
         public override void PostInteraction(WoWObject wowObject) => throw new System.Exception($"Tried to run PostInteraction for {TaskName}");
 
         public override string TrackerColor => IsTimedOut ? "Gray" : "White";

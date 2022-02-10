@@ -11,7 +11,8 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         private ModelQuestTemplate _questTemplate;
 
         public WAQTaskPickupQuestFromGameObject(ModelQuestTemplate questTemplate, ModelGameObjectTemplate goTemplate, ModelGameObject gameObject)
-            : base(gameObject.GetSpawnPosition, gameObject.map, $"Pick up {questTemplate.LogTitle} from {goTemplate.name}", goTemplate.entry, gameObject.spawntimesecs)
+            : base(gameObject.GetSpawnPosition, gameObject.map, $"Pick up {questTemplate.LogTitle} from {goTemplate.name}", goTemplate.entry, 
+                  gameObject.spawntimesecs, gameObject.guid)
         {
             SpatialWeight = 0.25;
             if (questTemplate.QuestAddon?.AllowableClasses > 0)

@@ -29,9 +29,12 @@ namespace Wholesome_Auto_Quester.Helpers
             {
                 return false;
             }
+
             WoWUnit poiUnit = POI is WoWUnit ? (WoWUnit)POI : null;
             WoWUnit me = ObjectManager.Me;
             Vector3 myPosition = me.Position;
+            Vector3 poiPosition = POI.Position;
+
             if (me.IsMounted && (me.InCombatFlagOnly || POI.GetDistance < 60 && poiUnit?.Reaction == Reaction.Hostile))
             {
                 MountTask.DismountMount(false, false);
@@ -44,14 +47,14 @@ namespace Wholesome_Auto_Quester.Helpers
 
             List<WoWUnit> objectManager = ObjectManager.GetWoWUnitHostile();
             Dictionary<WoWUnit, float> hostileUnits = new Dictionary<WoWUnit, float>();
-            float distanceToPOI = me.Position.DistanceTo(POI.Position);
+            float myDistanceToPOI = me.Position.DistanceTo(poiPosition);
             //Logger.LogError($"I am {distanceToPOI} away from POI");
             foreach (WoWUnit unit in objectManager)
             {
-                if (unit.Guid != POI.Guid && unit.Position.DistanceTo(POI.Position) < distanceToPOI)
+                if (unit.Guid != POI.Guid && unit.Position.DistanceTo(poiPosition) < myDistanceToPOI)
                 {
-                    WAQPath pathFromPoi = GetWAQPath(unit.Position, POI.Position);
-                    if (pathFromPoi.Distance < distanceToPOI)
+                    WAQPath pathFromPoi = GetWAQPath(unit.Position, poiPosition);
+                    if (pathFromPoi.Distance < myDistanceToPOI)
                     {
                         hostileUnits.Add(unit, pathFromPoi.Distance);
                         //Logger.LogError($"{unit.Guid} - {unit.Name} is {pathFromPoi.Distance} away from POI and {myPosition.DistanceTo(unit.Position)} away from me");
@@ -59,26 +62,27 @@ namespace Wholesome_Auto_Quester.Helpers
                 }
             }
 
-            bool poiIsHostileUnit = poiUnit != null && poiUnit.Reaction == Reaction.Hostile;
-            int maxCount = poiIsHostileUnit ? 2 : 3;
+            bool poiIsUnit = poiUnit != null;
+            int maxCount = poiIsUnit ? 2 : 3;
 
             // Detect high concentration of enemies
-            if (hostileUnits.Where(u => u.Key.Level >= me.Level && POI.Position.DistanceTo(u.Key.Position) < 18).Count() >= maxCount
-                || hostileUnits.Where(u => u.Key.Level >= me.Level - 2 && POI.Position.DistanceTo(u.Key.Position) < 18).Count() >= maxCount + 1)
+            if (hostileUnits.Where(u => u.Key.Level >= me.Level && poiPosition.DistanceTo(u.Key.Position) < 18).Count() >= maxCount
+                || hostileUnits.Where(u => u.Key.Level >= me.Level - 2 && poiPosition.DistanceTo(u.Key.Position) < 18).Count() >= maxCount + 1)
             {
                 if (Fight.InFight) Fight.StopFight();
                 MoveHelper.StopAllMove(true);
                 BlacklistHelper.AddNPC(POI.Guid, "Surrounded by hostiles");
-                BlacklistHelper.AddZone(POI.Position, 20, "Surrounded by hostiles");
+                BlacklistHelper.AddZone(poiPosition, 20, "Surrounded by hostiles");
                 task.PutTaskOnTimeout($"{POI.Name} is surrounded by hostiles", 60 * 5);
                 return true;
             }
 
             // Clear POI zone
-            int addedDistCheck = poiIsHostileUnit ? 0 : 15; // We check further if it's not an enemy
+            int addedDistCheck = poiIsUnit ? 0 : 10; // We check further if it's not an enemy
             IOrderedEnumerable<KeyValuePair<WoWUnit, float>> hostilesInFront = hostileUnits
-                .Where(u => u.Key.Position.DistanceTo(myPosition) < distanceToPOI + addedDistCheck
-                    && !wManagerSetting.IsBlackListedZone(u.Key.Position))
+                .Where(u => u.Key.Position.DistanceTo(myPosition) + u.Key.Position.DistanceTo(poiPosition) < myDistanceToPOI + addedDistCheck + 10
+                    && !wManagerSetting.IsBlackListedZone(u.Key.Position)
+                    && !TraceLine.TraceLineGo(myPosition, u.Key.Position, CGWorldFrameHitFlags.HitTestSpellLoS | CGWorldFrameHitFlags.HitTestLOS))
                 .OrderBy(u => u.Key.Position.DistanceTo(myPosition));
             if (hostilesInFront.Count() > 0)
             {
@@ -512,10 +516,13 @@ namespace Wholesome_Auto_Quester.Helpers
                 }
             }
 
-            if (wManagerSetting.IsBlackListedZone(task.Location))
+            if (task != null)
             {
-                MoveHelper.StopAllMove(true);
-                return true;
+                if (wManagerSetting.IsBlackListedZone(task.Location))
+                {
+                    MoveHelper.StopAllMove(true);
+                    return true;
+                }
             }
 
             return false;

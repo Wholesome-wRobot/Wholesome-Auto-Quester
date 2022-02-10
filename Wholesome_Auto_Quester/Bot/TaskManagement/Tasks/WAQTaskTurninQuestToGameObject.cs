@@ -11,7 +11,8 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         private ModelQuestTemplate _questTemplate;
 
         public WAQTaskTurninQuestToGameObject(ModelQuestTemplate questTemplate, ModelGameObjectTemplate goTemplate, ModelGameObject gameObject)
-            : base(gameObject.GetSpawnPosition, gameObject.map, $"Turn in {questTemplate.LogTitle} to {goTemplate.name}", goTemplate.entry, gameObject.spawntimesecs)
+            : base(gameObject.GetSpawnPosition, gameObject.map, $"Turn in {questTemplate.LogTitle} to {goTemplate.name}", goTemplate.entry, 
+                  gameObject.spawntimesecs, gameObject.guid)
         {
             SpatialWeight = 2.0;
             if (questTemplate.QuestAddon?.AllowableClasses > 0)

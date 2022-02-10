@@ -93,6 +93,7 @@
     </Reference>
     <Reference Include="RDManaged">
       <HintPath>..\Dependencies\RDManaged.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="robotManager">
       <HintPath>..\Dependencies\robotManager.dll</HintPath>

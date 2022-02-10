@@ -95,7 +95,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                         && wowObject.Guid > 0
                         && _scannerRegistry.ContainsKey(wowObject.Entry)
                         && _scannerRegistry[wowObject.Entry].Count > 0
-                        && _scannerRegistry[wowObject.Entry].Any(task => !task.IsTimedOut)
+                        && _scannerRegistry[wowObject.Entry].Any(task => !task.IsTimedOut && !task.IsRecordedAsUnreachable)
                         && _scannerRegistry[wowObject.Entry].Any(task => task.IsObjectValidForTask(wowObject)))
                     .ToList();
 
@@ -107,6 +107,8 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                     if (!pathToClosestObject.IsReachable)
                     {
                         BlacklistHelper.AddNPC(closestObject.Guid, "Unreachable (3)");
+                        IWAQTask associatedTask = GetTaskMatchingWithObject(closestObject);
+                        associatedTask.RecordAsUnreachable();
                         return;
                     }
 
@@ -121,6 +123,8 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                             {
                                 Logger.Log($"Blacklisting {listSurroundingPOIs[i].Name} {listSurroundingPOIs[i].Guid} because it's unreachable");
                                 BlacklistHelper.AddNPC(listSurroundingPOIs[i].Guid, "Unreachable (4)");
+                                IWAQTask associatedTask = GetTaskMatchingWithObject(listSurroundingPOIs[i]);
+                                associatedTask.RecordAsUnreachable();
                                 break;
                             }
 
@@ -169,7 +173,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 if (_scannerRegistry.TryGetValue(closestObject.Entry, out List<IWAQTask> taskList))
                 {
                     return taskList
-                        .Where(task => !task.IsTimedOut && task.IsObjectValidForTask(closestObject))
+                        .Where(task => /*!task.IsTimedOut && */task.IsObjectValidForTask(closestObject))
                         .OrderBy(task => task.Location.DistanceTo(closestObject.Position))
                         .FirstOrDefault();
                 }

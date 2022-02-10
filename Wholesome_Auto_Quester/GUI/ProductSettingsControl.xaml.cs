@@ -16,7 +16,7 @@ namespace Wholesome_Auto_Quester.GUI
             LevelDeltaMinus.Value = WholesomeAQSettings.CurrentSetting.LevelDeltaMinus;
             LevelDeltaPlus.Value = WholesomeAQSettings.CurrentSetting.LevelDeltaPlus;
             DeltaDetails.Text = GetDeltaDetailsString();
-            SmoothMove.IsChecked = WholesomeAQSettings.CurrentSetting.SmoothMove;
+            RecordUnreachables.IsChecked = WholesomeAQSettings.CurrentSetting.SmoothMove;
             GrindOnly.IsChecked = WholesomeAQSettings.CurrentSetting.GrindOnly;
             ContinentTravel.IsChecked = WholesomeAQSettings.CurrentSetting.ContinentTravel;
             AbandonUnfit.IsChecked = WholesomeAQSettings.CurrentSetting.AbandonUnfitQuests;
@@ -50,9 +50,9 @@ namespace Wholesome_Auto_Quester.GUI
             WholesomeAQSettings.CurrentSetting.Save();
         }
 
-        private void SmoothMoveChanged(object sender, RoutedEventArgs e)
+        private void RecordUnreachablesChanged(object sender, RoutedEventArgs e)
         {
-            WholesomeAQSettings.CurrentSetting.SmoothMove = (bool)SmoothMove.IsChecked;
+            WholesomeAQSettings.CurrentSetting.RecordUnreachables = (bool)RecordUnreachables.IsChecked;
             WholesomeAQSettings.CurrentSetting.Save();
         }
 

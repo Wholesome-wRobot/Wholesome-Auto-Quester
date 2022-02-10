@@ -10,7 +10,8 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         private ModelQuestTemplate _questTemplate;
 
         public WAQTaskTurninQuestToCreature(ModelQuestTemplate questTemplate, ModelCreatureTemplate creatureTemplate, ModelCreature creature)
-            : base(creature.GetSpawnPosition, creature.map, $"Turn in {questTemplate.LogTitle} to {creatureTemplate.name}", creatureTemplate.entry, creature.spawnTimeSecs)
+            : base(creature.GetSpawnPosition, creature.map, $"Turn in {questTemplate.LogTitle} to {creatureTemplate.name}", creatureTemplate.entry, 
+                  creature.spawnTimeSecs, creature.guid)
         {
             SpatialWeight = 2.0;
             if (questTemplate.QuestAddon?.AllowableClasses > 0)

@@ -7,7 +7,8 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
     public class WAQTaskKillAndLoot : WAQBaseScannableTask
     {
         public WAQTaskKillAndLoot(ModelQuestTemplate questTemplate, ModelCreatureTemplate creatureTemplate, ModelCreature creature)
-            : base(creature.GetSpawnPosition, creature.map, $"Kill and Loot {creatureTemplate.name} for {questTemplate.LogTitle}", creatureTemplate.entry, creature.spawnTimeSecs)
+            : base(creature.GetSpawnPosition, creature.map, $"Kill and Loot {creatureTemplate.name} for {questTemplate.LogTitle}", creatureTemplate.entry, 
+                  creature.spawnTimeSecs, creature.guid)
         {
             if (questTemplate.QuestAddon?.AllowableClasses > 0)
             {
@@ -37,7 +38,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         public override void PostInteraction(WoWObject wowObject)
         {
             WoWUnit lootTarget = (WoWUnit)wowObject;
-            if (lootTarget.IsDead && !lootTarget.IsLootable)
+            if (lootTarget.IsDead && !lootTarget.IsLootable && lootTarget.Position.DistanceTo(Location) < 20)
             {
                 PutTaskOnTimeout("Completed");
             }

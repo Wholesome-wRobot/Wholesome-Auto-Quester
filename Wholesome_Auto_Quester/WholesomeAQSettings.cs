@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
@@ -18,6 +19,8 @@ namespace Wholesome_Auto_Quester
         public bool DevMode { get; set; }
         public bool ActivateQuestsGUI { get; set; }
         public List<int> ListCompletedQuests { get; set; }
+        public bool RecordUnreachables { get; set; }
+        public List<uint> RecordedUnreachables { get; set; }
         public bool SmoothMove { get; set; }
         public double LastUpdateDate { get; set; }
         public bool GrindOnly { get; set; }
@@ -34,6 +37,7 @@ namespace Wholesome_Auto_Quester
             ActivateQuestsGUI = false;
             DevMode = false;
             ListCompletedQuests = new List<int>();
+            RecordedUnreachables = new List<uint>();
             LevelDeltaPlus = 2;
             LevelDeltaMinus = 5;
             SmoothMove = false;
@@ -43,6 +47,17 @@ namespace Wholesome_Auto_Quester
             BlackListedQuests = new List<BlackListedQuest>();
             AbandonUnfitQuests = false;
             GoToMobEntry = 0;
+            RecordUnreachables = true;
+        }
+
+        public static void RecordGuidAsUnreachable(uint guid)
+        {
+            if (CurrentSetting.RecordUnreachables && !CurrentSetting.RecordedUnreachables.Contains(guid))
+            {
+                CurrentSetting.RecordedUnreachables.Add(guid);
+                CurrentSetting.Save();
+                Logger.Log($"Recorded {guid} as unreachable");
+            }
         }
 
         public bool Save()

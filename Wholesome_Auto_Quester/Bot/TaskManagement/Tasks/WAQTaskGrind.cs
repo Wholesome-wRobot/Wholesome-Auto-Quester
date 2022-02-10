@@ -7,7 +7,8 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
     public class WAQTaskGrind : WAQBaseScannableTask
     {
         public WAQTaskGrind(ModelCreatureTemplate creatureTemplate, ModelCreature creature)
-            : base(creature.GetSpawnPosition, creature.map, $"Grind {creatureTemplate.name}", creatureTemplate.entry, creature.spawnTimeSecs) { }
+            : base(creature.GetSpawnPosition, creature.map, $"Grind {creatureTemplate.name}", creatureTemplate.entry, creature.spawnTimeSecs,
+                  creature.guid) { }
 
         public new void PutTaskOnTimeout(string reason, int timeInSeconds, bool exponentiallyLonger) 
             => base.PutTaskOnTimeout(reason, timeInSeconds > 0 ? timeInSeconds : DefaultTimeOutDuration, exponentiallyLonger);
@@ -24,7 +25,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         public override void PostInteraction(WoWObject wowObject)
         {
             WoWUnit killTarget = (WoWUnit)wowObject;
-            if (killTarget.IsDead && Location.DistanceTo(killTarget.Position) < 20)
+            if (killTarget.IsDead && killTarget.Position.DistanceTo(Location) < 20)
             {
                 PutTaskOnTimeout("Completed");
                 return;

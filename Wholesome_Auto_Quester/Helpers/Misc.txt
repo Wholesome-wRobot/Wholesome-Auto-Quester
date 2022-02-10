@@ -1,1 +1,2 @@
-﻿Inventory Manager, quest The Night Watch, throw on bags rewards
+﻿Make clear POI a state
+Record unreachables

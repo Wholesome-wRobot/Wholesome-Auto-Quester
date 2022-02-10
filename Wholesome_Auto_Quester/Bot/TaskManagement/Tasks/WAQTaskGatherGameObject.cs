@@ -9,7 +9,8 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
     public class WAQTaskGatherGameObject : WAQBaseScannableTask
     {
         public WAQTaskGatherGameObject(ModelQuestTemplate questTemplate, ModelGameObjectTemplate goTemplate, ModelGameObject gameObject)
-            : base(gameObject.GetSpawnPosition, gameObject.map, $"Gather {goTemplate.name} for {questTemplate.LogTitle}", goTemplate.entry, gameObject.spawntimesecs)
+            : base(gameObject.GetSpawnPosition, gameObject.map, $"Gather {goTemplate.name} for {questTemplate.LogTitle}", goTemplate.entry, 
+                  gameObject.spawntimesecs, gameObject.guid)
         {
             if (questTemplate.QuestAddon?.AllowableClasses > 0)
             {

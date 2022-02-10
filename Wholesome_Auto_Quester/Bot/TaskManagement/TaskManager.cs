@@ -158,7 +158,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             }
 
             // Get closest task
-            IWAQTask closestTask = _taskPile.Find(task => !task.IsTimedOut && !wManagerSetting.IsBlackListedZone(task.Location));
+            IWAQTask closestTask = _taskPile.Find(task => !task.IsRecordedAsUnreachable && !task.IsTimedOut && !wManagerSetting.IsBlackListedZone(task.Location));
 
             // Check if travel is needed
             if (_travelManager.IsTravelRequired(closestTask))
@@ -173,23 +173,31 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             {
                 closestTask.PutTaskOnTimeout("Unreachable (1)", 60*60*3, true);
                 BlacklistHelper.AddZone(closestTask.Location, 5, "Unreachable (1)");
+                closestTask.RecordAsUnreachable();
                 return;
             }
 
             if (pathToClosestTask.Distance > myPosition.DistanceTo(closestTask.Location) * 2)
             {
                 int closestTaskPriorityScore = CalculatePriority(myPosition, spaceTree, closestTask);
+                int nbReachAttempts = 0;
 
                 for (int i = 0; i < _taskPile.Count - 1; i++)
                 {
-                    if (i > 2) break;
-                    if (!_taskPile[i].IsTimedOut)
+                    if (nbReachAttempts > 2)
                     {
+                        break;
+                    }
+
+                    if (!_taskPile[i].IsTimedOut && !_taskPile[i].IsRecordedAsUnreachable)
+                    {
+                        nbReachAttempts++;
                         WAQPath pathToNewTask = ToolBox.GetWAQPath(myPosition, _taskPile[i].Location);
                         if (!pathToNewTask.IsReachable)
                         {
                             _taskPile[i].PutTaskOnTimeout("Unreachable (2)", 60*60*3, true);
                             BlacklistHelper.AddZone(closestTask.Location, 5, "Unreachable (2)");
+                            _taskPile[i].RecordAsUnreachable();
                             continue;
                         }
 

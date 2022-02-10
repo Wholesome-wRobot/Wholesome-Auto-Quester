@@ -118,11 +118,11 @@
                     Margin="10" 
                     HorizontalAlignment="Right" 
                     VerticalAlignment="Center"  
-                    Text="SmoothMove :" 
+                    Text="Record unreachables :" 
                     FontSize="13"  />
         <Controls:ToggleSwitch Grid.Row="8" Grid.Column="1"  Margin="10,10,10,10"
                    HorizontalAlignment="Left"  VerticalAlignment="Center"
-                   Click="SmoothMoveChanged" Name="SmoothMove" OnLabel="" OffLabel="" />
+                   Click="RecordUnreachablesChanged" Name="RecordUnreachables" OnLabel="" OffLabel="" />
 
         <TextBlock Grid.Row="2" 
                     Grid.Column="2" 

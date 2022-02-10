@@ -8,7 +8,8 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
     public class WAQTaskInteractWithGameObject : WAQBaseScannableTask
     {
         public WAQTaskInteractWithGameObject(ModelQuestTemplate questTemplate, ModelGameObjectTemplate goTemplate, ModelGameObject gameObject)
-            : base(gameObject.GetSpawnPosition, gameObject.map, $"Interact with {goTemplate.name} for {questTemplate.LogTitle}", goTemplate.entry, gameObject.spawntimesecs)
+            : base(gameObject.GetSpawnPosition, gameObject.map, $"Interact with {goTemplate.name} for {questTemplate.LogTitle}", goTemplate.entry, 
+                  gameObject.spawntimesecs, gameObject.guid)
         {
             if (questTemplate.QuestAddon?.AllowableClasses > 0)
             {

@@ -11,7 +11,8 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         private ModelQuestTemplate _questTemplate;
 
         public WAQTaskPickupQuestFromCreature(ModelQuestTemplate questTemplate, ModelCreatureTemplate creatureTemplate, ModelCreature creature)
-            : base(creature.GetSpawnPosition, creature.map, $"Pick up {questTemplate.LogTitle} from {creatureTemplate.name}", creatureTemplate.entry, creature.spawnTimeSecs)
+            : base(creature.GetSpawnPosition, creature.map, $"Pick up {questTemplate.LogTitle} from {creatureTemplate.name}", creatureTemplate.entry, 
+                  creature.spawnTimeSecs, creature.guid)
         {
             SpatialWeight = 0.25;
             if (questTemplate.QuestAddon?.AllowableClasses > 0)

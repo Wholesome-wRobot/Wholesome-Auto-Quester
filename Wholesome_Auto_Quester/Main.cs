@@ -51,6 +51,12 @@ public class Main : IProduct
                 return;
             }
 
+            if (!WholesomeAQSettings.CurrentSetting.RecordUnreachables)
+            {
+                WholesomeAQSettings.CurrentSetting.RecordedUnreachables.Clear();
+                WholesomeAQSettings.CurrentSetting.Save();
+            }
+
             IsStarted = true;
             LoggingEvents.OnAddLog += AddLogHandler;
             EventsLuaWithArgs.OnEventsLuaStringWithArgs += EventsWithArgsHandler;

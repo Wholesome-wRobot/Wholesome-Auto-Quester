@@ -57,14 +57,16 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
 
         public bool ShouldTakeZeppelinTirisfalToStranglethorn(IWAQTask task)
         {
-            return ContinentHelper.MyMapArea.Continent == WAQContinent.EasternKingdoms
+            return ObjectManager.Me.Level <= 40 
+                && ContinentHelper.MyMapArea.Continent == WAQContinent.EasternKingdoms
                 && ObjectManager.Me.Position.X > -2384 // above wetlands
                 && task.Location.X < -8724.188; // under redridge
         }
 
         public bool ShouldTakeZeppelinStranglethornToTirisfal(IWAQTask task)
         {
-            return ContinentHelper.MyMapArea.Continent == WAQContinent.EasternKingdoms
+            return ObjectManager.Me.Level <= 40
+                && ContinentHelper.MyMapArea.Continent == WAQContinent.EasternKingdoms
                 && ObjectManager.Me.Position.X < -8724.188 // under redridge
                 && task.Location.X > -2384; // above wetlands
         }

@@ -16,11 +16,13 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         string TrackerColor { get; }
         int SearchRadius { get; } // limit for MoveToHotspot state
         TaskInteraction InteractionType { get; }
+        bool IsRecordedAsUnreachable { get; }
 
         void PostInteraction(WoWObject wowObject);
         void RegisterEntryToScanner(IWowObjectScanner scanner);
         void UnregisterEntryToScanner(IWowObjectScanner scanner);
         void PutTaskOnTimeout(string reason, int timeInSeconds = 0, bool exponentiallyLonger = false);
         bool IsObjectValidForTask(WoWObject wowObject);
+        void RecordAsUnreachable();
     }
 }

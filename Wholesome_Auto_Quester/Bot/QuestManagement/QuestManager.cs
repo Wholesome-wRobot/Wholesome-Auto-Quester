@@ -382,7 +382,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
         private bool IsQuestPickable(IWAQQuest quest)
         {
             if (quest.QuestTemplate.PreviousQuestsIds.Count > 0
-                && !quest.QuestTemplate.PreviousQuestsIds.Any(ToolBox.IsQuestCompleted))
+                && quest.QuestTemplate.PreviousQuestsIds.Any(id => !ToolBox.IsQuestCompleted(id)))
             {
                 return false;
             }
@@ -404,10 +404,14 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(891, "The Guns of NorthWatch, too many mobs", false);
             AddQuestToBlackList(9612, "A hearty thanks, requires heal on mob", false);
             AddQuestToBlackList(857, "The tear of the moons, way too many mobs", false);
+            AddQuestToBlackList(520, "The Crown of Will, too many mobs", false);
             AddQuestToBlackList(1177, "Hungry!, way too many mobs", false);
             AddQuestToBlackList(8483, "A dwarven spy, gossip required", false);
             AddQuestToBlackList(629, "Vile Reef, underwater", false);
             AddQuestToBlackList(1107, "Encrusted tail fins, underwater", false);
+            AddQuestToBlackList(662, "Deep sea salvage, underwater", false);
+            AddQuestToBlackList(709, "Solution to doom, too many mobs", false);
+            AddQuestToBlackList(2342, "Reclaimed treasures, too many mobs", false);
             if (ToolBox.IsHorde()) AddQuestToBlackList(4740, "Bugged, should only be alliance", false);
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))

@@ -20,6 +20,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         public abstract string TrackerColor { get; }
         public abstract TaskInteraction InteractionType { get; }
         public bool IsTimedOut => !_timeOutTimer.IsReady;
+        public abstract bool IsRecordedAsUnreachable { get; }
 
         public WAQBaseTask(Vector3 location, int continent, string taskName)
         {
@@ -32,6 +33,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         public abstract void RegisterEntryToScanner(IWowObjectScanner scanner);
         public abstract void UnregisterEntryToScanner(IWowObjectScanner scanner);
         public abstract void PostInteraction(WoWObject wowObject);
+        public abstract void RecordAsUnreachable();
 
         public void PutTaskOnTimeout(string reason, int timeInSeconds = 0, bool exponentiallyLonger = false)
         {

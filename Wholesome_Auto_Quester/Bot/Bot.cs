@@ -58,7 +58,8 @@ namespace Wholesome_Auto_Quester.Bot
                 // FSM
                 Fsm.States.Clear();
 
-                Fsm.AddState(new Relogger { Priority = 200 });
+                Fsm.AddState(new Relogger { Priority = 200 }); 
+                Fsm.AddState(new NPCScanState { Priority = 37 });
                 Fsm.AddState(new Pause { Priority = 36 });
                 Fsm.AddState(new Resurrect { Priority = 35 });
 
