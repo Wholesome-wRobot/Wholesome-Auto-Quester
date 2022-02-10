@@ -61,7 +61,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             }
         }
 
-        public override string TrackerColor => IsTimedOut ? "Gray" : "Lime";
+        public override string TrackerColor => IsTimedOut || IsRecordedAsUnreachable ? "Gray" : "Lime";
         public override TaskInteraction InteractionType => TaskInteraction.Interact;
     }
 }

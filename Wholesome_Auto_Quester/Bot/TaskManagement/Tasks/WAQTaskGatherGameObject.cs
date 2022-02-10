@@ -40,7 +40,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             Thread.Sleep(200);
         }
 
-        public override string TrackerColor => IsTimedOut ? "Gray" : "Cyan";
+        public override string TrackerColor => IsTimedOut || IsRecordedAsUnreachable ? "Gray" : "Cyan";
         public override TaskInteraction InteractionType => TaskInteraction.Interact;
     }
 }

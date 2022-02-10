@@ -412,6 +412,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(662, "Deep sea salvage, underwater", false);
             AddQuestToBlackList(709, "Solution to doom, too many mobs", false);
             AddQuestToBlackList(2342, "Reclaimed treasures, too many mobs", false);
+            AddQuestToBlackList(608, "The bloodsail bucaneers, too many mobs", false);
             if (ToolBox.IsHorde()) AddQuestToBlackList(4740, "Bugged, should only be alliance", false);
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))

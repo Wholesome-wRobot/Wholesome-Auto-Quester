@@ -38,7 +38,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             Thread.Sleep(1000);
         }
 
-        public override string TrackerColor => IsTimedOut ? "Gray" : "Aqua";
+        public override string TrackerColor => IsTimedOut || IsRecordedAsUnreachable ? "Gray" : "Aqua";
         public override TaskInteraction InteractionType => TaskInteraction.Interact;
     }
 }
