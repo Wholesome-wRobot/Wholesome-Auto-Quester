@@ -412,4 +412,15 @@ public class GUITask
         TaskName = task.TaskName;
         TrackerColor = task.TrackerColor;
     }
+
+    public string TrackerTaskName
+    { 
+        get
+        {
+            string suffix = "";
+            if (Task.IsRecordedAsUnreachable) suffix = "(Unreachable)";
+            else if (Task.IsTimedOut) suffix = "(Timed out)";
+            return $"{TaskName} {suffix}";
+        } 
+    }
 }

@@ -184,11 +184,12 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
                 for (int i = 0; i < _taskPile.Count - 1; i++)
                 {
+                    
                     if (nbReachAttempts > 2)
                     {
                         break;
                     }
-
+                    
                     if (!_taskPile[i].IsTimedOut && !_taskPile[i].IsRecordedAsUnreachable)
                     {
                         nbReachAttempts++;
@@ -207,7 +208,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                         {
                             closestTaskPriorityScore = newTaskPriority;
                             closestTask = _taskPile[i];
-                            pathToClosestTask = pathToNewTask;
+                            //pathToClosestTask = pathToNewTask;
                         }
 
                         if (closestTaskPriorityScore < _taskPile[i + 1].Location.DistanceTo(myPosition))

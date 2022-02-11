@@ -38,7 +38,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         public override void PostInteraction(WoWObject wowObject)
         {
             WoWUnit lootTarget = (WoWUnit)wowObject;
-            if (lootTarget.IsDead && !lootTarget.IsLootable && lootTarget.Position.DistanceTo(Location) < 20)
+            if (lootTarget.IsDead && !lootTarget.IsLootable && lootTarget.Position.DistanceTo(Location) < 30)
             {
                 PutTaskOnTimeout("Completed");
             }

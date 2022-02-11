@@ -413,6 +413,11 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(709, "Solution to doom, too many mobs", false);
             AddQuestToBlackList(2342, "Reclaimed treasures, too many mobs", false);
             AddQuestToBlackList(608, "The bloodsail bucaneers, too many mobs", false);
+            AddQuestToBlackList(841, "Another power source?, repeatable", false);
+            AddQuestToBlackList(2603, "Blasted Lands gather, bugged", false);
+            AddQuestToBlackList(2581, "Blasted Lands gather, bugged", false);
+            AddQuestToBlackList(2583, "Blasted Lands gather, bugged", false);
+            AddQuestToBlackList(2585, "Blasted Lands gather, bugged", false);
             if (ToolBox.IsHorde()) AddQuestToBlackList(4740, "Bugged, should only be alliance", false);
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))

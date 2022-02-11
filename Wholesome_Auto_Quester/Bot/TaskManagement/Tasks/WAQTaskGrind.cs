@@ -25,7 +25,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         public override void PostInteraction(WoWObject wowObject)
         {
             WoWUnit killTarget = (WoWUnit)wowObject;
-            if (killTarget.IsDead && killTarget.Position.DistanceTo(Location) < 20)
+            if (killTarget.IsDead && killTarget.Position.DistanceTo(Location) < 30)
             {
                 PutTaskOnTimeout("Completed");
                 return;

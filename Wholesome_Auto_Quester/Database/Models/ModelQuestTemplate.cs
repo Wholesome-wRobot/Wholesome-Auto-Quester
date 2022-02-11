@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Wholesome_Auto_Quester.Database.Objectives;
+using Wholesome_Auto_Quester.Helpers;
 
 namespace Wholesome_Auto_Quester.Database.Models
 {
@@ -100,11 +101,27 @@ namespace Wholesome_Auto_Quester.Database.Models
 
         public void AddObjective(Objective objective)
         {
-            if (objective is ExplorationObjective) ExplorationObjectives.Add((ExplorationObjective)objective);
-            if (objective is GatherObjective) GatherObjectives.Add((GatherObjective)objective);
-            if (objective is InteractObjective) InteractObjectives.Add((InteractObjective)objective);
-            if (objective is KillLootObjective) KillLootObjectives.Add((KillLootObjective)objective);
-            if (objective is KillObjective) KillObjectives.Add((KillObjective)objective);
+            if (objective is ExplorationObjective explorationObjective)
+            {
+                ExplorationObjectives.Add(explorationObjective);
+            }
+            if (objective is GatherObjective gatherObjective)
+            {
+                GatherObjectives.Add(gatherObjective);
+            }
+            if (objective is InteractObjective interactObjective) 
+            { 
+                InteractObjectives.Add(interactObjective); 
+            }
+            if (objective is KillLootObjective killLootObjective)
+            {
+                if (killLootObjective.CreatureLootTemplate.CreatureTemplate.entry == 7997) return; // Captured Sprite
+                KillLootObjectives.Add(killLootObjective);
+            }
+            if (objective is KillObjective killObjective)
+            {
+                KillObjectives.Add(killObjective);
+            }
         }
 
         private List<string> _questFlags;

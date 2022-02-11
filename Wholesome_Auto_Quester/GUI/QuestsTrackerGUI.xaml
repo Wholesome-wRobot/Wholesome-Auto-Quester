@@ -358,7 +358,7 @@
                                                Margin="0,0,10,0"
                                                Grid.Column="0"
                                                TextWrapping="Wrap"/>
-                                        <TextBlock Text="{Binding TaskName}"
+                                        <TextBlock Text="{Binding TrackerTaskName}"
                                                Foreground="{Binding TrackerColor}"
                                                HorizontalAlignment="Left"
                                                Grid.Column="1"

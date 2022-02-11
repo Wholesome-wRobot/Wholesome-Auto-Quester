@@ -533,6 +533,19 @@ namespace Wholesome_Auto_Quester.Helpers
             _objectiveCompletionDict = GetObjectiveCompletionDict(questIds);
         }
 
+        public static bool AreAllObjectivesDicCompleted(int questId)
+        {
+            if (_objectiveCompletionDict.TryGetValue(questId, out bool[] objs))
+            {
+                return objs.All(obj => obj == true);
+            }
+            else
+            {
+                Logger.LogError($"Tried to get completion from an unexisting quest {questId}");
+                return false;
+            }
+        }
+
         private static Dictionary<int, bool[]> GetObjectiveCompletionDict(int[] questIds)
         {
             var resultDict = new Dictionary<int, bool[]>();

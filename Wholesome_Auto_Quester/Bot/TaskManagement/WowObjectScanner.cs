@@ -67,6 +67,16 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             }
         }
 
+        private void HandleSpecialInteractions(WoWObject wowObject)
+        {
+            // Slag Pit quary gate door
+            if (wowObject.Entry == 161536
+                && wowObject.GetDistance < 5)
+            {
+                Interact.InteractGameObject(wowObject.GetBaseAddress);
+            }
+        }
+
         private void Pulse()
         {
             lock (_scannerLock)
@@ -87,6 +97,11 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                     .Where(o => o.GetDistance < 60)
                     .OrderBy(o => o.GetDistance)
                     .ToList();
+
+                foreach (WoWObject wowObject in allObjects)
+                {
+                    HandleSpecialInteractions(wowObject);
+                }
 
                 List<WoWObject>  listSurroundingPOIs = allObjects
                     .FindAll(wowObject => !wManagerSetting.IsBlackListed(wowObject.Guid)
@@ -112,7 +127,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                         return;
                     }
 
-                    if (pathToClosestObject.Distance > closestObject.GetDistance * 2)
+                    if (pathToClosestObject.Distance > closestObject.GetDistance * 1.5)
                     {
                         int nbObject = listSurroundingPOIs.Count;
                         for (int i = 1; i < nbObject - 1; i++)

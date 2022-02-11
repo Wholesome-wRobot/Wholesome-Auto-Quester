@@ -269,6 +269,12 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
         public void ShipBootyBayToRatchet()
         {
             Logger.Log("Taking ship to Ratchet");
+            if (ObjectManager.Me.Position.X > -14260)
+            {
+                // Make sure we don't swim to docks
+                GoToTask.ToPosition(new Vector3(-14268.2, 344.7384, 31.02225, "None"));
+                return;
+            }
             GoToTask.ToPosition(bayBootyBayToRatchet);
             if (ObjectManager.Me.Position.DistanceTo(bayBootyBayToRatchet) < 4)
             {
