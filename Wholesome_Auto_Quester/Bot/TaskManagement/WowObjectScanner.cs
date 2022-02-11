@@ -36,7 +36,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                     if (Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause)
                     {
                         Pulse();
-                        await Task.Delay(1000);
+                        await Task.Delay(500);
                     }
                 }
             });

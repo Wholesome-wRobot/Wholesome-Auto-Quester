@@ -89,7 +89,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 || _travelManager.TravelInProgress
                 || me.HaveBuff("Drink")
                 || me.HaveBuff("Food")
-                || MoveHelper.IsMovementThreadRunning && MoveHelper.GetCurrentPathRemainingDistance() > 50 && _tick % 5 != 0)
+                || MoveHelper.IsMovementThreadRunning && MoveHelper.GetCurrentPathRemainingDistance() > 200 && _tick % 5 != 0)
             {
                 return;
             }
@@ -110,7 +110,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             }
 
             // Add grind tasks if nothing else is valid
-            if (tasksToAdd.Count <= 0 || tasksToAdd.All(task => task.IsTimedOut))
+            if (tasksToAdd.Count <= 0 || tasksToAdd.All(task => task.IsTimedOut || task.IsRecordedAsUnreachable))
             {
                 if (_grindTasks.Count <= 0)
                 {
@@ -214,6 +214,15 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                             break;
                     }
                 }
+            }
+
+            // only set new task on long distance if it's far apart from previous
+            if (closestTask != null && ActiveTask != null
+                && MoveHelper.IsMovementThreadRunning 
+                && MoveHelper.GetCurrentPathRemainingDistance() > 200
+                && ActiveTask.Location.DistanceTo(closestTask.Location) < 500)
+            {
+                return;
             }
 
             ActiveTask = closestTask;

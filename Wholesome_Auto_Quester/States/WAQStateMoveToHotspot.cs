@@ -52,9 +52,10 @@ namespace Wholesome_Auto_Quester.States
                 task.PutTaskOnTimeout($"Couldn't find target");
             }
 
-            if (task.Location.DistanceTo(ObjectManager.Me.Position) > 19)
+            if (task.Location.DistanceTo(ObjectManager.Me.Position) > 19 
+                && (!MoveHelper.IsMovementThreadRunning || MoveHelper.CurrentTarget != task.Location))
             {
-                MoveHelper.StartGoToThread(task.Location, $"Moving to hotspot for {task.TaskName}");
+                MoveHelper.StartGoToThread(task.Location, $"Moving to hotspot for {task.TaskName} {task.Location}");
             }
         }
     }
