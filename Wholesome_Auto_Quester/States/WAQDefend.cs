@@ -76,7 +76,7 @@ namespace Wholesome_Auto_Quester.States
 
                 if (_defendTarget != null)
                 {
-                    MountTask.DismountMount(true);
+                    MountTask.DismountMount(true, wait: 0);
                     return true;
                 }
 

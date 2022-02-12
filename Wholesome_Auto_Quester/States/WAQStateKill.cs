@@ -26,7 +26,7 @@ namespace Wholesome_Auto_Quester.States
             get
             {
                 if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause
-                    || _scanner.ActiveWoWObject == (null, null)
+                    || _scanner.ActiveWoWObject.wowObject == null
                     || (_scanner.ActiveWoWObject.task.InteractionType != TaskInteraction.Kill 
                         && _scanner.ActiveWoWObject.task.InteractionType != TaskInteraction.KillAndLoot)
                     || !ObjectManager.Me.IsValid)

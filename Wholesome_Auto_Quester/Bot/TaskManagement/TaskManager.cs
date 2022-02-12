@@ -176,7 +176,18 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 closestTask.RecordAsUnreachable();
                 return;
             }
-
+            
+            // Avoid snap back and forth
+            if (ActiveTask != null
+                && MoveHelper.IsMovementThreadRunning)
+            {
+                float remainingDistance = MoveHelper.GetCurrentPathRemainingDistance();
+                if (remainingDistance > 200 && pathToClosestTask.Distance > remainingDistance)
+                {
+                    return;
+                }
+            }
+            
             if (pathToClosestTask.Distance > myPosition.DistanceTo(closestTask.Location) * 2)
             {
                 int closestTaskPriorityScore = CalculatePriority(myPosition, spaceTree, closestTask);
@@ -208,7 +219,6 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                         {
                             closestTaskPriorityScore = newTaskPriority;
                             closestTask = _taskPile[i];
-                            //pathToClosestTask = pathToNewTask;
                         }
 
                         if (closestTaskPriorityScore < _taskPile[i + 1].Location.DistanceTo(myPosition))

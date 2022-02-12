@@ -48,7 +48,6 @@ namespace Wholesome_Auto_Quester.Helpers
             List<WoWUnit> objectManager = ObjectManager.GetWoWUnitHostile();
             Dictionary<WoWUnit, float> hostileUnits = new Dictionary<WoWUnit, float>();
             float myDistanceToPOI = me.Position.DistanceTo(poiPosition);
-            //Logger.LogError($"I am {distanceToPOI} away from POI");
             foreach (WoWUnit unit in objectManager)
             {
                 if (unit.Guid != POI.Guid && unit.Position.DistanceTo(poiPosition) < myDistanceToPOI)
@@ -57,7 +56,6 @@ namespace Wholesome_Auto_Quester.Helpers
                     if (pathFromPoi.Distance < myDistanceToPOI)
                     {
                         hostileUnits.Add(unit, pathFromPoi.Distance);
-                        //Logger.LogError($"{unit.Guid} - {unit.Name} is {pathFromPoi.Distance} away from POI and {myPosition.DistanceTo(unit.Position)} away from me");
                     }
                 }
             }
@@ -78,6 +76,7 @@ namespace Wholesome_Auto_Quester.Helpers
             }
 
             // Clear POI zone
+            /*
             int addedDistCheck = poiIsUnit ? 0 : 10; // We check further if it's not an enemy
             IOrderedEnumerable<KeyValuePair<WoWUnit, float>> hostilesInFront = hostileUnits
                 .Where(u => u.Key.Position.DistanceTo(myPosition) + u.Key.Position.DistanceTo(poiPosition) < myDistanceToPOI + addedDistCheck + 10
@@ -91,6 +90,7 @@ namespace Wholesome_Auto_Quester.Helpers
                 Fight.StartFight(hostileUnits.FirstOrDefault().Key.Guid);
                 return true;
             }
+            */
             return false;
         }
 

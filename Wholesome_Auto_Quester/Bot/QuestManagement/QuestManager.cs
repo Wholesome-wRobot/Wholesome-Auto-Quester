@@ -418,6 +418,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(2581, "Blasted Lands gather, bugged", false);
             AddQuestToBlackList(2583, "Blasted Lands gather, bugged", false);
             AddQuestToBlackList(2585, "Blasted Lands gather, bugged", false);
+            AddQuestToBlackList(3561, "Delivery to Xylem, Unreachable", false);
             if (ToolBox.IsHorde()) AddQuestToBlackList(4740, "Bugged, should only be alliance", false);
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))

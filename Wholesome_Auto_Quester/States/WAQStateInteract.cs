@@ -24,7 +24,7 @@ namespace Wholesome_Auto_Quester.States
             {
                 if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause
                     || !ObjectManager.Me.IsValid
-                    || _scanner.ActiveWoWObject == (null, null))
+                    || _scanner.ActiveWoWObject.wowObject == null)
                     return false;
 
                 if (_scanner.ActiveWoWObject.task.InteractionType == TaskInteraction.Interact)

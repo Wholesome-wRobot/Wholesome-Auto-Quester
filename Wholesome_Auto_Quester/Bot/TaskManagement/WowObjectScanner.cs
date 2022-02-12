@@ -127,6 +127,14 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                         return;
                     }
 
+                    // Avoid snap back and forth
+                    if (ActiveWoWObject.wowObject != null
+                        && MoveHelper.IsMovementThreadRunning
+                        && pathToClosestObject.Distance > MoveHelper.GetCurrentPathRemainingDistance() - 15)
+                    {
+                        return;
+                    }
+
                     if (pathToClosestObject.Distance > closestObject.GetDistance * 1.5)
                     {
                         int nbObject = listSurroundingPOIs.Count;
@@ -162,11 +170,6 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                         IWAQTask associatedTask = GetTaskMatchingWithObject(closestObject);
                         if (associatedTask != null)
                         {
-                            if (!associatedTask.IsObjectValidForTask(closestObject))
-                            {
-                                associatedTask.PutTaskOnTimeout($"{closestObject.Name} is of the wrong type for {associatedTask.TaskName}", 60 * 60 * 1000);
-                                return;
-                            }
                             ActiveWoWObject = (closestObject, associatedTask);
                             return;
                         }
@@ -188,7 +191,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 if (_scannerRegistry.TryGetValue(closestObject.Entry, out List<IWAQTask> taskList))
                 {
                     return taskList
-                        .Where(task => /*!task.IsTimedOut && */task.IsObjectValidForTask(closestObject))
+                        .Where(task => task.IsObjectValidForTask(closestObject))
                         .OrderBy(task => task.Location.DistanceTo(closestObject.Position))
                         .FirstOrDefault();
                 }
