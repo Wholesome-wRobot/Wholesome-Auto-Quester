@@ -6,6 +6,7 @@ namespace Wholesome_Auto_Quester.Database.Models
 {
     public class ModelWorldMapArea
     {
+        private bool _isContinentSet = false;
         public int ID { get; }
         public int mapID { get; }
         public int areaID { get; }
@@ -27,7 +28,7 @@ namespace Wholesome_Auto_Quester.Database.Models
         {
             get
             {
-                if (_continent == WAQContinent.None)
+                if (_continent == WAQContinent.None && !_isContinentSet)
                 {
                     // Teldrassil - Darnassus
                     if (areaID == 141 || areaID == 1657)
@@ -60,12 +61,8 @@ namespace Wholesome_Auto_Quester.Database.Models
                     {
                         _continent = WAQContinent.Outlands;
                     }
-
-                    if (_continent == WAQContinent.None)
-                    {
-                        Logger.LogError($"Couldn't set continent for MapAreaId {mapID} - {areaID}");
-                    }
                 }
+                _isContinentSet = true;
                 return _continent;
             }
         }

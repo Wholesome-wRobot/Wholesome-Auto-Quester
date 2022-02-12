@@ -341,7 +341,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
         {
             int nbAtempts = 0;
             int nbMaxAttempts = 5;
-            while (nbAtempts <= nbMaxAttempts)
+            while (nbAtempts < nbMaxAttempts)
             {
                 bool recordFailed = false;
                 nbAtempts++;

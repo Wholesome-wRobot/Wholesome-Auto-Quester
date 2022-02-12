@@ -5,7 +5,7 @@
         public int Entry { get; }
         public int Item { get; }
         public int Reference { get; }
-        public int Chance { get; }
+        public float Chance { get; }
         public int QuestRequired { get; }
         public int LootMode { get; }
         public int GroupId { get; }

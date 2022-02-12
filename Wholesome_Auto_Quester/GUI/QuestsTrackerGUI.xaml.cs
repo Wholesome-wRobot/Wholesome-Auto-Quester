@@ -35,7 +35,7 @@ namespace Wholesome_Auto_Quester.GUI
             if (sourceQuestsList.SelectedItem != null)
             {
                 IWAQQuest selected = (IWAQQuest)sourceQuestsList.SelectedItem;
-                _questManager?.AddQuestToBlackList(selected.QuestTemplate.Id, "Blacklisted by user");
+                _questManager?.AddQuestToBlackList(selected.QuestTemplate.Id, "Blacklisted by user", true);
             }
         }
 
@@ -44,7 +44,7 @@ namespace Wholesome_Auto_Quester.GUI
             if (sourceQuestsList.SelectedItem != null)
             {
                 IWAQQuest selected = (IWAQQuest)sourceQuestsList.SelectedItem;
-                _questManager?.RemoveQuestFromBlackList(selected.QuestTemplate.Id, "Removed by user");
+                _questManager?.RemoveQuestFromBlackList(selected.QuestTemplate.Id, "Removed by user", true);
             }
         }
 
@@ -264,7 +264,7 @@ namespace Wholesome_Auto_Quester.GUI
                     foreach (KillLootObjective obje in selected.QuestTemplate.KillLootObjectives)
                         if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, selected.QuestTemplate.Id))
                             questLootCreatures.Children.Add(CreateListTextBlock(
-                                $"[{obje.ObjectiveIndex}] {obje.CreatureLootTemplate.CreatureTemplate.name} ({obje.CreatureLootTemplate.CreatureTemplate.Creatures.Count} found)"));
+                                $"[{obje.ObjectiveIndex}] {obje.CreatureLootTemplate.CreatureTemplate.name} ({obje.CreatureLootTemplate.CreatureTemplate.Creatures.Count} found - {(int)obje.CreatureLootTemplate.Chance}%)"));
                 }
                 else
                     questLootCreatures.Visibility = Visibility.Collapsed;

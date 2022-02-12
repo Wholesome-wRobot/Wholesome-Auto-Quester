@@ -116,6 +116,7 @@ namespace Wholesome_Auto_Quester.Database.Models
             if (objective is KillLootObjective killLootObjective)
             {
                 if (killLootObjective.CreatureLootTemplate.CreatureTemplate.entry == 7997) return; // Captured Sprite
+                if (killLootObjective.CreatureLootTemplate.Chance <= 1) return;
                 KillLootObjectives.Add(killLootObjective);
             }
             if (objective is KillObjective killObjective)

@@ -353,6 +353,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     WholesomeAQSettings.CurrentSetting.BlackListedQuests.Add(new BlackListedQuest(questId, reason));
                     WholesomeAQSettings.CurrentSetting.Save();
                     Logger.Log($"The quest {questId} has been blacklisted ({reason})");
+                    MoveHelper.StopAllMove(true);
                     if (triggerStatusUpdate)
                     {
                         UpdateStatuses();
@@ -370,6 +371,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 {
                     WholesomeAQSettings.CurrentSetting.BlackListedQuests.Remove(questToRemove);
                     WholesomeAQSettings.CurrentSetting.Save();
+                    MoveHelper.StopAllMove(true);
                     Logger.Log($"The quest {questId} has been removed from the blacklist ({reason})");
                     if (triggerStatusUpdate)
                     {
@@ -419,6 +421,10 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(2583, "Blasted Lands gather, bugged", false);
             AddQuestToBlackList(2585, "Blasted Lands gather, bugged", false);
             AddQuestToBlackList(3561, "Delivery to Xylem, Unreachable", false);
+            AddQuestToBlackList(4293, "Ooze sample, DB bugged", false);
+            AddQuestToBlackList(4494, "March of the Silithid, DB bugged", false);
+            AddQuestToBlackList(4496, "Bungle in the Jungle, DB bugged", false);
+            AddQuestToBlackList(5021, "Better late than ever, Too many mobs", false);
             if (ToolBox.IsHorde()) AddQuestToBlackList(4740, "Bugged, should only be alliance", false);
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))
