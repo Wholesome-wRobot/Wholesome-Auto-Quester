@@ -191,7 +191,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 if (_scannerRegistry.TryGetValue(closestObject.Entry, out List<IWAQTask> taskList))
                 {
                     return taskList
-                        .Where(task => task.IsObjectValidForTask(closestObject))
+                        .Where(task => task.IsObjectValidForTask(closestObject) && !task.IsTimedOut)
                         .OrderBy(task => task.Location.DistanceTo(closestObject.Position))
                         .FirstOrDefault();
                 }

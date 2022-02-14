@@ -54,7 +54,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                     {
                         UpdateTaskPile();
                         BlacklistHelper.CleanupBlacklist();
-                        await Task.Delay(1000);
+                        await Task.Delay(500);
                     }
                 }
             });
@@ -158,7 +158,10 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             }
 
             // Get closest task
-            IWAQTask closestTask = _taskPile.Find(task => !task.IsRecordedAsUnreachable && !task.IsTimedOut && !wManagerSetting.IsBlackListedZone(task.Location));
+            IWAQTask closestTask = _taskPile.Find(task => 
+                !task.IsRecordedAsUnreachable 
+                && !task.IsTimedOut 
+                && !wManagerSetting.IsBlackListedZone(task.Location));
 
             // Check if travel is needed
             if (_travelManager.IsTravelRequired(closestTask))
