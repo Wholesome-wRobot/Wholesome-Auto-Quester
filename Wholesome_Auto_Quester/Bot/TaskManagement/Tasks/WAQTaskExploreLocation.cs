@@ -7,22 +7,27 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
 {
     public class WAQTaskExploreLocation : WAQBaseTask
     {
+        private ModelQuestTemplate _questTemplate;
+
         public WAQTaskExploreLocation(ModelQuestTemplate questTemplate, Vector3 location, int continent)
             : base(location, continent, $"Explore {location} for {questTemplate.LogTitle}")
         {
             SearchRadius = 2;
-            if (questTemplate.QuestAddon?.AllowableClasses > 0)
+            _questTemplate = questTemplate;
+            if (_questTemplate.QuestAddon?.AllowableClasses > 0)
             {
                 PriorityShift = 3;
             }
-            if (questTemplate.TimeAllowed > 0)
+            if (_questTemplate.TimeAllowed > 0)
             {
                 PriorityShift = 7;
             }
         }
 
-        public override bool IsRecordedAsUnreachable => false;
-        public override string TrackerColor => IsTimedOut ? "Gray" : "Linen";
+        protected override bool HasEnoughReputationForTask => _questTemplate.HasEnoughReputationForQuest;
+        protected override bool HasEnoughSkillForTask => true;
+        protected override bool IsRecordedAsUnreachable => false;
+        public override string TrackerColor => "Linen";
         public override bool IsObjectValidForTask(WoWObject wowObject) => throw new System.Exception($"Tried to scan for {TaskName}");
         public override void RegisterEntryToScanner(IWowObjectScanner scanner) { }
         public override void UnregisterEntryToScanner(IWowObjectScanner scanner) { }

@@ -8,6 +8,7 @@ using Wholesome_Auto_Quester.Bot.QuestManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Bot.TravelManagement;
+using Wholesome_Auto_Quester.Database.DBC;
 using Wholesome_Auto_Quester.GUI;
 using Wholesome_Auto_Quester.Helpers;
 using Wholesome_Auto_Quester.States;
@@ -44,10 +45,12 @@ namespace Wholesome_Auto_Quester.Bot
                 {
                     _questTrackerGui.ShowWindow();
                 }
+                DBCFaction.RecordReputations();
 
                 // Attach onlevelup for spell book:
                 EventsLua.AttachEventLua("PLAYER_LEVEL_UP", m => OnLevelUp());
                 EventsLua.AttachEventLua("PLAYER_ENTERING_WORLD", m => ScreenReloaded());
+                EventsLua.AttachEventLua("UPDATE_FACTION", m => OnReputationChange());
 
                 // Update spell list
                 SpellManager.UpdateSpellBook();
@@ -144,6 +147,12 @@ namespace Wholesome_Auto_Quester.Bot
             SpellManager.UpdateSpellBook();
             CustomClass.ResetCustomClass();
             Talent.DoTalents();
+            wManager.wManagerSetting.ClearBlacklistOfCurrentProductSession();
+        }
+
+        private void OnReputationChange()
+        {
+            DBCFaction.RecordReputations();
         }
 
         private void ScreenReloaded()

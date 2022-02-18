@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using Wholesome_Auto_Quester.Database.DBC;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Helpers;
@@ -8,14 +9,18 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
 {
     public class WAQTaskPickupQuestFromGameObject : WAQBaseScannableTask
     {
+        private ModelGameObjectTemplate _gameObjectTemplate;
         private ModelQuestTemplate _questTemplate;
 
         public WAQTaskPickupQuestFromGameObject(ModelQuestTemplate questTemplate, ModelGameObjectTemplate goTemplate, ModelGameObject gameObject)
-            : base(gameObject.GetSpawnPosition, gameObject.map, $"Pick up {questTemplate.LogTitle} from {goTemplate.name}", goTemplate.entry, 
+            : base(gameObject.GetSpawnPosition, gameObject.map, $"Pick up {questTemplate.LogTitle} from {goTemplate.name}", goTemplate.entry,
                   gameObject.spawntimesecs, gameObject.guid)
         {
+            _gameObjectTemplate = goTemplate;
+            _questTemplate = questTemplate;
+
             SpatialWeight = 0.25;
-            if (questTemplate.QuestAddon?.AllowableClasses > 0)
+            if (_questTemplate.QuestAddon?.AllowableClasses > 0)
             {
                 PriorityShift = 3;
             }
@@ -57,7 +62,9 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             }
         }
 
-        public override string TrackerColor => IsTimedOut || IsRecordedAsUnreachable ? "Gray" : "DodgerBlue";
+        public override string TrackerColor => "DodgerBlue";
         public override TaskInteraction InteractionType => TaskInteraction.Interact;
+        protected override bool HasEnoughReputationForTask => _questTemplate.HasEnoughReputationForQuest;
+        protected override bool HasEnoughSkillForTask => DBCLocks.IsLockValid(_gameObjectTemplate.type, _gameObjectTemplate.Data0);
     }
 }

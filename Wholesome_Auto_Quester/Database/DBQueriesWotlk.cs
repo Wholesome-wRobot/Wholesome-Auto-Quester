@@ -166,7 +166,7 @@ namespace Wholesome_Auto_Quester.Database
             }
             Logger.Log($"Process time (Quest givers) : {stopwatchQuestGivers.ElapsedMilliseconds} ms");
 
-            // Query quest enders 420ko / 21k
+            // Query quest enders
             Stopwatch stopwatchQuestEnders = Stopwatch.StartNew();
             foreach (ModelQuestTemplate quest in quests)
             {
@@ -186,7 +186,7 @@ namespace Wholesome_Auto_Quester.Database
             }
             Logger.Log($"Process time (Previous quests) : {stopwatchPrevQuests.ElapsedMilliseconds} ms");
 
-            // Query next quests ids 420ko / 21k
+            // Query next quests ids
             Stopwatch stopwatchNextQuests = Stopwatch.StartNew();
             foreach (ModelQuestTemplate quest in quests)
             {
@@ -197,13 +197,13 @@ namespace Wholesome_Auto_Quester.Database
             }
             Logger.Log($"Process time (Next quests) : {stopwatchNextQuests.ElapsedMilliseconds} ms");
 
-            // Query Areas 420ko / 21k
+            // Query Areas
             Stopwatch stopwatchAreas = Stopwatch.StartNew();
             foreach (ModelQuestTemplate quest in quests)
                 quest.ModelAreasTriggers = _database.QueryAreasToExplore(quest.Id);
             Logger.Log($"Process time (Areas) : {stopwatchAreas.ElapsedMilliseconds} ms");
 
-            // Query Item drops (prerequisites) 435ko / 22k
+            // Query Item drops (prerequisites)
             Stopwatch stopwatchItemDrops = Stopwatch.StartNew();
             foreach (ModelQuestTemplate quest in quests)
             {
@@ -214,7 +214,7 @@ namespace Wholesome_Auto_Quester.Database
             }
             Logger.Log($"Process time (ItemDrops) : {stopwatchItemDrops.ElapsedMilliseconds} ms");
 
-            // Query required Items 2Mo / 130k
+            // Query required Items
             Stopwatch stopwatchRequiredItem = Stopwatch.StartNew();
             foreach (ModelQuestTemplate quest in quests)
             {
@@ -227,7 +227,7 @@ namespace Wholesome_Auto_Quester.Database
             }
             Logger.Log($"Process time (RequiredItems) : {stopwatchRequiredItem.ElapsedMilliseconds} ms");
 
-            // Query Start Item 2mo / 126k
+            // Query Start Item
             Stopwatch stopwatchStartItem = Stopwatch.StartNew();
             foreach (ModelQuestTemplate quest in quests)
             {
@@ -235,7 +235,7 @@ namespace Wholesome_Auto_Quester.Database
             }
             Logger.Log($"Process time (StartItem) : {stopwatchStartItem.ElapsedMilliseconds} ms");
 
-            // Query required Npcs/Interacts 2mo / 133k
+            // Query required Npcs/Interacts
             Stopwatch stopwatchRequiredNPC = Stopwatch.StartNew();
             foreach (ModelQuestTemplate quest in quests)
             {
@@ -280,13 +280,13 @@ namespace Wholesome_Auto_Quester.Database
             // Add all objectives
             foreach (ModelQuestTemplate quest in quests)
             {
-                // Exploration objectives 2mo/133k
+                // Exploration objectives
                 foreach (ModelAreaTrigger modelAreaTrigger in quest.ModelAreasTriggers)
                 {
                     quest.AddObjective(new ExplorationObjective(modelAreaTrigger, quest.AreaDescription));
                 }
 
-                // Prerequisite objectives Gather 2mo/134k
+                // Prerequisite objectives Gather
                 if (quest.ItemDrop1Template != null)
                 {
                     foreach (ModelGameObjectLootTemplate goLootTemplate in quest.ItemDrop1Template.GameObjectLootTemplates)
@@ -316,7 +316,7 @@ namespace Wholesome_Auto_Quester.Database
                     }
                 }
 
-                // Prerequisite objectives Kill&Loot 2mo/134k
+                // Prerequisite objectives Kill&Loot
                 if (quest.ItemDrop1Template != null)
                 {
                     foreach (ModelCreatureLootTemplate creaLootTemplate in quest.ItemDrop1Template.CreatureLootTemplates)

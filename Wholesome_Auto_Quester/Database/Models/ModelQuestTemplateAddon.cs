@@ -11,6 +11,8 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int RequiredSkillID { get; }
         public int RequiredSkillPoints { get; }
         public int SpecialFlags { get; }
+        public int RequiredMinRepFaction { get; }
+        public int RequiredMinRepValue { get; }
 
         public List<int> ExclusiveQuests { get; set; }
     }

@@ -358,7 +358,7 @@
                                                Margin="0,0,10,0"
                                                Grid.Column="0"
                                                TextWrapping="Wrap"/>
-                                        <TextBlock Text="{Binding TrackerTaskName}"
+                                        <TextBlock Text="{Binding TaskName}"
                                                Foreground="{Binding TrackerColor}"
                                                HorizontalAlignment="Left"
                                                Grid.Column="1"
@@ -418,8 +418,57 @@
                                                HorizontalAlignment="Left"
                                                Grid.Column="0"
                                                TextWrapping="Wrap"/>
-                                        <TextBlock Text="{Binding AmountTimedOut}"
+                                        <TextBlock Text="{Binding AmountInvalid}"
                                                Foreground="Gray"
+                                               HorizontalAlignment="Left"
+                                               Grid.Column="0"
+                                               TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Invalids">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock
+                        Text="Invalid tasks"
+                        Name="invalidsTitleTop"
+                        HorizontalAlignment="Center"
+                        Grid.Row="0"
+                        FontSize="18"
+                        Margin="0,5"/>
+                    <ScrollViewer VerticalScrollBarVisibility="Visible" Height="475" Grid.Row="1">
+                        <ItemsControl Name="sourceInvalids" 
+                             MinHeight="50"
+                             HorizontalContentAlignment="Stretch"
+                             VerticalAlignment="Top"
+                             Height="Auto"
+                             Grid.Row="1">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding TaskName}"
+                                               Foreground="Bisque"
+                                               HorizontalAlignment="Left"
+                                               Margin="0,0,5,0"
+                                               Grid.Column="1"
+                                               TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding InvalidityReason}"
+                                               Foreground="PowderBlue"
                                                HorizontalAlignment="Left"
                                                Grid.Column="0"
                                                TextWrapping="Wrap"/>

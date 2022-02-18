@@ -15,6 +15,8 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
         List<Objective> GetAllObjectives();
         List<IWAQTask> GetAllTasks();
+        List<IWAQTask> GetAllValidTasks();
+        List<IWAQTask> GetAllInvalidTasks();
         void ChangeStatusTo(QuestStatus newStatus);
         float GetClosestQuestGiverDistance(Vector3 myPosition);
         void CheckForFinishedObjectives();

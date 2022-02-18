@@ -10,19 +10,25 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         private ModelQuestTemplate _questTemplate;
 
         public WAQTaskTurninQuestToCreature(ModelQuestTemplate questTemplate, ModelCreatureTemplate creatureTemplate, ModelCreature creature)
-            : base(creature.GetSpawnPosition, creature.map, $"Turn in {questTemplate.LogTitle} to {creatureTemplate.name}", creatureTemplate.entry, 
+            : base(creature.GetSpawnPosition, creature.map, $"Turn in {questTemplate.LogTitle} to {creatureTemplate.name}", creatureTemplate.entry,
                   creature.spawnTimeSecs, creature.guid)
         {
+            _questTemplate = questTemplate;
+
             SpatialWeight = 2.0;
-            if (questTemplate.QuestAddon?.AllowableClasses > 0)
+            if (_questTemplate.QuestAddon?.AllowableClasses > 0)
             {
                 PriorityShift = 3;
             }
-            if (questTemplate.TimeAllowed > 0)
+            if (_questTemplate.TimeAllowed > 0)
             {
                 PriorityShift = 7;
             }
-            _questTemplate = questTemplate;
+            // Through the Dark Portal
+            if (_questTemplate.Id == 9407 || _questTemplate.Id == 10119)
+            {
+                PriorityShift = 20;
+            }
         }
 
         public new void PutTaskOnTimeout(string reason, int timeInSeconds, bool exponentiallyLonger)
@@ -58,7 +64,9 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             }
         }
 
-        public override string TrackerColor => IsTimedOut || IsRecordedAsUnreachable ? "Gray" : "Lime";
+        public override string TrackerColor => "Lime";
         public override TaskInteraction InteractionType => TaskInteraction.Interact;
+        protected override bool HasEnoughSkillForTask => true;
+        protected override bool HasEnoughReputationForTask => _questTemplate.HasEnoughReputationForQuest;
     }
 }

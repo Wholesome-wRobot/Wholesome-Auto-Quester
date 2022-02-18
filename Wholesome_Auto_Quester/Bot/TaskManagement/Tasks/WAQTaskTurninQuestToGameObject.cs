@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using Wholesome_Auto_Quester.Database.DBC;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Helpers;
@@ -8,22 +9,25 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
 {
     public class WAQTaskTurninQuestToGameObject : WAQBaseScannableTask
     {
+        private ModelGameObjectTemplate _gameObjectTemplate;
         private ModelQuestTemplate _questTemplate;
 
         public WAQTaskTurninQuestToGameObject(ModelQuestTemplate questTemplate, ModelGameObjectTemplate goTemplate, ModelGameObject gameObject)
-            : base(gameObject.GetSpawnPosition, gameObject.map, $"Turn in {questTemplate.LogTitle} to {goTemplate.name}", goTemplate.entry, 
+            : base(gameObject.GetSpawnPosition, gameObject.map, $"Turn in {questTemplate.LogTitle} to {goTemplate.name}", goTemplate.entry,
                   gameObject.spawntimesecs, gameObject.guid)
         {
+            _gameObjectTemplate = goTemplate;
+            _questTemplate = questTemplate;
+
             SpatialWeight = 2.0;
-            if (questTemplate.QuestAddon?.AllowableClasses > 0)
+            if (_questTemplate.QuestAddon?.AllowableClasses > 0)
             {
                 PriorityShift = 3;
             }
-            if (questTemplate.TimeAllowed > 0)
+            if (_questTemplate.TimeAllowed > 0)
             {
                 PriorityShift = 7;
             }
-            _questTemplate = questTemplate;
         }
 
         public new void PutTaskOnTimeout(string reason, int timeInSeconds, bool exponentiallyLonger)
@@ -61,7 +65,9 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             }
         }
 
-        public override string TrackerColor => IsTimedOut || IsRecordedAsUnreachable ? "Gray" : "Lime";
+        public override string TrackerColor => "Lime";
         public override TaskInteraction InteractionType => TaskInteraction.Interact;
+        protected override bool HasEnoughReputationForTask => _questTemplate.HasEnoughReputationForQuest;
+        protected override bool HasEnoughSkillForTask => DBCLocks.IsLockValid(_gameObjectTemplate.type, _gameObjectTemplate.Data0);
     }
 }

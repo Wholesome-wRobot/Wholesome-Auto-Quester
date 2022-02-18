@@ -8,9 +8,10 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
     {
         public WAQTaskGrind(ModelCreatureTemplate creatureTemplate, ModelCreature creature)
             : base(creature.GetSpawnPosition, creature.map, $"Grind {creatureTemplate.name}", creatureTemplate.entry, creature.spawnTimeSecs,
-                  creature.guid) { }
+                  creature.guid)
+        { }
 
-        public new void PutTaskOnTimeout(string reason, int timeInSeconds, bool exponentiallyLonger) 
+        public new void PutTaskOnTimeout(string reason, int timeInSeconds, bool exponentiallyLonger)
             => base.PutTaskOnTimeout(reason, timeInSeconds > 0 ? timeInSeconds : DefaultTimeOutDuration, exponentiallyLonger);
 
         public override bool IsObjectValidForTask(WoWObject wowObject)
@@ -32,7 +33,9 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             }
         }
 
-        public override string TrackerColor => IsTimedOut || IsRecordedAsUnreachable ? "Gray" : "PaleGreen";
+        public override string TrackerColor => "PaleGreen";
         public override TaskInteraction InteractionType => TaskInteraction.Kill;
+        protected override bool HasEnoughSkillForTask => true;
+        protected override bool HasEnoughReputationForTask => true;
     }
 }

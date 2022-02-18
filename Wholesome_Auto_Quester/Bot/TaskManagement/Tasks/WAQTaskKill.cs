@@ -6,15 +6,19 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
 {
     public class WAQTaskKill : WAQBaseScannableTask
     {
+        private ModelQuestTemplate _questTemplate;
+
         public WAQTaskKill(ModelQuestTemplate questTemplate, ModelCreatureTemplate creatureTemplate, ModelCreature creature)
-            : base(creature.GetSpawnPosition, creature.map, $"Kill {creatureTemplate.name} for {questTemplate.LogTitle}", creatureTemplate.entry, 
+            : base(creature.GetSpawnPosition, creature.map, $"Kill {creatureTemplate.name} for {questTemplate.LogTitle}", creatureTemplate.entry,
                   creature.spawnTimeSecs, creature.guid)
         {
-            if (questTemplate.QuestAddon?.AllowableClasses > 0)
+            _questTemplate = questTemplate;
+
+            if (_questTemplate.QuestAddon?.AllowableClasses > 0)
             {
                 PriorityShift = 3;
             }
-            if (questTemplate.TimeAllowed > 0)
+            if (_questTemplate.TimeAllowed > 0)
             {
                 PriorityShift = 7;
             }
@@ -42,7 +46,9 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             }
         }
 
-        public override string TrackerColor => IsTimedOut || IsRecordedAsUnreachable ? "Gray" : "OrangeRed";
+        public override string TrackerColor => "OrangeRed";
         public override TaskInteraction InteractionType => TaskInteraction.Kill;
+        protected override bool HasEnoughSkillForTask => true;
+        protected override bool HasEnoughReputationForTask => _questTemplate.HasEnoughReputationForQuest;
     }
 }

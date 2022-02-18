@@ -5,10 +5,12 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Threading;
 using Wholesome_Auto_Quester.Bot.QuestManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Database.Objectives;
 using Wholesome_Auto_Quester.Helpers;
+using wManager;
 using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.GUI
@@ -23,6 +25,12 @@ namespace Wholesome_Auto_Quester.GUI
             DiscordLink.RequestNavigate += (sender, e) => { System.Diagnostics.Process.Start(e.Uri.ToString()); };
             Title = $"Wholesome quest tracker ({Main.ProductVersion})";
             detailsPanel.Visibility = Visibility.Hidden;
+        }
+
+        void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        {
+            Logger.LogError($"Error with tracker: {e.Exception.Message}");
+            e.Handled = true;
         }
 
         public void Initialize(IQuestManager questManager)
@@ -50,6 +58,7 @@ namespace Wholesome_Auto_Quester.GUI
 
         public void ShowWindow()
         {
+            Dispatcher.UnhandledException += App_DispatcherUnhandledException;
             Dispatcher.BeginInvoke((Action)(() =>
             {
                 Show();
@@ -69,6 +78,7 @@ namespace Wholesome_Auto_Quester.GUI
                 WholesomeAQSettings.CurrentSetting.QuestTrackerPositionTop = Top;
                 WholesomeAQSettings.CurrentSetting.Save();
             }));
+            Dispatcher.UnhandledException -= App_DispatcherUnhandledException;
         }
 
         public void UpdateQuestsList(List<IWAQQuest> questList)
@@ -122,23 +132,34 @@ namespace Wholesome_Auto_Quester.GUI
             }));
         }
 
+        public void UpdateInvalids(List<IWAQTask> invalidTasks)
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+            {                
+                sourceInvalids.ItemsSource = null;
+                int counter = 0;
+                List<GUITask> guiTasks = new List<GUITask>();
+                foreach (IWAQTask task in invalidTasks)
+                {
+                    counter++;
+                    guiTasks.Add(new GUITask(task));
+                    if (counter >= 200) break;
+                }
+                string countText = counter >= 200 ? $"{counter}+" : $"{guiTasks.Count}";
+                sourceInvalids.ItemsSource = guiTasks;
+                invalidsTitleTop.Text = $"Invalid tasks ({countText})";                
+            }));
+        }
+
         public void UpdateTasksList(List<GUITask> guiTaskPile)
         {
             Dispatcher.BeginInvoke((Action)(() =>
             {
                 sourceTasksList.ItemsSource = null;
-                string countText = "";
                 int limit = 200;
-                if (guiTaskPile.Count >= limit)
-                {
-                    sourceTasksList.ItemsSource = guiTaskPile.GetRange(0, limit);
-                    countText = $"{limit}+";
-                }
-                else
-                {
-                    sourceTasksList.ItemsSource = guiTaskPile;
-                    countText = $"{guiTaskPile.Count}";
-                }
+                List<GUITask> tasksToDisplay = guiTaskPile.Count >= limit ? guiTaskPile.GetRange(0, limit - 1) : guiTaskPile;
+                string countText = guiTaskPile.Count >= limit ? $"{limit}+" : $"{guiTaskPile.Count}";
+                sourceTasksList.ItemsSource = tasksToDisplay;
                 tasksTitleTop.Text = $"Current Tasks ({countText})";
             }));
         }
@@ -374,7 +395,7 @@ public class GUIScanEntry
 {
     public int ObjectId { get; }
     public int Amount { get; private set; } = 0;
-    public int AmountTimedOut { get; private set; } = 0;
+    public int AmountInvalid { get; private set; } = 0;
     public string TaskName { get; }
     public string TrackerColor { get; }
 
@@ -387,9 +408,9 @@ public class GUIScanEntry
 
     public void AddOne(IWAQTask task)
     {
-        if (task.IsTimedOut)
+        if (!task.IsValid)
         {
-            AmountTimedOut++;
+            AmountInvalid++;
         }
         else
         {
@@ -404,6 +425,7 @@ public class GUITask
     public string TaskName { get; }
     public string TrackerColor { get; }
     public IWAQTask Task { get; }
+    public string InvalidityReason { get; }
 
     public GUITask(int priority, IWAQTask task)
     {
@@ -411,16 +433,14 @@ public class GUITask
         Priority = priority;
         TaskName = task.TaskName;
         TrackerColor = task.TrackerColor;
+        InvalidityReason = task.InvalidityReason;
     }
 
-    public string TrackerTaskName
-    { 
-        get
-        {
-            string suffix = "";
-            if (Task.IsRecordedAsUnreachable) suffix = "(Unreachable)";
-            else if (Task.IsTimedOut) suffix = "(Timed out)";
-            return $"{TaskName} {suffix}";
-        } 
+    public GUITask(IWAQTask task)
+    {
+        Task = task;
+        TaskName = task.TaskName;
+        TrackerColor = task.TrackerColor;
+        InvalidityReason = task.InvalidityReason;
     }
 }

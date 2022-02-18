@@ -121,19 +121,30 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     Logger.LogDebug("PLAYER_LEVEL_UP");
                     GetQuestsFromDB();
                     break;
+                case "PLAYER_ENTERING_WORLD":
+                    Logger.LogDebug("PLAYER_ENTERING_WORLD");
+                    GetQuestsFromDB();
+                    break;
             }
         }
 
-        public List<IWAQTask> GetAllQuestTasks()
+        public List<IWAQTask> GetAllValidQuestTasks()
         {
             List<IWAQTask> allTasks = new List<IWAQTask>();
             foreach (IWAQQuest quest in _questList)
             {
-                allTasks.AddRange(quest.GetAllTasks());
+                allTasks.AddRange(quest.GetAllValidTasks());
             }
+            return allTasks;
+        }
 
-            allTasks.RemoveAll(task => task.WorldMapArea == null);
-
+        public List<IWAQTask> GetAllInvalidQuestTasks()
+        {
+            List<IWAQTask> allTasks = new List<IWAQTask>();
+            foreach (IWAQQuest quest in _questList)
+            {
+                allTasks.AddRange(quest.GetAllInvalidTasks());
+            }
             return allTasks;
         }
 
@@ -180,9 +191,10 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 }
 
                 // Mark quest as completed if it's part of an exclusive group
-                if (quest.QuestTemplate.QuestAddon.ExclusiveGroup > 0)
+                if (quest.QuestTemplate.QuestAddon.ExclusiveGroup > 0 && !logQuests.ContainsKey(quest.QuestTemplate.Id))
                 {
-                    if (quest.QuestTemplate.QuestAddon.ExclusiveQuests.Any(qId => qId != quest.QuestTemplate.Id
+                    if (quest.QuestTemplate.QuestAddon.ExclusiveQuests.Any(qId => 
+                        qId != quest.QuestTemplate.Id
                         && (ToolBox.IsQuestCompleted(qId) || logQuests.ContainsKey(qId))))
                     {
                         quest.ChangeStatusTo(QuestStatus.Completed);
@@ -425,6 +437,8 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(4494, "March of the Silithid, DB bugged", false);
             AddQuestToBlackList(4496, "Bungle in the Jungle, DB bugged", false);
             AddQuestToBlackList(5021, "Better late than ever, Too many mobs", false);
+            AddQuestToBlackList(10103, "Report to Zurai, unreachable (top of tower)", false);
+            AddQuestToBlackList(10286, "Arelion's secret, requires bubble talk", false);
             if (ToolBox.IsHorde()) AddQuestToBlackList(4740, "Bugged, should only be alliance", false);
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))

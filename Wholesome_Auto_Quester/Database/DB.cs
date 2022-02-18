@@ -351,6 +351,17 @@ namespace Wholesome_Auto_Quester.Database
                 // we leave the class sortIds in
             };
 
+            // Quests to force get from the DB
+            List<int> questsIdsToForce = new List<int>();
+            if (ToolBox.IsHorde())
+            {
+                questsIdsToForce.Add(9407); // Through the dark portal
+            }
+            else
+            {
+                questsIdsToForce.Add(10119); // Through the dark portal
+            }
+
             List<int> logQuestsIds = new List<int>();
             foreach (Quest.PlayerQuest quest in Quest.GetLogQuestId())
             {
@@ -361,12 +372,17 @@ namespace Wholesome_Auto_Quester.Database
                 SELECT * 
                 FROM quest_template
                 WHERE MinLevel <= {myLevel}
-                AND (QuestType <> 0 OR Unknown0 <> 1);
+                AND (QuestType <> 0 OR Unknown0 <> 1)
             ";
             List<ModelQuestTemplate> result = _con.Query<ModelQuestTemplate>(queryQuest).ToList();
 
             foreach (ModelQuestTemplate template in result)
             {
+                // Make sure we enable Outlands quests for level 60
+                if (template.QuestLevel == 61)
+                {
+                    template.QuestLevel--;
+                }
                 if (ToolBox.QuestModifiedLevel.TryGetValue(template.Id, out int levelModifier))
                 {
                     template.QuestLevel += levelModifier;
@@ -374,7 +390,8 @@ namespace Wholesome_Auto_Quester.Database
             }
 
             result.RemoveAll(q =>
-                (q.QuestLevel > levelDeltaPlus || q.QuestLevel < levelDeltaMinus)
+                !questsIdsToForce.Contains(q.Id)
+                && (q.QuestLevel > levelDeltaPlus || q.QuestLevel < levelDeltaMinus)
                 && q.QuestLevel != -1
                 && (!logQuestsIds.Contains(q.Id) || q.QuestLevel > levelDeltaPlus));
 

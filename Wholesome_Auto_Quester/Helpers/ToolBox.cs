@@ -25,7 +25,9 @@ namespace Wholesome_Auto_Quester.Helpers
 
         public static bool HostilesAreAround(WoWObject POI, IWAQTask task)
         {
-            if (POI.Entry == 1776) // exception for swamp of sorrows Magtoor
+            if (POI.Entry == 1776 // swamp of sorrows Magtoor
+                || POI.Entry == 19256 // Sergeant SHatterskull
+                || POI.Entry == 19442) // Kruush
             {
                 return false;
             }
@@ -246,10 +248,7 @@ namespace Wholesome_Auto_Quester.Helpers
             }
 
             Logger.Log($"Turned in quest {questName}.");
-            if (SaveQuestAsCompleted(questId))
-            {
-                WholesomeAQSettings.CurrentSetting.Save();
-            }
+            SaveQuestAsCompleted(questId);
 
             return true;
         }
@@ -352,7 +351,7 @@ namespace Wholesome_Auto_Quester.Helpers
 
         public static bool SaveQuestAsCompleted(int questId)
         {
-            if (!WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Contains(questId))
+            if (!WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Contains(questId) && !Quest.HasQuest(questId))
             {
                 Logger.Log($"Saved quest {questId} as completed");
                 WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Add(questId);

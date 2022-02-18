@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Wholesome_Auto_Quester.Database.DBC;
 using Wholesome_Auto_Quester.Database.Objectives;
-using Wholesome_Auto_Quester.Helpers;
 
 namespace Wholesome_Auto_Quester.Database.Models
 {
@@ -109,9 +109,9 @@ namespace Wholesome_Auto_Quester.Database.Models
             {
                 GatherObjectives.Add(gatherObjective);
             }
-            if (objective is InteractObjective interactObjective) 
-            { 
-                InteractObjectives.Add(interactObjective); 
+            if (objective is InteractObjective interactObjective)
+            {
+                InteractObjectives.Add(interactObjective);
             }
             if (objective is KillLootObjective killLootObjective)
             {
@@ -165,6 +165,23 @@ namespace Wholesome_Auto_Quester.Database.Models
                     result.Add(Enum.GetName(typeof(QUEST_SPECIAL_FLAGS), i));
             }
             return result;
+        }
+
+        public bool HasEnoughReputationForQuest
+        {
+            get
+            {
+                if (QuestAddon?.RequiredMinRepFaction > 0)
+                {
+                    Reputation rep = DBCFaction.GetReputationById(QuestAddon.RequiredMinRepFaction);
+                    if (rep != null && rep.Amount >= QuestAddon.RequiredMinRepValue)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+                return true;
+            }
         }
     }
 }

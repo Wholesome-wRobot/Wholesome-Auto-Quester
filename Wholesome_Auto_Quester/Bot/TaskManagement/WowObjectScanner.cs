@@ -77,6 +77,14 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             }
         }
 
+        private void MarkAsUnreachable(WoWObject obj)
+        {
+            IWAQTask associatedTask = GetTaskMatchingWithObject(obj);
+            BlacklistHelper.AddZone(obj.Position, 5, "[Scanner] Unreachable");
+            associatedTask.PutTaskOnTimeout("[Scanner] Unreachable", 60 * 60 * 3, true);
+            associatedTask.RecordAsUnreachable();
+        }
+
         private void Pulse()
         {
             lock (_scannerLock)
@@ -109,8 +117,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                         && wowObject.IsValid
                         && wowObject.Guid > 0
                         && _scannerRegistry.ContainsKey(wowObject.Entry)
-                        && _scannerRegistry[wowObject.Entry].Count > 0
-                        && _scannerRegistry[wowObject.Entry].Any(task => !task.IsTimedOut && !task.IsRecordedAsUnreachable)
+                        && _scannerRegistry[wowObject.Entry].Any(task => task.IsValid)
                         && _scannerRegistry[wowObject.Entry].Any(task => task.IsObjectValidForTask(wowObject)))
                     .ToList();
 
@@ -121,9 +128,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
                     if (!pathToClosestObject.IsReachable)
                     {
-                        BlacklistHelper.AddNPC(closestObject.Guid, "Unreachable (3)");
-                        IWAQTask associatedTask = GetTaskMatchingWithObject(closestObject);
-                        associatedTask.RecordAsUnreachable();
+                        MarkAsUnreachable(closestObject);
                         return;
                     }
 
@@ -144,10 +149,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
                             if (!pathToNewObject.IsReachable)
                             {
-                                Logger.Log($"Blacklisting {listSurroundingPOIs[i].Name} {listSurroundingPOIs[i].Guid} because it's unreachable");
-                                BlacklistHelper.AddNPC(listSurroundingPOIs[i].Guid, "Unreachable (4)");
-                                IWAQTask associatedTask = GetTaskMatchingWithObject(listSurroundingPOIs[i]);
-                                associatedTask.RecordAsUnreachable();
+                                MarkAsUnreachable(listSurroundingPOIs[i]);
                                 break;
                             }
 
@@ -165,14 +167,11 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                         }
                     }
 
-                    if (pathToClosestObject.IsReachable)
+                    IWAQTask associatedTask = GetTaskMatchingWithObject(closestObject);
+                    if (associatedTask != null)
                     {
-                        IWAQTask associatedTask = GetTaskMatchingWithObject(closestObject);
-                        if (associatedTask != null)
-                        {
-                            ActiveWoWObject = (closestObject, associatedTask);
-                            return;
-                        }
+                        ActiveWoWObject = (closestObject, associatedTask);
+                        return;
                     }
                 }
                 ActiveWoWObject = (null, null);
@@ -191,7 +190,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 if (_scannerRegistry.TryGetValue(closestObject.Entry, out List<IWAQTask> taskList))
                 {
                     return taskList
-                        .Where(task => task.IsObjectValidForTask(closestObject) && !task.IsTimedOut)
+                        .Where(task => task.IsObjectValidForTask(closestObject) && task.IsValid)
                         .OrderBy(task => task.Location.DistanceTo(closestObject.Position))
                         .FirstOrDefault();
                 }

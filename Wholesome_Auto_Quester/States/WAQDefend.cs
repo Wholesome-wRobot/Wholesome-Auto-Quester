@@ -49,8 +49,7 @@ namespace Wholesome_Auto_Quester.States
                     return false;
 
                 IOrderedEnumerable<WoWUnit> attackingMe = justUnits
-                    .Where(unit => /*unit.Level <= myLevel + 3 
-                        && */!unit.PlayerControlled
+                    .Where(unit => !unit.PlayerControlled
                         && unit.IsAttackable
                         && (unit.Target == myGuid || myPets.Exists(pet => pet.Guid == unit.Target)))
                     .OrderBy(unit => unit.PositionWithoutType.DistanceTo(myPos));
@@ -71,14 +70,15 @@ namespace Wholesome_Auto_Quester.States
                     return false;
 
                 _defendTarget = attackingMe.FirstOrDefault();
-                //Logger.LogError($"{_defendTarget.Name} is attacking me, target is {_defendTarget.TargetObject?.Name}");
-                //Logger.Log($"DEF - Mounted = {isMounted}, incomb = {ObjectManager.Me.InCombatFlagOnly}, dist={myPos.DistanceTo(MoveHelper.CurrentMovementTarget)}");
+                WAQPath pathToAttackingMe = ToolBox.GetWAQPath(myPos, _defendTarget.Position);
 
-                if (_defendTarget != null)
+                if (_defendTarget != null && pathToAttackingMe.IsReachable)
                 {
                     MountTask.DismountMount(true, wait: 0);
                     return true;
                 }
+
+                return false;
 
                 /*
                 // Check possible units on path
@@ -146,7 +146,6 @@ namespace Wholesome_Auto_Quester.States
                     return true;
                 }
                 */
-                return false;
             }
         }
     }

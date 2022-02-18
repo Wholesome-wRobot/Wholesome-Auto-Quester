@@ -61,8 +61,9 @@ namespace Wholesome_Auto_Quester.Database.Models
                     {
                         _continent = WAQContinent.Outlands;
                     }
+                    _isContinentSet = true;
                 }
-                _isContinentSet = true;
+
                 return _continent;
             }
         }

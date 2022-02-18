@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using Wholesome_Auto_Quester.Database.DBC;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Helpers;
@@ -8,10 +9,16 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
 {
     public class WAQTaskGatherGameObject : WAQBaseScannableTask
     {
+        private ModelGameObjectTemplate _gameObjectTemplate;
+        private ModelQuestTemplate _questTemplate;
+
         public WAQTaskGatherGameObject(ModelQuestTemplate questTemplate, ModelGameObjectTemplate goTemplate, ModelGameObject gameObject)
-            : base(gameObject.GetSpawnPosition, gameObject.map, $"Gather {goTemplate.name} for {questTemplate.LogTitle}", goTemplate.entry, 
+            : base(gameObject.GetSpawnPosition, gameObject.map, $"Gather {goTemplate.name} for {questTemplate.LogTitle}", goTemplate.entry,
                   gameObject.spawntimesecs, gameObject.guid)
         {
+            _gameObjectTemplate = goTemplate;
+            _questTemplate = questTemplate;
+
             if (questTemplate.QuestAddon?.AllowableClasses > 0)
             {
                 PriorityShift = 3;
@@ -22,7 +29,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             }
         }
 
-        public new void PutTaskOnTimeout(string reason, int timeInSeconds, bool exponentiallyLonger) 
+        public new void PutTaskOnTimeout(string reason, int timeInSeconds, bool exponentiallyLonger)
             => base.PutTaskOnTimeout(reason, timeInSeconds > 0 ? timeInSeconds : DefaultTimeOutDuration, exponentiallyLonger);
 
         public override bool IsObjectValidForTask(WoWObject wowObject)
@@ -38,9 +45,15 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         {
             Usefuls.WaitIsCastingAndLooting();
             Thread.Sleep(200);
+            if (!wowObject.IsValid)
+            {
+                PutTaskOnTimeout("Completed");
+            }
         }
 
-        public override string TrackerColor => IsTimedOut || IsRecordedAsUnreachable ? "Gray" : "Cyan";
+        protected override bool HasEnoughReputationForTask => _questTemplate.HasEnoughReputationForQuest;
+        protected override bool HasEnoughSkillForTask => DBCLocks.IsLockValid(_gameObjectTemplate.type, _gameObjectTemplate.Data0);
+        public override string TrackerColor => "Cyan";
         public override TaskInteraction InteractionType => TaskInteraction.Interact;
     }
 }

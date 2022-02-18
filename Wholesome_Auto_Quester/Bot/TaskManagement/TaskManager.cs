@@ -12,7 +12,6 @@ using Wholesome_Auto_Quester.Database;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.GUI;
 using Wholesome_Auto_Quester.Helpers;
-using wManager;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
@@ -106,24 +105,27 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
             if (WholesomeAQSettings.CurrentSetting.GoToMobEntry <= 0 && !WholesomeAQSettings.CurrentSetting.GrindOnly)
             {
-                tasksToAdd.AddRange(_questManager.GetAllQuestTasks());
+                tasksToAdd.AddRange(_questManager.GetAllValidQuestTasks());
             }
 
             // Add grind tasks if nothing else is valid
-            if (tasksToAdd.Count <= 0 || tasksToAdd.All(task => task.IsTimedOut || task.IsRecordedAsUnreachable))
+            if (tasksToAdd.Count <= 0)
             {
                 if (_grindTasks.Count <= 0)
                 {
-                    _grindTasks.AddRange(_grindManager.GetGrindTasks());
-                    foreach (IWAQTask grindTask in _grindManager.GetGrindTasks())
+                    List<IWAQTask> allGrindTasks = _grindManager.GetGrindTasks();
+                    _grindTasks.AddRange(allGrindTasks);
+                    foreach (IWAQTask grindTask in allGrindTasks)
                     {
                         grindTask.RegisterEntryToScanner(_objectScanner);
                     }
                 }
-                tasksToAdd.AddRange(_grindTasks);
+                _tracker.UpdateInvalids(_grindTasks.FindAll(task => !task.IsValid));
+                tasksToAdd.AddRange(_grindTasks.FindAll(task => task.IsValid));
             }
             else
             {
+                _tracker.UpdateInvalids(_questManager.GetAllInvalidQuestTasks());
                 if (_grindTasks.Count > 0)
                 {
                     foreach (IWAQTask grindTask in _grindTasks)
@@ -150,6 +152,12 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
             _tracker.UpdateTasksList(guiTasks);
 
+            if (_taskPile.Count <= 0)
+            {
+                Logger.LogError($"No task available");
+                return;
+            }
+
             // If a wow object is found, we force the closest task
             if (_objectScanner.ActiveWoWObject != (null, null))
             {
@@ -158,10 +166,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             }
 
             // Get closest task
-            IWAQTask closestTask = _taskPile.Find(task => 
-                !task.IsRecordedAsUnreachable 
-                && !task.IsTimedOut 
-                && !wManagerSetting.IsBlackListedZone(task.Location));
+            IWAQTask closestTask = _taskPile[0];
 
             // Check if travel is needed
             if (_travelManager.IsTravelRequired(closestTask))
@@ -172,14 +177,6 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
             WAQPath pathToClosestTask = ToolBox.GetWAQPath(ObjectManager.Me.Position, closestTask.Location);
 
-            if (!pathToClosestTask.IsReachable)
-            {
-                closestTask.PutTaskOnTimeout("Unreachable (1)", 60*60*3, true);
-                BlacklistHelper.AddZone(closestTask.Location, 5, "Unreachable (1)");
-                closestTask.RecordAsUnreachable();
-                return;
-            }
-            
             // Avoid snap back and forth
             if (ActiveTask != null
                 && MoveHelper.IsMovementThreadRunning)
@@ -190,7 +187,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                     return;
                 }
             }
-            
+
             if (pathToClosestTask.Distance > myPosition.DistanceTo(closestTask.Location) * 2)
             {
                 int closestTaskPriorityScore = CalculatePriority(myPosition, spaceTree, closestTask);
@@ -198,41 +195,30 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
                 for (int i = 0; i < _taskPile.Count - 1; i++)
                 {
-                    
+
                     if (nbReachAttempts > 2)
                     {
                         break;
                     }
-                    
-                    if (!_taskPile[i].IsTimedOut && !_taskPile[i].IsRecordedAsUnreachable)
+                    nbReachAttempts++;
+                    WAQPath pathToNewTask = ToolBox.GetWAQPath(myPosition, _taskPile[i].Location);
+
+                    int newTaskPriority = CalculatePriority(myPosition, spaceTree, _taskPile[i]);
+
+                    if (newTaskPriority < closestTaskPriorityScore)
                     {
-                        nbReachAttempts++;
-                        WAQPath pathToNewTask = ToolBox.GetWAQPath(myPosition, _taskPile[i].Location);
-                        if (!pathToNewTask.IsReachable)
-                        {
-                            _taskPile[i].PutTaskOnTimeout("Unreachable (2)", 60*60*3, true);
-                            BlacklistHelper.AddZone(closestTask.Location, 5, "Unreachable (2)");
-                            _taskPile[i].RecordAsUnreachable();
-                            continue;
-                        }
-
-                        int newTaskPriority = CalculatePriority(myPosition, spaceTree, _taskPile[i]);
-
-                        if (newTaskPriority < closestTaskPriorityScore)
-                        {
-                            closestTaskPriorityScore = newTaskPriority;
-                            closestTask = _taskPile[i];
-                        }
-
-                        if (closestTaskPriorityScore < _taskPile[i + 1].Location.DistanceTo(myPosition))
-                            break;
+                        closestTaskPriorityScore = newTaskPriority;
+                        closestTask = _taskPile[i];
                     }
+
+                    if (closestTaskPriorityScore < _taskPile[i + 1].Location.DistanceTo(myPosition))
+                        break;
                 }
             }
 
             // only set new task on long distance if it's far apart from previous
             if (closestTask != null && ActiveTask != null
-                && MoveHelper.IsMovementThreadRunning 
+                && MoveHelper.IsMovementThreadRunning
                 && MoveHelper.GetCurrentPathRemainingDistance() > 200
                 && ActiveTask.Location.DistanceTo(closestTask.Location) < 500)
             {

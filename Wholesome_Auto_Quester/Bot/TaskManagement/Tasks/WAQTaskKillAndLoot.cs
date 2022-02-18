@@ -6,21 +6,25 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
 {
     public class WAQTaskKillAndLoot : WAQBaseScannableTask
     {
+        private ModelQuestTemplate _questTemplate;
+
         public WAQTaskKillAndLoot(ModelQuestTemplate questTemplate, ModelCreatureTemplate creatureTemplate, ModelCreature creature)
-            : base(creature.GetSpawnPosition, creature.map, $"Kill and Loot {creatureTemplate.name} for {questTemplate.LogTitle}", creatureTemplate.entry, 
+            : base(creature.GetSpawnPosition, creature.map, $"Kill and Loot {creatureTemplate.name} for {questTemplate.LogTitle}", creatureTemplate.entry,
                   creature.spawnTimeSecs, creature.guid)
         {
-            if (questTemplate.QuestAddon?.AllowableClasses > 0)
+            _questTemplate = questTemplate;
+
+            if (_questTemplate.QuestAddon?.AllowableClasses > 0)
             {
                 PriorityShift = 3;
             }
-            if (questTemplate.TimeAllowed > 0)
+            if (_questTemplate.TimeAllowed > 0)
             {
                 PriorityShift = 7;
             }
         }
 
-        public new void PutTaskOnTimeout(string reason, int timeInSeconds, bool exponentiallyLonger) 
+        public new void PutTaskOnTimeout(string reason, int timeInSeconds, bool exponentiallyLonger)
             => base.PutTaskOnTimeout(reason, timeInSeconds > 0 ? timeInSeconds : DefaultTimeOutDuration, exponentiallyLonger);
 
         public override bool IsObjectValidForTask(WoWObject wowObject)
@@ -44,7 +48,9 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             }
         }
 
-        public override string TrackerColor => IsTimedOut || IsRecordedAsUnreachable ? "Gray" : "Orange";
+        public override string TrackerColor => "Orange";
         public override TaskInteraction InteractionType => TaskInteraction.KillAndLoot;
+        protected override bool HasEnoughSkillForTask => true;
+        protected override bool HasEnoughReputationForTask => _questTemplate.HasEnoughReputationForQuest;
     }
 }

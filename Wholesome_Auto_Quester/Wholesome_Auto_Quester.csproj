@@ -323,6 +323,7 @@
     <Compile Include="Bot\TravelManagement\ContinentHelper.cs" />
     <Compile Include="Bot\TravelManagement\ITravelManager.cs" />
     <Compile Include="Database\DB.cs" />
+    <Compile Include="Database\DBC\DBCFaction.cs" />
     <Compile Include="Database\DBQueriesWotlk.cs" />
     <Compile Include="Database\Models\ModelCreature.cs" />
     <Compile Include="Database\Models\ModelCreatureAddon.cs" />
@@ -332,6 +333,7 @@
     <Compile Include="Database\Models\ModelGameObject.cs" />
     <Compile Include="Database\Models\ModelGameObjectTemplate.cs" />
     <Compile Include="Database\Models\ModelItemLootTemplate.cs" />
+    <Compile Include="Database\DBC\DBCLocks.cs" />
     <Compile Include="Database\Models\ModelQuestTemplateAddon.cs" />
     <Compile Include="Database\Models\ModelItemTemplate.cs" />
     <Compile Include="Database\Models\ModelAreaTrigger.cs" />

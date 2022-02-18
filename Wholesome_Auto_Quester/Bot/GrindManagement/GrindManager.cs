@@ -60,6 +60,6 @@ namespace Wholesome_Auto_Quester.Bot.GrindManagement
             }
         }
 
-        public List<IWAQTask> GetGrindTasks() => _grindTasks;
+        public List<IWAQTask> GetGrindTasks() => _grindTasks.FindAll(task => task.IsValid);
     }
 }

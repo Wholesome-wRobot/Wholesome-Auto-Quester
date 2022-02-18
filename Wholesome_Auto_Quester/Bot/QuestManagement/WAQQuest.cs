@@ -10,6 +10,7 @@ using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Database.Objectives;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Helpers;
+using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.Bot.QuestManagement
 {
@@ -39,10 +40,26 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             return allTasks;
         }
 
+        public List<IWAQTask> GetAllValidTasks()
+        {
+            return GetAllTasks().FindAll(task => task.IsValid).ToList();
+        }
+
+        public List<IWAQTask> GetAllInvalidTasks()
+        {
+            return GetAllTasks().FindAll(task => !task.IsValid).ToList();
+        }
+
         private void AddTaskToDictionary(int objectiveIndex, IWAQTask task)
         {
-            if (task.WorldMapArea == null || 
-                !WholesomeAQSettings.CurrentSetting.ContinentTravel && task.WorldMapArea.Continent != ContinentHelper.MyMapArea.Continent)
+            if (task.WorldMapArea == null)
+            {
+                return;
+            }
+
+            if (ObjectManager.Me.Level < 58
+                && !WholesomeAQSettings.CurrentSetting.ContinentTravel
+                && task.WorldMapArea.Continent != ContinentHelper.MyMapArea.Continent)
             {
                 return;
             }
@@ -134,9 +151,8 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             {
                 if (ToolBox.SaveQuestAsCompleted(QuestTemplate.Id))
                 {
-                    WholesomeAQSettings.CurrentSetting.Save();
+                    ClearTasksDictionary();
                 }
-                ClearTasksDictionary();
                 return;
             }
 
