@@ -30,6 +30,7 @@ namespace Wholesome_Auto_Quester
         public List<BlackListedQuest> BlackListedQuests { get; set; }
         public bool AbandonUnfitQuests { get; set; }
         public int GoToMobEntry { get; set; }
+        public int StopAtLevel { get; set; }
 
         public WholesomeAQSettings()
         {
@@ -48,6 +49,7 @@ namespace Wholesome_Auto_Quester
             AbandonUnfitQuests = false;
             GoToMobEntry = 0;
             RecordUnreachables = true;
+            StopAtLevel = 80;
         }
 
         public static void RecordGuidAsUnreachable(uint guid)

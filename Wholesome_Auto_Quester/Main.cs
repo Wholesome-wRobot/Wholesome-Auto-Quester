@@ -15,7 +15,7 @@ using wManager.Wow.ObjectManager;
 
 public class Main : IProduct
 {
-    public static readonly string ProductVersion = "0.1.08"; // Must match version in Version.txt
+    public static readonly string ProductVersion = "0.1.09"; // Must match version in Version.txt
     public static readonly string ProductName = "Wholesome Auto Quester";
     public static readonly string FileName = "Wholesome_Auto_Quester";
     private ProductSettingsControl _settingsUserControl;
@@ -41,6 +41,12 @@ public class Main : IProduct
     {
         try
         {
+            if (ObjectManager.Me.Level >= WholesomeAQSettings.CurrentSetting.StopAtLevel)
+            {
+                Logger.Log($"You are at, or above your maximum set level ({WholesomeAQSettings.CurrentSetting.StopAtLevel}). Stopping.");
+                return;
+            }
+
             if (AutoUpdater.CheckUpdate(ProductVersion))
             {
                 return;
@@ -88,7 +94,7 @@ public class Main : IProduct
                 }
             });
 
-            if (_bot.Pulse(tracker))
+            if (_bot.Pulse(tracker, this))
             {
                 PluginsManager.LoadAllPlugins();
 

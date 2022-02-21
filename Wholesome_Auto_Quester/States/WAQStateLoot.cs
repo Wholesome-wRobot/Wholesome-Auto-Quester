@@ -55,6 +55,8 @@ namespace Wholesome_Auto_Quester.States
                 return;
             }
 
+            ToolBox.CheckIfZReachable(gameObject.Position);
+
             Logger.Log($"Looting {lootTarget.Name}");
             LootingTask.Pulse(new List<WoWUnit> { lootTarget });
 

@@ -1,2 +1,12 @@
-﻿Make clear POI a state
-Record unreachables
+﻿--------- list all frames containing string ---------------
+local result = "";
+local frame = EnumerateFrames()
+while frame do
+    if frame:IsVisible() and frame:GetName() ~= nil and string.find(frame:GetName(), "Gossip") then
+        result = result .. '\n' .. frame:GetName()
+        DEFAULT_CHAT_FRAME:AddMessage(frame:GetName())
+    end
+    frame = EnumerateFrames(frame)
+end
+
+dbgOutput = result

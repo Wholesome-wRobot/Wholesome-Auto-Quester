@@ -67,6 +67,7 @@ namespace Wholesome_Auto_Quester.States
 
             if (unitToLoot.GetDistance <= 4)
             {
+                ToolBox.CheckIfZReachable(gameObject.Position);
                 MoveHelper.StopAllMove(true);
                 Logger.Log($"Priority looting {unitToLoot.Name}");
                 Interact.InteractGameObject(unitToLoot.GetBaseAddress);

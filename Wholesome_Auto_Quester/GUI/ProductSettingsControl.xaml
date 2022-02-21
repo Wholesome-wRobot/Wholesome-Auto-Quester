@@ -174,5 +174,22 @@
                     ValueChanged="GoToMobEntryChanged"
                     x:Name="GoToMobEntry"  />
 
+        <TextBlock Grid.Row="6" 
+                    Grid.Column="2" 
+                    Margin="10" 
+                    HorizontalAlignment="Right" 
+                    VerticalAlignment="Center"  
+                    Text="Stop at level :" 
+                    FontSize="13"  />
+        <mah:NumericUpDown  Grid.Row="6" 
+                    Minimum="0"
+                    Grid.Column="4" 
+                    MinWidth="110"
+                    Margin="10,10,0,10"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center" 
+                    ValueChanged="StopAtLevelChanged"
+                    x:Name="StopAtLevel"  />
+
     </Grid>
 </UserControl>

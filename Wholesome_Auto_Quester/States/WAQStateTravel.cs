@@ -90,7 +90,18 @@ namespace Wholesome_Auto_Quester.States
                     // To Northrend
                     if (destinationContinent == WAQContinent.Northrend)
                     {
-                        _travelManager.ZeppelinTirisfalToOrgrimmar();
+                        // To Northrend
+                        if (destinationContinent == WAQContinent.Northrend)
+                        {
+                            if (task.Location.Y > 265)
+                            {
+                                _travelManager.ZeppelinTirisfalToOrgrimmar();
+                            }
+                            else
+                            {
+                                _travelManager.ZeppelinTirisfalToHowlingFjord();
+                            }
+                        }
                     }
                 }
 
@@ -108,7 +119,7 @@ namespace Wholesome_Auto_Quester.States
                         {
                             if (task.Location.X > -2384) // above wetlands
                             {
-                                _travelManager.ZeppelinKalimdorToTirisfal();
+                                _travelManager.ZeppelinOrgrimmarToTirisfal();
                             }
                             else
                             {
@@ -124,28 +135,21 @@ namespace Wholesome_Auto_Quester.States
                     // To Northrend
                     if (destinationContinent == WAQContinent.Northrend)
                     {
-                        _travelManager.ZeppelinOrgrimmarToNorthrend();
+                        if (task.Location.Y > 265)
+                        {
+                            _travelManager.ZeppelinOrgrimmarToBoreanTundra();
+                        }
+                        else
+                        {
+                            _travelManager.ZeppelinOrgrimmarToTirisfal();
+                        }
                     }
                 }
 
                 // From Outlands
                 if (myContinent == WAQContinent.Outlands)
                 {
-                    // To Kalimdor
-                    if (destinationContinent == WAQContinent.Kalimdor)
-                    {
-                        _travelManager.PortalShattrathToOrgrimmar();
-                    }
-                    // To EK
-                    if (destinationContinent == WAQContinent.EasternKingdoms)
-                    {
-                        _travelManager.PortalShattrathToOrgrimmar();
-                    }
-                    // To Northrend
-                    if (destinationContinent == WAQContinent.Northrend)
-                    {
-                        _travelManager.PortalShattrathToOrgrimmar();
-                    }
+                    _travelManager.PortalShattrathToOrgrimmar();
                 }
 
                 // From Northrend

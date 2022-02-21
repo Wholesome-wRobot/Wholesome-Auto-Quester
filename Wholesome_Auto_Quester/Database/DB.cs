@@ -378,6 +378,11 @@ namespace Wholesome_Auto_Quester.Database
 
             foreach (ModelQuestTemplate template in result)
             {
+                // Make sure we enable Northrend quests for level 70
+                if (template.QuestLevel == 71)
+                {
+                    template.QuestLevel--;
+                }
                 // Make sure we enable Outlands quests for level 60
                 if (template.QuestLevel == 61)
                 {

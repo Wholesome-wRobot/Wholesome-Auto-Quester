@@ -1,5 +1,6 @@
 ﻿using robotManager.FiniteStateMachine;
 using robotManager.Helpful;
+using robotManager.Products;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -30,11 +31,13 @@ namespace Wholesome_Auto_Quester.Bot
         private IGrindManager _grindManager;
         private TravelManager _travelManager;
         private QuestsTrackerGUI _questTrackerGui;
+        private IProduct _product;
 
-        internal bool Pulse(QuestsTrackerGUI tracker)
+        internal bool Pulse(QuestsTrackerGUI tracker, IProduct product)
         {
             try
             {
+                _product = product;
                 _questTrackerGui = tracker;
                 _travelManager = new TravelManager();
                 _grindManager = new GrindManager();
@@ -103,9 +106,6 @@ namespace Wholesome_Auto_Quester.Bot
                 Radar3D.OnDrawEvent += Radar3DOnDrawEvent;
                 Radar3D.Pulse();
 
-                wManager.wManagerSetting.AddBlackListZone(new Vector3(1731.702, -4423.403, 36.86293, "None"), 5.00f, true);
-                wManager.wManagerSetting.AddBlackListZone(new Vector3(1669.99, -4359.609, 29.23425, "None"), 5.00f, true);
-
                 return true;
             }
             catch (Exception e)
@@ -144,6 +144,13 @@ namespace Wholesome_Auto_Quester.Bot
 
         private void OnLevelUp()
         {
+            if (ObjectManager.Me.Level >= WholesomeAQSettings.CurrentSetting.StopAtLevel)
+            {
+                Logger.Log($"You have reached your maximum set level ({WholesomeAQSettings.CurrentSetting.StopAtLevel}). Stopping.");
+                _product.Dispose();
+                return;
+            }
+
             SpellManager.UpdateSpellBook();
             CustomClass.ResetCustomClass();
             Talent.DoTalents();

@@ -53,6 +53,8 @@ namespace Wholesome_Auto_Quester.States
 
             float interactDistance = 3.5f + gameObject.Scale;
 
+            ToolBox.CheckIfZReachable(gameObject.Position);
+
             if (gameObject.GetDistance > interactDistance)
             {
                 MoveHelper.StartGoToThread(gameObject.Position, $"Going to {gameObject.Name} for {task.TaskName}.");

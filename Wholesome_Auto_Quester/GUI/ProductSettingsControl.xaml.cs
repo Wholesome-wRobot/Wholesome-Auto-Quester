@@ -16,11 +16,21 @@ namespace Wholesome_Auto_Quester.GUI
             LevelDeltaMinus.Value = WholesomeAQSettings.CurrentSetting.LevelDeltaMinus;
             LevelDeltaPlus.Value = WholesomeAQSettings.CurrentSetting.LevelDeltaPlus;
             DeltaDetails.Text = GetDeltaDetailsString();
-            RecordUnreachables.IsChecked = WholesomeAQSettings.CurrentSetting.SmoothMove;
+            RecordUnreachables.IsChecked = WholesomeAQSettings.CurrentSetting.RecordUnreachables;
             GrindOnly.IsChecked = WholesomeAQSettings.CurrentSetting.GrindOnly;
             ContinentTravel.IsChecked = WholesomeAQSettings.CurrentSetting.ContinentTravel;
             AbandonUnfit.IsChecked = WholesomeAQSettings.CurrentSetting.AbandonUnfitQuests;
             GoToMobEntry.Value = WholesomeAQSettings.CurrentSetting.GoToMobEntry;
+            StopAtLevel.Value = WholesomeAQSettings.CurrentSetting.StopAtLevel;
+        }
+
+        private void StopAtLevelChanged(object sender, RoutedEventArgs e)
+        {
+            if (StopAtLevel.Value != null)
+                WholesomeAQSettings.CurrentSetting.StopAtLevel = (int)StopAtLevel.Value;
+            else
+                WholesomeAQSettings.CurrentSetting.StopAtLevel = 0;
+            WholesomeAQSettings.CurrentSetting.Save();
         }
 
         private void GoToMobEntryChanged(object sender, RoutedEventArgs e)

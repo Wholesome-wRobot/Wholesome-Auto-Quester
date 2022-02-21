@@ -1,6 +1,7 @@
 ﻿using robotManager.FiniteStateMachine;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
+using Wholesome_Auto_Quester.Helpers;
 using wManager;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
@@ -51,6 +52,8 @@ namespace Wholesome_Auto_Quester.States
             {
                 task.PutTaskOnTimeout($"Couldn't find target");
             }
+
+            ToolBox.CheckIfZReachable(task.Location);
 
             if (task.Location.DistanceTo(ObjectManager.Me.Position) > 19 
                 && (!MoveHelper.IsMovementThreadRunning || MoveHelper.CurrentTarget != task.Location))

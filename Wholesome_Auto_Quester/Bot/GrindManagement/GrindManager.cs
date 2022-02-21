@@ -6,6 +6,7 @@ using Wholesome_Auto_Quester.Database;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Helpers;
+using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.Bot.GrindManagement
 {
@@ -54,7 +55,7 @@ namespace Wholesome_Auto_Quester.Bot.GrindManagement
 
         private void LuaEventHandler(string eventid, List<string> args)
         {
-            if (eventid == "PLAYER_LEVEL_UP")
+            if (eventid == "PLAYER_LEVEL_UP" && ObjectManager.Me.Level < WholesomeAQSettings.CurrentSetting.StopAtLevel)
             {
                 RecordGrindTasksFromDB();
             }

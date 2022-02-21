@@ -105,7 +105,6 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             switch (eventid)
             {
                 case "QUEST_LOG_UPDATE":
-                    Logger.LogDebug("QUEST_LOG_UPDATE");
                     lock (_questManagerLock)
                     {
                         UpdateStatuses();
@@ -118,11 +117,12 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     CheckInventoryForQuestsGivenByItems();
                     break;
                 case "PLAYER_LEVEL_UP":
-                    Logger.LogDebug("PLAYER_LEVEL_UP");
-                    GetQuestsFromDB();
+                    if (ObjectManager.Me.Level < WholesomeAQSettings.CurrentSetting.StopAtLevel)
+                    {
+                        GetQuestsFromDB();
+                    }
                     break;
                 case "PLAYER_ENTERING_WORLD":
-                    Logger.LogDebug("PLAYER_ENTERING_WORLD");
                     GetQuestsFromDB();
                     break;
             }
@@ -179,7 +179,6 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
         {
             Dictionary<int, Quest.PlayerQuest> logQuests = Quest.GetLogQuestId().ToDictionary(quest => quest.ID);
             List<string> itemsToAddToDNSList = new List<string>();
-            ToolBox.UpdateObjectiveCompletionDict(_questList.Select(quest => quest.QuestTemplate.Id).ToArray());
 
             foreach (IWAQQuest quest in _questList)
             {
@@ -285,6 +284,10 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     }
                 }
             }
+
+            ToolBox.UpdateObjectiveCompletionDict(_questList
+                .Where(quest => quest.Status == QuestStatus.InProgress)
+                .Select(quest => quest.QuestTemplate.Id).ToArray());
 
             // WAQ Do Not Sell List
             int WAQlistStartIndex = wManagerSetting.CurrentSetting.DoNotSellList.IndexOf("WAQStart");
@@ -395,8 +398,9 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
         private bool IsQuestPickable(IWAQQuest quest)
         {
+            // Double check here, do we need all completed or just one?
             if (quest.QuestTemplate.PreviousQuestsIds.Count > 0
-                && quest.QuestTemplate.PreviousQuestsIds.Any(id => !ToolBox.IsQuestCompleted(id)))
+                && !quest.QuestTemplate.PreviousQuestsIds.Exists(id => ToolBox.IsQuestCompleted(id)))
             {
                 return false;
             }
@@ -439,6 +443,8 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(5021, "Better late than ever, Too many mobs", false);
             AddQuestToBlackList(10103, "Report to Zurai, unreachable (top of tower)", false);
             AddQuestToBlackList(10286, "Arelion's secret, requires bubble talk", false);
+            AddQuestToBlackList(9785, "Blessings of the Ancients, requires bubble talk", false);
+            AddQuestToBlackList(11039, "Report to spymaster Thalodien, Orange npc", false);
             if (ToolBox.IsHorde()) AddQuestToBlackList(4740, "Bugged, should only be alliance", false);
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))

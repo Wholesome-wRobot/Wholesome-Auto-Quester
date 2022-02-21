@@ -20,7 +20,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         public int PriorityShift { get; protected set; } = 1;
         public int SearchRadius { get; protected set; } = 20;
         private bool IsTimedOut => !_timeOutTimer.IsReady;
-        public string InvalidityReason { get; private set; } = "";
+        public string InvalidityReason { get; private set; } = " ";
         public bool IsValid
         {
             get
@@ -64,11 +64,19 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
                 }
 
                 // Stick to Outlands between 60 and 70
-                if (myLevel <= 70
+                if (myLevel < 70
                     && (ToolBox.IsQuestCompleted(9407) || ToolBox.IsQuestCompleted(10119))
                     && WorldMapArea.Continent != WAQContinent.Outlands)
                 {
                     InvalidityReason = "Sticking to Outlands";
+                    return false;
+                }
+
+                // Stick to Outlands between 60 and 70
+                if (myLevel >= 70 && myLevel <= 80
+                    && WorldMapArea.Continent != WAQContinent.Northrend)
+                {
+                    InvalidityReason = "Sticking to Northrend";
                     return false;
                 }
 

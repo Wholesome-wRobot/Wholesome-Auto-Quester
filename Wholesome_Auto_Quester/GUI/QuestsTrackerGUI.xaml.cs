@@ -10,7 +10,6 @@ using Wholesome_Auto_Quester.Bot.QuestManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Database.Objectives;
 using Wholesome_Auto_Quester.Helpers;
-using wManager;
 using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.GUI
@@ -135,7 +134,7 @@ namespace Wholesome_Auto_Quester.GUI
         public void UpdateInvalids(List<IWAQTask> invalidTasks)
         {
             Dispatcher.BeginInvoke((Action)(() =>
-            {                
+            {
                 sourceInvalids.ItemsSource = null;
                 int counter = 0;
                 List<GUITask> guiTasks = new List<GUITask>();
@@ -147,7 +146,7 @@ namespace Wholesome_Auto_Quester.GUI
                 }
                 string countText = counter >= 200 ? $"{counter}+" : $"{guiTasks.Count}";
                 sourceInvalids.ItemsSource = guiTasks;
-                invalidsTitleTop.Text = $"Invalid tasks ({countText})";                
+                invalidsTitleTop.Text = $"Invalid tasks ({countText})";
             }));
         }
 
@@ -197,7 +196,9 @@ namespace Wholesome_Auto_Quester.GUI
                     questGivers.Visibility = Visibility.Visible;
                 }
                 else
+                {
                     questGivers.Visibility = Visibility.Collapsed;
+                }
 
                 // quest turners
                 if (selected.QuestTemplate.CreatureQuestTurners.Count > 0)
@@ -209,7 +210,9 @@ namespace Wholesome_Auto_Quester.GUI
                     questTurners.Visibility = Visibility.Visible;
                 }
                 else
+                {
                     questTurners.Visibility = Visibility.Collapsed;
+                }
 
                 // status
                 questStatus.Text = $"Status: {selected.Status}";
@@ -223,7 +226,9 @@ namespace Wholesome_Auto_Quester.GUI
                     questPrevious.Visibility = Visibility.Visible;
                 }
                 else
+                {
                     questPrevious.Visibility = Visibility.Collapsed;
+                }
 
                 // next quests
                 if (selected.QuestTemplate.NextQuestsIds.Count > 0)
@@ -234,7 +239,9 @@ namespace Wholesome_Auto_Quester.GUI
                     questNext.Visibility = Visibility.Visible;
                 }
                 else
+                {
                     questNext.Visibility = Visibility.Collapsed;
+                }
 
                 // exploration objectives
                 if (selected.QuestTemplate.ExplorationObjectives.Count > 0)
@@ -242,9 +249,10 @@ namespace Wholesome_Auto_Quester.GUI
                     explorations.Visibility = Visibility.Visible;
                     explorations.Children.RemoveRange(1, explorations.Children.Count - 1);
                     foreach (ExplorationObjective obje in selected.QuestTemplate.ExplorationObjectives)
-                        if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, selected.QuestTemplate.Id))
-                            explorations.Children.Add(CreateListTextBlock(
-                                $"[{selected.QuestTemplate.ExplorationObjectives.IndexOf(obje) + 1}] {obje.Area.GetPosition}"));
+                    {
+                        explorations.Children.Add(CreateListTextBlock(
+                            $"[{selected.QuestTemplate.ExplorationObjectives.IndexOf(obje) + 1}] {obje.Area.GetPosition}"));
+                    }
                 }
                 else
                     explorations.Visibility = Visibility.Collapsed;
@@ -256,9 +264,8 @@ namespace Wholesome_Auto_Quester.GUI
                     questGatherObjects.Children.RemoveRange(1, questGatherObjects.Children.Count - 1);
                     foreach (GatherObjective obje in selected.QuestTemplate.GatherObjectives)
                     {
-                        if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, selected.QuestTemplate.Id))
-                            questGatherObjects.Children.Add(CreateListTextBlock(
-                                $"[{obje.ObjectiveIndex}] {obje.GameObjectLootTemplate.GameObjectTemplates[0].name} ({obje.GetNbGameObjects()} found)"));
+                        questGatherObjects.Children.Add(CreateListTextBlock(
+                            $"[{obje.ObjectiveIndex}] {obje.GameObjectLootTemplate.GameObjectTemplates[0].name} ({obje.GetNbGameObjects()} found)"));
                     }
                 }
                 else
@@ -270,9 +277,10 @@ namespace Wholesome_Auto_Quester.GUI
                     questKillCreatures.Visibility = Visibility.Visible;
                     questKillCreatures.Children.RemoveRange(1, questKillCreatures.Children.Count - 1);
                     foreach (KillObjective obje in selected.QuestTemplate.KillObjectives)
-                        if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, selected.QuestTemplate.Id))
-                            questKillCreatures.Children.Add(CreateListTextBlock(
-                                $"[{obje.ObjectiveIndex}] {obje.CreatureTemplate.name} ({obje.CreatureTemplate.Creatures.Count} found)"));
+                    {
+                        questKillCreatures.Children.Add(CreateListTextBlock(
+                            $"[{obje.ObjectiveIndex}] {obje.CreatureTemplate.name} ({obje.CreatureTemplate.Creatures.Count} found)"));
+                    }
                 }
                 else
                     questKillCreatures.Visibility = Visibility.Collapsed;
@@ -283,9 +291,10 @@ namespace Wholesome_Auto_Quester.GUI
                     questLootCreatures.Visibility = Visibility.Visible;
                     questLootCreatures.Children.RemoveRange(1, questLootCreatures.Children.Count - 1);
                     foreach (KillLootObjective obje in selected.QuestTemplate.KillLootObjectives)
-                        if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, selected.QuestTemplate.Id))
-                            questLootCreatures.Children.Add(CreateListTextBlock(
-                                $"[{obje.ObjectiveIndex}] {obje.CreatureLootTemplate.CreatureTemplate.name} ({obje.CreatureLootTemplate.CreatureTemplate.Creatures.Count} found - {(int)obje.CreatureLootTemplate.Chance}%)"));
+                    {
+                        questLootCreatures.Children.Add(CreateListTextBlock(
+                            $"[{obje.ObjectiveIndex}] {obje.CreatureLootTemplate.CreatureTemplate.name} ({obje.CreatureLootTemplate.CreatureTemplate.Creatures.Count} found - {(int)obje.CreatureLootTemplate.Chance}%)"));
+                    }
                 }
                 else
                     questLootCreatures.Visibility = Visibility.Collapsed;
@@ -296,9 +305,10 @@ namespace Wholesome_Auto_Quester.GUI
                     interactObjectives.Visibility = Visibility.Visible;
                     interactObjectives.Children.RemoveRange(1, interactObjectives.Children.Count - 1);
                     foreach (InteractObjective obje in selected.QuestTemplate.InteractObjectives)
-                        if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, selected.QuestTemplate.Id))
-                            interactObjectives.Children.Add(CreateListTextBlock(
-                                $"[{obje.ObjectiveIndex}] {obje.GameObjectTemplate.name} ({obje.GameObjectTemplate.GameObjects.Count} found)"));
+                    {
+                        interactObjectives.Children.Add(CreateListTextBlock(
+                            $"[{obje.ObjectiveIndex}] {obje.GameObjectTemplate.name} ({obje.GameObjectTemplate.GameObjects.Count} found)"));
+                    }
                 }
                 else
                     interactObjectives.Visibility = Visibility.Collapsed;
@@ -309,8 +319,10 @@ namespace Wholesome_Auto_Quester.GUI
                     prerequisiteGathers.Visibility = Visibility.Visible;
                     prerequisiteGathers.Children.RemoveRange(1, prerequisiteGathers.Children.Count - 1);
                     foreach (GatherObjective obje in selected.QuestTemplate.PrerequisiteGatherObjectives)
+                    {
                         prerequisiteGathers.Children.Add(CreateListTextBlock(
                                 $"[{obje.ObjectiveIndex}] {obje.GameObjectLootTemplate.GameObjectTemplates[0].name} ({obje.GetNbGameObjects()} found)"));
+                    }
                 }
                 else
                     prerequisiteGathers.Visibility = Visibility.Collapsed;
@@ -321,8 +333,10 @@ namespace Wholesome_Auto_Quester.GUI
                     prerequisiteLoots.Visibility = Visibility.Visible;
                     prerequisiteLoots.Children.RemoveRange(1, prerequisiteLoots.Children.Count - 1);
                     foreach (KillLootObjective obje in selected.QuestTemplate.PrerequisiteLootObjectives)
+                    {
                         prerequisiteLoots.Children.Add(CreateListTextBlock(
                             $"[{obje.ObjectiveIndex}] {obje.Amount} x {obje.ItemTemplate.Name} ({obje.CreatureLootTemplate.CreatureTemplate.Creatures.Count} found)"));
+                    }
                 }
                 else
                     prerequisiteLoots.Visibility = Visibility.Collapsed;
@@ -336,21 +350,25 @@ namespace Wholesome_Auto_Quester.GUI
                     selected.GetAllObjectives().ForEach(obj =>
                     {
                         if (!objDisplays.Exists(o => o.Name == obj.ObjectiveName))
+                        {
                             objDisplays.Add(new ObjectiveDisplay(obj.ObjectiveIndex, obj.ObjectiveName, obj.Amount));
+                        }
                     });
-                    objDisplays.ForEach(od =>
+                    foreach (ObjectiveDisplay od in objDisplays)
                     {
                         TextBlock objTextBlock = CreateListTextBlock($"[{od.Index}] {od.Name} (x{od.Amount})");
-                        if (ToolBox.IsObjectiveCompleted(od.Index, selected.QuestTemplate.Id))
+                        if (selected.Status == QuestStatus.InProgress && ToolBox.IsObjectiveCompleted(od.Index, selected.QuestTemplate.Id))
                         {
                             objTextBlock.Foreground = Brushes.LightGray;
                             objTextBlock.TextDecorations = TextDecorations.Strikethrough;
                         }
                         objectiveStack.Children.Add(objTextBlock);
-                    });
+                    }
                 }
                 else
+                {
                     objectiveStack.Visibility = Visibility.Collapsed;
+                }
 
                 if (selected.IsQuestBlackListed)
                 {

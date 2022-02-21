@@ -126,7 +126,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                     WoWObject closestObject = listSurroundingPOIs[0];
                     WAQPath pathToClosestObject = ToolBox.GetWAQPath(me.Position, closestObject.Position);
 
-                    if (!pathToClosestObject.IsReachable)
+                    if (closestObject.GetDistance > 5 && !pathToClosestObject.IsReachable)
                     {
                         MarkAsUnreachable(closestObject);
                         return;
@@ -147,7 +147,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                         {
                             WAQPath pathToNewObject = ToolBox.GetWAQPath(me.Position, listSurroundingPOIs[i].Position);
 
-                            if (!pathToNewObject.IsReachable)
+                            if (listSurroundingPOIs[i].GetDistance > 5 && !pathToNewObject.IsReachable)
                             {
                                 MarkAsUnreachable(listSurroundingPOIs[i]);
                                 break;

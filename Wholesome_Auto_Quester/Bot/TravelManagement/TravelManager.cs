@@ -5,7 +5,9 @@ using System.Threading;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
+using wManager;
 using wManager.Wow.Bot.Tasks;
+using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 using static wManager.Wow.Helpers.PathFinder;
@@ -73,8 +75,15 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
 
         // Zeppelins
         readonly int zeppelinTirisfalToOrgrimmarId = 164871;
-        readonly int zeppelinKalidmdorToNorthrendId = 186238;
+        readonly int zeppelinKalidmdorToBoreanTundraId = 186238;
         readonly int zeppelinTirisfalToStranglethornId = 176495;
+        readonly int zeppelinTirisfalToHowlingFjord = 181689;
+
+        readonly Vector3 howlingFjordPlatformZepTirisfal = new Vector3(1974.928, -6099.246, 67.15016, "None");
+        readonly Vector3 insideZeppelinHowlingFjordToTirisfal = new Vector3(1973.273, -6100.806, 67.15335, "None");
+
+        readonly Vector3 tirisfalPlatformHowlingFjord = new Vector3(2062.986, 356.4112, 82.45396, "None");
+        readonly Vector3 insideZeppelinTirisfalToHowlingFjord = new Vector3(2060.194, 372.4912, 82.45258, "None");
 
         readonly Vector3 tirisfalPlatformZepStranglethorn = new Vector3(2057.805, 242.4949, 99.76875, "None");
         readonly Vector3 insideZeppelinTirisfalToStranglethorn = new Vector3(2056.706, 231.9014, 100.0376, "None");
@@ -94,10 +103,10 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
         readonly Vector3 northrendPlatformZepTirisfal = new Vector3(1973.989, -6099.464, 67.15666);
         readonly Vector3 insideZeppelinNorthrendToTirisfal = new Vector3(1984.397, -6089.137, 67.68417);
 
-        readonly Vector3 kalimdorlPlatformZepNorthrend = new Vector3(1179.33, -4150.091, 52.13512);
-        readonly Vector3 insideZeppelinKalimdorToNorthrend = new Vector3(1192.992, -4142.117, 52.73592);
+        readonly Vector3 kalimdorlPlatformZepBoreanTundra = new Vector3(1179.33, -4150.091, 52.13512);
+        readonly Vector3 insideZeppelinKalimdorToBoreanTundra = new Vector3(1192.992, -4142.117, 52.73592);
 
-        readonly Vector3 northrendPlatformZepKalimdor = new Vector3(2829.167, 6178.443, 121.9824f);
+        readonly Vector3 boreanTundraPlatformZepKalimdor = new Vector3(2829.167, 6178.443, 121.9824f);
         readonly Vector3 insideZeppelinNorthrendToKalimdor = new Vector3(2844.347, 6192.584, 122.2752);
 
         //Ships
@@ -320,7 +329,7 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
             }
         }
 
-        public void ZeppelinKalimdorToTirisfal()
+        public void ZeppelinOrgrimmarToTirisfal()
         {
             Logger.Log("Taking zeppelin to Tirisfal");
             GoToTask.ToPosition(orgrimmarPlatformZepTirisfal);
@@ -346,20 +355,32 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
             if (ObjectManager.Me.Position.DistanceTo(bayStormwindToBoreanTundra) < 4)
             {
                 WaitForTransport(shipStormwindToBoreanTundraId, 30);
-                GoToTask.ToPosition(insideShipStormwindToBoreanTundra, 1);
+                ForceMoveTo(insideShipStormwindToBoreanTundra);
                 WaitOnTransport(bayBoreanTundraToStormwind, 25);
             }
         }
 
-        public void ZeppelinOrgrimmarToNorthrend()
+        public void ZeppelinOrgrimmarToBoreanTundra()
         {
-            Logger.Log("Taking zeppelin to Northrend");
-            GoToTask.ToPosition(kalimdorlPlatformZepNorthrend, 0, true);
-            if (ObjectManager.Me.Position.DistanceTo(kalimdorlPlatformZepNorthrend) < 4)
+            Logger.Log("Taking zeppelin to Borean Tundra");
+            GoToTask.ToPosition(kalimdorlPlatformZepBoreanTundra);
+            if (ObjectManager.Me.Position.DistanceTo(kalimdorlPlatformZepBoreanTundra) < 4)
             {
-                WaitForTransport(zeppelinKalidmdorToNorthrendId, 30);
-                GoToTask.ToPosition(insideZeppelinKalimdorToNorthrend, 1);
-                WaitOnTransport(northrendPlatformZepKalimdor, 25);
+                WaitForTransport(zeppelinKalidmdorToBoreanTundraId, 30);
+                ForceMoveTo(insideZeppelinKalimdorToBoreanTundra);
+                WaitOnTransport(boreanTundraPlatformZepKalimdor, 25);
+            }
+        }
+
+        public void ZeppelinTirisfalToHowlingFjord()
+        {
+            Logger.Log("Taking zeppelin to Howling Fjord");
+            GoToTask.ToPosition(tirisfalPlatformHowlingFjord);
+            if (ObjectManager.Me.Position.DistanceTo(tirisfalPlatformHowlingFjord) < 4)
+            {
+                WaitForTransport(zeppelinTirisfalToHowlingFjord, 30);
+                ForceMoveTo(insideZeppelinTirisfalToHowlingFjord);
+                WaitOnTransport(howlingFjordPlatformZepTirisfal, 25);
             }
         }
 
@@ -412,136 +433,86 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
             if (OffMeshConnections.MeshConnection == null || OffMeshConnections.MeshConnection.Count <= 0)
                 OffMeshConnections.Load();
 
+            // Avoid Orgrimmar Braseros
+            wManagerSetting.AddBlackListZone(new Vector3(1731.702, -4423.403, 36.86293), 5, ContinentId.Kalimdor);
+            wManagerSetting.AddBlackListZone(new Vector3(1669.99, -4359.609, 29.23425), 5, ContinentId.Kalimdor);
+
+            // Warsong hold top elevator
+            wManagerSetting.AddBlackListZone(new Vector3(2892.18, 6236.34, 208.908), 15, ContinentId.Northrend);
+
             OffMeshConnections.MeshConnection.Clear();
 
-            List<OffMeshConnection> offmeshConnections = new List<OffMeshConnection>
-            {
-                /*
-                //Alliance  Start
-                new OffMeshConnection(new List<Vector3>
-                {
-                    new Vector3(bayAzuremystToDarkshore),
-                    new Vector3(insideShipAzuremystToDarkshore)
-                }, (int) ContinentId.Expansion01, OffMeshConnectionType.Bidirectional, true),
+            AddTransportOffMesh(new Vector3(695.7321, -3822.025, 254.6207, "None"), // wait for transport
+                new Vector3(704.0106, -3822.148, 254.8952, "None"), // Step in
+                new Vector3(700.767, -3823.5, 268.267, "None"), // Object departure
+                new Vector3(617.7081, -2890.286, 56.26012, "None"), // Object arrival
+                new Vector3(610.707, -2890.53, 42.3438, "None"), // Step out
+                190587,
+                ContinentId.Northrend,
+                "Kamagua gondola TO");
 
-                new OffMeshConnection(new List<Vector3>
-                {
-                    new Vector3(bayDarkshoreToAzuremyst),
-                    new Vector3(insideShipDarkshoreToAzuremyst)
-                }, (int) ContinentId.Kalimdor, OffMeshConnectionType.Bidirectional, true),
+            AddTransportOffMesh(new Vector3(600.0642, -2891.163, 42.33836, "None"), // wait for transport
+                new Vector3(592.8513, -2891.575, 42.713, "None"), // Step in
+                new Vector3(595.1278, -2892.089, 56.1194, "None"), // Object departure
+                new Vector3(678.7067, -3823.943, 268.0588, "None"), // Object arrival
+                new Vector3(684.781, -3822.589, 254.6747, "None"), // Step out
+                188360,
+                ContinentId.Northrend,
+                "Kamagua gondola FROM");
 
-                new OffMeshConnection(new List<Vector3>
-                {
-                    new Vector3(bayDarkshoreToDarnassus),
-                    new Vector3(insideShipDarkshoreToDarnassus)
-                }, (int) ContinentId.Kalimdor, OffMeshConnectionType.Bidirectional, true),
+            AddTransportOffMesh(new Vector3(1697.43, -5838.462, 11.99705, "None"), // wait for transport
+                new Vector3(1690.088, -5831.97, 12.06873, "None"), // Step in
+                new Vector3(1680.11, -5824.42, -72.76543), // Object departure
+                new Vector3(1680.11, -5824.42, 161.673, "None"), // Object arrival
+                new Vector3(1676.99, -5820.689, 248.3792, "None"), // Step out
+                190118,
+                ContinentId.Northrend,
+                "Vengeance Lift UP");
 
-                new OffMeshConnection(new List<Vector3>
-                {
-                    new Vector3(bayDarnassusToDarkshore),
-                    new Vector3(insideShipDarnassusToDarkshore)
-                }, (int) ContinentId.Kalimdor, OffMeshConnectionType.Bidirectional, true),
+            AddTransportOffMesh(new Vector3(1676.669, -5821.517, 248.3307, "None"), // wait for transport
+                new Vector3(1688.307, -5832.458, 246.5121, "None"), // Step in
+                new Vector3(1680.11, -5824.42, 161.673, "None"), // Object departure
+                new Vector3(1680.11, -5824.42, -72.76543), // Object arrival
+                new Vector3(1697.43, -5838.462, 11.99705, "None"), // Step out
+                190118,
+                ContinentId.Northrend,
+                "Vengeance Lift DOWN");
 
-                new OffMeshConnection(new List<Vector3>
-                {
-                    new Vector3(bayDarkshoreToStormwind),
-                    new Vector3(insideShipDarkshoreToStormwind)
-                }, (int) ContinentId.Kalimdor, OffMeshConnectionType.Bidirectional, true),
+            AddTransportOffMesh(new Vector3(2865.628, 6211.75, 104.262), // wait for transport
+                new Vector3(2878.712, 6224.032, 105.3798), // Step in
+                new Vector3(2878.315, 6223.635, 105.3792), // Object departure
+                new Vector3(2892.18, 6236.34, 208.908), // Object arrival
+                new Vector3(2880.497, 6226.416, 208.7462, "None"), // Step out
+                188521,
+                ContinentId.Northrend,
+                "Warsong Hold Elevator UP");
 
-                new OffMeshConnection(new List<Vector3>
-                {
-                    new Vector3(bayStormwindToDarkshore),
-                    new Vector3(insideShipStormwindToDarkshore)
-                }, (int) ContinentId.Azeroth, OffMeshConnectionType.Bidirectional, true),
+            AddTransportOffMesh(new Vector3(2880.497, 6226.416, 208.7462, "None"), // wait for transport
+                new Vector3(2891.717, 6236.516, 208.9086, "None"), // Step in
+                new Vector3(2892.18, 6236.34, 208.908), // Object departure
+                new Vector3(2878.315, 6223.635, 105.3792), // Object arrival
+                new Vector3(2865.628, 6211.75, 104.262), // Step out
+                188521,
+                ContinentId.Northrend,
+                "Warsong Hold Elevator DOWN");
 
-                //Alliance End
+            AddTransportOffMesh(new Vector3(4219.52, 3126.461, 184.3423, "None"), // wait for transport
+                new Vector3(4208.915, 3111.077, 184.3453, "None"), // Step in
+                new Vector3(4208.69, 3111.24, 183.8219), // Object departure
+                new Vector3(4208.69, 3111.24, 335.2971), // Object arrival
+                new Vector3(4196.539, 3095.831, 335.8202, "None"), // Step out
+                184330,
+                ContinentId.Expansion01,
+                "Stormspire elevator UP");
 
-                //Horde  Start
-                
-                new OffMeshConnection(new List<Vector3>
-                {
-                    new Vector3(tirisfalPlatformZepOrgrimmar),
-                    new Vector3(insideZeppelinTirisfalToOrgrimmar)
-                }, (int) ContinentId.Azeroth, OffMeshConnectionType.Bidirectional, true),
-
-                new OffMeshConnection(new List<Vector3>
-                {
-                    new Vector3(orgrimmarPlatformZepTirisfal),
-                    new Vector3(insideZeppelinKalimdorToTirisfal)
-                }, (int) ContinentId.Kalimdor, OffMeshConnectionType.Bidirectional, true),
-                new OffMeshConnection(new List<Vector3>
-                {
-                    new Vector3(tirisfalPlatformZepNorthrend),
-                    new Vector3(insideZeppelinTirisfalToNorthrend)
-                }, (int) ContinentId.Azeroth, OffMeshConnectionType.Bidirectional, true),
-                new OffMeshConnection(new List<Vector3>
-                {
-                    new Vector3(northrendPlatformZepTirisfal),
-                    new Vector3(insideZeppelinNorthrendToTirisfal)
-                }, (int) ContinentId.Northrend, OffMeshConnectionType.Bidirectional, true),
-                new OffMeshConnection(new List<Vector3>
-                {
-                    new Vector3(kalimdorlPlatformZepNorthrend),
-                    new Vector3(insideZeppelinKalimdorToNorthrend)
-                }, (int) ContinentId.Kalimdor, OffMeshConnectionType.Bidirectional, true),
-                new OffMeshConnection(new List<Vector3>
-                {
-                    new Vector3(northrendPlatformZepKalimdor),
-                    new Vector3(insideZeppelinNorthrendToKalimdor)
-                }, (int) ContinentId.Northrend, OffMeshConnectionType.Bidirectional, true),
-                
-                // Kalimdor Tower to Zep Northrend
-                new OffMeshConnection(new List<Vector3>
-                {
-                    new Vector3(1176.045, -4176.415, 21.40396),
-                    new Vector3(1168.245, -4165.519, 22.72018),
-                    new Vector3(1162.044, -4162.295, 23.09159),
-                    new Vector3(1158.513, -4156.68, 25.38495),
-                    new Vector3(1163.283, -4152.811, 28.29832),
-                    new Vector3(1165.906, -4158.321, 30.88497),
-                    new Vector3(1160.758, -4159.898, 33.17702),
-                    new Vector3(1159.89, -4153.644, 36.38201),
-                    new Vector3(1165.508, -4154.742, 39.0405),
-                    new Vector3(1163.239, -4160.285, 41.67056),
-                    new Vector3(1157.424, -4157.666, 43.97564),
-                    new Vector3(1160.468, -4152.043, 46.343),
-                    new Vector3(1165.743, -4155.318, 48.80746),
-                    new Vector3(1162.361, -4160.978, 51.57532),
-                    new Vector3(1159.651, -4166.412, 51.64627),
-                    new Vector3(1166.205, -4167.621, 51.64627),
-                    new Vector3(1171.159, -4162.846, 51.64627),
-                    new Vector3(1173.271, -4156.186, 51.64627),
-                    kalimdorlPlatformZepNorthrend
-                }, (int) ContinentId.Kalimdor, OffMeshConnectionType.Bidirectional, true),
-
-                // Kalimdor Tower to Zep EK
-                new OffMeshConnection(new List<Vector3>
-                {
-                    new Vector3(1336.811, -4627.349, 23.71372),
-                    new Vector3(1338.415, -4635.818, 24.5164),
-                    new Vector3(1342.444, -4641.667, 24.60308),
-                    new Vector3(1347.086, -4646.91, 25.73846),
-                    new Vector3(1346.112, -4653.215, 28.24372),
-                    new Vector3(1340.509, -4651.799, 30.71605),
-                    new Vector3(1344.352, -4645.396, 34.15182),
-                    new Vector3(1347.778, -4650.873, 36.73572),
-                    new Vector3(1339.766, -4649.848, 41.08609),
-                    new Vector3(1343.882, -4645.242, 43.53802),
-                    new Vector3(1348.05, -4651.791, 46.52235),
-                    new Vector3(1342.296, -4654.397, 48.70516),
-                    new Vector3(1339.82, -4648.606, 51.09646),
-                    new Vector3(1349.617, -4644.258, 53.52875),
-                    new Vector3(1346.508, -4638.681, 53.52875),
-                    new Vector3(1339.75, -4639.255, 53.52875),
-                    new Vector3(1334.665, -4644.297, 53.52875),
-                    new Vector3(1326.729, -4649.013, 53.99952)
-                }, (int) ContinentId.Kalimdor, OffMeshConnectionType.Bidirectional, true)*/
-
-                //Horde  End
-            };
-
-            OffMeshConnections.MeshConnection.AddRange(offmeshConnections);
-            OffMeshConnections.Save();
+            AddTransportOffMesh(new Vector3(4197.577, 3095.454, 335.8203, "None"), // wait for transport
+                new Vector3(4209.05, 3111.383, 335.8167, "None"), // Step in
+                new Vector3(4208.69, 3111.24, 335.2971), // Object departure
+                new Vector3(4208.69, 3111.24, 183.8219), // Object arrival
+                new Vector3(4219.52, 3126.461, 184.3423, "None"), // Step out
+                184330,
+                ContinentId.Expansion01,
+                "Stormspire elevator DOWN");
         }
 
         // Wait for GameObject (Zep, elevator etc..)
@@ -567,7 +538,9 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
 
             // Wait 5 sec before hopping in
             if (ObjectManager.GetWoWGameObjectByEntry(transportId).OrderBy(o => o.GetDistance).FirstOrDefault().GetDistance2D <= distance)
+            {
                 Thread.Sleep(5000);
+            }
         }
 
         // Wait on transport (Zepp, elevator etc..)
@@ -581,7 +554,7 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
                     Thread.Sleep(5000);
                     Logger.Log($"We are {ObjectManager.Me.Position.DistanceTo(arrivalPoint)} yards away from arrival.");
                 }
-                Thread.Sleep(3000);
+                Thread.Sleep(5000);
                 ForceMoveTo(arrivalPoint);
             }
             else
@@ -593,6 +566,48 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
             MovementManager.MoveTo(destination);
             while (MovementManager.InMoveTo)
                 Thread.Sleep(20);
+        }
+
+        private void AddTransportOffMesh(
+            Vector3 waitForTransport,
+            Vector3 stepIn,
+            Vector3 objectDeparture,
+            Vector3 objectArrival,
+            Vector3 stepOut,
+            int objectId,
+            ContinentId continentId,
+            string name = "",
+            float precision = 0.5f)
+        {
+            OffMeshConnection offMeshConnection = new OffMeshConnection(new List<Vector3>
+        {
+            waitForTransport,
+            new Vector3(stepIn.X, stepIn.Y, stepIn.Z, "None")
+            {
+                Action = "c#: Logging.WriteNavigator(\"Waiting for transport (WAQ)\"); " +
+                    "if (ObjectManager.Me.InCombatFlagOnly) wManager.Wow.Bot.Tasks.MountTask.DismountMount();" +
+                    "while (Conditions.InGameAndConnectedAndProductStartedNotInPause && !ObjectManager.Me.InCombatFlagOnly) " +
+                    "{ " +
+                        $"var elevator = ObjectManager.GetWoWGameObjectByEntry({objectId}).OrderBy(o => o.GetDistance).FirstOrDefault(); " +
+                        $"if (elevator != null && elevator.IsValid && elevator.Position.DistanceTo(new Vector3({objectDeparture.X.ToString().Replace(",", ".")}, {objectDeparture.Y.ToString().Replace(",", ".")}, {objectDeparture.Z.ToString().Replace(",", ".")})) < {precision.ToString().Replace(",", ".")}) " +
+                            "break; " +
+                        "Thread.Sleep(100); " +
+                    "}"
+            },
+            new Vector3(stepOut.X, stepOut.Y, stepOut.Z, "None")
+            {
+                Action = "c#: Logging.WriteNavigator(\"Wait to leave Elevator (WAQ)\"); " +
+                    "while (Conditions.InGameAndConnectedAndProductStartedNotInPause) " +
+                    "{ " +
+                        $"var elevator = ObjectManager.GetWoWGameObjectByEntry({objectId}).OrderBy(o => o.GetDistance).FirstOrDefault(); " +
+                        $"if (elevator != null && elevator.IsValid && elevator.Position.DistanceTo(new Vector3({objectArrival.X.ToString().Replace(",", ".")}, {objectArrival.Y.ToString().Replace(",", ".")}, {objectArrival.Z.ToString().Replace(",", ".")})) < {precision.ToString().Replace(",", ".")}) " +
+                            "break; " +
+                        "Thread.Sleep(100); " +
+                    "}"
+            },
+        }, (int)continentId, OffMeshConnectionType.Unidirectional, true);
+            offMeshConnection.Name = name;
+            OffMeshConnections.Add(offMeshConnection, true);
         }
     }
 }

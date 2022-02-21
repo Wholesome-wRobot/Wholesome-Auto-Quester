@@ -23,6 +23,21 @@ namespace Wholesome_Auto_Quester.Helpers
     {
         private static Dictionary<int, bool[]> _objectiveCompletionDict = new Dictionary<int, bool[]>();
 
+        public static void CheckIfZReachable(Vector3 checkPosition)
+        {
+            if (checkPosition.DistanceTo2D(ObjectManager.Me.Position) <= 3 && GetZDistance(checkPosition) > 3)
+            {
+                BlacklistHelper.AddZone(checkPosition, 2, $"Unreachable Z");
+            }
+        }
+
+        public static float GetZDistance(Vector3 checkPosition)
+        {
+            Vector3 myPos = ObjectManager.Me.Position;
+            if (checkPosition.Z > myPos.Z) return checkPosition.Z - myPos.Z;
+            else return myPos.Z - checkPosition.Z;
+        }
+
         public static bool HostilesAreAround(WoWObject POI, IWAQTask task)
         {
             if (POI.Entry == 1776 // swamp of sorrows Magtoor
@@ -41,12 +56,12 @@ namespace Wholesome_Auto_Quester.Helpers
             {
                 MountTask.DismountMount(false, false);
             }
-
-            if (ObjectManager.Me.InCombatFlagOnly)
+            
+            if (ObjectManager.GetNumberAttackPlayer() > 0)
             {
                 return true;
             }
-
+            
             List<WoWUnit> objectManager = ObjectManager.GetWoWUnitHostile();
             Dictionary<WoWUnit, float> hostileUnits = new Dictionary<WoWUnit, float>();
             float myDistanceToPOI = me.Position.DistanceTo(poiPosition);
@@ -531,7 +546,7 @@ namespace Wholesome_Auto_Quester.Helpers
         {
             _objectiveCompletionDict = GetObjectiveCompletionDict(questIds);
         }
-
+        /*
         public static bool AreAllObjectivesDicCompleted(int questId)
         {
             if (_objectiveCompletionDict.TryGetValue(questId, out bool[] objs))
@@ -544,11 +559,10 @@ namespace Wholesome_Auto_Quester.Helpers
                 return false;
             }
         }
-
+        */
         private static Dictionary<int, bool[]> GetObjectiveCompletionDict(int[] questIds)
         {
             var resultDict = new Dictionary<int, bool[]>();
-            if (questIds.Length <= 0) return resultDict;
             string[] questIdStrings = questIds.Select(id => id.ToString()).ToArray();
             var inputTable = new StringBuilder("{",
                 2 + questIdStrings.Aggregate(0, (last, str) => last + str.Length) + questIdStrings.Length - 1);
@@ -592,7 +606,7 @@ namespace Wholesome_Auto_Quester.Helpers
 
             if (outputTable.Length != questIds.Length * 6)
             {
-                Logging.Write(
+                Logger.Log(
                     $"Expected {questIds.Length * 6} entries in GetObjectiveCompletionArray but got {outputTable.Length} instead.");
                 return resultDict;
             }
@@ -621,9 +635,18 @@ namespace Wholesome_Auto_Quester.Helpers
             }
 
             if (_objectiveCompletionDict.TryGetValue(questId, out bool[] completionArray))
+            {
                 return completionArray[objectiveId - 1];
+            }
 
-            Logger.LogDebug($"Did not have quest {questId} in completion dictionary.");
+            // It's possible that the completion dic hasn't been set yet, so we check the quest individually
+            Dictionary<int, bool[]> tempDic = GetObjectiveCompletionDict(new int[] { questId });
+            if (tempDic.TryGetValue(questId, out bool[] tempCompArray))
+            {
+                return tempCompArray[objectiveId - 1];
+            }
+
+            Logger.LogError($"Did not have quest {questId} in completion dictionary.");
             return false;
         }
         /*
