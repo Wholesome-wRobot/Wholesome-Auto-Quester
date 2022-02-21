@@ -36,28 +36,28 @@ namespace Wholesome_Auto_Quester.Database.Models
                         _continent = WAQContinent.Teldrassil;
                     }
                     // EversongWoods - Ghostlands - SilvermoonCity
-                    if (areaID == 3430 || areaID == 3433 || areaID == 3487)
+                    else if (areaID == 3430 || areaID == 3433 || areaID == 3487)
                     {
                         _continent = WAQContinent.BloodElfStartingZone;
                     }
                     // AzuremystIsle - TheExodar - BloodmystIsle
-                    if (areaID == 3524 || areaID == 3557 || areaID == 3525)
+                    else if (areaID == 3524 || areaID == 3557 || areaID == 3525)
                     {
                         _continent = WAQContinent.DraeneiStartingZone;
                     }
-                    if (mapID == 0)
+                    else if (mapID == 0)
                     {
                         _continent = WAQContinent.EasternKingdoms;
                     }
-                    if (mapID == 1)
+                    else if (mapID == 1)
                     {
                         _continent = WAQContinent.Kalimdor;
                     }
-                    if (mapID == 571)
+                    else if (mapID == 571)
                     {
                         _continent = WAQContinent.Northrend;
                     }
-                    if (mapID == 530)
+                    else if (mapID == 530)
                     {
                         _continent = WAQContinent.Outlands;
                     }

@@ -12,6 +12,8 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
         public QuestStatus Status { get; }
         bool IsQuestBlackListed { get; }
         string TrackerColor { get; }
+        bool AreDbConditionsMet { get; }
+        string GetConditionsText { get; }
 
         List<Objective> GetAllObjectives();
         List<IWAQTask> GetAllTasks();

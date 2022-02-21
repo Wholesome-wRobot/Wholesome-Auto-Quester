@@ -165,6 +165,9 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
         readonly int oGPortalToBlastedLandsId = 195142;
         readonly Vector3 oGPortalToBlastedLandsPosition = new Vector3(1472.55f, -4215.7f, 59.221f);
 
+        readonly int silverMoonPortalToTirisfal = 184502;
+        readonly Vector3 silverMoonPortalToTirisfalPosition = new Vector3(10034.58, -6999.497, 61.59146);
+
         /*readonly int ExodarPortalToBlastedLandsId = 195141;
         readonly Vector3 ExodarPortalToBlastedLandsPosition = new Vector3(-4037.81, -11555.6, -138.324f);
 
@@ -348,6 +351,13 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
             Thread.Sleep(5000);
         }
 
+        public void PortalFromSilvermoonToTirisfal()
+        {
+            Logger.Log("Taking Orb of Translocation to Tirisfal");
+            GoToTask.ToPositionAndIntecractWithGameObject(silverMoonPortalToTirisfalPosition, silverMoonPortalToTirisfal);
+            Thread.Sleep(5000);
+        }
+
         public void ShipStormwindToBoreanTundra()
         {
             Logger.Log("Taking ship to Borean Tundra");
@@ -431,14 +441,16 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
         {
             Logger.Log("Adding offmesh connections");
             if (OffMeshConnections.MeshConnection == null || OffMeshConnections.MeshConnection.Count <= 0)
+            {
                 OffMeshConnections.Load();
+            }
 
             // Avoid Orgrimmar Braseros
-            wManagerSetting.AddBlackListZone(new Vector3(1731.702, -4423.403, 36.86293), 5, ContinentId.Kalimdor);
-            wManagerSetting.AddBlackListZone(new Vector3(1669.99, -4359.609, 29.23425), 5, ContinentId.Kalimdor);
+            wManagerSetting.AddBlackListZone(new Vector3(1731.702, -4423.403, 36.86293), 5, ContinentId.Kalimdor, isSessionBlacklist: true);
+            wManagerSetting.AddBlackListZone(new Vector3(1669.99, -4359.609, 29.23425), 5, ContinentId.Kalimdor, isSessionBlacklist: true);
 
             // Warsong hold top elevator
-            wManagerSetting.AddBlackListZone(new Vector3(2892.18, 6236.34, 208.908), 15, ContinentId.Northrend);
+            wManagerSetting.AddBlackListZone(new Vector3(2892.18, 6236.34, 208.908), 15, ContinentId.Northrend, isSessionBlacklist: true);
 
             OffMeshConnections.MeshConnection.Clear();
 

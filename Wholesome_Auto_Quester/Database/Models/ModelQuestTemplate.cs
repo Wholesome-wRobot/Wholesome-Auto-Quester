@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Wholesome_Auto_Quester.Database.Conditions;
 using Wholesome_Auto_Quester.Database.DBC;
 using Wholesome_Auto_Quester.Database.Objectives;
+using Wholesome_Auto_Quester.Helpers;
 
 namespace Wholesome_Auto_Quester.Database.Models
 {
@@ -59,6 +61,36 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int Unknown0 { get; }
 
         public ModelQuestTemplateAddon QuestAddon { get; set; }
+
+        public List<ModelConditions> Conditions { get; set; }
+        private List<IDBConditionGroup> _conditions;
+        public List<IDBConditionGroup> DBConditionGroups
+        {
+            get
+            {
+                if (_conditions == null)
+                {
+                    List<IDBConditionGroup> result = new List<IDBConditionGroup>();
+                    foreach (ModelConditions condition in Conditions)
+                    {
+                        IDBConditionGroup existingGroup = result.Find(group => group.IsPartOfGroup(condition));
+                        if (existingGroup == null)
+                        {
+                            IDBConditionGroup groupToAdd = new DBConditionGroup(condition.SourceTypeOrReferenceId, 
+                                condition.SourceGroup, condition.SourceEntry, condition.ElseGroup);
+                            groupToAdd.AddConditionToGroup(new DBCondition(condition));
+                            result.Add(groupToAdd);
+                        }
+                        else
+                        {
+                            existingGroup.AddConditionToGroup(new DBCondition(condition));
+                        }
+                    }
+                    _conditions = result;
+                }
+                return _conditions;
+            }
+        }
 
         public List<ModelCreatureTemplate> CreatureQuestGivers { get; set; } = new List<ModelCreatureTemplate>();
         public List<ModelCreatureTemplate> CreatureQuestTurners { get; set; } = new List<ModelCreatureTemplate>();

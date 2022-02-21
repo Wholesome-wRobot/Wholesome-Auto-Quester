@@ -38,7 +38,9 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         {
             if (wowObject is WoWUnit unit)
             {
-                return unit.IsAlive;
+                return unit.IsAlive
+                    || unit.Entry == 25984 // Crashed recon pilot;
+                    || unit.Entry == 25328; // Shadowstalker Luther
             }
             return false;
         }

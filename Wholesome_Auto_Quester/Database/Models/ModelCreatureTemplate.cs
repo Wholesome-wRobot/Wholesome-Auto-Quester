@@ -11,6 +11,8 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int entry { get; }
         public string name { get; }
         public uint faction { get; }
+        public int KillCredit1 { get; }
+        public int KillCredit2 { get; }
         public int minLevel { get; }
         public int maxLevel { get; }
         public long unit_flags { get; }
@@ -20,6 +22,7 @@ namespace Wholesome_Auto_Quester.Database.Models
         public long flags_extra { get; }
         public int rank { get; }
 
+        public List<ModelCreatureTemplate> KillCredits = new List<ModelCreatureTemplate>();
         public List<ModelCreature> Creatures { get; set; } = new List<ModelCreature>();
         public bool IsHostile => (int)WoWFactionTemplate.FromId(faction).GetReactionTowards(ObjectManager.Me.FactionTemplate) <= 2;
         public bool IsNeutral => (int)WoWFactionTemplate.FromId(faction).GetReactionTowards(ObjectManager.Me.FactionTemplate) == 3;

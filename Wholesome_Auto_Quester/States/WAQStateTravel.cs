@@ -54,6 +54,12 @@ namespace Wholesome_Auto_Quester.States
             // HORDE
             if (ToolBox.IsHorde())
             {
+                // From B11 starting zone
+                if (myContinent == WAQContinent.BloodElfStartingZone)
+                {
+                    _travelManager.PortalFromSilvermoonToTirisfal();
+                }
+
                 // From EK
                 if (myContinent == WAQContinent.EasternKingdoms)
                 {

@@ -12,7 +12,7 @@ namespace Wholesome_Auto_Quester.Database.DBC
         {
             lock (_repLock)
             {
-                return _myReputations.Find(rep => rep.Id == repId);
+                return _myReputations.Find(rep => rep.Id == repId); // can be null
             }
         }
 
@@ -52,6 +52,20 @@ class Reputation
     public string Name { get; }
     public int Amount { get; }
     public FactionStanding StandingId { get; }
+
+    private Dictionary<FactionStanding, int> _reputationMasks = new Dictionary<FactionStanding, int>()
+    {
+        {  FactionStanding.Hated, 1 },
+        {  FactionStanding.Hostile, 2 },
+        {  FactionStanding.Unfriendly, 4 },
+        {  FactionStanding.Neutral, 8 },
+        {  FactionStanding.Friendly, 16 },
+        {  FactionStanding.Honored, 32 },
+        {  FactionStanding.Revered, 64 },
+        {  FactionStanding.Exalted, 128 }
+    };
+
+    public int GetFactionMask => _reputationMasks[StandingId];
 
     public Reputation(string name, string standingId, string amount)
     {

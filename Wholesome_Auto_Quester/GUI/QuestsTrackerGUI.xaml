@@ -314,6 +314,15 @@
                                         FontWeight="Bold"
                                         TextWrapping="Wrap"/>
                                 </StackPanel>
+                                
+                                <StackPanel
+                                    Name="dbConditions">
+                                    <TextBlock 
+                                        Text="DB Conditions:"
+                                        Foreground="Aquamarine"
+                                        FontWeight="Bold"
+                                        TextWrapping="Wrap"/>
+                                </StackPanel>
                             </StackPanel>
                         </ScrollViewer>
                     </Grid>

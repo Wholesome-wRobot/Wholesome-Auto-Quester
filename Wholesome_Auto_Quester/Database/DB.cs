@@ -30,6 +30,19 @@ namespace Wholesome_Auto_Quester.Database
             _con?.Close();
         }
 
+        public static bool IsDBValid()
+        {
+            DB _database = new DB();
+            string query = $@"
+                SELECT COUNT(*) FROM sqlite_master
+                WHERE type='table'
+                AND name = 'conditions'
+            ";
+            List<int> result = _database._con.Query<int>(query).ToList();
+            _database.Dispose();
+            return result[0] > 0;
+        }
+
         public List<int> QueryPreviousQuestsIdsByQuestId(int questId)
         {
             string query = $@"
@@ -139,7 +152,22 @@ namespace Wholesome_Auto_Quester.Database
             if (result.Count > 1) Logger.LogError($"Spell ID {spellID} has more than one spells !");
             return result.FirstOrDefault();
         }
-
+        
+        public List<ModelCreatureTemplate> QueryCreatureTemplatesByKillCredits(int entry)
+        {
+            string queryTemplate = $@"
+                SELECT *
+                FROM creature_template
+                WHERE KillCredit1 = {entry} OR KillCredit2 = {entry}
+            ";
+            List<ModelCreatureTemplate> result = _con.Query<ModelCreatureTemplate>(queryTemplate).ToList();
+            foreach (ModelCreatureTemplate template in result)
+            {
+                template.Creatures = QueryCreaturesById(template.entry);
+            }
+            return result;
+        }
+        
         public ModelCreatureTemplate QueryCreatureTemplateByEntry(int creatureEntry)
         {
             if (creatureEntry == 0) return null;
@@ -151,7 +179,10 @@ namespace Wholesome_Auto_Quester.Database
             List<ModelCreatureTemplate> result = _con.Query<ModelCreatureTemplate>(queryTemplate).ToList();
             if (result.Count <= 0) return null;
             if (result.Count > 1) Logger.LogError($"Creature entry {creatureEntry} has more than one templates !");
-            result.ForEach(ct => ct.Creatures = QueryCreaturesById(creatureEntry));
+            foreach (ModelCreatureTemplate template in result)
+            {
+                template.Creatures = QueryCreaturesById(creatureEntry);
+            }
             return result.FirstOrDefault();
         }
 
@@ -192,7 +223,10 @@ namespace Wholesome_Auto_Quester.Database
                     if (withWayPoints && c.CreatureAddon?.WayPoints?.Count > 0)
                     {
                         c.CreatureAddon.WayPoints.Reverse();
-                        c.CreatureAddon.WayPoints.RemoveAll(cToRemove => c.CreatureAddon.WayPoints.IndexOf(cToRemove) % 2 != 0);
+                        if (c.CreatureAddon.WayPoints.Count > 4)
+                        {
+                            c.CreatureAddon.WayPoints.RemoveAll(cToRemove => c.CreatureAddon.WayPoints.IndexOf(cToRemove) % 2 != 0);
+                        }
                         c.CreatureAddon.WayPoints.ForEach(wp =>
                             creaturesToAddWP.Add(new ModelCreature(wp.position_x, wp.position_y, wp.position_z, c.guid, c.map, c.spawnTimeSecs)));
                     }
@@ -236,6 +270,18 @@ namespace Wholesome_Auto_Quester.Database
             ";
             List<ModelAreaTrigger> result = _con.Query<ModelAreaTrigger>(query).ToList();
             return result;
+        }
+
+        public List<ModelConditions> QueryConditionsBySourceEntry(int sourceEntry)
+        {
+            string query = $@"
+                SELECT *
+                FROM conditions c
+                WHERE c.SourceEntry = {sourceEntry}
+            ";
+            List<ModelConditions> result = _con.Query<ModelConditions>(query).ToList();
+            return result;
+
         }
 
         public List<ModelGameObjectTemplate> QueryGameObjectTemplatesByLootEntry(int lootEntry)
@@ -407,6 +453,7 @@ namespace Wholesome_Auto_Quester.Database
                 ModelQuestTemplateAddon addon = _con.Query<ModelQuestTemplateAddon>(queryQuestAddon).FirstOrDefault();
                 questTemplate.QuestAddon = addon ?? new ModelQuestTemplateAddon();
                 questTemplate.QuestAddon.ExclusiveQuests = QueryQuestIdsByExclusiveGroup(questTemplate.QuestAddon.ExclusiveGroup);
+                questTemplate.Conditions = QueryConditionsBySourceEntry(questTemplate.Id);
             }
 
             return result;
@@ -441,6 +488,7 @@ namespace Wholesome_Auto_Quester.Database
                 CREATE INDEX IF NOT EXISTS `idx_areatrigger_id` ON `areatrigger` (`Id`);
                 CREATE INDEX IF NOT EXISTS `idx_areatrigger_involvedrelation_id` ON `areatrigger_involvedrelation` (`Id`);
                 CREATE INDEX IF NOT EXISTS `idx_areatrigger_involvedrelation_quest` ON `areatrigger_involvedrelation` (`quest`);
+                CREATE INDEX IF NOT EXISTS `idx_conditions_source_entry` ON `conditions` (`SourceEntry`);
                 CREATE INDEX IF NOT EXISTS `idx_creature_addon_guid` ON `creature_addon` (`guid`);
                 CREATE INDEX IF NOT EXISTS `idx_creature_id` ON `creature` (`id`);
                 CREATE INDEX IF NOT EXISTS `idx_creature_loot_template_entry` ON `creature_loot_template` (`Entry`);
@@ -448,6 +496,8 @@ namespace Wholesome_Auto_Quester.Database
                 CREATE INDEX IF NOT EXISTS `idx_creature_questender_quest` ON `creature_questender` (`quest`);
                 CREATE INDEX IF NOT EXISTS `idx_creature_queststarter_quest` ON `creature_queststarter` (`quest`);
                 CREATE INDEX IF NOT EXISTS `idx_creature_template_entry` ON `creature_template` (`entry`);
+                CREATE INDEX IF NOT EXISTS `idx_creature_template_killcredit1` ON `creature_template` (`KillCredit1`);
+                CREATE INDEX IF NOT EXISTS `idx_creature_template_killcredit2` ON `creature_template` (`KillCredit2`);
                 CREATE INDEX IF NOT EXISTS `idx_gameobject_id` ON `gameobject` (`id`);
                 CREATE INDEX IF NOT EXISTS `idx_gameobject_loot_template_entry` ON `gameobject_loot_template` (`Entry`);
                 CREATE INDEX IF NOT EXISTS `idx_gameobject_loot_template_item` ON `gameobject_loot_template` (`Item`);

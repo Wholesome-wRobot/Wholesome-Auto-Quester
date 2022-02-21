@@ -6,6 +6,7 @@ using System.Threading;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Bot.TravelManagement;
+using Wholesome_Auto_Quester.Database.Conditions;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Database.Objectives;
 using Wholesome_Auto_Quester.Helpers;
@@ -23,6 +24,18 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
         public ModelQuestTemplate QuestTemplate { get; }
         public QuestStatus Status { get; private set; } = QuestStatus.Unchecked;
+        public string GetConditionsText
+        {
+            get
+            {
+                string result = "";
+                foreach (IDBConditionGroup condGroup in QuestTemplate.DBConditionGroups)
+                {
+                    result += $"{condGroup.GetGroupConditionsText} \n";
+                }
+                return result;
+            }
+        }
 
         public WAQQuest(ModelQuestTemplate questTemplate, IWowObjectScanner objectScanner)
         {
@@ -443,6 +456,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
         public string TrackerColor => /*WAQTasks.TaskInProgress?.QuestId == QuestTemplate.Id ? "White" : */_trackerColorsDictionary[Status];
         public bool IsQuestBlackListed => WholesomeAQSettings.CurrentSetting.BlackListedQuests.Exists(blq => blq.Id == QuestTemplate.Id);
+        public bool AreDbConditionsMet => QuestTemplate.DBConditionGroups.Count <= 0 || QuestTemplate.DBConditionGroups.Any(condGroup => condGroup.ConditionsMet);
 
         private readonly Dictionary<QuestStatus, string> _trackerColorsDictionary = new Dictionary<QuestStatus, string>
         {
@@ -452,6 +466,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             {  QuestStatus.None, "Gray"},
             {  QuestStatus.ToPickup, "MediumSeaGreen"},
             {  QuestStatus.ToTurnIn, "RoyalBlue"},
+            {  QuestStatus.DBConditionsNotMet, "OliveDrab"},
             {  QuestStatus.Blacklisted, "Red"}
         };
     }

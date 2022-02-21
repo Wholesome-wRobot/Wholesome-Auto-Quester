@@ -322,9 +322,14 @@
     <Compile Include="Bot\TaskManagement\WowObjectScanner.cs" />
     <Compile Include="Bot\TravelManagement\ContinentHelper.cs" />
     <Compile Include="Bot\TravelManagement\ITravelManager.cs" />
+    <Compile Include="Database\Conditions\DBConditionGroup.cs" />
+    <Compile Include="Database\Conditions\DBCondition.cs" />
+    <Compile Include="Database\Conditions\IDBCondition.cs" />
+    <Compile Include="Database\Conditions\IDBConditionGroup.cs" />
     <Compile Include="Database\DB.cs" />
     <Compile Include="Database\DBC\DBCFaction.cs" />
     <Compile Include="Database\DBQueriesWotlk.cs" />
+    <Compile Include="Database\Models\ModelConditions.cs" />
     <Compile Include="Database\Models\ModelCreature.cs" />
     <Compile Include="Database\Models\ModelCreatureAddon.cs" />
     <Compile Include="Database\Models\ModelGameObjectLootTemplate.cs" />

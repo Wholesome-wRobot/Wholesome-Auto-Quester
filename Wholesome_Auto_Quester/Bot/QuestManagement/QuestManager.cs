@@ -182,6 +182,13 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
             foreach (IWAQQuest quest in _questList)
             {
+                // DB conditions not met
+                if (!quest.AreDbConditionsMet)
+                {
+                    quest.ChangeStatusTo(QuestStatus.DBConditionsNotMet);
+                    continue;
+                }
+
                 // Quest blacklisted
                 if (quest.IsQuestBlackListed)
                 {
@@ -445,6 +452,8 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(10286, "Arelion's secret, requires bubble talk", false);
             AddQuestToBlackList(9785, "Blessings of the Ancients, requires bubble talk", false);
             AddQuestToBlackList(11039, "Report to spymaster Thalodien, Orange npc", false);
+            AddQuestToBlackList(11564, "Succulent orca stew, Underwater", false);
+            AddQuestToBlackList(11569, "Keymaster Urmgrgl, Unreachable cave", false);
             if (ToolBox.IsHorde()) AddQuestToBlackList(4740, "Bugged, should only be alliance", false);
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))
@@ -488,6 +497,7 @@ public enum QuestStatus
     ToTurnIn,
     InProgress,
     ToPickup,
+    DBConditionsNotMet,
     Failed,
     None,
     Completed,

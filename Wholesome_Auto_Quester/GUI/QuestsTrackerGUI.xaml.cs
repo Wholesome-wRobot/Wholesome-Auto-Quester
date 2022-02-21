@@ -341,6 +341,18 @@ namespace Wholesome_Auto_Quester.GUI
                 else
                     prerequisiteLoots.Visibility = Visibility.Collapsed;
 
+                // db conditions
+                if (!string.IsNullOrEmpty(selected.GetConditionsText))
+                {
+                    dbConditions.Visibility = Visibility.Visible;
+                    dbConditions.Children.RemoveRange(1, dbConditions.Children.Count - 1);
+                    dbConditions.Children.Add(CreateListTextBlock(selected.GetConditionsText));
+                }
+                else
+                {
+                    dbConditions.Visibility = Visibility.Collapsed;
+                }
+
                 // objectives
                 if (selected.GetAllObjectives().Count > 0)
                 {

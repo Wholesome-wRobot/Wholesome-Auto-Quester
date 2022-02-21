@@ -6,6 +6,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using Wholesome_Auto_Quester;
+using Wholesome_Auto_Quester.Database;
 using Wholesome_Auto_Quester.Helpers;
 
 public static class AutoUpdater
@@ -108,28 +109,44 @@ public static class AutoUpdater
         // Download DB if needed
         if (!File.Exists("Data/WoWDB335"))
         {
-            Logger.Log($"Downloading WoWDB335. Please wait...");
-            using (var client = new WebClient())
-            {
-                try
-                {
-                    client.DownloadFile("https://s3-eu-west-1.amazonaws.com/wholesome.team/WoWDb335.zip",
-                    "Data/wholesome_db_temp.zip");
-                }
-                catch (WebException e)
-                {
-                    Logger.LogError($"Failed to download/write Wholesome Database!\n" + e.Message);
-                    return false;
-                }
-            }
-
-            Logger.Log($"Extracting Wholesome Database.");
-
-            System.IO.Compression.ZipFile.ExtractToDirectory("Data/wholesome_db_temp.zip", "Data");
-            File.Delete("Data/wholesome_db_temp.zip");
-
-            Logger.Log($"Successfully downloaded Wholesome Database");
+            return DownloadDB();
         }
+        else
+        {
+            if (!DB.IsDBValid())
+            {
+                Logger.Log($"Your database is out of date, downloading new one");
+                File.Delete("Data/WoWDB335");
+                DownloadDB();
+                return DB.IsDBValid();
+            }
+            return true;
+        }
+    }
+
+    private static bool DownloadDB()
+    {
+        Logger.Log($"Downloading WoWDB335. Please wait...");
+        using (var client = new WebClient())
+        {
+            try
+            {
+                client.DownloadFile("https://s3-eu-west-1.amazonaws.com/wholesome.team/WoWDb335.zip",
+                "Data/wholesome_db_temp.zip");
+            }
+            catch (WebException e)
+            {
+                Logger.LogError($"Failed to download/write Wholesome Database!\n" + e.Message);
+                return false;
+            }
+        }
+
+        Logger.Log($"Extracting Wholesome Database.");
+
+        System.IO.Compression.ZipFile.ExtractToDirectory("Data/wholesome_db_temp.zip", "Data");
+        File.Delete("Data/wholesome_db_temp.zip");
+
+        Logger.Log($"Successfully downloaded Wholesome Database");
         return true;
     }
 }
