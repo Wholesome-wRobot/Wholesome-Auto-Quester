@@ -252,6 +252,10 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 quest.ChangeStatusTo(QuestStatus.None);
             }
 
+            ToolBox.UpdateObjectiveCompletionDict(_questList
+                .Where(quest => quest.Status == QuestStatus.InProgress)
+                .Select(quest => quest.QuestTemplate.Id).ToArray());
+
             // loop for clearing up finished objectives
             foreach (IWAQQuest quest in _questList)
             {
@@ -291,10 +295,6 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     }
                 }
             }
-
-            ToolBox.UpdateObjectiveCompletionDict(_questList
-                .Where(quest => quest.Status == QuestStatus.InProgress)
-                .Select(quest => quest.QuestTemplate.Id).ToArray());
 
             // WAQ Do Not Sell List
             int WAQlistStartIndex = wManagerSetting.CurrentSetting.DoNotSellList.IndexOf("WAQStart");
@@ -454,6 +454,13 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(11039, "Report to spymaster Thalodien, Orange npc", false);
             AddQuestToBlackList(11564, "Succulent orca stew, Underwater", false);
             AddQuestToBlackList(11569, "Keymaster Urmgrgl, Unreachable cave", false);
+            AddQuestToBlackList(11900, "Reading the meters, The nexus", false);
+            AddQuestToBlackList(11912, "Nuts for Berries, The nexus", false);
+            AddQuestToBlackList(11918, "Basic Training, The nexus", false);
+            AddQuestToBlackList(11910, "Secrets of the Ancients, The nexus", false);
+            AddQuestToBlackList(12218, "Spread the good word, object use", false);
+            AddQuestToBlackList(12230, "Stealing from the Siegesmith, unavailable", false);
+            AddQuestToBlackList(12234, "Need to know, unavailable", false);
             if (ToolBox.IsHorde()) AddQuestToBlackList(4740, "Bugged, should only be alliance", false);
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))

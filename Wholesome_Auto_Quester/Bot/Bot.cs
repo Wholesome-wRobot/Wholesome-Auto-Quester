@@ -84,7 +84,7 @@ namespace Wholesome_Auto_Quester.Bot
                 Fsm.AddState(new FlightMasterTakeTaxiState { Priority = 26 });
                 Fsm.AddState(new Trainers { Priority = 23 });
                 Fsm.AddState(new ToTown { Priority = 22 });
-
+                
                 Fsm.AddState(new WAQStateTravel(_taskManager, _travelManager, 21));
 
                 Fsm.AddState(new WAQStateInteract(_objectScanner, 15));
