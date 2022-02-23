@@ -423,6 +423,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
         private void InitializeWAQSettings()
         {
+            if (ToolBox.IsHorde()) AddQuestToBlackList(4740, "Bugged, should only be alliance", false);
             AddQuestToBlackList(1202, "Theramore docks, runs through ally city", false);
             AddQuestToBlackList(863, "Ignition, bugged platform", false);
             AddQuestToBlackList(6383, "Ashenvale hunt, bugged", false);
@@ -461,7 +462,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(12218, "Spread the good word, object use", false);
             AddQuestToBlackList(12230, "Stealing from the Siegesmith, unavailable", false);
             AddQuestToBlackList(12234, "Need to know, unavailable", false);
-            if (ToolBox.IsHorde()) AddQuestToBlackList(4740, "Bugged, should only be alliance", false);
+            AddQuestToBlackList(13986, "An injured colleague, Dalaran", false);
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))
             {

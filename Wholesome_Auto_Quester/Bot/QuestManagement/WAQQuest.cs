@@ -21,6 +21,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
         private readonly Dictionary<int, List<IWAQTask>> _questTasks = new Dictionary<int, List<IWAQTask>>(); // objective index => task list
         private bool _objectivesRecorded;
         private bool _objectivesRecordFailed;
+        private object _questLock = new object();
 
         public ModelQuestTemplate QuestTemplate { get; }
         public QuestStatus Status { get; private set; } = QuestStatus.Unchecked;
@@ -45,12 +46,15 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
         public List<IWAQTask> GetAllTasks()
         {
-            List<IWAQTask> allTasks = new List<IWAQTask>();
-            foreach (KeyValuePair<int, List<IWAQTask>> entry in _questTasks)
+            lock (_questLock)
             {
-                allTasks.AddRange(entry.Value);
+                List<IWAQTask> allTasks = new List<IWAQTask>();
+                foreach (KeyValuePair<int, List<IWAQTask>> entry in _questTasks)
+                {
+                    allTasks.AddRange(entry.Value);
+                }
+                return allTasks;
             }
-            return allTasks;
         }
 
         public List<IWAQTask> GetAllValidTasks()
@@ -77,60 +81,72 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 return;
             }
 
-            // create the empty entry if it doesn't exist
-            if (!_questTasks.ContainsKey(objectiveIndex))
+            lock (_questLock)
             {
-                _questTasks[objectiveIndex] = new List<IWAQTask>();
-            }
+                // create the empty entry if it doesn't exist
+                if (!_questTasks.ContainsKey(objectiveIndex))
+                {
+                    _questTasks[objectiveIndex] = new List<IWAQTask>();
+                }
 
-            if (!_questTasks[objectiveIndex].Contains(task))
-            {
-                _questTasks[objectiveIndex].Add(task);
-                task.RegisterEntryToScanner(_objectScanner);
-            }
-            else
-            {
-                throw new Exception($"Tried to add {task.TaskName} to objective {objectiveIndex} but it already existed");
+                if (!_questTasks[objectiveIndex].Contains(task))
+                {
+                    _questTasks[objectiveIndex].Add(task);
+                    task.RegisterEntryToScanner(_objectScanner);
+                }
+                else
+                {
+                    throw new Exception($"Tried to add {task.TaskName} to objective {objectiveIndex} but it already existed");
+                }
             }
         }
 
         private void ClearTasksDictionary()
         {
-            foreach (KeyValuePair<int, List<IWAQTask>> entry in _questTasks)
+            lock (_questLock)
             {
-                foreach (IWAQTask task in entry.Value)
+                foreach (KeyValuePair<int, List<IWAQTask>> entry in _questTasks)
                 {
-                    task.UnregisterEntryToScanner(_objectScanner);
+                    foreach (IWAQTask task in entry.Value)
+                    {
+                        task.UnregisterEntryToScanner(_objectScanner);
+                    }
                 }
+                _questTasks.Clear();
             }
-            _questTasks.Clear();
         }
 
         private void ClearDictionaryObjective(int objectiveId)
         {
-            _questTasks.Remove(objectiveId);
+            lock (_questLock)
+            {
+                _questTasks.Remove(objectiveId);
+            }
         }
 
         public void CheckForFinishedObjectives()
         {
             if (Status == QuestStatus.InProgress)
             {
-                List<int> keysToRemove = new List<int>();
-                foreach (KeyValuePair<int, List<IWAQTask>> objective in _questTasks.Reverse())
+                lock (_questLock)
                 {
-                    if (ToolBox.IsObjectiveCompleted(objective.Key, QuestTemplate.Id))
+                    List<int> keysToRemove = new List<int>();
+                    foreach (KeyValuePair<int, List<IWAQTask>> objective in _questTasks.Reverse())
                     {
-                        keysToRemove.Add(objective.Key);
-                        foreach (IWAQTask task in objective.Value)
+                        if (ToolBox.IsObjectiveCompleted(objective.Key, QuestTemplate.Id))
                         {
-                            task.UnregisterEntryToScanner(_objectScanner);
+                            keysToRemove.Add(objective.Key);
+                            foreach (IWAQTask task in objective.Value)
+                            {
+                                task.UnregisterEntryToScanner(_objectScanner);
+                            }
                         }
                     }
-                }
 
-                foreach (int key in keysToRemove)
-                {
-                    _questTasks.Remove(key);
+                    foreach (int key in keysToRemove)
+                    {
+                        _questTasks.Remove(key);
+                    }
                 }
             }
         }
