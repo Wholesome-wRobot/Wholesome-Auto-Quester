@@ -9,7 +9,7 @@ using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.States
 {
-    public class WAQStateTravel : State
+    public class WAQStateTravel : State, IWAQState
     {
         private readonly ITaskManager _taskManager;
         private readonly TravelManager _travelManager;

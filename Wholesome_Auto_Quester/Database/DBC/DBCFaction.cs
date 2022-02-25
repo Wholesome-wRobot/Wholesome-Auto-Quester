@@ -46,12 +46,12 @@ namespace Wholesome_Auto_Quester.Database.DBC
     }
 }
 
-class Reputation
+public class Reputation
 {
     public int Id { get; }
     public string Name { get; }
     public int Amount { get; }
-    public FactionStanding StandingId { get; }
+    FactionStanding StandingId { get; }
 
     private Dictionary<FactionStanding, int> _reputationMasks = new Dictionary<FactionStanding, int>()
     {

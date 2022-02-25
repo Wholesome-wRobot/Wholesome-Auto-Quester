@@ -35,7 +35,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
 
                 if (!HasEnoughReputationForTask)
                 {
-                    InvalidityReason = "Insufficient Reputation";
+                    InvalidityReason = $"Insufficient Reputation";
                     return false;
                 }
 

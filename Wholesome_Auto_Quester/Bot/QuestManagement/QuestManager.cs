@@ -34,13 +34,16 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
         private void RemoveAllQuests(List<IWAQQuest> questsToRemove)
         {
-            foreach (IWAQQuest questToRemove in questsToRemove)
+            lock (_questManagerLock)
             {
-                foreach (IWAQTask taskToUnRegister in questToRemove.GetAllTasks())
+                foreach (IWAQQuest questToRemove in questsToRemove)
                 {
-                    taskToUnRegister.UnregisterEntryToScanner(_objectScanner);
+                    foreach (IWAQTask taskToUnRegister in questToRemove.GetAllTasks())
+                    {
+                        taskToUnRegister.UnregisterEntryToScanner(_objectScanner);
+                    }
+                    _questList.Remove(questToRemove);
                 }
-                _questList.Remove(questToRemove);
             }
         }
 
@@ -107,6 +110,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 case "QUEST_LOG_UPDATE":
                     lock (_questManagerLock)
                     {
+                        Logger.LogDebug("QUEST_LOG_UPDATE");
                         UpdateStatuses();
                     }
                     break;
@@ -130,22 +134,28 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
         public List<IWAQTask> GetAllValidQuestTasks()
         {
-            List<IWAQTask> allTasks = new List<IWAQTask>();
-            foreach (IWAQQuest quest in _questList)
+            lock (_questManagerLock)
             {
-                allTasks.AddRange(quest.GetAllValidTasks());
+                List<IWAQTask> allTasks = new List<IWAQTask>();
+                foreach (IWAQQuest quest in _questList)
+                {
+                    allTasks.AddRange(quest.GetAllValidTasks());
+                }
+                return allTasks;
             }
-            return allTasks;
         }
 
         public List<IWAQTask> GetAllInvalidQuestTasks()
         {
-            List<IWAQTask> allTasks = new List<IWAQTask>();
-            foreach (IWAQQuest quest in _questList)
+            lock (_questManagerLock)
             {
-                allTasks.AddRange(quest.GetAllInvalidTasks());
+                List<IWAQTask> allTasks = new List<IWAQTask>();
+                foreach (IWAQQuest quest in _questList)
+                {
+                    allTasks.AddRange(quest.GetAllInvalidTasks());
+                }
+                return allTasks;
             }
-            return allTasks;
         }
 
         private void CheckInventoryForQuestsGivenByItems()
@@ -155,17 +165,20 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             {
                 if (ItemsManager.HasItemById((uint)itemId))
                 {
-                    IWAQQuest questToPickup = _questList.Find(quest => quest.QuestTemplate.StartItem == itemId && quest.Status == QuestStatus.ToPickup);
-                    if (questToPickup != null)
+                    lock (_questManagerLock)
                     {
-                        Logger.Log($"Starting {questToPickup.QuestTemplate.LogTitle} from {questToPickup.QuestTemplate.StartItemTemplate.Name}");
-                        ToolBox.PickupQuestFromBagItem(questToPickup.QuestTemplate.StartItemTemplate.Name);
-                        itemFound = itemId;
-                        break;
-                    }
-                    else
-                    {
-                        throw new System.Exception($"Couldn't find quest associated with item {itemId}");
+                        IWAQQuest questToPickup = _questList.Find(quest => quest.QuestTemplate.StartItem == itemId && quest.Status == QuestStatus.ToPickup);
+                        if (questToPickup != null)
+                        {
+                            Logger.Log($"Starting {questToPickup.QuestTemplate.LogTitle} from {questToPickup.QuestTemplate.StartItemTemplate.Name}");
+                            ToolBox.PickupQuestFromBagItem(questToPickup.QuestTemplate.StartItemTemplate.Name);
+                            itemFound = itemId;
+                            break;
+                        }
+                        else
+                        {
+                            throw new System.Exception($"Couldn't find quest associated with item {itemId}");
+                        }
                     }
                 }
             }
@@ -180,145 +193,148 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             Dictionary<int, Quest.PlayerQuest> logQuests = Quest.GetLogQuestId().ToDictionary(quest => quest.ID);
             List<string> itemsToAddToDNSList = new List<string>();
 
-            foreach (IWAQQuest quest in _questList)
+            lock (_questManagerLock)
             {
-                // DB conditions not met
-                if (!quest.AreDbConditionsMet)
+                foreach (IWAQQuest quest in _questList)
                 {
-                    quest.ChangeStatusTo(QuestStatus.DBConditionsNotMet);
-                    continue;
-                }
+                    // DB conditions not met
+                    if (!quest.AreDbConditionsMet)
+                    {
+                        quest.ChangeStatusTo(QuestStatus.DBConditionsNotMet);
+                        continue;
+                    }
 
-                // Quest blacklisted
-                if (quest.IsQuestBlackListed)
-                {
-                    quest.ChangeStatusTo(QuestStatus.Blacklisted);
-                    continue;
-                }
+                    // Quest blacklisted
+                    if (quest.IsQuestBlackListed)
+                    {
+                        quest.ChangeStatusTo(QuestStatus.Blacklisted);
+                        continue;
+                    }
 
-                // Mark quest as completed if it's part of an exclusive group
-                if (quest.QuestTemplate.QuestAddon.ExclusiveGroup > 0 && !logQuests.ContainsKey(quest.QuestTemplate.Id))
-                {
-                    if (quest.QuestTemplate.QuestAddon.ExclusiveQuests.Any(qId => 
-                        qId != quest.QuestTemplate.Id
-                        && (ToolBox.IsQuestCompleted(qId) || logQuests.ContainsKey(qId))))
+                    // Mark quest as completed if it's part of an exclusive group
+                    if (quest.QuestTemplate.QuestAddon.ExclusiveGroup > 0 && !logQuests.ContainsKey(quest.QuestTemplate.Id))
+                    {
+                        if (quest.QuestTemplate.QuestAddon.ExclusiveQuests.Any(qId =>
+                            qId != quest.QuestTemplate.Id
+                            && (ToolBox.IsQuestCompleted(qId) || logQuests.ContainsKey(qId))))
+                        {
+                            quest.ChangeStatusTo(QuestStatus.Completed);
+                            continue;
+                        }
+                    }
+
+                    // Quest completed
+                    if (ToolBox.IsQuestCompleted(quest.QuestTemplate.Id)
+                        || quest.Status == QuestStatus.ToTurnIn && !logQuests.ContainsKey(quest.QuestTemplate.Id))
                     {
                         quest.ChangeStatusTo(QuestStatus.Completed);
                         continue;
                     }
-                }
 
-                // Quest completed
-                if (ToolBox.IsQuestCompleted(quest.QuestTemplate.Id)
-                    || quest.Status == QuestStatus.ToTurnIn && !logQuests.ContainsKey(quest.QuestTemplate.Id))
-                {
-                    quest.ChangeStatusTo(QuestStatus.Completed);
-                    continue;
-                }
-
-                // Quest to pickup
-                if (IsQuestPickable(quest) && !logQuests.ContainsKey(quest.QuestTemplate.Id))
-                {
-                    itemsToAddToDNSList.AddRange(GetItemsStringsList(quest));
-                    quest.ChangeStatusTo(QuestStatus.ToPickup);
-                    continue;
-                }
-
-                // Log quests
-                if (logQuests.TryGetValue(quest.QuestTemplate.Id, out Quest.PlayerQuest foundQuest))
-                {
-                    // Quest to turn in
-                    if (foundQuest.State == StateFlag.Complete)
+                    // Quest to pickup
+                    if (IsQuestPickable(quest) && !logQuests.ContainsKey(quest.QuestTemplate.Id))
                     {
                         itemsToAddToDNSList.AddRange(GetItemsStringsList(quest));
-                        quest.ChangeStatusTo(QuestStatus.ToTurnIn);
+                        quest.ChangeStatusTo(QuestStatus.ToPickup);
                         continue;
                     }
 
-                    // Quest failed
-                    if (foundQuest.State == StateFlag.Failed)
+                    // Log quests
+                    if (logQuests.TryGetValue(quest.QuestTemplate.Id, out Quest.PlayerQuest foundQuest))
                     {
-                        quest.ChangeStatusTo(QuestStatus.Failed);
+                        // Quest to turn in
+                        if (foundQuest.State == StateFlag.Complete)
+                        {
+                            itemsToAddToDNSList.AddRange(GetItemsStringsList(quest));
+                            quest.ChangeStatusTo(QuestStatus.ToTurnIn);
+                            continue;
+                        }
+
+                        // Quest failed
+                        if (foundQuest.State == StateFlag.Failed)
+                        {
+                            quest.ChangeStatusTo(QuestStatus.Failed);
+                            continue;
+                        }
+
+                        // Quest in progress
+                        quest.ChangeStatusTo(QuestStatus.InProgress);
+
+                        itemsToAddToDNSList.AddRange(GetItemsStringsList(quest));
                         continue;
                     }
 
-                    // Quest in progress
-                    quest.ChangeStatusTo(QuestStatus.InProgress);
-
-                    itemsToAddToDNSList.AddRange(GetItemsStringsList(quest));
-                    continue;
+                    quest.ChangeStatusTo(QuestStatus.None);
                 }
 
-                quest.ChangeStatusTo(QuestStatus.None);
-            }
+                ToolBox.UpdateObjectiveCompletionDict(_questList
+                    .Where(quest => quest.Status == QuestStatus.InProgress)
+                    .Select(quest => quest.QuestTemplate.Id).ToArray());
 
-            ToolBox.UpdateObjectiveCompletionDict(_questList
-                .Where(quest => quest.Status == QuestStatus.InProgress)
-                .Select(quest => quest.QuestTemplate.Id).ToArray());
-
-            // loop for clearing up finished objectives
-            foreach (IWAQQuest quest in _questList)
-            {
-                quest.CheckForFinishedObjectives();
-            }
-
-            // Second loop for unfit quests in the log
-            if (WholesomeAQSettings.CurrentSetting.AbandonUnfitQuests)
-            {
-                foreach (KeyValuePair<int, Quest.PlayerQuest> logQuest in logQuests)
+                // loop for clearing up finished objectives
+                foreach (IWAQQuest quest in _questList)
                 {
-                    IWAQQuest waqQuest = _questList.Find(q => q.QuestTemplate.Id == logQuest.Key);
-                    if (waqQuest == null)
+                    quest.CheckForFinishedObjectives();
+                }
+
+                // Second loop for unfit quests in the log
+                if (WholesomeAQSettings.CurrentSetting.AbandonUnfitQuests)
+                {
+                    foreach (KeyValuePair<int, Quest.PlayerQuest> logQuest in logQuests)
                     {
-                        AbandonQuest(logQuest.Key, "Quest not in our DB list");
-                    }
-                    else
-                    {
-                        if (logQuest.Value.State == StateFlag.Failed)
+                        IWAQQuest waqQuest = _questList.Find(q => q.QuestTemplate.Id == logQuest.Key);
+                        if (waqQuest == null)
                         {
-                            AddQuestToBlackList(waqQuest.QuestTemplate.Id, "Failed");
-                            AbandonQuest(waqQuest.QuestTemplate.Id, "Failed");
-                            continue;
+                            AbandonQuest(logQuest.Key, "Quest not in our DB list");
                         }
-                        if (logQuest.Value.State == StateFlag.None && waqQuest.GetAllObjectives().Count <= 0)
+                        else
                         {
-                            AddQuestToBlackList(waqQuest.QuestTemplate.Id, "In progress with no objectives");
-                            AbandonQuest(waqQuest.QuestTemplate.Id, "In progress with no objectives");
-                            continue;
-                        }
-                        if (waqQuest.QuestTemplate.QuestLevel < ObjectManager.Me.Level - WholesomeAQSettings.CurrentSetting.LevelDeltaMinus - 1)
-                        {
-                            AddQuestToBlackList(waqQuest.QuestTemplate.Id, "Underleveled");
-                            AbandonQuest(waqQuest.QuestTemplate.Id, "Underleveled");
-                            continue;
+                            if (logQuest.Value.State == StateFlag.Failed)
+                            {
+                                AddQuestToBlackList(waqQuest.QuestTemplate.Id, "Failed");
+                                AbandonQuest(waqQuest.QuestTemplate.Id, "Failed");
+                                continue;
+                            }
+                            if (logQuest.Value.State == StateFlag.None && waqQuest.GetAllObjectives().Count <= 0)
+                            {
+                                AddQuestToBlackList(waqQuest.QuestTemplate.Id, "In progress with no objectives");
+                                AbandonQuest(waqQuest.QuestTemplate.Id, "In progress with no objectives");
+                                continue;
+                            }
+                            if (waqQuest.QuestTemplate.QuestLevel < ObjectManager.Me.Level - WholesomeAQSettings.CurrentSetting.LevelDeltaMinus - 1)
+                            {
+                                AddQuestToBlackList(waqQuest.QuestTemplate.Id, "Underleveled");
+                                AbandonQuest(waqQuest.QuestTemplate.Id, "Underleveled");
+                                continue;
+                            }
                         }
                     }
                 }
-            }
 
-            // WAQ Do Not Sell List
-            int WAQlistStartIndex = wManagerSetting.CurrentSetting.DoNotSellList.IndexOf("WAQStart");
-            int WAQlistEndIndex = wManagerSetting.CurrentSetting.DoNotSellList.IndexOf("WAQEnd");
-            int WAQListLength = WAQlistEndIndex - WAQlistStartIndex - 1;
-            List<string> initialWAQList = wManagerSetting.CurrentSetting.DoNotSellList.GetRange(WAQlistStartIndex + 1, WAQListLength);
-            if (!initialWAQList.SequenceEqual(itemsToAddToDNSList))
-            {
-                foreach (string item in initialWAQList)
+                // WAQ Do Not Sell List
+                int WAQlistStartIndex = wManagerSetting.CurrentSetting.DoNotSellList.IndexOf("WAQStart");
+                int WAQlistEndIndex = wManagerSetting.CurrentSetting.DoNotSellList.IndexOf("WAQEnd");
+                int WAQListLength = WAQlistEndIndex - WAQlistStartIndex - 1;
+                List<string> initialWAQList = wManagerSetting.CurrentSetting.DoNotSellList.GetRange(WAQlistStartIndex + 1, WAQListLength);
+                if (!initialWAQList.SequenceEqual(itemsToAddToDNSList))
                 {
-                    if (!itemsToAddToDNSList.Contains(item))
-                        Logger.LogDebug($"Removed {item} from Do Not Sell List");
+                    foreach (string item in initialWAQList)
+                    {
+                        if (!itemsToAddToDNSList.Contains(item))
+                            Logger.LogDebug($"Removed {item} from Do Not Sell List");
+                    }
+                    foreach (string item in itemsToAddToDNSList)
+                    {
+                        if (!initialWAQList.Contains(item))
+                            Logger.LogDebug($"Added {item} to Do Not Sell List");
+                    }
+                    wManagerSetting.CurrentSetting.DoNotSellList.RemoveRange(WAQlistStartIndex + 1, WAQListLength);
+                    wManagerSetting.CurrentSetting.DoNotSellList.InsertRange(WAQlistStartIndex + 1, itemsToAddToDNSList);
+                    wManagerSetting.CurrentSetting.Save();
                 }
-                foreach (string item in itemsToAddToDNSList)
-                {
-                    if (!initialWAQList.Contains(item))
-                        Logger.LogDebug($"Added {item} to Do Not Sell List");
-                }
-                wManagerSetting.CurrentSetting.DoNotSellList.RemoveRange(WAQlistStartIndex + 1, WAQListLength);
-                wManagerSetting.CurrentSetting.DoNotSellList.InsertRange(WAQlistStartIndex + 1, itemsToAddToDNSList);
-                wManagerSetting.CurrentSetting.Save();
-            }
 
-            _tracker.UpdateQuestsList(_questList);
+                _tracker.UpdateQuestsList(_questList);
+            }
         }
 
         private void AbandonQuest(int questId, string reason)
@@ -423,6 +439,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
         private void InitializeWAQSettings()
         {
+            // HORDE
             if (ToolBox.IsHorde()) AddQuestToBlackList(4740, "Bugged, should only be alliance", false);
             AddQuestToBlackList(1202, "Theramore docks, runs through ally city", false);
             AddQuestToBlackList(863, "Ignition, bugged platform", false);
@@ -462,7 +479,17 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(12218, "Spread the good word, object use", false);
             AddQuestToBlackList(12230, "Stealing from the Siegesmith, unavailable", false);
             AddQuestToBlackList(12234, "Need to know, unavailable", false);
+            AddQuestToBlackList(12447, "The Obsidian Dragonshire, top of Wyrmrest Temple", false);
+            AddQuestToBlackList(12458, "Seeds of the Lashers, top of Wyrmrest Temple", false);
+            AddQuestToBlackList(13242, "Darkness stirs, NPC absent", false);
             AddQuestToBlackList(13986, "An injured colleague, Dalaran", false);
+            AddQuestToBlackList(12791, "The magical Kingdom of Dalaran, Dalaran", false);
+            AddQuestToBlackList(12790, "Learning to leave and return, portal to dalaran", false);
+            AddQuestToBlackList(12521, "Where in the world is Hemet Nesingway, Dalaran", false);
+            AddQuestToBlackList(12853, "Luxurious Getaway, Dalaran", false);
+            AddQuestToBlackList(12695, "Return of the friendly dryskin", false);
+            AddQuestToBlackList(12534, "The Sapphire queen", false);
+            AddQuestToBlackList(12533, "The wasp's hunter", false);
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))
             {

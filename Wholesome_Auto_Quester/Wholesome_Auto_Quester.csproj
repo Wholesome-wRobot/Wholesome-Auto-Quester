@@ -367,6 +367,7 @@
     <Compile Include="States\IWAQState.cs" />
     <Compile Include="States\WAQDefend.cs" />
     <Compile Include="States\WAQExitVehicle.cs" />
+    <Compile Include="States\WAQForceResurrection.cs" />
     <Compile Include="States\WAQStateMoveToHotspot.cs" />
     <Compile Include="States\WAQStatePriorityLoot.cs" />
     <Compile Include="States\WAQStateInteract.cs" />
@@ -375,6 +376,7 @@
     <Compile Include="States\WAQStateTravel.cs" />
     <Compile Include="Helpers\ToolBox.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="States\WAQWaitResurrectionSickness.cs" />
     <Compile Include="WholesomeAQSettings.cs" />
   </ItemGroup>
   <ItemGroup />

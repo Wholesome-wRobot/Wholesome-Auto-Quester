@@ -6,7 +6,7 @@ using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.States
 {
-    class WAQStateInteract : State
+    class WAQStateInteract : State, IWAQState
     {
         private readonly IWowObjectScanner _scanner;
 
@@ -51,7 +51,13 @@ namespace Wholesome_Auto_Quester.States
                 return;
             }
 
-            float interactDistance = 3.5f + gameObject.Scale;
+            float scale = gameObject.Scale;
+            if (gameObject.Entry == 190537) // Crashed Plague Sprayer
+            {
+                scale = 6;
+            }
+
+            float interactDistance = 3.5f + scale;
 
             ToolBox.CheckIfZReachable(gameObject.Position);
 

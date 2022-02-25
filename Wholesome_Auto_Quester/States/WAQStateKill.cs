@@ -9,7 +9,7 @@ using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.States
 {
-    class WAQStateKill : State
+    class WAQStateKill : State, IWAQState
     {
         private readonly IWowObjectScanner _scanner;
 
@@ -27,7 +27,7 @@ namespace Wholesome_Auto_Quester.States
             {
                 if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause
                     || _scanner.ActiveWoWObject.wowObject == null
-                    || (_scanner.ActiveWoWObject.task.InteractionType != TaskInteraction.Kill 
+                    || (_scanner.ActiveWoWObject.task.InteractionType != TaskInteraction.Kill
                         && _scanner.ActiveWoWObject.task.InteractionType != TaskInteraction.KillAndLoot)
                     || !ObjectManager.Me.IsValid)
                     return false;

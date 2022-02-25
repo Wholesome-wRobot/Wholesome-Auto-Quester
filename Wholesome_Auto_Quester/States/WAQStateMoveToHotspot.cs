@@ -8,7 +8,7 @@ using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.States
 {
-    class WAQStateMoveToHotspot : State
+    class WAQStateMoveToHotspot : State, IWAQState
     {
         private ITaskManager _taskManager;
         public override string DisplayName { get; set; } = "WAQ Move to hotspot";

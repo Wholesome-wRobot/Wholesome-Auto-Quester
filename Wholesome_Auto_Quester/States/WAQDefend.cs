@@ -9,7 +9,7 @@ using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.States
 {
-    internal class WAQDefend : State
+    internal class WAQDefend : State, IWAQState
     {
         private WoWUnit _defendTarget;
         public override string DisplayName { get; set; } = "WAQ Defend";

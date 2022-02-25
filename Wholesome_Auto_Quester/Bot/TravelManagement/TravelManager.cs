@@ -445,6 +445,12 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
                 OffMeshConnections.Load();
             }
 
+            // Drak'Tharon Keep
+            wManagerSetting.AddBlackListZone(new Vector3(4643.429, -2043.915, 184.1842), 200, ContinentId.Northrend, isSessionBlacklist: true);
+
+            // Blue sky logging camp water
+            wManagerSetting.AddBlackListZone(new Vector3(4321.85, -3021.175, 305.8569), 50, ContinentId.Northrend, isSessionBlacklist: true);
+
             // Avoid Orgrimmar Braseros
             wManagerSetting.AddBlackListZone(new Vector3(1731.702, -4423.403, 36.86293), 5, ContinentId.Kalimdor, isSessionBlacklist: true);
             wManagerSetting.AddBlackListZone(new Vector3(1669.99, -4359.609, 29.23425), 5, ContinentId.Kalimdor, isSessionBlacklist: true);

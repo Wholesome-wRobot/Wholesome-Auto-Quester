@@ -7,7 +7,7 @@ using Timer = robotManager.Helpful.Timer;
 
 namespace Wholesome_Auto_Quester.States
 {
-    class WAQExitVehicle : State
+    class WAQExitVehicle : State, IWAQState
     {
         private Timer _stateTimer = new Timer();
 

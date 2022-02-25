@@ -8,7 +8,7 @@ using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.States
 {
-    class WAQStateLoot : State
+    class WAQStateLoot : State, IWAQState
     {
         private readonly IWowObjectScanner _scanner;
 

@@ -31,6 +31,40 @@ namespace Wholesome_Auto_Quester.Helpers
             }
         }
 
+        public static int GetAvergaeDurability()
+        {
+            return Lua.LuaDoString<int>($@"
+                local avrgDurability = 0;
+                local nbItems = 0;
+                for i=1,20 do
+                    local durability, max = GetInventoryItemDurability(i);
+                    if durability ~= nil and max ~= nil then
+                        avrgDurability = avrgDurability + durability;
+                        nbItems = nbItems + 1;
+                    end
+                end
+
+                if nbItems > 0 then
+                    return avrgDurability / nbItems;
+                else 
+                    return 100;
+                end
+            ");
+        }
+
+        // Get item Cooldown (must pass item string as arg)
+        public static int GetItemCooldown(int itemId)
+        {
+            List<WoWItem> _bagItems = Bag.GetBagItem();
+            foreach (WoWItem item in _bagItems)
+                if (itemId == item.Entry)
+                    return Lua.LuaDoString<int>("local startTime, duration, enable = GetItemCooldown(" + itemId + "); " +
+                        "return duration - (GetTime() - startTime)");
+
+            Logger.Log("Couldn't find item " + itemId);
+            return 0;
+        }
+
         public static float GetZDistance(Vector3 checkPosition)
         {
             Vector3 myPos = ObjectManager.Me.Position;
@@ -42,6 +76,8 @@ namespace Wholesome_Auto_Quester.Helpers
         {
             if (POI.Entry == 1776 // swamp of sorrows Magtoor
                 || POI.Entry == 19256 // Sergeant SHatterskull
+                || POI.Entry == 27266 // Sergeant Thurkin
+                || POI.Entry == 191519 // Sparksocket's Tools
                 || POI.Entry == 19442) // Kruush
             {
                 return false;
@@ -56,12 +92,12 @@ namespace Wholesome_Auto_Quester.Helpers
             {
                 MountTask.DismountMount(false, false);
             }
-            
+
             if (ObjectManager.GetNumberAttackPlayer() > 0)
             {
                 return true;
             }
-            
+
             List<WoWUnit> objectManager = ObjectManager.GetWoWUnitHostile();
             Dictionary<WoWUnit, float> hostileUnits = new Dictionary<WoWUnit, float>();
             float myDistanceToPOI = me.Position.DistanceTo(poiPosition);
@@ -520,23 +556,22 @@ namespace Wholesome_Auto_Quester.Helpers
 
         public static bool ShouldStateBeInterrupted(IWAQTask task, WoWObject gameObject)
         {
-            if (gameObject != null)
+            if (gameObject == null)
             {
-                if (wManagerSetting.IsBlackListedZone(gameObject.Position)
-                    || wManagerSetting.IsBlackListed(gameObject.Guid))
-                {
-                    MoveHelper.StopAllMove(true);
-                    return true;
-                }
+                return true;
             }
 
-            if (task != null)
+            if (wManagerSetting.IsBlackListedZone(gameObject.Position)
+                || wManagerSetting.IsBlackListed(gameObject.Guid))
             {
-                if (wManagerSetting.IsBlackListedZone(task.Location))
-                {
-                    MoveHelper.StopAllMove(true);
-                    return true;
-                }
+                MoveHelper.StopAllMove(true);
+                return true;
+            }
+
+            if (wManagerSetting.IsBlackListedZone(task.Location))
+            {
+                MoveHelper.StopAllMove(true);
+                return true;
             }
 
             return false;
@@ -754,6 +789,18 @@ namespace Wholesome_Auto_Quester.Helpers
             { 582, 3 }, // Headhunting, too many mobs
             { 1177, 3 }, // Hungry!, too many murlocs
         };
+
+        // Returns whether the player has the debuff passed as a string (ex: Weakened Soul)
+        public static bool HasDebuff(string debuffName, string unitName = "player", int loops = 25)
+        {
+            return Lua.LuaDoString<bool>
+                (@$"for i=1,{loops} do
+                    local n, _, _, _, _  = UnitDebuff('{unitName}',i);
+                    if n == '{debuffName}' then
+                    return true
+                    end
+                end");
+        }
 
         public static void PickupQuestFromBagItem(string itemName)
         {

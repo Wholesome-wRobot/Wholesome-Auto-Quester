@@ -44,7 +44,12 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         public override void PostInteraction(WoWObject wowObject)
         {
             Usefuls.WaitIsCastingAndLooting();
-            Thread.Sleep(200);
+            Thread.Sleep(200); 
+            Lua.LuaDoString(@$"
+                    if GetClickFrame('StaticPopup1Button1'):IsVisible() then
+                        StaticPopup1Button1:Click();
+                    end
+                ");
             if (!wowObject.IsValid)
             {
                 PutTaskOnTimeout("Completed");

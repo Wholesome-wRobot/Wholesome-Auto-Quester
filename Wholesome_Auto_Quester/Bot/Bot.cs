@@ -65,8 +65,9 @@ namespace Wholesome_Auto_Quester.Bot
                 Fsm.States.Clear();
 
                 Fsm.AddState(new Relogger { Priority = 200 }); 
-                Fsm.AddState(new NPCScanState { Priority = 37 });
-                Fsm.AddState(new Pause { Priority = 36 });
+                Fsm.AddState(new NPCScanState { Priority = 38 });
+                Fsm.AddState(new Pause { Priority = 37 });
+                Fsm.AddState(new WAQForceResurrection { Priority = 36 });
                 Fsm.AddState(new Resurrect { Priority = 35 });
 
                 Fsm.AddState(new WAQExitVehicle { Priority = 34 });
@@ -75,13 +76,14 @@ namespace Wholesome_Auto_Quester.Bot
 
                 Fsm.AddState(new WAQStatePriorityLoot(_objectScanner, 31));
                 Fsm.AddState(new WAQDefend { Priority = 30 });
+                Fsm.AddState(new WAQWaitResurrectionSickness { Priority = 28 });
 
-                Fsm.AddState(new Regeneration { Priority = 29 });
+                Fsm.AddState(new Regeneration { Priority = 27 });
 
-                Fsm.AddState(new WAQStateLoot(_objectScanner, 28));
+                Fsm.AddState(new WAQStateLoot(_objectScanner, 26));
 
-                Fsm.AddState(new Looting { Priority = 27 });
-                Fsm.AddState(new FlightMasterTakeTaxiState { Priority = 26 });
+                Fsm.AddState(new Looting { Priority = 25 });
+                Fsm.AddState(new FlightMasterTakeTaxiState { Priority = 24 });
                 Fsm.AddState(new Trainers { Priority = 23 });
                 Fsm.AddState(new ToTown { Priority = 22 });
                 
