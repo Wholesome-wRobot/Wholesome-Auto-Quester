@@ -99,7 +99,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                     return;
                 }
 
-                _guiTracker.UpdateScanReg(_scannerRegistry);
+                _guiTracker.UpdateScanReg(GuiScanEntries);
 
                 List<WoWObject> allObjects = ObjectManager.GetObjectWoW()
                     .Where(o => o.GetDistance < 60)
@@ -242,6 +242,32 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 else
                 {
                     throw new System.Exception($"[Scanner] Tried to remove {task.TaskName} but the entry {entry} didn't exist ({task.Location})");
+                }
+            }
+        }
+
+        private List<GUIScanEntry> GuiScanEntries
+        {
+            get
+            {
+                lock (_scannerLock)
+                {
+                    List<GUIScanEntry> scanEntries = new List<GUIScanEntry>();
+                    foreach (KeyValuePair<int, List<IWAQTask>> entry in _scannerRegistry)
+                    {
+                        foreach (IWAQTask task in entry.Value)
+                        {
+                            if (!scanEntries.Exists(entry => entry.TaskName == task.TaskName))
+                            {
+                                scanEntries.Add(new GUIScanEntry(entry.Key, task));
+                            }
+                            else
+                            {
+                                scanEntries.Find(entry => entry.TaskName == task.TaskName).AddOne(task);
+                            }
+                        }
+                    }
+                    return scanEntries;
                 }
             }
         }

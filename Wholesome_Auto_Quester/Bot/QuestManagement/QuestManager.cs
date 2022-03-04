@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using robotManager.Helpful;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
@@ -54,7 +55,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 if (WholesomeAQSettings.CurrentSetting.GoToMobEntry != 0 || WholesomeAQSettings.CurrentSetting.GrindOnly)
                 {
                     _questList.Clear();
-                    _tracker.UpdateQuestsList(_questList);
+                    _tracker.UpdateQuestsList(GuiQuestList);
                     return;
                 }
 
@@ -340,7 +341,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     wManagerSetting.CurrentSetting.Save();
                 }
 
-                _tracker.UpdateQuestsList(_questList);
+                _tracker.UpdateQuestsList(GuiQuestList);
             }
         }
 
@@ -379,7 +380,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     {
                         List<IWAQQuest> questsToRemove = _questList.FindAll(quest => questsSavedFromServer.Contains(quest.QuestTemplate.Id));
                         RemoveAllQuests(questsToRemove);
-                        _tracker.UpdateQuestsList(_questList);
+                        _tracker.UpdateQuestsList(GuiQuestList);
                         UpdateStatuses();
                         WholesomeAQSettings.CurrentSetting.Save();
                     }
@@ -517,6 +518,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(168, "Collecting memories, too many NPCS", false);
             AddQuestToBlackList(167, "Oh brother, too many NPCS", false);
             AddQuestToBlackList(128, "Blackrock Bounty, too many NPCS", false);
+            AddQuestToBlackList(465, "Nek'Rosh's Gambit, bugged", false);
 
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))
@@ -550,6 +552,24 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             }
 
             return result;
+        }
+
+        private List<IWAQQuest> GuiQuestList
+        {
+            get
+            {
+                lock (_questManagerLock)
+                {
+                    Vector3 myPos = ObjectManager.Me.PositionWithoutType;
+                    return _questList
+                        .OrderBy(quest => quest.Status)
+                        .ThenBy(quest =>
+                        {
+                            if (quest.QuestTemplate.CreatureQuestGivers.Count <= 0) return float.MaxValue;
+                            return quest.GetClosestQuestGiverDistance(myPos);
+                        }).ToList();
+                }
+            }
         }
     }
 }

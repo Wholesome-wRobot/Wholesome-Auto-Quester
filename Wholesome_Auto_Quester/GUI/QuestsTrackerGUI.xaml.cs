@@ -116,18 +116,7 @@ namespace Wholesome_Auto_Quester.GUI
                     try
                     {
                         object selectedQuest = sourceQuestsList.SelectedItem;
-
-                        sourceQuestsList.ItemsSource = null;
-                        Vector3 myPos = ObjectManager.Me.PositionWithoutType;
-
-                        List<IWAQQuest> items = questList
-                            .OrderBy(quest => quest.Status)
-                            .ThenBy(quest =>
-                            {
-                                if (quest.QuestTemplate.CreatureQuestGivers.Count <= 0) return float.MaxValue;
-                                return quest.GetClosestQuestGiverDistance(myPos);
-                            }).ToList();
-                        sourceQuestsList.ItemsSource = items;
+                        sourceQuestsList.ItemsSource = questList;
 
                         if (selectedQuest != null && sourceQuestsList.Items?.Count > 0 && sourceQuestsList.Items.Contains(selectedQuest))
                             sourceQuestsList.SelectedItem = selectedQuest;
@@ -144,7 +133,7 @@ namespace Wholesome_Auto_Quester.GUI
             }
         }
 
-        public void UpdateScanReg(Dictionary<int, List<IWAQTask>> scannerRegistry)
+        public void UpdateScanReg(List<GUIScanEntry> guiScanEntries)
         {
             lock (_guiLock)
             {
@@ -152,23 +141,7 @@ namespace Wholesome_Auto_Quester.GUI
                 {
                     try
                     {
-                        sourceScanReg.ItemsSource = null;
-                        List<GUIScanEntry> scanEntries = new List<GUIScanEntry>();
-                        foreach (KeyValuePair<int, List<IWAQTask>> entry in scannerRegistry)
-                        {
-                            foreach (IWAQTask task in entry.Value)
-                            {
-                                if (!scanEntries.Exists(entry => entry.TaskName == task.TaskName))
-                                {
-                                    scanEntries.Add(new GUIScanEntry(entry.Key, task));
-                                }
-                                else
-                                {
-                                    scanEntries.Find(entry => entry.TaskName == task.TaskName).AddOne(task);
-                                }
-                            }
-                        }
-                        sourceScanReg.ItemsSource = scanEntries;
+                        sourceScanReg.ItemsSource = guiScanEntries;
                     }
                     catch (Exception e)
                     {

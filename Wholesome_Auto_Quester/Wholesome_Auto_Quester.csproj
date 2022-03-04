@@ -343,6 +343,7 @@
     <Compile Include="Database\Models\ModelItemTemplate.cs" />
     <Compile Include="Database\Models\ModelAreaTrigger.cs" />
     <Compile Include="Database\Models\ModelQuestTemplate.cs" />
+    <Compile Include="Database\Models\ModelReferenceLootTemplate.cs" />
     <Compile Include="Database\Models\ModelSpell.cs" />
     <Compile Include="Database\Models\ModelWayPointData.cs" />
     <Compile Include="Database\Models\ModelWorldMapArea.cs" />

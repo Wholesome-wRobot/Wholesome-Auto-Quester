@@ -65,14 +65,41 @@ namespace Wholesome_Auto_Quester.Database
             return result;
         }
 
+        public List<ModelReferenceLootTemplate> QueryReferenceLootTemplateByItem(int itemId)
+        {
+            string queryReferenceootTemplate = $@"
+                SELECT *
+                FROM reference_loot_template
+                WHERE item = {itemId}
+            ";
+            List<ModelReferenceLootTemplate> result = _con.Query<ModelReferenceLootTemplate>(queryReferenceootTemplate).ToList();
+            return result;
+        }
+
         public List<ModelCreatureLootTemplate> QueryCreatureLootTemplatesByItemEntry(int itemId)
         {
+            // get standard loot templates
             string queryLootTemplate = $@"
                 SELECT *
                 FROM creature_loot_template
                 WHERE item = {itemId}
             ";
             List<ModelCreatureLootTemplate> result = _con.Query<ModelCreatureLootTemplate>(queryLootTemplate).ToList();
+
+            // add reference loot templates
+            List<ModelReferenceLootTemplate> referenceLootTemplates = QueryReferenceLootTemplateByItem(itemId);
+            foreach (ModelReferenceLootTemplate mrlt in referenceLootTemplates)
+            {
+                string queryLootTemplateByMrlt = $@"
+                    SELECT *
+                    FROM creature_loot_template
+                    WHERE item = {mrlt.Entry}
+                ";
+                List<ModelCreatureLootTemplate> rlts = _con.Query<ModelCreatureLootTemplate>(queryLootTemplateByMrlt).ToList();
+                rlts.ForEach(rlt => rlt.Chance = mrlt.Chance);
+                result.AddRange(rlts);
+            }
+
             result.ForEach(clt => clt.CreatureTemplate = QueryCreatureTemplateByEntry(clt.Entry));
             return result;
         }
@@ -289,7 +316,8 @@ namespace Wholesome_Auto_Quester.Database
             string queryGOTemplate = $@"
                 Select *
                 FROM gameobject_template
-                WHERE data1 = {lootEntry};
+                WHERE data1 = {lootEntry}
+                AND type > 0;
             ";
             List<ModelGameObjectTemplate> result = _con.Query<ModelGameObjectTemplate>(queryGOTemplate).ToList();
             result.ForEach(got => { got.GameObjects = QueryGameObjectByEntry(got.entry); });
@@ -512,6 +540,7 @@ namespace Wholesome_Auto_Quester.Database
                 CREATE INDEX IF NOT EXISTS `idx_quest_template_addon_id` ON `quest_template_addon` (`ID`);
                 CREATE INDEX IF NOT EXISTS `idx_quest_template_addon_nextquestid` ON `quest_template_addon` (`NextQuestId`);
                 CREATE INDEX IF NOT EXISTS `idx_quest_template_addon_prevquestid` ON `quest_template_addon` (`PrevQuestId`);
+                CREATE INDEX IF NOT EXISTS `idx_reference_loot_template_item` ON `reference_loot_template` (`Item`);
                 CREATE INDEX IF NOT EXISTS `idx_spell_id` ON `spell` (`id`);
                 CREATE INDEX IF NOT EXISTS `idx_waypoint_data_id` ON `waypoint_data` (`id`);
             ");
