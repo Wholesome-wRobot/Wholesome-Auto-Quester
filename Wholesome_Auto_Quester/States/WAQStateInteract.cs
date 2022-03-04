@@ -57,7 +57,7 @@ namespace Wholesome_Auto_Quester.States
                 scale = 6;
             }
 
-            float interactDistance = 3.5f + scale;
+            float interactDistance = 3f + scale;
 
             ToolBox.CheckIfZReachable(gameObject.Position);
 

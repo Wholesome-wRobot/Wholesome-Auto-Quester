@@ -39,7 +39,8 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             if (wowObject is WoWUnit unit)
             {
                 return unit.IsAlive
-                    || unit.Entry == 25984 // Crashed recon pilot;
+                    || unit.Entry == 25984 // Crashed recon pilot
+                    || unit.Entry == 3891 // Teronis' Corpse
                     || unit.Entry == 25328; // Shadowstalker Luther
             }
             return false;
@@ -59,7 +60,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             }
             else
             {
-                if (!ToolBox.GossipTurnInQuest(_questTemplate.LogTitle, _questTemplate.Id))
+                if (!QuestLUAHelper.GossipTurnInQuest(_questTemplate.LogTitle, _questTemplate.Id))
                 {
                     PutTaskOnTimeout("Failed turnin Gossip", 15 * 60, true);
                 }

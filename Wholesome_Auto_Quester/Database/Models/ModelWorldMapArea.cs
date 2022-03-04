@@ -1,11 +1,18 @@
 ﻿using robotManager.Helpful;
 using System.Windows;
-using Wholesome_Auto_Quester.Helpers;
 
 namespace Wholesome_Auto_Quester.Database.Models
 {
     public class ModelWorldMapArea
     {
+        public ModelWorldMapArea(int _mapId, int _areaId, string _areaName) 
+        {
+            mapID = _mapId;
+            areaID = _areaId;
+            areaName = _areaName;
+        }
+        public ModelWorldMapArea() { }
+
         private bool _isContinentSet = false;
         public int ID { get; }
         public int mapID { get; }
@@ -18,6 +25,10 @@ namespace Wholesome_Auto_Quester.Database.Models
 
         public bool IsPointInMapArea(Vector3 point, int mapId)
         {
+            if (mapId == 369 && mapID == 369) // Deeprun tram
+            {
+                return true;
+            }
             if (mapId != mapID) return false;
             Rect zone = new Rect(new Point(locBottom, locLeft), new Point(locTop, locRight));
             return zone.Contains(new Point(point.X, point.Y));
@@ -30,8 +41,13 @@ namespace Wholesome_Auto_Quester.Database.Models
             {
                 if (_continent == WAQContinent.None && !_isContinentSet)
                 {
+                    // Deeprun tram
+                    if (mapID == 369)
+                    {
+                        _continent = WAQContinent.DeeprunTram;
+                    }
                     // Teldrassil - Darnassus
-                    if (areaID == 141 || areaID == 1657)
+                    else if (areaID == 141 || areaID == 1657)
                     {
                         _continent = WAQContinent.Teldrassil;
                     }

@@ -93,15 +93,27 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 return;
             }
 
-            if (WholesomeAQSettings.CurrentSetting.GoToMobEntry > 0)
-            {
-                GenerateSettingTravelTask();
-                return;
-            }
-
             _taskPile.Clear();
+
             Vector3 myPosition = ObjectManager.Me.Position;
             List<IWAQTask> tasksToAdd = new List<IWAQTask>();
+
+            if (WholesomeAQSettings.CurrentSetting.GoToMobEntry > 0)
+            {
+                DB _db = new DB();
+                ModelCreatureTemplate template = _db.QueryCreatureTemplateByEntry(WholesomeAQSettings.CurrentSetting.GoToMobEntry);
+                _db.Dispose();
+
+                if (template?.Creatures.Count > 0)
+                {
+                    tasksToAdd.Add(new WAQTaskSettingTravel(template));
+                }
+                else
+                {
+                    Logger.LogError($"Couldn't find NPC {WholesomeAQSettings.CurrentSetting.GoToMobEntry}");
+                    return;
+                }
+            }
 
             if (WholesomeAQSettings.CurrentSetting.GoToMobEntry <= 0 && !WholesomeAQSettings.CurrentSetting.GrindOnly)
             {
@@ -226,25 +238,6 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             }
 
             ActiveTask = closestTask;
-        }
-
-        private void GenerateSettingTravelTask()
-        {
-            if (_taskPile.Count <= 0)
-            {
-                DB _db = new DB();
-                ModelCreatureTemplate template = _db.QueryCreatureTemplateByEntry(WholesomeAQSettings.CurrentSetting.GoToMobEntry);
-                _db.Dispose();
-
-                if (template?.Creatures.Count > 0)
-                {
-                    AddTaskToPile(new WAQTaskSettingTravel(template));
-                }
-                else
-                {
-                    Logger.LogError($"Couldn't find NPC {WholesomeAQSettings.CurrentSetting.GoToMobEntry}");
-                }
-            }
         }
 
         private int CalculatePriority(Vector3 myPosition, KDTree<float, IWAQTask> spaceTree, IWAQTask task)

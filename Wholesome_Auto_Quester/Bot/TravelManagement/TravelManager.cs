@@ -11,6 +11,7 @@ using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 using static wManager.Wow.Helpers.PathFinder;
+using Timer = robotManager.Helpful.Timer;
 
 namespace Wholesome_Auto_Quester.Bot.TravelManagement
 {
@@ -46,8 +47,9 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
             ModelWorldMapArea destinationArea = task.WorldMapArea;
 
             if (myArea.Continent != destinationArea.Continent
-                || ShouldTakeZeppelinTirisfalToStranglethorn(task)
-                || ShouldTakeZeppelinStranglethornToTirisfal(task))
+                || ShouldTravelFromNorthEKToSouthEk(task)
+                || ShouldTravelFromSouthEKToNorthEK(task)
+                || ShouldTakePortalDarnassusToLowBay(task))
             {
                 _shouldTravel = true;
                 return true;
@@ -57,21 +59,39 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
             return false;
         }
 
-        public bool ShouldTakeZeppelinTirisfalToStranglethorn(IWAQTask task)
-        {
-            return ObjectManager.Me.Level <= 40 
-                && ContinentHelper.MyMapArea.Continent == WAQContinent.EasternKingdoms
-                && ObjectManager.Me.Position.X > -2384 // above wetlands
-                && task.Location.X < -8724.188; // under redridge
-        }
-
-        public bool ShouldTakeZeppelinStranglethornToTirisfal(IWAQTask task)
+        public bool ShouldTravelFromNorthEKToSouthEk(IWAQTask task)
         {
             return ObjectManager.Me.Level <= 40
                 && ContinentHelper.MyMapArea.Continent == WAQContinent.EasternKingdoms
-                && ObjectManager.Me.Position.X < -8724.188 // under redridge
-                && task.Location.X > -2384; // above wetlands
+                && (ObjectManager.Me.Position.X > -8118 || ContinentHelper.MyMapArea.areaID == 1537) // above burning steppes
+                && task.Location.X <= -8118;
         }
+
+        public bool ShouldTravelFromSouthEKToNorthEK(IWAQTask task)
+        {
+            return ObjectManager.Me.Level <= 40
+                && ContinentHelper.MyMapArea.Continent == WAQContinent.EasternKingdoms
+                && (ObjectManager.Me.Position.X < -8118 || ContinentHelper.MyMapArea.areaID == 1519) // under burning steppes
+                && task.Location.X >= -8118;
+        }
+
+        public bool ShouldTakePortalDarnassusToLowBay(IWAQTask task)
+        {
+            return ContinentHelper.MyMapArea.Continent == WAQContinent.Teldrassil
+                && ObjectManager.Me.Position.Z >= 600
+                && task.Location.Z < 600; // Under teldrassil tree
+        }
+
+        // Tramway
+        readonly int deeprunTramStormwindToIronforgeId = 176082;
+        readonly Vector3 bayTramStormwindToIronforge = new Vector3(-34.445, 2492.806, -4.289737, "None");
+        readonly Vector3 insideTramStormwindToIronforge = new Vector3(-44.94446, 2492.615, -3.47941, "None");
+        readonly Vector3 bayTramStormwindToIronforgeArrival = new Vector3(-27.32375, 9.688682, -4.296832, "None");
+
+        readonly int deeprunTramIronforgeToStomwindId = 176081;
+        readonly Vector3 bayTramIronforgeToStormwind = new Vector3(16.87345, 8.440852, -4.29735, "None");
+        readonly Vector3 insideTramIronforgeToStormwind = new Vector3(4.707247, 8.58511, -3.456941, "None");
+        readonly Vector3 bayTramIronforgeToStormwindArrival = new Vector3(18.3296, 2490.827, -4.291731, "None");
 
         // Zeppelins
         readonly int zeppelinTirisfalToOrgrimmarId = 164871;
@@ -151,18 +171,19 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
 
         readonly Vector3 bayMenethilToDustwallow = new Vector3(-3893.388, -602.8146, 5.425149, "None");
         readonly Vector3 insideShipMenethilToDustwallow = new Vector3(-3904.25, -577.7352, 6.059737, "None");
-
-        readonly int ShipAzuremystToDarkshoreId = 181646;
-        readonly int ShipDarkshoreToDarnassusId = 176244;
+        */
+        /*readonly int ShipAzuremystToDarkshoreId = 181646;
         readonly int ShipMenethilToDustwallowId = 176231;
-        readonly int ShipMenethilToHowlingFjord = 181688;
-        readonly int ShipDarkshoreToStormwindId = 176310;*/
+        readonly int ShipMenethilToHowlingFjord = 181688;*/
+        readonly int ShipDarkshoreToStormwindId = 176310;
         readonly int shipStormwindToBoreanTundraId = 190536;
+        readonly int ShipDarkshoreToDarnassusId = 176244;
         readonly int shipRatchetToBootyBayId = 20808;
 
 
         // Portals
         readonly int oGPortalToBlastedLandsId = 195142;
+
         readonly Vector3 oGPortalToBlastedLandsPosition = new Vector3(1472.55f, -4215.7f, 59.221f);
 
         readonly int silverMoonPortalToTirisfal = 184502;
@@ -233,6 +254,106 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
 
 
         // ********** FROM EK **********
+        public void TakeTramFromIronforgeToStormwind()
+        {
+            Logger.Log($"Hopping on tramway to Stormwind");
+            GoToTask.ToPosition(bayTramIronforgeToStormwind);
+            if (ObjectManager.Me.Position.DistanceTo(bayTramIronforgeToStormwind) < 4)
+            {
+                WaitForTransport(deeprunTramIronforgeToStomwindId, 20);
+                ForceMoveTo(insideTramIronforgeToStormwind);
+                WaitOnTransport(bayTramIronforgeToStormwindArrival, 30);
+            }
+        }
+
+        public void ExitDeeprunTramToStormwind()
+        {
+            Logger.Log($"Exiting Deeprun Tram to Stormwind");
+            Vector3 exitDRTram = new Vector3(64.14916, 2491.184, -4.29601, "None");
+            Vector3 behindPortalDRtram = new Vector3(84.14916, 2491.184, -4.29601, "None");
+            if (ObjectManager.Me.Position.DistanceTo(exitDRTram) > 5)
+            {
+                GoToTask.ToPosition(exitDRTram);
+            }
+            else
+            {
+                Timer timer = new Timer(5000);
+                MovementManager.MoveTo(behindPortalDRtram);
+                while (!timer.IsReady && ContinentHelper.MyMapArea.Continent != WAQContinent.EasternKingdoms)
+                    Thread.Sleep(100);
+                MovementManager.StopMoveTo();
+            }
+        }
+
+        public void EnterIronForgedDeeprunTram()
+        {
+            Logger.Log($"Taking tramway to Stormwind");
+            Vector3 entranceDRTram = new Vector3(-4838.456, -1316.167, 501.8683);
+            Vector3 behindPortalDRtram = new Vector3(-4838.456, -1340.167, 501.8683);
+            if (ObjectManager.Me.Position.DistanceTo(entranceDRTram) > 5)
+            {
+                GoToTask.ToPosition(entranceDRTram);
+            }
+            else
+            {
+                Timer timer = new Timer(5000);
+                MovementManager.MoveTo(behindPortalDRtram);
+                while (!timer.IsReady && ContinentHelper.MyMapArea.Continent != WAQContinent.DeeprunTram)
+                    Thread.Sleep(100);
+                MovementManager.StopMoveTo();
+            }
+        }
+
+        public void ExitDeeprunTramToIronforge()
+        {
+            Logger.Log($"Exiting Deeprun Tram to Ironforge");
+            Vector3 exitDRTram = new Vector3(66.81684, 9.562094, -4.297355, "None");
+            Vector3 behindPortalDRtram = new Vector3(88.81684, 9.562094, -4.297355, "None");
+            if (ObjectManager.Me.Position.DistanceTo(exitDRTram) > 5)
+            {
+                GoToTask.ToPosition(exitDRTram);
+            }
+            else
+            {
+                Timer timer = new Timer(5000);
+                MovementManager.MoveTo(behindPortalDRtram);
+                while (!timer.IsReady && ContinentHelper.MyMapArea.Continent != WAQContinent.EasternKingdoms)
+                    Thread.Sleep(100);
+                MovementManager.StopMoveTo();
+            }
+        }
+
+        public void TakeTramFromStormwindToIronforge()
+        {
+            Logger.Log($"Hopping on tramway to Ironforge");
+            GoToTask.ToPosition(bayTramStormwindToIronforge);
+            if (ObjectManager.Me.Position.DistanceTo(bayTramStormwindToIronforge) < 4)
+            {
+                WaitForTransport(deeprunTramStormwindToIronforgeId, 15);
+                ForceMoveTo(insideTramStormwindToIronforge);
+                WaitOnTransport(bayTramStormwindToIronforgeArrival, 30);
+            }
+        }
+
+        public void EnterStormwindDeeprunTram()
+        {
+            Logger.Log($"Taking tramway to Ironforge");
+            Vector3 entranceDRTram = new Vector3(-8355.539, 525.3418, 91.79753);
+            Vector3 behindPortalDRtram = new Vector3(-8330, 500.3350, 91.79753);
+            if (ObjectManager.Me.Position.DistanceTo(entranceDRTram) > 5)
+            {
+                GoToTask.ToPosition(entranceDRTram);
+            }
+            else
+            {
+                Timer timer = new Timer(5000);
+                MovementManager.MoveTo(behindPortalDRtram);
+                while (!timer.IsReady && ContinentHelper.MyMapArea.Continent != WAQContinent.DeeprunTram)
+                    Thread.Sleep(100);
+                MovementManager.StopMoveTo();
+            }
+        }
+
         public void PortalBlastedLandsToOutlands()
         {
             Logger.Log($"Traversing portal to Outlands");
@@ -249,7 +370,7 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
             if (ObjectManager.Me.Position.DistanceTo(tirisfalPlatformZepOrgrimmar) < 4)
             {
                 WaitForTransport(zeppelinTirisfalToOrgrimmarId, 15);
-                GoToTask.ToPosition(insideZeppelinTirisfalToOrgrimmar, 1);
+                ForceMoveTo(insideZeppelinTirisfalToOrgrimmar);
                 WaitOnTransport(orgrimmarPlatformZepTirisfal, 15);
             }
         }
@@ -312,6 +433,49 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
         }
 
         // ********** FROM KALIMDOR **********
+        public void ShipDarkshoreToStormwind()
+        {
+            Logger.Log("Taking ship to Stormwind");
+            GoToTask.ToPosition(bayDarkshoreToStormwind);
+            if (ObjectManager.Me.Position.DistanceTo(bayDarkshoreToStormwind) < 4)
+            {
+                WaitForTransport(ShipDarkshoreToStormwindId, 30);
+                ForceMoveTo(insideShipDarkshoreToStormwind);
+                WaitOnTransport(bayStormwindToDarkshore, 50);
+            }
+        }
+
+        public void ShipDarnassusToDarkshore()
+        {
+            Logger.Log("Taking ship to Darkshore");
+            GoToTask.ToPosition(bayDarnassusToDarkshore);
+            if (ObjectManager.Me.Position.DistanceTo(bayDarnassusToDarkshore) < 4)
+            {
+                WaitForTransport(ShipDarkshoreToDarnassusId, 30);
+                ForceMoveTo(insideShipDarnassusToDarkshore);
+                WaitOnTransport(bayDarkshoreToDarnassus, 50);
+            }
+        }
+
+        public void PortalDarnassusToLowBay()
+        {
+            Logger.Log("Taking teleporter from from Darnassus to Rut'Theran");
+            Vector3 prep = new Vector3(9946.391, 2596.067, 1316.194, "None");
+            Vector3 portal = new Vector3(9946.391, 2630.067, 1316.194, "None");
+            if (ObjectManager.Me.Position.DistanceTo(prep) > 8)
+            {
+                GoToTask.ToPosition(prep);
+            }
+            else
+            {
+                MovementManager.MoveTo(portal);
+                Timer timer = new Timer(5000);
+                while (MovementManager.InMoveTo && (ObjectManager.Me.Position.Z > 600 || !timer.IsReady))
+                    Thread.Sleep(100);
+                MovementManager.StopMoveTo();
+            }
+        }
+
         public void PortalStormwindToBlastedLands()
         {
             Logger.Log("Taking portal to Blasted lands");
@@ -444,19 +608,6 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
             {
                 OffMeshConnections.Load();
             }
-
-            // Drak'Tharon Keep
-            wManagerSetting.AddBlackListZone(new Vector3(4643.429, -2043.915, 184.1842), 200, ContinentId.Northrend, isSessionBlacklist: true);
-
-            // Blue sky logging camp water
-            wManagerSetting.AddBlackListZone(new Vector3(4321.85, -3021.175, 305.8569), 50, ContinentId.Northrend, isSessionBlacklist: true);
-
-            // Avoid Orgrimmar Braseros
-            wManagerSetting.AddBlackListZone(new Vector3(1731.702, -4423.403, 36.86293), 5, ContinentId.Kalimdor, isSessionBlacklist: true);
-            wManagerSetting.AddBlackListZone(new Vector3(1669.99, -4359.609, 29.23425), 5, ContinentId.Kalimdor, isSessionBlacklist: true);
-
-            // Warsong hold top elevator
-            wManagerSetting.AddBlackListZone(new Vector3(2892.18, 6236.34, 208.908), 15, ContinentId.Northrend, isSessionBlacklist: true);
 
             OffMeshConnections.MeshConnection.Clear();
 
@@ -639,5 +790,6 @@ public enum WAQContinent
     Outlands,
     Northrend,
     Teldrassil,
+    DeeprunTram,
     None
 }

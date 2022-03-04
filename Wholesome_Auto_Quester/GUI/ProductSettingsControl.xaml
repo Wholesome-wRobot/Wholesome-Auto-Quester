@@ -162,9 +162,20 @@
                     Margin="10" 
                     HorizontalAlignment="Right" 
                     VerticalAlignment="Center"  
+                    Text="Blacklist danger zones :" 
+                    FontSize="13"  />
+        <Controls:ToggleSwitch Grid.Row="5" Grid.Column="3"  Margin="10,10,10,10"
+                   HorizontalAlignment="Left"  VerticalAlignment="Center"
+                   Click="BlacklistDangerZonesChanged" Name="BlacklistDangerZones" OnLabel="" OffLabel="" />
+
+        <TextBlock Grid.Row="6" 
+                    Grid.Column="2" 
+                    Margin="10" 
+                    HorizontalAlignment="Right" 
+                    VerticalAlignment="Center"  
                     Text="Go to mob entry :" 
                     FontSize="13"  />
-        <mah:NumericUpDown  Grid.Row="5" 
+        <mah:NumericUpDown  Grid.Row="6" 
                     Minimum="0"
                     Grid.Column="4" 
                     MinWidth="110"
@@ -174,14 +185,14 @@
                     ValueChanged="GoToMobEntryChanged"
                     x:Name="GoToMobEntry"  />
 
-        <TextBlock Grid.Row="6" 
+        <TextBlock Grid.Row="7" 
                     Grid.Column="2" 
                     Margin="10" 
                     HorizontalAlignment="Right" 
                     VerticalAlignment="Center"  
                     Text="Stop at level :" 
                     FontSize="13"  />
-        <mah:NumericUpDown  Grid.Row="6" 
+        <mah:NumericUpDown  Grid.Row="7" 
                     Minimum="0"
                     Grid.Column="4" 
                     MinWidth="110"

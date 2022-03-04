@@ -22,6 +22,13 @@ namespace Wholesome_Auto_Quester.GUI
             AbandonUnfit.IsChecked = WholesomeAQSettings.CurrentSetting.AbandonUnfitQuests;
             GoToMobEntry.Value = WholesomeAQSettings.CurrentSetting.GoToMobEntry;
             StopAtLevel.Value = WholesomeAQSettings.CurrentSetting.StopAtLevel;
+            BlacklistDangerZones.IsChecked = WholesomeAQSettings.CurrentSetting.BlacklistDangerousZones;
+        }
+
+        private void BlacklistDangerZonesChanged(object sender, RoutedEventArgs e)
+        {
+            WholesomeAQSettings.CurrentSetting.BlacklistDangerousZones = (bool)BlacklistDangerZones.IsChecked;
+            WholesomeAQSettings.CurrentSetting.Save();
         }
 
         private void StopAtLevelChanged(object sender, RoutedEventArgs e)

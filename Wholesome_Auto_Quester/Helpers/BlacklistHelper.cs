@@ -28,6 +28,36 @@ namespace Wholesome_Auto_Quester.Helpers
             }
         }
 
+        public static void AddDefaultBLZones()
+        {
+            // Faction specific
+            if (ToolBox.IsHorde())
+            {
+                // Astranaar
+                wManagerSetting.AddBlackListZone(new Vector3(2735.73, -373.2593, 107.1535), 160, ContinentId.Kalimdor, isSessionBlacklist: true);
+            }
+            else
+            {
+                // Crossroads
+                wManagerSetting.AddBlackListZone(new Vector3(-452.84, -2650.76, 95.5209), 160, ContinentId.Kalimdor, isSessionBlacklist: true);
+                // Ratchet
+                wManagerSetting.AddBlackListZone(new Vector3(-956.664, -3754.71, 5.33239), 160, ContinentId.Kalimdor, isSessionBlacklist: true);
+            }
+
+            // Drak'Tharon Keep
+            wManagerSetting.AddBlackListZone(new Vector3(4643.429, -2043.915, 184.1842), 200, ContinentId.Northrend, isSessionBlacklist: true);
+
+            // Blue sky logging camp water
+            wManagerSetting.AddBlackListZone(new Vector3(4321.85, -3021.175, 305.8569), 50, ContinentId.Northrend, isSessionBlacklist: true);
+
+            // Avoid Orgrimmar Braseros
+            wManagerSetting.AddBlackListZone(new Vector3(1731.702, -4423.403, 36.86293), 5, ContinentId.Kalimdor, isSessionBlacklist: true);
+            wManagerSetting.AddBlackListZone(new Vector3(1669.99, -4359.609, 29.23425), 5, ContinentId.Kalimdor, isSessionBlacklist: true);
+
+            // Warsong hold top elevator
+            wManagerSetting.AddBlackListZone(new Vector3(2892.18, 6236.34, 208.908), 15, ContinentId.Northrend, isSessionBlacklist: true);
+        }
+
         public static void CleanupBlacklist()
         {
             foreach (WAQBlacklistEntry entry in ListEntries)

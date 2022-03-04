@@ -108,11 +108,8 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             switch (eventid)
             {
                 case "QUEST_LOG_UPDATE":
-                    lock (_questManagerLock)
-                    {
-                        Logger.LogDebug("QUEST_LOG_UPDATE");
-                        UpdateStatuses();
-                    }
+                    Logger.LogDebug("QUEST_LOG_UPDATE");
+                    UpdateStatuses();
                     break;
                 case "QUEST_QUERY_COMPLETE":
                     UpdateCompletedQuests();
@@ -195,6 +192,17 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
             lock (_questManagerLock)
             {
+                // First loop on newly completed quests to ensure pickup unlocks
+                foreach (IWAQQuest quest in _questList)
+                {
+                    if (quest.Status == QuestStatus.ToTurnIn && !logQuests.ContainsKey(quest.QuestTemplate.Id))
+                    {
+                        quest.ChangeStatusTo(QuestStatus.Completed);
+                        continue;
+                    }
+                }
+
+                // Update loop
                 foreach (IWAQQuest quest in _questList)
                 {
                     // DB conditions not met
@@ -224,8 +232,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     }
 
                     // Quest completed
-                    if (ToolBox.IsQuestCompleted(quest.QuestTemplate.Id)
-                        || quest.Status == QuestStatus.ToTurnIn && !logQuests.ContainsKey(quest.QuestTemplate.Id))
+                    if (ToolBox.IsQuestCompleted(quest.QuestTemplate.Id))
                     {
                         quest.ChangeStatusTo(QuestStatus.Completed);
                         continue;
@@ -487,9 +494,30 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(12790, "Learning to leave and return, portal to dalaran", false);
             AddQuestToBlackList(12521, "Where in the world is Hemet Nesingway, Dalaran", false);
             AddQuestToBlackList(12853, "Luxurious Getaway, Dalaran", false);
+            AddQuestToBlackList(13419, "Preparation for war, Dalaran", false);
             AddQuestToBlackList(12695, "Return of the friendly dryskin", false);
             AddQuestToBlackList(12534, "The Sapphire queen", false);
             AddQuestToBlackList(12533, "The wasp's hunter", false);
+            AddQuestToBlackList(13135, "It Could Kill Us All, NPC absent", false);
+            AddQuestToBlackList(12966, "You Can't Miss Him, NPC absent", false);
+            AddQuestToBlackList(12966, "You Can't Miss Him, NPC absent", false);
+            AddQuestToBlackList(12895, "The missing bronzebeard, unreachable", false);
+            AddQuestToBlackList(12882, "Ancient relics, unreachable", false);
+            AddQuestToBlackList(13426, "Xarantaur, unreachable", false);
+            AddQuestToBlackList(13054, "The Missing Tracker, unreachable", false);
+            AddQuestToBlackList(12992, "Crush dem Vrykuls, unreachable", false);
+            AddQuestToBlackList(12806, "To the rise with all haste, unreachable", false);
+            AddQuestToBlackList(13106, "Blackwatch, unreachable", false);
+            AddQuestToBlackList(13169, "Un undead's best friend, unreachable", false);
+            AddQuestToBlackList(13170, "Honor is for the weak, unreachable", false);
+            AddQuestToBlackList(13171, "From whence they came, unreachable", false);
+            AddQuestToBlackList(13084, "Vandalizing Jotunheim, unreachable", false);
+            AddQuestToBlackList(13140, "The runesmisths of Malykriss, unreachable", false);
+            // ALLIANCE
+            AddQuestToBlackList(168, "Collecting memories, too many NPCS", false);
+            AddQuestToBlackList(167, "Oh brother, too many NPCS", false);
+            AddQuestToBlackList(128, "Blackrock Bounty, too many NPCS", false);
+
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))
             {

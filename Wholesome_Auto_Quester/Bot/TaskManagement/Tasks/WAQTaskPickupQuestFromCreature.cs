@@ -38,6 +38,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
                 return unit.IsAlive
                     || unit.Entry == 25328 // Shadowstalker Luther
                     || unit.Entry == 25984 // Crashed recon pilot
+                    || unit.Entry == 3891 // Teronis' Corpse
                     || unit.Entry == 26896; // Nozzlerust Supply Runner
             }
             return false;
@@ -57,7 +58,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             }
             else
             {
-                if (!ToolBox.GossipPickUpQuest(_questTemplate.LogTitle, _questTemplate.Id))
+                if (!QuestLUAHelper.GossipPickupQuest(_questTemplate.LogTitle, _questTemplate.Id))
                 {
                     PutTaskOnTimeout("Failed pickup gossip", 15 * 60, true);
                 }

@@ -52,6 +52,11 @@ public class Main : IProduct
                 return;
             }
 
+            if (WholesomeAQSettings.CurrentSetting.ActivateQuestsGUI)
+            {
+                tracker.ShowWindow();
+            }
+
             if (!AutoUpdater.CheckDbDownload())
             {
                 Logger.LogError($"There was a problem with the DB download");
@@ -65,6 +70,7 @@ public class Main : IProduct
             }
 
             IsStarted = true;
+            BlacklistHelper.AddDefaultBLZones();
             LoggingEvents.OnAddLog += AddLogHandler;
             EventsLuaWithArgs.OnEventsLuaStringWithArgs += EventsWithArgsHandler;
             EventsLua.AttachEventLua("PLAYER_DEAD", e => PlayerDeadHandler(e));
@@ -136,6 +142,7 @@ public class Main : IProduct
         {
             Lua.RunMacroText("/stopcasting");
             MoveHelper.StopAllMove(true);
+            tracker.HideWindow();
             LoggingEvents.OnAddLog -= AddLogHandler;
             EventsLuaWithArgs.OnEventsLuaStringWithArgs -= EventsWithArgsHandler;
             _bot.Dispose();

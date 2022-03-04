@@ -363,7 +363,9 @@
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Helpers\MoveHelper.cs" />
     <Compile Include="Bot\TravelManagement\TravelManager.cs" />
+    <Compile Include="Helpers\QuestLUAHelper.cs" />
     <Compile Include="Main.cs" />
+    <Compile Include="States\WAQStateClearPath.cs" />
     <Compile Include="States\IWAQState.cs" />
     <Compile Include="States\WAQDefend.cs" />
     <Compile Include="States\WAQExitVehicle.cs" />

@@ -70,6 +70,12 @@ namespace Wholesome_Auto_Quester.States
                 return;
             }
 
+            if (ToolBox.GetZDistance(killTarget.Position) > killTarget.Position.DistanceTo2D(ObjectManager.Me.Position))
+            {
+                BlacklistHelper.AddNPC(killTarget.Guid, "Z differential too large");
+                return;
+            }
+
             MountTask.DismountMount(false, false);
 
             Logger.Log($"Unit found - Fighting {killTarget.Name}");

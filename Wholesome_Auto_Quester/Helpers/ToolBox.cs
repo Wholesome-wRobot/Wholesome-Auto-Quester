@@ -31,6 +31,11 @@ namespace Wholesome_Auto_Quester.Helpers
             }
         }
 
+        public static string GetMinimapZoneText()
+        {
+            return Lua.LuaDoString<string>("return GetMinimapZoneText();");
+        }
+
         public static int GetAvergaeDurability()
         {
             return Lua.LuaDoString<int>($@"
@@ -117,33 +122,19 @@ namespace Wholesome_Auto_Quester.Helpers
             int maxCount = poiIsUnit ? 2 : 3;
 
             // Detect high concentration of enemies
-            if (hostileUnits.Where(u => u.Key.Level >= me.Level && poiPosition.DistanceTo(u.Key.Position) < 18).Count() >= maxCount
-                || hostileUnits.Where(u => u.Key.Level >= me.Level - 2 && poiPosition.DistanceTo(u.Key.Position) < 18).Count() >= maxCount + 1)
+            if (WholesomeAQSettings.CurrentSetting.BlacklistDangerousZones)
             {
-                if (Fight.InFight) Fight.StopFight();
-                MoveHelper.StopAllMove(true);
-                BlacklistHelper.AddNPC(POI.Guid, "Surrounded by hostiles");
-                BlacklistHelper.AddZone(poiPosition, 20, "Surrounded by hostiles");
-                task.PutTaskOnTimeout($"{POI.Name} is surrounded by hostiles", 60 * 5);
-                return true;
+                if (hostileUnits.Where(u => u.Key.Level >= me.Level && poiPosition.DistanceTo(u.Key.Position) < 18).Count() >= maxCount
+                    || hostileUnits.Where(u => u.Key.Level >= me.Level - 2 && poiPosition.DistanceTo(u.Key.Position) < 18).Count() >= maxCount + 1)
+                {
+                    if (Fight.InFight) Fight.StopFight();
+                    MoveHelper.StopAllMove(true);
+                    BlacklistHelper.AddNPC(POI.Guid, "Surrounded by hostiles");
+                    BlacklistHelper.AddZone(poiPosition, 20, "Surrounded by hostiles");
+                    task.PutTaskOnTimeout($"{POI.Name} is surrounded by hostiles", 60 * 5);
+                    return true;
+                }
             }
-
-            // Clear POI zone
-            /*
-            int addedDistCheck = poiIsUnit ? 0 : 10; // We check further if it's not an enemy
-            IOrderedEnumerable<KeyValuePair<WoWUnit, float>> hostilesInFront = hostileUnits
-                .Where(u => u.Key.Position.DistanceTo(myPosition) + u.Key.Position.DistanceTo(poiPosition) < myDistanceToPOI + addedDistCheck + 10
-                    && !wManagerSetting.IsBlackListedZone(u.Key.Position)
-                    && !TraceLine.TraceLineGo(myPosition, u.Key.Position, CGWorldFrameHitFlags.HitTestSpellLoS | CGWorldFrameHitFlags.HitTestLOS))
-                .OrderBy(u => u.Key.Position.DistanceTo(myPosition));
-            if (hostilesInFront.Count() > 0)
-            {
-                if (Fight.InFight) Fight.StopFight();
-                Logger.Log($"Fighting {hostileUnits.FirstOrDefault().Key.Name} ({hostileUnits.FirstOrDefault().Key.Guid}) to clear POI zone");
-                Fight.StartFight(hostileUnits.FirstOrDefault().Key.Guid);
-                return true;
-            }
-            */
             return false;
         }
 
@@ -177,8 +168,6 @@ namespace Wholesome_Auto_Quester.Helpers
             return length;
         }
 
-        public static bool InInteractDistance(this WoWUnit unit) => unit.GetDistance < unit.CombatReach + 4f;
-
         public static WoWUnit FindClosestUnitByEntry(int entry)
         {
             Vector3 myPos = ObjectManager.Me.PositionWithoutType;
@@ -195,21 +184,14 @@ namespace Wholesome_Auto_Quester.Helpers
 
         public static string EscapeLuaString(this string str) => str.Replace("\\", "\\\\").Replace("'", "\\'");
 
-        public static float GetRealDistance(this WoWObject wObject) =>
-            wObject.Type switch
-            {
-                WoWObjectType.Unit => ((WoWUnit)wObject).GetDistance,
-                WoWObjectType.GameObject => ((WoWGameObject)wObject).GetDistance,
-                WoWObjectType.Player => ((WoWPlayer)wObject).GetDistance,
-                _ => 0f
-            };
-
         public static bool IsNpcFrameActive() =>
             Lua.LuaDoString<bool>(
                 "return GetClickFrame('GossipFrame'):IsVisible() == 1 or GetClickFrame('QuestFrame'):IsVisible() == 1;");
-
+        /*
         public static bool GossipTurnInQuest(string questName, int questId)
         {
+            return QuestLUAHelper.GossipTurnInQuest(questName, questId);
+            
             // Select quest
             var exitCodeOpen = Lua.LuaDoString<int>($@"
             if GetClickFrame('QuestFrameAcceptButton'):IsVisible() == 1
@@ -303,9 +285,12 @@ namespace Wholesome_Auto_Quester.Helpers
 
             return true;
         }
-
+        */
+        /*
         public static bool GossipPickUpQuest(string questName, int questId)
         {
+            return QuestLUAHelper.GossipPickupQuest(questName, questId);
+            
             // Select quest
             var exitCodeOpen = Lua.LuaDoString<int>($@"
             if GetClickFrame('QuestFrameCompleteQuestButton'):IsVisible() == 1 then return 3; end
@@ -369,10 +354,10 @@ namespace Wholesome_Auto_Quester.Helpers
             {
                 Logger.LogError($"The quest {questName} seems to be a trade quest.");
                 Lua.LuaDoString(@"
-                local closeButton = GetClickFrame('QuestFrameCloseButton');
-                if closeButton:IsVisible() then
-                	closeButton:Click();
-                end");
+                    local closeButton = GetClickFrame('QuestFrameCloseButton');
+                    if closeButton:IsVisible() then
+                	    closeButton:Click();
+                    end");
                 return false;
             }
 
@@ -399,7 +384,7 @@ namespace Wholesome_Auto_Quester.Helpers
 
             return true;
         }
-
+        */
         public static bool SaveQuestAsCompleted(int questId)
         {
             if (!WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Contains(questId) && !Quest.HasQuest(questId))
@@ -432,7 +417,7 @@ namespace Wholesome_Auto_Quester.Helpers
             return curIndex;
         }
 
-        internal static float PointDistanceToLine(Vector3 start, Vector3 end, Vector3 point)
+        public static float PointDistanceToLine(Vector3 start, Vector3 end, Vector3 point)
         {
             float vLenSquared = (start.X - end.X) * (start.X - end.X) +
                                 (start.Y - end.Y) * (start.Y - end.Y) +
@@ -788,6 +773,12 @@ namespace Wholesome_Auto_Quester.Helpers
             { 1389, 3 }, // Draenethyst crystals, too many mobs
             { 582, 3 }, // Headhunting, too many mobs
             { 1177, 3 }, // Hungry!, too many murlocs
+            { 1054, 3 }, // Culling the threat, too many murlocs
+            { 115, 3 }, // Culling the threat, too many murlocs
+            { 180, 3 }, // Lieutenant Fangore, too many mobs
+            { 323, 3 }, // Proving your worth, too many mobs
+            { 303, 3 }, // Dark iron War, too many mobs
+            { 464, 3 }, // War banners, too many mobs
         };
 
         // Returns whether the player has the debuff passed as a string (ex: Weakened Soul)

@@ -58,7 +58,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             }
             else
             {
-                if (!ToolBox.GossipTurnInQuest(_questTemplate.LogTitle, _questTemplate.Id))
+                if (!QuestLUAHelper.GossipTurnInQuest(_questTemplate.LogTitle, _questTemplate.Id))
                 {
                     PutTaskOnTimeout("Failed turnin Gossip", 15 * 60, true);
                 }

@@ -55,7 +55,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             }
             else
             {
-                if (!ToolBox.GossipPickUpQuest(_questTemplate.LogTitle, _questTemplate.Id))
+                if (!QuestLUAHelper.GossipPickupQuest(_questTemplate.LogTitle, _questTemplate.Id))
                 {
                     PutTaskOnTimeout("Failed pickup gossip", 15 * 60, true);
                 }

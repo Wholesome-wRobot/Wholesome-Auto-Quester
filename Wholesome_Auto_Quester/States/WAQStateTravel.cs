@@ -51,7 +51,7 @@ namespace Wholesome_Auto_Quester.States
             WAQContinent destinationContinent = destinationArea.Continent;
             WAQContinent myContinent = myArea.Continent;
 
-            // HORDE
+            // ------------------ HORDE ------------------
             if (ToolBox.IsHorde())
             {
                 // From B11 starting zone
@@ -78,12 +78,12 @@ namespace Wholesome_Auto_Quester.States
                     if (destinationContinent == WAQContinent.EasternKingdoms)
                     {
                         // To EK south
-                        if (_travelManager.ShouldTakeZeppelinTirisfalToStranglethorn(task))
+                        if (_travelManager.ShouldTravelFromNorthEKToSouthEk(task))
                         {
                             _travelManager.ZeppelingTirisfalToStrangelthorn();
                         }
                         // To EK north
-                        if (_travelManager.ShouldTakeZeppelinStranglethornToTirisfal(task))
+                        if (_travelManager.ShouldTravelFromSouthEKToNorthEK(task))
                         {
                             _travelManager.ZeppelingStrangelthornToTirisfal();
                         }
@@ -178,8 +178,71 @@ namespace Wholesome_Auto_Quester.States
                     }
                 }
             }
+            else
+            // ------------------ ALLIANCE ------------------
+            {
+                // From Darnassus
+                if (myContinent == WAQContinent.Teldrassil)
+                {
+                    if (_travelManager.ShouldTakePortalDarnassusToLowBay(task))
+                    {
+                        _travelManager.PortalDarnassusToLowBay();
+                    }
+                    else
+                    {
+                        _travelManager.ShipDarnassusToDarkshore();
+                    }
 
-            Logger.Log($"RESET TRAVELER");
+                }
+                // From Kalimdor
+                if (myContinent == WAQContinent.Kalimdor)
+                {
+                    if (destinationContinent == WAQContinent.EasternKingdoms)
+                    {
+                        _travelManager.ShipDarkshoreToStormwind();
+                    }
+                }
+                // From Deeprun Tram
+                if (myContinent == WAQContinent.DeeprunTram)
+                {
+                    if (task.Location.X >= -8118) // above burning steppes
+                    {
+                        if (ObjectManager.Me.Position.Y > 1200)
+                        {
+                            _travelManager.TakeTramFromStormwindToIronforge();
+                        }
+                        else
+                        {
+                            _travelManager.ExitDeeprunTramToIronforge();
+                        }
+                    }
+                    else // under burning steppes
+                    {
+                        if (ObjectManager.Me.Position.Y > 1200)
+                        {
+                            _travelManager.ExitDeeprunTramToStormwind();
+                        }
+                        else
+                        {
+                            _travelManager.TakeTramFromIronforgeToStormwind();
+                        }
+                    }
+                }
+                // From EK
+                if (myContinent == WAQContinent.EasternKingdoms)
+                {
+                    if (_travelManager.ShouldTravelFromNorthEKToSouthEk(task))
+                    {
+                        _travelManager.EnterIronForgedDeeprunTram();
+                    }
+                    if (_travelManager.ShouldTravelFromSouthEKToNorthEK(task))
+                    {
+                        _travelManager.EnterStormwindDeeprunTram();
+                    }
+                }
+            }
+
+            Logger.Log($"Resetting traveler");
             if (!_travelManager.IsTravelRequired(task))
             {
                 _travelManager.ResetTravel();

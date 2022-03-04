@@ -42,6 +42,9 @@ namespace Wholesome_Auto_Quester.States
                 List<WoWUnit> justUnits = ObjectManager.GetObjectWoWUnit().ToList();
                 List<WoWUnit> myPets = justUnits.FindAll(u => u.IsMyPet);
                 ulong myGuid = ObjectManager.Me.Guid;
+                
+                /*bool noMountSet = string.IsNullOrEmpty(wManager.wManagerSetting.CurrentSetting.GroundMountName)
+                    && string.IsNullOrEmpty(wManager.wManagerSetting.CurrentSetting.FlyingMountName);*/
 
                 if (isMounted
                     && MoveHelper.IsMovementThreadRunning

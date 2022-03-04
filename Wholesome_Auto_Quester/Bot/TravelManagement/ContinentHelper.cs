@@ -19,6 +19,7 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
                 {
                     DB _dataBase = new DB();
                     _listWorldMapAreas = _dataBase.QueryWorldMapAreas();
+                    _listWorldMapAreas.Add(new ModelWorldMapArea( 369, 0, "DeeprunTram"));
                     _dataBase.Dispose();
                 }
 

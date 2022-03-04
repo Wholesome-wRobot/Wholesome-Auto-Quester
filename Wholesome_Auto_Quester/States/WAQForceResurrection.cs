@@ -20,7 +20,7 @@ namespace Wholesome_Auto_Quester.States
                     || ObjectManager.Me.IsAlive)
                     return false;
 
-                return ToolBox.GetAvergaeDurability() <= 8;
+                return ToolBox.GetAvergaeDurability() <= 5;
             }
         }
 

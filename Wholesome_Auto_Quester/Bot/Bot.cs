@@ -32,6 +32,7 @@ namespace Wholesome_Auto_Quester.Bot
         private TravelManager _travelManager;
         private QuestsTrackerGUI _questTrackerGui;
         private IProduct _product;
+        private WAQStateClearPath _clearPathState;
 
         internal bool Pulse(QuestsTrackerGUI tracker, IProduct product)
         {
@@ -44,10 +45,6 @@ namespace Wholesome_Auto_Quester.Bot
                 _objectScanner = new WowObjectScanner(_questTrackerGui);
                 _questManager = new QuestManager(_objectScanner, _questTrackerGui);
                 _taskManager = new TaskManager(_objectScanner, _questManager, _grindManager, _questTrackerGui, _travelManager);
-                if (WholesomeAQSettings.CurrentSetting.ActivateQuestsGUI)
-                {
-                    _questTrackerGui.ShowWindow();
-                }
                 DBCFaction.RecordReputations();
 
                 // Attach onlevelup for spell book:
@@ -64,7 +61,7 @@ namespace Wholesome_Auto_Quester.Bot
                 // FSM
                 Fsm.States.Clear();
 
-                Fsm.AddState(new Relogger { Priority = 200 }); 
+                Fsm.AddState(new Relogger { Priority = 200 });
                 Fsm.AddState(new NPCScanState { Priority = 38 });
                 Fsm.AddState(new Pause { Priority = 37 });
                 Fsm.AddState(new WAQForceResurrection { Priority = 36 });
@@ -76,17 +73,19 @@ namespace Wholesome_Auto_Quester.Bot
 
                 Fsm.AddState(new WAQStatePriorityLoot(_objectScanner, 31));
                 Fsm.AddState(new WAQDefend { Priority = 30 });
-                Fsm.AddState(new WAQWaitResurrectionSickness { Priority = 28 });
+                Fsm.AddState(new WAQWaitResurrectionSickness { Priority = 29 });
 
-                Fsm.AddState(new Regeneration { Priority = 27 });
+                Fsm.AddState(new Regeneration { Priority = 28 });
 
+                _clearPathState = new WAQStateClearPath(_objectScanner, 27);
+                Fsm.AddState(_clearPathState);
                 Fsm.AddState(new WAQStateLoot(_objectScanner, 26));
 
                 Fsm.AddState(new Looting { Priority = 25 });
                 Fsm.AddState(new FlightMasterTakeTaxiState { Priority = 24 });
                 Fsm.AddState(new Trainers { Priority = 23 });
                 Fsm.AddState(new ToTown { Priority = 22 });
-                
+
                 Fsm.AddState(new WAQStateTravel(_taskManager, _travelManager, 21));
 
                 Fsm.AddState(new WAQStateInteract(_objectScanner, 15));
@@ -128,8 +127,6 @@ namespace Wholesome_Auto_Quester.Bot
                 _taskManager?.Dispose();
                 _travelManager?.Dispose();
 
-                _questTrackerGui?.HideWindow();
-
                 Radar3D.OnDrawEvent -= Radar3DOnDrawEvent;
                 MovementEvents.OnSeemStuck -= SeemStuckHandler;
 
@@ -157,6 +154,7 @@ namespace Wholesome_Auto_Quester.Bot
             CustomClass.ResetCustomClass();
             Talent.DoTalents();
             wManager.wManagerSetting.ClearBlacklistOfCurrentProductSession();
+            BlacklistHelper.AddDefaultBLZones();
         }
 
         private void OnReputationChange()
@@ -170,14 +168,19 @@ namespace Wholesome_Auto_Quester.Bot
 
         private void Radar3DOnDrawEvent()
         {
-            
+
             if (_travelManager.TravelInProgress)
             {
                 Radar3D.DrawString($"{ContinentHelper.MyMapArea.Continent} - {ContinentHelper.MyMapArea.areaName} " +
                     $"=> {_taskManager.ActiveTask.WorldMapArea.Continent} - {_taskManager.ActiveTask.WorldMapArea.areaName}",
                     new Vector3(30, 330, 0), 10, Color.PaleGoldenrod);
             }
-            
+
+            foreach ((Vector3 a, Vector3 b) line in _clearPathState.LinesToCheck)
+            {
+                Radar3D.DrawLine(line.a, line.b, Color.Red);
+            }
+
             if (_taskManager.ActiveTask != null)
             {
                 Radar3D.DrawString(_taskManager.ActiveTask.TaskName, new Vector3(30, 350, 0), 10, Color.PaleTurquoise);
