@@ -59,7 +59,6 @@ namespace Wholesome_Auto_Quester.States
                 {
                     _travelManager.PortalFromSilvermoonToTirisfal();
                 }
-
                 // From EK
                 if (myContinent == WAQContinent.EasternKingdoms)
                 {
@@ -110,7 +109,6 @@ namespace Wholesome_Auto_Quester.States
                         }
                     }
                 }
-
                 // From Kalimdor
                 if (myContinent == WAQContinent.Kalimdor)
                 {
@@ -151,7 +149,6 @@ namespace Wholesome_Auto_Quester.States
                         }
                     }
                 }
-
                 // From Outlands
                 if (myContinent == WAQContinent.Outlands)
                 {
@@ -201,12 +198,13 @@ namespace Wholesome_Auto_Quester.States
                 // From Kalimdor
                 if (myContinent == WAQContinent.Kalimdor)
                 {
+                    // To Teldrassil
                     if (destinationContinent == WAQContinent.Teldrassil)
                     {
                         _travelManager.ShipDarkShoreToRutTheran();
                     }
-
-                    if (destinationContinent == WAQContinent.EasternKingdoms)
+                    // To EK/Outlands
+                    if (destinationContinent == WAQContinent.EasternKingdoms || destinationContinent == WAQContinent.Outlands)
                     {
                         if (ObjectManager.Me.Level < 40)
                         {
@@ -247,6 +245,12 @@ namespace Wholesome_Auto_Quester.States
                 // From EK
                 if (myContinent == WAQContinent.EasternKingdoms)
                 {
+                    // To Outlands
+                    if (destinationContinent == WAQContinent.Outlands)
+                    {
+                        _travelManager.PortalBlastedLandsToOutlands();
+                    }
+                    // North/South
                     if (destinationContinent == WAQContinent.EasternKingdoms)
                     {
                         if (_travelManager.ShouldTravelFromNorthEKToSouthEk(task))
@@ -258,7 +262,7 @@ namespace Wholesome_Auto_Quester.States
                             _travelManager.EnterStormwindDeeprunTram();
                         }
                     }
-
+                    // To Kalimdor/Teldrassil
                     if (destinationContinent == WAQContinent.Kalimdor || destinationContinent == WAQContinent.Teldrassil)
                     {
                         if (ObjectManager.Me.Level >= 40)
