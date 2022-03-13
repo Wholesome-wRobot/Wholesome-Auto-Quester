@@ -527,6 +527,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(734, "This is going to be hard, no gossip", false);
             AddQuestToBlackList(1119, "Zanzil's mixture..., no gossip", false);
             AddQuestToBlackList(4493, "March of the Silithid, no gossip", false);
+            AddQuestToBlackList(685, "Wanted! Otto and Falconcrest, too many NPCS", false);
 
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))
