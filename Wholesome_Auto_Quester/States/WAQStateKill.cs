@@ -1,9 +1,9 @@
 ﻿using robotManager.FiniteStateMachine;
-using System.Threading;
+using robotManager.Helpful;
+using System.Diagnostics;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Bot.Tasks;
-using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
@@ -46,8 +46,13 @@ namespace Wholesome_Auto_Quester.States
                 return;
             }
 
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+
+            Vector3 myPos = ObjectManager.Me.Position;
             WoWUnit killTarget = (WoWUnit)gameObject;
-            float distanceToTarget = killTarget.GetDistance;
+            Vector3 targetPos = killTarget.Position;
+            float distanceToTarget = myPos.DistanceTo(targetPos);
 
             if (ToolBox.HostilesAreAround(killTarget, task))
             {
@@ -55,22 +60,21 @@ namespace Wholesome_Auto_Quester.States
             }
 
             //Check if we have vision, it might be a big detour
-            if (TraceLine.TraceLineGo(ObjectManager.Me.Position, killTarget.Position, CGWorldFrameHitFlags.HitTestSpellLoS | CGWorldFrameHitFlags.HitTestLOS))
+            if (!ToolBox.IHaveLineOfSightOn(killTarget))
             {
-                distanceToTarget = ToolBox.GetWAQPath(ObjectManager.Me.Position, killTarget.Position).Distance;
-                Thread.Sleep(1000);
+                distanceToTarget = ToolBox.GetWAQPath(myPos, targetPos).Distance;
             }
 
             if (distanceToTarget > 40)
             {
-                if (!MoveHelper.IsMovementThreadRunning || killTarget.Position.DistanceTo(MoveHelper.CurrentTarget) > 10)
+                if (!MoveHelper.IsMovementThreadRunning || targetPos.DistanceTo(MoveHelper.CurrentTarget) > 10)
                 {
-                    MoveHelper.StartGoToThread(killTarget.Position, null);
+                    MoveHelper.StartGoToThread(targetPos, null);
                 }
                 return;
             }
 
-            if (ToolBox.GetZDistance(killTarget.Position) > killTarget.Position.DistanceTo2D(ObjectManager.Me.Position))
+            if (ToolBox.GetZDistance(targetPos) > targetPos.DistanceTo2D(myPos))
             {
                 BlacklistHelper.AddNPC(killTarget.Guid, "Z differential too large");
                 return;

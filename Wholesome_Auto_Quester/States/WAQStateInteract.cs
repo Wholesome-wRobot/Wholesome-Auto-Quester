@@ -52,14 +52,18 @@ namespace Wholesome_Auto_Quester.States
             }
 
             float scale = gameObject.Scale;
-            if (gameObject.Entry == 190537) // Crashed Plague Sprayer
+            if (gameObject.Entry == 190537  // Crashed Plague Sprayer
+                || gameObject.Entry == 179828) // Dark Iron Pillow
             {
                 scale = 6;
             }
 
             float interactDistance = 3f + scale;
 
-            ToolBox.CheckIfZReachable(gameObject.Position);
+            if (MovementManager.CurrentPath.Count <= 2)
+            {
+                ToolBox.CheckIfZReachable(gameObject.Position);
+            }
 
             if (gameObject.GetDistance > interactDistance)
             {

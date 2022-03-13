@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using robotManager.Helpful;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
@@ -99,26 +101,30 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                     return;
                 }
 
+                Stopwatch watch = new Stopwatch();
+                watch.Start();
+
                 _guiTracker.UpdateScanReg(GuiScanEntries);
 
-                List<WoWObject> allObjects = ObjectManager.GetObjectWoW()
-                    .Where(o => o.GetDistance < 60)
-                    .OrderBy(o => o.GetDistance)
-                    .ToList();
+                List<WoWObject> allObjects = ObjectManager.GetObjectWoW();
 
                 foreach (WoWObject wowObject in allObjects)
                 {
                     HandleSpecialInteractions(wowObject);
                 }
 
-                List<WoWObject>  listSurroundingPOIs = allObjects
-                    .FindAll(wowObject => !wManagerSetting.IsBlackListed(wowObject.Guid)
-                        && !wManagerSetting.IsBlackListedZone(wowObject.Position)
-                        && wowObject.IsValid
+                Vector3 myPos = me.Position;
+                List<WoWObject> listSurroundingPOIs = allObjects
+                    .FindAll(wowObject =>
+                        wowObject.IsValid
                         && wowObject.Guid > 0
                         && _scannerRegistry.ContainsKey(wowObject.Entry)
                         && _scannerRegistry[wowObject.Entry].Any(task => task.IsValid)
-                        && _scannerRegistry[wowObject.Entry].Any(task => task.IsObjectValidForTask(wowObject)))
+                        && _scannerRegistry[wowObject.Entry].Any(task => task.IsObjectValidForTask(wowObject))
+                        && !wManagerSetting.IsBlackListed(wowObject.Guid)
+                        && !wManagerSetting.IsBlackListedZone(wowObject.Position)
+                        && wowObject.Position.DistanceTo(myPos) < 60)
+                    .OrderBy(wowObject => wowObject.Position.DistanceTo(myPos))
                     .ToList();
 
                 if (listSurroundingPOIs.Count > 0)
@@ -126,9 +132,10 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                     WoWObject closestObject = listSurroundingPOIs[0];
                     WAQPath pathToClosestObject = ToolBox.GetWAQPath(me.Position, closestObject.Position);
 
-                    if (closestObject.GetDistance > 5 && !pathToClosestObject.IsReachable)
+                    if (closestObject.Position.DistanceTo(myPos) > 5 && !pathToClosestObject.IsReachable)
                     {
                         MarkAsUnreachable(closestObject);
+                        Logger.LogWatchScanner($"SCANNER MARKED UNREACHABLE", watch.ElapsedMilliseconds);
                         return;
                     }
 
@@ -137,17 +144,18 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                         && MoveHelper.IsMovementThreadRunning
                         && pathToClosestObject.Distance > MoveHelper.GetCurrentPathRemainingDistance() - 15)
                     {
+                        Logger.LogWatchScanner($"SCANNER AVOID SNAP", watch.ElapsedMilliseconds);
                         return;
                     }
 
-                    if (pathToClosestObject.Distance > closestObject.GetDistance * 1.5)
+                    if (pathToClosestObject.Distance > closestObject.Position.DistanceTo(myPos) * 1.5)
                     {
                         int nbObject = listSurroundingPOIs.Count;
                         for (int i = 1; i < nbObject - 1; i++)
                         {
                             WAQPath pathToNewObject = ToolBox.GetWAQPath(me.Position, listSurroundingPOIs[i].Position);
 
-                            if (listSurroundingPOIs[i].GetDistance > 5 && !pathToNewObject.IsReachable)
+                            if (listSurroundingPOIs[i].Position.DistanceTo(myPos) > 5 && !pathToNewObject.IsReachable)
                             {
                                 MarkAsUnreachable(listSurroundingPOIs[i]);
                                 break;
@@ -159,7 +167,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                                 closestObject = listSurroundingPOIs[i];
                             }
 
-                            float flyDistanceToNextObject = listSurroundingPOIs[i + 1].GetDistance;
+                            float flyDistanceToNextObject = listSurroundingPOIs[i + 1].Position.DistanceTo(myPos);
                             if (pathToClosestObject.Distance < flyDistanceToNextObject)
                             {
                                 break;
@@ -171,9 +179,11 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                     if (associatedTask != null)
                     {
                         ActiveWoWObject = (closestObject, associatedTask);
+                        Logger.LogWatchScanner($"SCANNER FOUND OBJECT", watch.ElapsedMilliseconds);
                         return;
                     }
                 }
+                Logger.LogWatchScanner($"SCANNER FOUND NOTHING", watch.ElapsedMilliseconds);
                 ActiveWoWObject = (null, null);
             }
         }

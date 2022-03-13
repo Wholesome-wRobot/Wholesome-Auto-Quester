@@ -90,7 +90,7 @@ public class MoveHelper
                 {
                     Logger.Log(log);
                 }
-                GoToTask.ToPosition(target, conditionExit: _ => Running);
+                GoToTask.ToPosition(target, 0.5f, conditionExit: _ => Running);
                 //Logger.LogDebug($"GoToTask finished towards {target}");
                 lock (Lock)
                 {

@@ -2,6 +2,7 @@
 using Supercluster.KDTree;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Wholesome_Auto_Quester.Bot.GrindManagement;
@@ -93,6 +94,9 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 return;
             }
 
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+
             _taskPile.Clear();
 
             Vector3 myPosition = ObjectManager.Me.Position;
@@ -174,6 +178,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             if (_objectScanner.ActiveWoWObject != (null, null))
             {
                 ActiveTask = _objectScanner.ActiveWoWObject.task;
+                Logger.LogWatchTask($"TASKM FORCE CLOSEST", watch.ElapsedMilliseconds);
                 return;
             }
 
@@ -184,9 +189,17 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             if (_travelManager.IsTravelRequired(closestTask))
             {
                 ActiveTask = closestTask;
+                Logger.LogWatchTask($"TASKM TRAVEL REQUIRED", watch.ElapsedMilliseconds);
                 return;
             }
-
+            /*
+            // We already are on that task
+            if (closestTask == ActiveTask)
+            {
+                Logger.LogWatchTask($"TASKM ALREADY ON CLOSEST", watch.ElapsedMilliseconds);
+                return;
+            }
+            */
             WAQPath pathToClosestTask = ToolBox.GetWAQPath(ObjectManager.Me.Position, closestTask.Location);
 
             // Avoid snap back and forth
@@ -196,6 +209,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 float remainingDistance = MoveHelper.GetCurrentPathRemainingDistance();
                 if (remainingDistance > 200 && pathToClosestTask.Distance > remainingDistance)
                 {
+                    Logger.LogWatchTask($"TASKM AVOID SNAP", watch.ElapsedMilliseconds);
                     return;
                 }
             }
@@ -234,9 +248,11 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 && MoveHelper.GetCurrentPathRemainingDistance() > 200
                 && ActiveTask.Location.DistanceTo(closestTask.Location) < 500)
             {
+                Logger.LogWatchTask($"TASKM TOO CLOSE TO SWITCH", watch.ElapsedMilliseconds);
                 return;
             }
 
+            Logger.LogWatchTask($"TASKM FOUND ACTIVE", watch.ElapsedMilliseconds);
             ActiveTask = closestTask;
         }
 

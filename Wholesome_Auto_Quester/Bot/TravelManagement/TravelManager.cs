@@ -1,4 +1,5 @@
 ﻿using robotManager.Helpful;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -49,7 +50,8 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
             if (myArea.Continent != destinationArea.Continent
                 || ShouldTravelFromNorthEKToSouthEk(task)
                 || ShouldTravelFromSouthEKToNorthEK(task)
-                || ShouldTakePortalDarnassusToLowBay(task))
+                || ShouldTakePortalDarnassusToRutTheran(task)
+                || ShouldTakePortalRutTheranToDarnassus(task))
             {
                 _shouldTravel = true;
                 return true;
@@ -75,11 +77,19 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
                 && task.Location.X >= -8118;
         }
 
-        public bool ShouldTakePortalDarnassusToLowBay(IWAQTask task)
+        public bool ShouldTakePortalDarnassusToRutTheran(IWAQTask task)
         {
             return ContinentHelper.MyMapArea.Continent == WAQContinent.Teldrassil
                 && ObjectManager.Me.Position.Z >= 600
                 && task.Location.Z < 600; // Under teldrassil tree
+        }
+
+        public bool ShouldTakePortalRutTheranToDarnassus(IWAQTask task)
+        {
+            return ContinentHelper.MyMapArea.Continent == WAQContinent.Teldrassil
+                && ObjectManager.Me.Position.Z < 600
+                && task.WorldMapArea.Continent == WAQContinent.Teldrassil
+                && task.Location.Z > 600; // Over teldrassil tree
         }
 
         // Tramway
@@ -159,26 +169,28 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
 
         readonly Vector3 bayBoreanTundraToStormwind = new Vector3(2231.234, 5135.821, 5.343364, "None");
         readonly Vector3 insideShipBoreanTundraToStormwind = new Vector3(2232.324, 5114.973, 9.400736, "None");
+
+        readonly Vector3 bayDustwallowToMenethil = new Vector3(-4000.404, -4724.158, 4.876398, "None");
+        readonly Vector3 insideShipDustwallowToMenethil = new Vector3(-4010.497, -4741.962, 6.17096, "None");
+
+        readonly Vector3 bayMenethilToDustwallow = new Vector3(-3893.388, -602.8146, 5.425149, "None");
+        readonly Vector3 insideShipMenethilToDustwallow = new Vector3(-3904.25, -577.7352, 6.059737, "None");
+
         /*
         readonly Vector3 bayMenethilToHowlingFjord = new Vector3(-3724.361, -583.2341, 4.74352, "None");
         readonly Vector3 insideShipMenethilToHowlingFjord = new Vector3(-3711.364, -573.7974, 9.489109, "None");
 
         readonly Vector3 bayHowlingFjordToMenethil = new Vector3(591.8311, -5099.395, 5.260396, "None");
         readonly Vector3 insideShipHowlingFjordToMenethil = new Vector3(588.0685, -5120.662, 9.447546, "None");
-        
-        readonly Vector3 bayDustwallowToMenethil = new Vector3(-4000.404, -4724.158, 4.876398, "None");    
-        readonly Vector3 insideShipDustwallowToMenethil = new Vector3(-4010.497, -4741.962, 6.17096, "None");
-
-        readonly Vector3 bayMenethilToDustwallow = new Vector3(-3893.388, -602.8146, 5.425149, "None");
-        readonly Vector3 insideShipMenethilToDustwallow = new Vector3(-3904.25, -577.7352, 6.059737, "None");
         */
         /*readonly int ShipAzuremystToDarkshoreId = 181646;
-        readonly int ShipMenethilToDustwallowId = 176231;
         readonly int ShipMenethilToHowlingFjord = 181688;*/
+
         readonly int ShipDarkshoreToStormwindId = 176310;
         readonly int shipStormwindToBoreanTundraId = 190536;
         readonly int ShipDarkshoreToDarnassusId = 176244;
         readonly int shipRatchetToBootyBayId = 20808;
+        readonly int ShipMenethilToDustwallowId = 176231;
 
 
         // Portals
@@ -417,6 +429,30 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
             }
         }
 
+        public void ShipStormwindToDarkshore()
+        {
+            Logger.Log("Taking ship to Darkshore");
+            GoToTask.ToPosition(bayStormwindToDarkshore);
+            if (ObjectManager.Me.Position.DistanceTo(bayStormwindToDarkshore) < 4)
+            {
+                WaitForTransport(ShipDarkshoreToStormwindId, 30);
+                ForceMoveTo(insideShipStormwindToDarkshore);
+                WaitOnTransport(bayDarkshoreToStormwind, 50);
+            }
+        }
+
+        internal void ShipMenethilToDustwallow()
+        {
+            Logger.Log("Taking ship to Dustwallow Bay");
+            GoToTask.ToPosition(bayMenethilToDustwallow);
+            if (ObjectManager.Me.Position.DistanceTo(bayMenethilToDustwallow) < 4)
+            {
+                WaitForTransport(ShipMenethilToDustwallowId, 30);
+                ForceMoveTo(insideShipMenethilToDustwallow);
+                WaitOnTransport(bayDustwallowToMenethil, 50);
+            }
+        }
+
         // ********** FROM OUTLANDS **********
         public void PortalShattrathToDarnassus()
         {
@@ -433,6 +469,37 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
         }
 
         // ********** FROM KALIMDOR **********
+        public void PortalRutTheranToDarnassus()
+        {
+            Logger.Log("Taking teleporter from Rut'Theran to Darnassus");
+            Vector3 prep = new Vector3(8778.752, 969.5687, 30.38474, "None");
+            Vector3 portal = new Vector3(8798.752, 969.5687, 30.38474, "None");
+            if (ObjectManager.Me.Position.DistanceTo(prep) > 8)
+            {
+                GoToTask.ToPosition(prep);
+            }
+            else
+            {
+                MovementManager.MoveTo(portal);
+                Timer timer = new Timer(5000);
+                while (MovementManager.InMoveTo && (ObjectManager.Me.Position.Z < 600 || !timer.IsReady))
+                    Thread.Sleep(100);
+                MovementManager.StopMoveTo();
+            }
+        }
+
+        public void ShipDarkShoreToRutTheran()
+        {
+            Logger.Log("Taking ship to Rut'Theran");
+            GoToTask.ToPosition(bayDarkshoreToDarnassus);
+            if (ObjectManager.Me.Position.DistanceTo(bayDarkshoreToDarnassus) < 4)
+            {
+                WaitForTransport(ShipDarkshoreToDarnassusId, 30);
+                ForceMoveTo(insideShipDarkshoreToDarnassus);
+                WaitOnTransport(bayDarnassusToDarkshore, 50);
+            }
+        }
+
         public void ShipDarkshoreToStormwind()
         {
             Logger.Log("Taking ship to Stormwind");
@@ -445,7 +512,19 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
             }
         }
 
-        public void ShipDarnassusToDarkshore()
+        public void ShipDustwallowToMenethil()
+        {
+            Logger.Log("Taking ship to Menethil Hardbor");
+            GoToTask.ToPosition(bayDustwallowToMenethil);
+            if (ObjectManager.Me.Position.DistanceTo(bayDustwallowToMenethil) < 4)
+            {
+                WaitForTransport(ShipMenethilToDustwallowId, 30);
+                ForceMoveTo(insideShipDustwallowToMenethil);
+                WaitOnTransport(bayMenethilToDustwallow, 50);
+            }
+        }
+
+        public void ShipRutTheranToDarkshore()
         {
             Logger.Log("Taking ship to Darkshore");
             GoToTask.ToPosition(bayDarnassusToDarkshore);
@@ -457,7 +536,7 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
             }
         }
 
-        public void PortalDarnassusToLowBay()
+        public void PortalDarnassusToRutTheran()
         {
             Logger.Log("Taking teleporter from from Darnassus to Rut'Theran");
             Vector3 prep = new Vector3(9946.391, 2596.067, 1316.194, "None");

@@ -31,6 +31,15 @@ namespace Wholesome_Auto_Quester.Helpers
             }
         }
 
+        public static bool IHaveLineOfSightOn(WoWObject wowObject)
+        {
+            Vector3 myPos = ObjectManager.Me.Position;
+            Vector3 objectPos = (wowObject is WoWUnit) ? new Vector3(wowObject.Position.X, wowObject.Position.Y, wowObject.Position.Z + 2) : wowObject.Position;
+            return !TraceLine.TraceLineGo(new Vector3(myPos.X, myPos.Y, myPos.Z + 2),
+                objectPos, 
+                CGWorldFrameHitFlags.HitTestSpellLoS | CGWorldFrameHitFlags.HitTestLOS);
+        }
+
         public static string GetMinimapZoneText()
         {
             return Lua.LuaDoString<string>("return GetMinimapZoneText();");
@@ -83,6 +92,10 @@ namespace Wholesome_Auto_Quester.Helpers
                 || POI.Entry == 19256 // Sergeant SHatterskull
                 || POI.Entry == 27266 // Sergeant Thurkin
                 || POI.Entry == 191519 // Sparksocket's Tools
+                || POI.Entry == 9536 // Maxwort Uberglint
+                || POI.Entry == 10267 // Tinkee Steamboil
+                || POI.Entry == 9563 // Ragged John
+                || POI.Entry == 9836 // Mathredis Firestar
                 || POI.Entry == 19442) // Kruush
             {
                 return false;
@@ -93,7 +106,7 @@ namespace Wholesome_Auto_Quester.Helpers
             Vector3 myPosition = me.Position;
             Vector3 poiPosition = POI.Position;
 
-            if (me.IsMounted && (me.InCombatFlagOnly || POI.GetDistance < 60 && poiUnit?.Reaction == Reaction.Hostile))
+            if (me.IsMounted && (me.InCombatFlagOnly || POI.Position.DistanceTo(myPosition) < 60 && poiUnit?.Reaction == Reaction.Hostile))
             {
                 MountTask.DismountMount(false, false);
             }
@@ -778,7 +791,14 @@ namespace Wholesome_Auto_Quester.Helpers
             { 180, 3 }, // Lieutenant Fangore, too many mobs
             { 323, 3 }, // Proving your worth, too many mobs
             { 303, 3 }, // Dark iron War, too many mobs
+            { 304, 3 }, // A grim task, too many mobs
             { 464, 3 }, // War banners, too many mobs
+            { 203, 3 }, // The second rebellion, too many mobs
+            { 505, 3 }, // Syndicate assassins, too many mobs
+            { 1439, 5 }, // Search for Tyranis, too many mobs
+            { 213, 5 }, // Hostile takeover, too many mobs
+            { 1398, 4 }, // Driftwood, too many mobs
+            { 2870, 4 }, // Against Lord Shalzaru, too many mobs
         };
 
         // Returns whether the player has the debuff passed as a string (ex: Weakened Soul)

@@ -263,6 +263,11 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 // Prerequisite Kill & Loot
                 foreach (KillLootObjective obje in QuestTemplate.PrerequisiteLootObjectives)
                 {
+                    if (obje.CreatureLootTemplate.CreatureTemplate.maxLevel > ObjectManager.Me.Level + 3)
+                    {
+                        continue;
+                    }
+
                     if (ItemsManager.GetItemCountById((uint)obje.ItemTemplate.Entry) <= 0)
                     {
                         needsPrerequisite = true;
@@ -315,6 +320,11 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     // Kill & Loot
                     foreach (KillLootObjective obje in QuestTemplate.KillLootObjectives)
                     {
+                        if (obje.CreatureLootTemplate.CreatureTemplate.maxLevel > ObjectManager.Me.Level + 3)
+                        {
+                            continue;
+                        }
+
                         if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, QuestTemplate.Id))
                         {
                             foreach (ModelCreature creature in obje.CreatureLootTemplate.CreatureTemplate.Creatures)
@@ -331,6 +341,11 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     // Kill
                     foreach (KillObjective obje in QuestTemplate.KillObjectives)
                     {
+                        if (obje.CreatureTemplate.maxLevel > ObjectManager.Me.Level + 3)
+                        {
+                            continue;
+                        }
+
                         if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, QuestTemplate.Id))
                         {
                             foreach (ModelCreature creature in obje.CreatureTemplate.Creatures)

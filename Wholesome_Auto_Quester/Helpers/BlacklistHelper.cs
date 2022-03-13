@@ -42,6 +42,8 @@ namespace Wholesome_Auto_Quester.Helpers
                 wManagerSetting.AddBlackListZone(new Vector3(-452.84, -2650.76, 95.5209), 160, ContinentId.Kalimdor, isSessionBlacklist: true);
                 // Ratchet
                 wManagerSetting.AddBlackListZone(new Vector3(-956.664, -3754.71, 5.33239), 160, ContinentId.Kalimdor, isSessionBlacklist: true);
+                // BrackenWall Village
+                wManagerSetting.AddBlackListZone(new Vector3(-3124.758, -2882.661, 34.73463), 130, ContinentId.Kalimdor, isSessionBlacklist: true);
             }
 
             // Drak'Tharon Keep
@@ -56,6 +58,10 @@ namespace Wholesome_Auto_Quester.Helpers
 
             // Warsong hold top elevator
             wManagerSetting.AddBlackListZone(new Vector3(2892.18, 6236.34, 208.908), 15, ContinentId.Northrend, isSessionBlacklist: true);
+
+            // Portal Rut'Theran UP/DOWN
+            wManagerSetting.AddBlackListZone(new Vector3(9946.391, 2630.067, 1316.194), 15, ContinentId.Kalimdor, isSessionBlacklist: true);
+            wManagerSetting.AddBlackListZone(new Vector3(8798.752, 969.5687, 30.38474), 15, ContinentId.Kalimdor, isSessionBlacklist: true);
         }
 
         public static void CleanupBlacklist()

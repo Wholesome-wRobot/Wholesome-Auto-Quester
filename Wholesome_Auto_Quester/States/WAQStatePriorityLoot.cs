@@ -59,13 +59,7 @@ namespace Wholesome_Auto_Quester.States
                 return;
             }
 
-            if (!MoveHelper.IsMovementThreadRunning && unitToLoot.GetDistance > 3)
-            {
-                MoveHelper.StopAllMove(true);
-                MoveHelper.StartGoToThread(unitToLoot.Position, null);
-            }
-
-            if (unitToLoot.GetDistance <= 4)
+            if (unitToLoot.GetDistance2D <= 4)
             {
                 ToolBox.CheckIfZReachable(gameObject.Position);
                 MoveHelper.StopAllMove(true);
@@ -73,6 +67,12 @@ namespace Wholesome_Auto_Quester.States
                 Interact.InteractGameObject(unitToLoot.GetBaseAddress);
                 UnitsLooted.Add(unitToLoot.Guid);
                 Thread.Sleep(500);
+            }
+
+            if (!MoveHelper.IsMovementThreadRunning && unitToLoot.GetDistance2D > 3)
+            {
+                MoveHelper.StopAllMove(true);
+                MoveHelper.StartGoToThread(unitToLoot.Position, null);
             }
 
             task.PostInteraction(gameObject);

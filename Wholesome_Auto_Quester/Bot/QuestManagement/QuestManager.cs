@@ -519,6 +519,14 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(167, "Oh brother, too many NPCS", false);
             AddQuestToBlackList(128, "Blackrock Bounty, too many NPCS", false);
             AddQuestToBlackList(465, "Nek'Rosh's Gambit, bugged", false);
+            AddQuestToBlackList(565, "Bartolo's Yeti Fur CLoak, Requires bought items", false);
+            AddQuestToBlackList(664, "Drown Sorrows, underwater", false);
+            AddQuestToBlackList(576, "Keep an eye out, too many NPCS", false);
+            AddQuestToBlackList(574, "Special forces, bugged", false);
+            AddQuestToBlackList(1190, "Keeping pace, NPC absent", false);
+            AddQuestToBlackList(734, "This is going to be hard, no gossip", false);
+            AddQuestToBlackList(1119, "Zanzil's mixture..., no gossip", false);
+            AddQuestToBlackList(4493, "March of the Silithid, no gossip", false);
 
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))

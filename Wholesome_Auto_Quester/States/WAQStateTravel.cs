@@ -181,31 +181,47 @@ namespace Wholesome_Auto_Quester.States
             else
             // ------------------ ALLIANCE ------------------
             {
-                // From Darnassus
+                // From Teldrassil
                 if (myContinent == WAQContinent.Teldrassil)
                 {
-                    if (_travelManager.ShouldTakePortalDarnassusToLowBay(task))
+                    if (_travelManager.ShouldTakePortalDarnassusToRutTheran(task))
                     {
-                        _travelManager.PortalDarnassusToLowBay();
+                        _travelManager.PortalDarnassusToRutTheran();
+                    }
+                    else if (_travelManager.ShouldTakePortalRutTheranToDarnassus(task))
+                    {
+                        _travelManager.PortalRutTheranToDarnassus();
                     }
                     else
                     {
-                        _travelManager.ShipDarnassusToDarkshore();
+                        _travelManager.ShipRutTheranToDarkshore();
                     }
 
                 }
                 // From Kalimdor
                 if (myContinent == WAQContinent.Kalimdor)
                 {
+                    if (destinationContinent == WAQContinent.Teldrassil)
+                    {
+                        _travelManager.ShipDarkShoreToRutTheran();
+                    }
+
                     if (destinationContinent == WAQContinent.EasternKingdoms)
                     {
-                        _travelManager.ShipDarkshoreToStormwind();
+                        if (ObjectManager.Me.Level < 40)
+                        {
+                            _travelManager.ShipDarkshoreToStormwind();
+                        }
+                        else
+                        {
+                            _travelManager.ShipDustwallowToMenethil();
+                        }
                     }
                 }
                 // From Deeprun Tram
                 if (myContinent == WAQContinent.DeeprunTram)
                 {
-                    if (task.Location.X >= -8118) // above burning steppes
+                    if (task.Location.X >= -8118 && destinationContinent != WAQContinent.Kalimdor) // above burning steppes
                     {
                         if (ObjectManager.Me.Position.Y > 1200)
                         {
@@ -231,13 +247,39 @@ namespace Wholesome_Auto_Quester.States
                 // From EK
                 if (myContinent == WAQContinent.EasternKingdoms)
                 {
-                    if (_travelManager.ShouldTravelFromNorthEKToSouthEk(task))
+                    if (destinationContinent == WAQContinent.EasternKingdoms)
                     {
-                        _travelManager.EnterIronForgedDeeprunTram();
+                        if (_travelManager.ShouldTravelFromNorthEKToSouthEk(task))
+                        {
+                            _travelManager.EnterIronForgedDeeprunTram();
+                        }
+                        if (_travelManager.ShouldTravelFromSouthEKToNorthEK(task))
+                        {
+                            _travelManager.EnterStormwindDeeprunTram();
+                        }
                     }
-                    if (_travelManager.ShouldTravelFromSouthEKToNorthEK(task))
+
+                    if (destinationContinent == WAQContinent.Kalimdor || destinationContinent == WAQContinent.Teldrassil)
                     {
-                        _travelManager.EnterStormwindDeeprunTram();
+                        if (ObjectManager.Me.Level >= 40)
+                        {
+                            _travelManager.ShipMenethilToDustwallow();
+                        }
+                        else
+                        {
+                            if (myContinent == WAQContinent.DeeprunTram)
+                            {
+                                _travelManager.TakeTramFromIronforgeToStormwind();
+                            }
+                            else if (ObjectManager.Me.Position.X > -8118)
+                            {
+                                _travelManager.EnterIronForgedDeeprunTram();
+                            }
+                            else
+                            {
+                                _travelManager.ShipStormwindToDarkshore();
+                            }
+                        }
                     }
                 }
             }

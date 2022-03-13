@@ -92,9 +92,9 @@ namespace Wholesome_Auto_Quester.States
                         && !u.IsElite
                         && !u.IsTaggedByOther
                         && !u.PlayerControlled
-                        && u.GetDistance < 50
+                        && u.Position.DistanceTo(myPosition) < 50
                         && u.Level < ObjectManager.Me.Level + 4)
-                    .OrderBy(u => u.GetDistance)
+                    .OrderBy(u => u.Position.DistanceTo(myPosition))
                     .ToList();
 
                 // Check for hostiles along the lines
@@ -109,7 +109,7 @@ namespace Wholesome_Auto_Quester.States
                                 continue;
                             }
                             if (wManager.wManagerSetting.IsBlackListedZone(unit.Position) 
-                                || TraceLine.TraceLineGo(ObjectManager.Me.Position, unit.Position, CGWorldFrameHitFlags.HitTestSpellLoS | CGWorldFrameHitFlags.HitTestLOS))
+                                || !ToolBox.IHaveLineOfSightOn(unit))
                             {
                                 continue;
                             }

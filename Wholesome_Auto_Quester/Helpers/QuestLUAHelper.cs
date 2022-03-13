@@ -18,6 +18,12 @@ namespace Wholesome_Auto_Quester.Helpers
         private static Func<int, bool> IsQuestCompleted => (questId) => ToolBox.IsQuestCompleted(questId);
         private static Func<int, bool> HasQuest => (questId) => Quest.HasQuest(questId);
 
+        private static void CloseAllGossips()
+        {
+            Lua.LuaDoString("GetClickFrame('QuestFrameCloseButton'):Click()");
+            Lua.LuaDoString("GetClickFrame('GossipFrameCloseButton'):Click()");
+        }
+
 
         public static bool GossipTurnInQuest(string questName, int questId)
         {
@@ -86,22 +92,16 @@ namespace Wholesome_Auto_Quester.Helpers
                     Lua.LuaDoString($"GetQuestReward({(HasQuestChoices ? "1" : "nil")});");
                 }
 
-                if (WaitFor(QuestFrameCloseButtonIsVisible, 1000))
-                {
-                    Lua.LuaDoString("GetClickFrame('QuestFrameCloseButton'):Click()");
-                }
-
-                Lua.LuaDoString("GetClickFrame('GossipFrameCloseButton'):Click()");
-                Thread.Sleep(1000);
-
                 if (WaitFor(HasQuest, questId, expectedReult: false))
                 {
                     Logger.Log($"Turned in quest {questName}.");
+                    CloseAllGossips();
                     ToolBox.SaveQuestAsCompleted(questId);
                     return true;
                 }
 
                 Logger.LogError($"Failed to turn in quest {questName}.");
+                CloseAllGossips();
                 return false;
             }
             else
@@ -188,21 +188,15 @@ namespace Wholesome_Auto_Quester.Helpers
                     Lua.LuaDoString("AcceptQuest();");
                 }
 
-                if (WaitFor(QuestFrameCloseButtonIsVisible, 1000))
-                {
-                    Lua.LuaDoString("GetClickFrame('QuestFrameCloseButton'):Click()");
-                }
-
-                Lua.LuaDoString("GetClickFrame('GossipFrameCloseButton'):Click()");
-                Thread.Sleep(1000);
-
                 if (WaitFor(HasQuest, questId))
                 {
                     Logger.Log($"Picked up quest {questName}.");
+                    CloseAllGossips();
                     return true;
                 }
 
                 Logger.LogError($"Failed to pick up quest {questName}.");
+                CloseAllGossips();
                 return false;
             }
             else

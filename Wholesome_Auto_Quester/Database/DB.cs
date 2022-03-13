@@ -239,6 +239,7 @@ namespace Wholesome_Auto_Quester.Database
                 SELECT *
                 FROM creature
                 WHERE id = {creatureId}
+                AND (map = 0 OR map = 1 OR map = 530 OR map = 571)
             ";
             List<ModelCreature> result = _con.Query<ModelCreature>(queryCreature).ToList();
             if (result.Count > 0)
@@ -390,6 +391,7 @@ namespace Wholesome_Auto_Quester.Database
 
             List<ModelCreatureTemplate> result = new List<ModelCreatureTemplate>();
             questEndersIds.ForEach(id => { result.Add(QueryCreatureTemplateByEntry(id)); });
+            result.RemoveAll(template => !template.IsNeutralOrFriendly);
 
             return result;
         }
@@ -405,6 +407,7 @@ namespace Wholesome_Auto_Quester.Database
 
             List<ModelCreatureTemplate> result = new List<ModelCreatureTemplate>();
             questGiversIds.ForEach(id => { result.Add(QueryCreatureTemplateByEntry(id)); });
+            result.RemoveAll(template => !template.IsNeutralOrFriendly);
 
             return result;
         }

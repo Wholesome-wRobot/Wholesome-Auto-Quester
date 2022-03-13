@@ -233,8 +233,8 @@ namespace Wholesome_Auto_Quester.GUI
                     if (selected.QuestTemplate.CreatureQuestGivers.Count > 0)
                     {
                         string qg = "";
-                        selected.QuestTemplate.CreatureQuestGivers.ForEach(q => qg += $"{q.entry}");
-                        selected.QuestTemplate.GameObjectQuestGivers.ForEach(q => qg += $"{q.entry}");
+                        selected.QuestTemplate.CreatureQuestGivers.ForEach(q => qg += $"{q.entry} ");
+                        selected.QuestTemplate.GameObjectQuestGivers.ForEach(q => qg += $"{q.entry} ");
                         questGivers.Text = $"Quest Givers: {qg}";
                         questGivers.Visibility = Visibility.Visible;
                     }
@@ -247,8 +247,8 @@ namespace Wholesome_Auto_Quester.GUI
                     if (selected.QuestTemplate.CreatureQuestTurners.Count > 0)
                     {
                         string qt = "";
-                        selected.QuestTemplate.CreatureQuestTurners.ForEach(q => qt += $"{q.entry}");
-                        selected.QuestTemplate.GameObjectQuestTurners.ForEach(q => qt += $"{q.entry}");
+                        selected.QuestTemplate.CreatureQuestTurners.ForEach(q => qt += $"{q.entry} ");
+                        selected.QuestTemplate.GameObjectQuestTurners.ForEach(q => qt += $"{q.entry} ");
                         questTurners.Text = $"Quest Turners: {qt}";
                         questTurners.Visibility = Visibility.Visible;
                     }
