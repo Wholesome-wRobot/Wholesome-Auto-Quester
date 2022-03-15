@@ -62,6 +62,9 @@ namespace Wholesome_Auto_Quester.Helpers
             // Portal Rut'Theran UP/DOWN
             wManagerSetting.AddBlackListZone(new Vector3(9946.391, 2630.067, 1316.194), 15, ContinentId.Kalimdor, isSessionBlacklist: true);
             wManagerSetting.AddBlackListZone(new Vector3(8798.752, 969.5687, 30.38474), 15, ContinentId.Kalimdor, isSessionBlacklist: true);
+
+            // Staghein Point
+            wManagerSetting.AddBlackListZone(new Vector3(-6427.419, 219.1993, 4.853653), 70, ContinentId.Kalimdor, isSessionBlacklist: true);
         }
 
         public static void CleanupBlacklist()

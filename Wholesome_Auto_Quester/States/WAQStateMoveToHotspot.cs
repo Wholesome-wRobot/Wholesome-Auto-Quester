@@ -59,7 +59,7 @@ namespace Wholesome_Auto_Quester.States
             if (task.Location.DistanceTo(ObjectManager.Me.Position) > 19 
                 && (!MoveHelper.IsMovementThreadRunning || MoveHelper.CurrentTarget != task.Location))
             {
-                MoveHelper.StartGoToThread(task.Location, $"Moving to hotspot for {task.TaskName} {task.Location}");
+                MoveHelper.StartGoToThread(task.Location, $"Moving to hotspot for {task.TaskName}");
             }
         }
     }

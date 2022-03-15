@@ -46,9 +46,6 @@ namespace Wholesome_Auto_Quester.States
                 return;
             }
 
-            Stopwatch watch = new Stopwatch();
-            watch.Start();
-
             Vector3 myPos = ObjectManager.Me.Position;
             WoWUnit killTarget = (WoWUnit)gameObject;
             Vector3 targetPos = killTarget.Position;

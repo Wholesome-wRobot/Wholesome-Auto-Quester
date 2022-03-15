@@ -63,7 +63,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 List<ModelQuestTemplate> dbQuestTemplates = wotlkQueries.GetAvailableQuests();
 
                 // Remove quests that are not supposed to be here anymore
-                List<IWAQQuest> questsToRemove = _questList.FindAll(quest => !dbQuestTemplates.Contains(quest.QuestTemplate));
+                List<IWAQQuest> questsToRemove = _questList.FindAll(quest => !dbQuestTemplates.Exists(dbQ => dbQ.Id ==  quest.QuestTemplate.Id));
                 RemoveAllQuests(questsToRemove);
 
                 // Add quests if they don't already exist
@@ -528,6 +528,9 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(1119, "Zanzil's mixture..., no gossip", false);
             AddQuestToBlackList(4493, "March of the Silithid, no gossip", false);
             AddQuestToBlackList(685, "Wanted! Otto and Falconcrest, too many NPCS", false);
+            AddQuestToBlackList(5401, "Argent Dawn Comission, auto C", false);
+            AddQuestToBlackList(4103, "Salve via hunting, requires active item", false);
+            AddQuestToBlackList(1126, "Hive in the Tower, No objective", false);
 
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))

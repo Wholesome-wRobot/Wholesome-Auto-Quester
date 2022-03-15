@@ -474,6 +474,8 @@ namespace Wholesome_Auto_Quester.Database
 
             result.RemoveAll(q => questSortIdsToIgnore.Contains(q.QuestSortID));
 
+            result.RemoveAll(q => myLevel < 60 && (q.Id == 9407 || q.Id == 10119)); // wait for dark portal
+
             foreach (ModelQuestTemplate questTemplate in result)
             {
                 string queryQuestAddon = $@"

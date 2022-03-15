@@ -89,7 +89,7 @@ public class Reputation
             throw new System.Exception($"Couldn't parse {name} reputation amount");
         }
 
-        if (reputationIds.TryGetValue(name, out int repId))
+        if (reputationIds.TryGetValue(name.Trim(), out int repId))
         {
             Id = repId;
         }

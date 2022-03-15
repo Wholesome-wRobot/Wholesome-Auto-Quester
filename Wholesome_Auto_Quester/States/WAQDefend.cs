@@ -32,7 +32,10 @@ namespace Wholesome_Auto_Quester.States
                     || !ObjectManager.Me.IsValid
                     || !ObjectManager.Me.InCombatFlagOnly
                     || ObjectManager.Me.GetDurabilityPercent < 20)
+                {
+
                     return false;
+                }
 
                 // Check directly attacking units
                 _defendTarget = null;

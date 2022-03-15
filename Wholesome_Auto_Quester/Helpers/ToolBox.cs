@@ -144,7 +144,7 @@ namespace Wholesome_Auto_Quester.Helpers
                     MoveHelper.StopAllMove(true);
                     BlacklistHelper.AddNPC(POI.Guid, "Surrounded by hostiles");
                     BlacklistHelper.AddZone(poiPosition, 20, "Surrounded by hostiles");
-                    task.PutTaskOnTimeout($"{POI.Name} is surrounded by hostiles", 60 * 5);
+                    task.PutTaskOnTimeout($"{POI.Name} is surrounded by hostiles", 60 * 30);
                     return true;
                 }
             }

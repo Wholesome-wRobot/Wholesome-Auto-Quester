@@ -59,7 +59,16 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
 
                 if (wManagerSetting.IsBlackListedZone(Location))
                 {
+                    PutTaskOnTimeout("Zone is blacklisted", 60 * 30, true);
                     InvalidityReason = "Zone is blacklisted";
+                    return false;
+                }
+
+                // Stick out of Outlands until level 60
+                if (myLevel < 60
+                    && WorldMapArea.Continent == WAQContinent.Outlands)
+                {
+                    InvalidityReason = "Sticking out of Outlands";
                     return false;
                 }
 
