@@ -22,6 +22,6 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         public override string TrackerColor => "White";
         public override TaskInteraction InteractionType => TaskInteraction.None;
         protected override bool HasEnoughSkillForTask => true;
-        protected override bool HasEnoughReputationForTask => true;
+        protected override string ReputationMismatch => null;
     }
 }

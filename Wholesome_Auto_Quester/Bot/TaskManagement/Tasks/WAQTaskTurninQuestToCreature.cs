@@ -41,7 +41,8 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
                 return unit.IsAlive
                     || unit.Entry == 25984 // Crashed recon pilot
                     || unit.Entry == 3891 // Teronis' Corpse
-                    || unit.Entry == 25328; // Shadowstalker Luther
+                    || unit.Entry == 25328 // Shadowstalker Luther
+                    || unit.Entry == 16852; // Sedai's Corpse
             }
             return false;
         }
@@ -70,6 +71,6 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         public override string TrackerColor => "Lime";
         public override TaskInteraction InteractionType => TaskInteraction.Interact;
         protected override bool HasEnoughSkillForTask => true;
-        protected override bool HasEnoughReputationForTask => _questTemplate.HasEnoughReputationForQuest;
+        protected override string ReputationMismatch => _questTemplate.ReputationMismatch;
     }
 }

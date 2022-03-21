@@ -65,6 +65,12 @@ namespace Wholesome_Auto_Quester.Helpers
 
             // Staghein Point
             wManagerSetting.AddBlackListZone(new Vector3(-6427.419, 219.1993, 4.853653), 70, ContinentId.Kalimdor, isSessionBlacklist: true);
+
+            // Hellfire giants passage
+            wManagerSetting.AddBlackListZone(new Vector3(41.35702, 4443.034, 81.65746), 70, ContinentId.Expansion01, isSessionBlacklist: true);
+
+            // Telredor base
+            wManagerSetting.AddBlackListZone(new Vector3(283.2617, 6052.715, 23.4), 60, ContinentId.Expansion01, isSessionBlacklist: true);
         }
 
         public static void CleanupBlacklist()

@@ -18,6 +18,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
         private readonly QuestsTrackerGUI _guiTracker;
         private readonly object _scannerLock = new object();
         private bool _isRunning = false;
+        private Dictionary<ulong, int> _scanned = new Dictionary<ulong, int>(); // guid, times scanned
 
         public (WoWObject wowObject, IWAQTask task) ActiveWoWObject { get; private set; } = (null, null);
 
@@ -175,6 +176,23 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                         }
                     }
 
+                    if (_scanned.Count > 10) _scanned.Remove(_scanned.Keys.First());
+
+                    if (ActiveWoWObject.wowObject == null|| ActiveWoWObject.wowObject.Guid != closestObject.Guid)
+                    {
+                        if (!_scanned.ContainsKey(closestObject.Guid))
+                            _scanned.Add(closestObject.Guid, 1);
+                        else
+                            _scanned[closestObject.Guid]++;
+
+                        if (_scanned[closestObject.Guid] > 3)
+                        {
+                            Logger.Log($"{closestObject.Name} has been temporarily banned from the scanner");
+                            ActiveWoWObject = (null, null);
+                            return;
+                        }
+                    }
+
                     IWAQTask associatedTask = GetTaskMatchingWithObject(closestObject);
                     if (associatedTask != null)
                     {
@@ -183,6 +201,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                         return;
                     }
                 }
+
                 Logger.LogWatchScanner($"SCANNER FOUND NOTHING", watch.ElapsedMilliseconds);
                 ActiveWoWObject = (null, null);
             }

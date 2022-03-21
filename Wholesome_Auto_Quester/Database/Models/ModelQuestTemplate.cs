@@ -199,20 +199,35 @@ namespace Wholesome_Auto_Quester.Database.Models
             return result;
         }
 
-        public bool HasEnoughReputationForQuest
+        public string ReputationMismatch
         {
             get
             {
                 if (QuestAddon?.RequiredMinRepFaction > 0)
                 {
                     Reputation rep = DBCFaction.GetReputationById(QuestAddon.RequiredMinRepFaction);
-                    if (rep != null && rep.Amount >= QuestAddon.RequiredMinRepValue)
+                    if (rep == null)
                     {
-                        return true;
+                        return $"Min reputation unknown : {QuestAddon.RequiredMinRepFaction}";
                     }
-                    return false;
+                    if (rep.Amount < QuestAddon.RequiredMinRepValue)
+                    {
+                        return $"Reputation with {rep.Name} too low";
+                    }
                 }
-                return true;
+                if (QuestAddon?.RequiredMaxRepFaction > 0)
+                {
+                    Reputation rep = DBCFaction.GetReputationById(QuestAddon.RequiredMaxRepFaction);
+                    if (rep == null)
+                    {
+                        return $"Max reputation unknown : {QuestAddon.RequiredMaxRepFaction}";
+                    }
+                    if (rep.Amount > QuestAddon.RequiredMaxRepValue)
+                    {
+                        return $"Reputation with {rep.Name} too high";
+                    }
+                }
+                return null;
             }
         }
     }

@@ -29,17 +29,17 @@ namespace Wholesome_Auto_Quester.Helpers
 
         public static void LogWatchScanner(string str, long timeEllapsed)
         {
+            if (!WholesomeAQSettings.CurrentSetting.AllowStopWatch) return;
             ScannerString = $"{str} [{timeEllapsed}]";
-
-            if (timeEllapsed > 50)
+            if (timeEllapsed > 200)
                 Logging.Write($"{str} [{timeEllapsed}]", Logging.LogType.Error, Color.DarkMagenta);
         }
 
         public static void LogWatchTask(string str, long timeEllapsed)
         {
+            if (!WholesomeAQSettings.CurrentSetting.AllowStopWatch) return;
             TaskMString = $"{str} [{timeEllapsed}]";
-
-            if (timeEllapsed > 50)
+            if (timeEllapsed > 200)
                 Logging.Write($"{str} [{timeEllapsed}]", Logging.LogType.Error, Color.DarkMagenta);
         }
     }

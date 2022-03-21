@@ -192,14 +192,6 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 Logger.LogWatchTask($"TASKM TRAVEL REQUIRED", watch.ElapsedMilliseconds);
                 return;
             }
-            /*
-            // We already are on that task
-            if (closestTask == ActiveTask)
-            {
-                Logger.LogWatchTask($"TASKM ALREADY ON CLOSEST", watch.ElapsedMilliseconds);
-                return;
-            }
-            */
             WAQPath pathToClosestTask = ToolBox.GetWAQPath(ObjectManager.Me.Position, closestTask.Location);
 
             // Avoid snap back and forth

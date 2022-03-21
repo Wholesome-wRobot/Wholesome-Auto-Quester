@@ -51,6 +51,6 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         public override string TrackerColor => "Orange";
         public override TaskInteraction InteractionType => TaskInteraction.KillAndLoot;
         protected override bool HasEnoughSkillForTask => true;
-        protected override bool HasEnoughReputationForTask => _questTemplate.HasEnoughReputationForQuest;
+        protected override string ReputationMismatch => _questTemplate.ReputationMismatch;
     }
 }

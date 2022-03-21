@@ -56,7 +56,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             }
         }
 
-        protected override bool HasEnoughReputationForTask => _questTemplate.HasEnoughReputationForQuest;
+        protected override string ReputationMismatch => _questTemplate.ReputationMismatch;
         protected override bool HasEnoughSkillForTask => DBCLocks.IsLockValid(_gameObjectTemplate.type, _gameObjectTemplate.Data0);
         public override string TrackerColor => "Cyan";
         public override TaskInteraction InteractionType => TaskInteraction.Interact;

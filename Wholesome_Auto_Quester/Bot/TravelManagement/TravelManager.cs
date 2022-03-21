@@ -1,12 +1,10 @@
 ﻿using robotManager.Helpful;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
-using wManager;
 using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
@@ -688,7 +686,14 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
                 OffMeshConnections.Load();
             }
 
-            OffMeshConnections.MeshConnection.Clear();
+            //OffMeshConnections.MeshConnection.Clear();
+
+            // Sporeggar house
+            OffMeshConnections.Add(new OffMeshConnection(new List<Vector3>()
+            {
+                new Vector3(206.3829, 8499.533, 24.57104, "None"),
+                new Vector3(194.8526, 8489.873, 27.46523, "None")
+            }, (int)ContinentId.Expansion01, OffMeshConnectionType.Bidirectional, true));
 
             AddTransportOffMesh(new Vector3(695.7321, -3822.025, 254.6207, "None"), // wait for transport
                 new Vector3(704.0106, -3822.148, 254.8952, "None"), // Step in
@@ -761,6 +766,26 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
                 184330,
                 ContinentId.Expansion01,
                 "Stormspire elevator DOWN");
+
+            AddTransportOffMesh(new Vector3(284.8249, 5934.093, 26.58717, "None"), // wait for transport
+                new Vector3(285.6157, 5920.79, 26.16297, "None"), // Step in
+                new Vector3(285.749, 5918.21, 26.1411, "None"), // Object departure
+                new Vector3(283.5827, 5935.404, 149.3924, "None"), // Object arrival
+                new Vector3(281.268, 5949.478, 149.8112, "None"), // Step out
+                183177,
+                ContinentId.Expansion01,
+                "Telredor elevator UP");
+
+            AddTransportOffMesh(new Vector3(281.268, 5949.478, 149.8112, "None"), // wait for transport
+                new Vector3(283.8581, 5936.767, 149.417, "None"), // Step in
+                new Vector3(283.5827, 5935.404, 149.3924, "None"), // Object departure
+                new Vector3(285.749, 5918.21, 26.1411, "None"), // Object arrival
+                new Vector3(284.8249, 5934.093, 26.58717, "None"), // Step out
+                183177,
+                ContinentId.Expansion01,
+                "Telredor elevator DOWN");
+
+            OffMeshConnections.Save();
         }
 
         // Wait for GameObject (Zep, elevator etc..)

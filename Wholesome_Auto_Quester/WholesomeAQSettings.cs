@@ -32,6 +32,7 @@ namespace Wholesome_Auto_Quester
         public int GoToMobEntry { get; set; }
         public int StopAtLevel { get; set; }
         public bool BlacklistDangerousZones { get; set; }
+        public bool AllowStopWatch { get; set; }
 
         public WholesomeAQSettings()
         {
@@ -52,6 +53,8 @@ namespace Wholesome_Auto_Quester
             RecordUnreachables = true;
             StopAtLevel = 80;
             BlacklistDangerousZones = true;
+
+            AllowStopWatch = false;
         }
 
         public static void RecordGuidAsUnreachable(uint guid)

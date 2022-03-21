@@ -88,6 +88,7 @@ namespace Wholesome_Auto_Quester.States
                     .FindAll(u => u.IsAttackable
                         && u.Reaction == wManager.Wow.Enums.Reaction.Hostile
                         && u.IsAlive
+                        && u.Entry != 17578 // Hellfire Training Dummy
                         && u.IsValid
                         && !u.IsElite
                         && !u.IsTaggedByOther

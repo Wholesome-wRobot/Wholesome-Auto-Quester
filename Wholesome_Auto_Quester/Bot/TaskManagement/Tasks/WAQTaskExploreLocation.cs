@@ -24,7 +24,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             }
         }
 
-        protected override bool HasEnoughReputationForTask => _questTemplate.HasEnoughReputationForQuest;
+        protected override string ReputationMismatch => _questTemplate.ReputationMismatch;
         protected override bool HasEnoughSkillForTask => true;
         protected override bool IsRecordedAsUnreachable => false;
         public override string TrackerColor => "Linen";

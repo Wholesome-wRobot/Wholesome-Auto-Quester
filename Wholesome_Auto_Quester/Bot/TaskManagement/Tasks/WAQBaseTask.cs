@@ -33,9 +33,9 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
                     return false;
                 }
 
-                if (!HasEnoughReputationForTask)
+                if (ReputationMismatch != null)
                 {
-                    InvalidityReason = $"Insufficient Reputation";
+                    InvalidityReason = ReputationMismatch;
                     return false;
                 }
 
@@ -103,7 +103,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
 
         protected abstract bool IsRecordedAsUnreachable { get; }
         protected abstract bool HasEnoughSkillForTask { get; }
-        protected abstract bool HasEnoughReputationForTask { get; }
+        protected abstract string ReputationMismatch { get; }
         public abstract TaskInteraction InteractionType { get; }
         public abstract string TrackerColor { get; }
         public abstract bool IsObjectValidForTask(WoWObject wowObject);

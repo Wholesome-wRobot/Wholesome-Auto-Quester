@@ -531,6 +531,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(5401, "Argent Dawn Comission, auto C", false);
             AddQuestToBlackList(4103, "Salve via hunting, requires active item", false);
             AddQuestToBlackList(1126, "Hive in the Tower, No objective", false);
+            AddQuestToBlackList(9936, "Giselda the crone, too many mobs", false);
 
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))

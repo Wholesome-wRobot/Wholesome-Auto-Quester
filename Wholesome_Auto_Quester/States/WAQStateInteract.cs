@@ -1,4 +1,6 @@
 ﻿using robotManager.FiniteStateMachine;
+using robotManager.Helpful;
+using System.Threading;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Helpers;
@@ -40,6 +42,7 @@ namespace Wholesome_Auto_Quester.States
         public override void Run()
         {
             var (gameObject, task) = _scanner.ActiveWoWObject;
+            Vector3 myPos = ObjectManager.Me.Position;
 
             if (ToolBox.ShouldStateBeInterrupted(task, gameObject))
             {
@@ -53,6 +56,7 @@ namespace Wholesome_Auto_Quester.States
 
             float scale = gameObject.Scale;
             if (gameObject.Entry == 190537  // Crashed Plague Sprayer
+                //|| gameObject.Entry == 182116 // Fulgore Spore 
                 || gameObject.Entry == 179828) // Dark Iron Pillow
             {
                 scale = 6;
@@ -65,9 +69,14 @@ namespace Wholesome_Auto_Quester.States
                 ToolBox.CheckIfZReachable(gameObject.Position);
             }
 
-            if (gameObject.GetDistance > interactDistance)
+            if (gameObject.Position.DistanceTo(myPos) > interactDistance)
             {
                 MoveHelper.StartGoToThread(gameObject.Position, $"Going to {gameObject.Name} for {task.TaskName}.");
+                if (gameObject.Position.DistanceTo(myPos) > interactDistance && gameObject.Position.DistanceTo(myPos) < 10)
+                {
+                    MovementManager.MoveTo(gameObject.Position);
+                    Thread.Sleep(100);
+                }
                 return;
             }
 

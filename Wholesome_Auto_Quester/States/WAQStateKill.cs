@@ -1,6 +1,5 @@
 ﻿using robotManager.FiniteStateMachine;
 using robotManager.Helpful;
-using System.Diagnostics;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Bot.Tasks;
@@ -71,7 +70,7 @@ namespace Wholesome_Auto_Quester.States
                 return;
             }
 
-            if (ToolBox.GetZDistance(targetPos) > targetPos.DistanceTo2D(myPos))
+            if (ToolBox.GetZDistance(targetPos) > targetPos.DistanceTo2D(myPos) && MovementManager.CurrentPath.Count <= 3)
             {
                 BlacklistHelper.AddNPC(killTarget.Guid, "Z differential too large");
                 return;

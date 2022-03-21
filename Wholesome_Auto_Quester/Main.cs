@@ -1,8 +1,11 @@
 ﻿using robotManager.Events;
+using robotManager.FiniteStateMachine;
 using robotManager.Helpful;
 using robotManager.Products;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using Wholesome_Auto_Quester;
@@ -15,7 +18,7 @@ using wManager.Wow.ObjectManager;
 
 public class Main : IProduct
 {
-    public static readonly string ProductVersion = "0.1.15"; // Must match version in Version.txt
+    public static readonly string ProductVersion = "0.1.16"; // Must match version in Version.txt
     public static readonly string ProductName = "Wholesome Auto Quester";
     public static readonly string FileName = "Wholesome_Auto_Quester";
     private ProductSettingsControl _settingsUserControl;
@@ -34,6 +37,22 @@ public class Main : IProduct
         catch (Exception e)
         {
             Logging.WriteError("Main > Initialize(): " + e);
+        }
+    }
+
+    private Stopwatch statewatch = new Stopwatch();
+    private string lastState = "";
+
+    private void BeforeRunState(Engine engine, State state, CancelEventArgs cancelable)
+    {
+        if (!WholesomeAQSettings.CurrentSetting.AllowStopWatch) return;
+        if (!statewatch.IsRunning) statewatch.Start();
+        if (state.DisplayName != "Security/Stop game")
+        {
+            if (statewatch.ElapsedMilliseconds > 200)
+                Logger.LogError($"{lastState} took {statewatch.ElapsedMilliseconds}");
+            statewatch.Restart();
+            lastState = state.DisplayName;
         }
     }
 
@@ -74,6 +93,8 @@ public class Main : IProduct
             LoggingEvents.OnAddLog += AddLogHandler;
             EventsLuaWithArgs.OnEventsLuaStringWithArgs += EventsWithArgsHandler;
             EventsLua.AttachEventLua("PLAYER_DEAD", e => PlayerDeadHandler(e));
+
+            FiniteStateMachineEvents.OnBeforeCheckIfNeedToRunState += BeforeRunState;
 
             if (!Products.IsStarted)
             {
@@ -145,6 +166,7 @@ public class Main : IProduct
             tracker.HideWindow();
             LoggingEvents.OnAddLog -= AddLogHandler;
             EventsLuaWithArgs.OnEventsLuaStringWithArgs -= EventsWithArgsHandler;
+            FiniteStateMachineEvents.OnBeforeCheckIfNeedToRunState -= BeforeRunState;
             _bot.Dispose();
             IsStarted = false;
             PluginsManager.DisposeAllPlugins();
