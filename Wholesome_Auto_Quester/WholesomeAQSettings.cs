@@ -37,7 +37,7 @@ namespace Wholesome_Auto_Quester
         public WholesomeAQSettings()
         {
             LogDebug = false;
-            ActivateQuestsGUI = false;
+            ActivateQuestsGUI = true;
             DevMode = false;
             ListCompletedQuests = new List<int>();
             RecordedUnreachables = new List<uint>();
@@ -46,7 +46,7 @@ namespace Wholesome_Auto_Quester
             SmoothMove = false;
             LastUpdateDate = 0;
             GrindOnly = false;
-            ContinentTravel = false;
+            ContinentTravel = true;
             BlackListedQuests = new List<BlackListedQuest>();
             AbandonUnfitQuests = false;
             GoToMobEntry = 0;

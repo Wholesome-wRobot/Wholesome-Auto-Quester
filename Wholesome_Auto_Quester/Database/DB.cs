@@ -455,6 +455,11 @@ namespace Wholesome_Auto_Quester.Database
 
             foreach (ModelQuestTemplate template in result)
             {
+                // Reduce starter zone quest levels
+                if (template.QuestLevel > 1 && template.QuestLevel < 6)
+                {
+                    template.QuestLevel--;
+                }
                 // Reduce all Outlands/Northrend levels by 1 to have more quests enabled
                 if (template.QuestLevel > 60)
                 {

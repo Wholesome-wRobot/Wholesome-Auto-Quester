@@ -128,6 +128,8 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                     .OrderBy(wowObject => wowObject.Position.DistanceTo(myPos))
                     .ToList();
 
+                listSurroundingPOIs.RemoveAll(wowObject => _scanned.ContainsKey(wowObject.Guid) && _scanned[wowObject.Guid] > 3);
+
                 if (listSurroundingPOIs.Count > 0)
                 {
                     WoWObject closestObject = listSurroundingPOIs[0];
@@ -182,21 +184,21 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                         return;
                     }
 
-                    if (_scanned.Count > 10) _scanned.Remove(_scanned.Keys.First());
+                    if (_scanned.Count > 5) _scanned.Remove(_scanned.Keys.First());
 
-                    if (ActiveWoWObject.wowObject == null|| ActiveWoWObject.wowObject.Guid != closestObject.Guid)
+                    if (ActiveWoWObject.wowObject == null || ActiveWoWObject.wowObject.Guid != closestObject.Guid)
                     {
-                        if (!_scanned.ContainsKey(closestObject.Guid))
-                            _scanned.Add(closestObject.Guid, 1);
-                        else
-                            _scanned[closestObject.Guid]++;
-
-                        if (_scanned[closestObject.Guid] > 3)
+                        if (_scanned.TryGetValue(closestObject.Guid, out int amount))
                         {
-                            if (_scanned[closestObject.Guid] == 4)
+                            _scanned[closestObject.Guid]++;
+                            if (_scanned[closestObject.Guid] > 3)
+                            {
                                 Logger.LogError($"{closestObject.Name} has been temporarily banned from the scanner");
-                            ActiveWoWObject = (null, null);
-                            return;
+                            }
+                        }
+                        else
+                        {
+                            _scanned.Add(closestObject.Guid, 1);
                         }
                     }
 

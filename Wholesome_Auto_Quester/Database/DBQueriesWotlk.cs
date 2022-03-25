@@ -444,40 +444,56 @@ namespace Wholesome_Auto_Quester.Database
                 // NOTE: If RequiredSpellCast is != 0 and the spell has effects Send Event or Quest Complete, this field may be left empty.
 
                 // Kill
-                if (quest.RequiredNPC1Template != null && !quest.RequiredNPC1Template.IsFriendly)
+                if (quest.RequiredNPC1Template != null)
                 {
-                    quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount1, quest.RequiredNPC1Template, quest.ObjectiveText1));
+                    if (!quest.RequiredNPC1Template.IsFriendly)
+                    {
+                        quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount1, quest.RequiredNPC1Template, quest.ObjectiveText1));
+                    }
                     quest.RequiredNPC1Template.KillCredits.AddRange(_database.QueryCreatureTemplatesByKillCredits(quest.RequiredNPC1Template.entry));
                     foreach (ModelCreatureTemplate kcTemplate in quest.RequiredNPC1Template.KillCredits)
                     {
-                        quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount1, kcTemplate, quest.ObjectiveText1 ?? quest.RequiredNPC1Template.name + " slain"));
+                        if (!kcTemplate.IsFriendly)
+                            quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount1, kcTemplate, quest.ObjectiveText1 ?? quest.RequiredNPC1Template.name + " slain"));
                     }
                 }
-                if (quest.RequiredNPC2Template != null && !quest.RequiredNPC2Template.IsFriendly)
+                if (quest.RequiredNPC2Template != null)
                 {
-                    quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount2, quest.RequiredNPC2Template, quest.ObjectiveText2));
+                    if (!quest.RequiredNPC2Template.IsFriendly)
+                    {
+                        quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount2, quest.RequiredNPC2Template, quest.ObjectiveText2));
+                    }
                     quest.RequiredNPC2Template.KillCredits.AddRange(_database.QueryCreatureTemplatesByKillCredits(quest.RequiredNPC2Template.entry));
                     foreach (ModelCreatureTemplate kcTemplate in quest.RequiredNPC2Template.KillCredits)
                     {
-                        quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount2, kcTemplate, quest.ObjectiveText2 ?? quest.RequiredNPC2Template.name + " slain"));
+                        if (!kcTemplate.IsFriendly)
+                            quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount2, kcTemplate, quest.ObjectiveText2 ?? quest.RequiredNPC2Template.name + " slain"));
                     }
                 }
-                if (quest.RequiredNPC3Template != null && !quest.RequiredNPC3Template.IsFriendly)
+                if (quest.RequiredNPC3Template != null)
                 {
-                    quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount3, quest.RequiredNPC3Template, quest.ObjectiveText3));
+                    if (!quest.RequiredNPC3Template.IsFriendly)
+                    {
+                        quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount3, quest.RequiredNPC3Template, quest.ObjectiveText3));
+                    }
                     quest.RequiredNPC3Template.KillCredits.AddRange(_database.QueryCreatureTemplatesByKillCredits(quest.RequiredNPC3Template.entry));
                     foreach (ModelCreatureTemplate kcTemplate in quest.RequiredNPC3Template.KillCredits)
                     {
-                        quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount3, kcTemplate, quest.ObjectiveText3 ?? quest.RequiredNPC3Template.name + " slain"));
+                        if (!kcTemplate.IsFriendly)
+                            quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount3, kcTemplate, quest.ObjectiveText3 ?? quest.RequiredNPC3Template.name + " slain"));
                     }
                 }
-                if (quest.RequiredNPC4Template != null && !quest.RequiredNPC4Template.IsFriendly)
+                if (quest.RequiredNPC4Template != null)
                 {
-                    quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount4, quest.RequiredNPC4Template, quest.ObjectiveText4));
+                    if (!quest.RequiredNPC4Template.IsFriendly)
+                    {
+                        quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount4, quest.RequiredNPC4Template, quest.ObjectiveText4));
+                    }
                     quest.RequiredNPC4Template.KillCredits.AddRange(_database.QueryCreatureTemplatesByKillCredits(quest.RequiredNPC4Template.entry));
                     foreach (ModelCreatureTemplate kcTemplate in quest.RequiredNPC4Template.KillCredits)
                     {
-                        quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount4, kcTemplate, quest.ObjectiveText4 ?? quest.RequiredNPC4Template.name + " slain"));
+                        if (!kcTemplate.IsFriendly)
+                            quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount4, kcTemplate, quest.ObjectiveText4 ?? quest.RequiredNPC4Template.name + " slain"));
                     }
                 }
 

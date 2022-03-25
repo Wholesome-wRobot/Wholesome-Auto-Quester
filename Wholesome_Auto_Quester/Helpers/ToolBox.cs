@@ -799,7 +799,6 @@ namespace Wholesome_Auto_Quester.Helpers
             { 213, 5 }, // Hostile takeover, too many mobs
             { 1398, 4 }, // Driftwood, too many mobs
             { 2870, 4 }, // Against Lord Shalzaru, too many mobs
-            { 12462, 4 }, // Breaking off a piece, too many mobs
             { 12043, 3 }, // Nozzlerust defense, too many mobs
             { 12044, 3 }, // Stocking up, too many mobs
             { 12120, 3 }, // DrakAguul's Mallet, too many mobs

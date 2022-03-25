@@ -190,7 +190,6 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
         {
             Dictionary<int, Quest.PlayerQuest> logQuests = Quest.GetLogQuestId().ToDictionary(quest => quest.ID);
             List<string> itemsToAddToDNSList = new List<string>();
-            Lua.LuaDoString("ExpandQuestHeader(0);");
 
             lock (_questManagerLock)
             {
@@ -348,6 +347,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
         private void AbandonQuest(int questId, string reason)
         {
+            Lua.LuaDoString("ExpandQuestHeader(0);");
             Logger.Log($"Abandonning quest {questId} ({reason})");
             int logIndex = Lua.LuaDoString<int>(@$"
                 local nbLogQuests  = GetNumQuestLogEntries()
@@ -543,6 +543,8 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(14409, "A cautious return, Dalaran", false);
             AddQuestToBlackList(13347, "Reborn from the ashes, NPC absent", false);
             AddQuestToBlackList(12443, "Seeking solvent, too many NPCS", false);
+            AddQuestToBlackList(12796, "The magical Kingdom of Dalaran, Dalaran", false);
+            AddQuestToBlackList(12462, "Breaking off a piece, too many NPCS", false);
 
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))

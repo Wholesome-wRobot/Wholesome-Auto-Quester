@@ -404,6 +404,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
         {
             int nbAtempts = 0;
             int nbMaxAttempts = 5;
+            Lua.LuaDoString("ExpandQuestHeader(0);");
             while (nbAtempts < nbMaxAttempts)
             {
                 bool recordFailed = false;

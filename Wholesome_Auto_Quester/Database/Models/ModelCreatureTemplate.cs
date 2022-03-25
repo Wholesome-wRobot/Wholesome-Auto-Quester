@@ -23,6 +23,7 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int rank { get; }
 
         public List<ModelCreatureTemplate> KillCredits = new List<ModelCreatureTemplate>();
+        public bool HasKillCredit => KillCredit1 > 0 || KillCredit2 > 0;
         public List<ModelCreature> Creatures { get; set; } = new List<ModelCreature>();
         public bool IsHostile => (int)WoWFactionTemplate.FromId(faction).GetReactionTowards(ObjectManager.Me.FactionTemplate) <= 2;
         public bool IsNeutral => (int)WoWFactionTemplate.FromId(faction).GetReactionTowards(ObjectManager.Me.FactionTemplate) == 3;
