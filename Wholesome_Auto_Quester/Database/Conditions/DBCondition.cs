@@ -34,6 +34,14 @@ namespace Wholesome_Auto_Quester.Database.Conditions
                         return false;
                     }
 
+                    if (_modelConditions.ConditionTypeOrReference == 14) // CONDITION_QUEST_NONE
+                    {
+                        _conditionText = $"{exc}Need quest {_modelConditions.ConditionValue1} status to be NONE";
+                        return positive ? 
+                            !ToolBox.IsQuestCompleted(_modelConditions.ConditionValue1) && !Quest.HasQuest(_modelConditions.ConditionValue1)
+                            : ToolBox.IsQuestCompleted(_modelConditions.ConditionValue1) || Quest.HasQuest(_modelConditions.ConditionValue1);
+                    }
+
                     if (_modelConditions.ConditionTypeOrReference == 2) // CONDITION_ITEM
                     {
                         _conditionText = $"{exc}Need {_modelConditions.ConditionValue2}x item {_modelConditions.ConditionValue1}";
@@ -42,12 +50,12 @@ namespace Wholesome_Auto_Quester.Database.Conditions
                             : ItemsManager.GetItemCountById((uint)_modelConditions.ConditionValue1) < _modelConditions.ConditionValue2;
                     }
 
-                    if (_modelConditions.ConditionTypeOrReference == 8 
+                    if (_modelConditions.ConditionTypeOrReference == 8
                         || _modelConditions.ConditionTypeOrReference == 28) // CONDITION_QUESTREWARDED || CONDITION_QUEST_COMPLETE
                     {
                         _conditionText = $"{exc}Need {_modelConditions.ConditionValue1} complete";
                         return positive ?
-                            ToolBox.IsQuestCompleted(_modelConditions.ConditionValue1) 
+                            ToolBox.IsQuestCompleted(_modelConditions.ConditionValue1)
                             : !ToolBox.IsQuestCompleted(_modelConditions.ConditionValue1);
                     }
 
@@ -55,7 +63,7 @@ namespace Wholesome_Auto_Quester.Database.Conditions
                     {
                         _conditionText = $"{exc}Need {_modelConditions.ConditionValue1} in log";
                         return positive ?
-                            Quest.HasQuest(_modelConditions.ConditionValue1) 
+                            Quest.HasQuest(_modelConditions.ConditionValue1)
                             : !Quest.HasQuest(_modelConditions.ConditionValue1);
                     }
 

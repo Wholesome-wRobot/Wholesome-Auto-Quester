@@ -79,7 +79,7 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
         {
             return ContinentHelper.MyMapArea.Continent == WAQContinent.Teldrassil
                 && ObjectManager.Me.Position.Z >= 600
-                && task.Location.Z < 600; // Under teldrassil tree
+                && (task.Location.Z < 600 || task.WorldMapArea.Continent != WAQContinent.Kalimdor); // Under teldrassil tree
         }
 
         public bool ShouldTakePortalRutTheranToDarnassus(IWAQTask task)
@@ -174,21 +174,21 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
         readonly Vector3 bayMenethilToDustwallow = new Vector3(-3893.388, -602.8146, 5.425149, "None");
         readonly Vector3 insideShipMenethilToDustwallow = new Vector3(-3904.25, -577.7352, 6.059737, "None");
 
-        /*
+        
         readonly Vector3 bayMenethilToHowlingFjord = new Vector3(-3724.361, -583.2341, 4.74352, "None");
         readonly Vector3 insideShipMenethilToHowlingFjord = new Vector3(-3711.364, -573.7974, 9.489109, "None");
-
+        
         readonly Vector3 bayHowlingFjordToMenethil = new Vector3(591.8311, -5099.395, 5.260396, "None");
         readonly Vector3 insideShipHowlingFjordToMenethil = new Vector3(588.0685, -5120.662, 9.447546, "None");
-        */
-        /*readonly int ShipAzuremystToDarkshoreId = 181646;
-        readonly int ShipMenethilToHowlingFjord = 181688;*/
+        
 
-        readonly int ShipDarkshoreToStormwindId = 176310;
+        /*readonly int ShipAzuremystToDarkshoreId = 181646;*/
+        readonly int shipMenethilToHowlingFjord = 181688;
+        readonly int shipDarkshoreToStormwindId = 176310;
         readonly int shipStormwindToBoreanTundraId = 190536;
-        readonly int ShipDarkshoreToDarnassusId = 176244;
+        readonly int shipDarkshoreToDarnassusId = 176244;
         readonly int shipRatchetToBootyBayId = 20808;
-        readonly int ShipMenethilToDustwallowId = 176231;
+        readonly int shipMenethilToDustwallowId = 176231;
 
 
         // Portals
@@ -218,18 +218,18 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
         readonly int shattrathPortalToUndercityId = 183327;
         readonly Vector3 shattrathPortalToUndercityPosition = new Vector3(-1931.48, 5460.49, -12.4281f);
 
-        readonly int shattrathPortalTQueldanasId = 187056;*/
+        readonly int shattrathPortalTQueldanasId = 187056;
         readonly Vector3 shattrathPortalToQueldanasPosition = new Vector3(-1839.88, 5500.6, -12.4279f);
 
         readonly int shattrathPortalToDarnassusId = 183317;
         readonly Vector3 shattrathPortalToDarnassusPosition = new Vector3(-1790.98, 5413.98, -12.4282f);
+        */
+        readonly int shattrathPortalToStormwindId = 183325;
+        readonly Vector3 shattrathPortalToStormwindPosition = new Vector3(-1792.78, 5406.54, -12.4279f);
 
-        /*readonly int ShattrathPortalToStormwindId = 183325;
-        readonly Vector3 ShattrathPortalToStormwindPosition = new Vector3(-1792.78, 5406.54, -12.4279f);
-
-        readonly int ShattrathPortalToIronforgeId = 183322;
-        readonly Vector3 ShattrathPortalToIronforgePosition = new Vector3(-1795.79, 5399.63, -12.4281f);
-
+        readonly int shattrathPortalToIronforgeId = 183322;
+        readonly Vector3 shattrathPortalToIronforgePosition = new Vector3(-1795.79, 5399.63, -12.4281f);
+        /*
         readonly int ShattrathPortalToExodarId = 183321;
         readonly Vector3 ShattrathPortalToExodarPosition = new Vector3(-1880.28, 5357.53, -12.4281f);
 
@@ -433,7 +433,7 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
             GoToTask.ToPosition(bayStormwindToDarkshore);
             if (ObjectManager.Me.Position.DistanceTo(bayStormwindToDarkshore) < 4)
             {
-                WaitForTransport(ShipDarkshoreToStormwindId, 30);
+                WaitForTransport(shipDarkshoreToStormwindId, 30);
                 ForceMoveTo(insideShipStormwindToDarkshore);
                 WaitOnTransport(bayDarkshoreToStormwind, 50);
             }
@@ -445,20 +445,26 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
             GoToTask.ToPosition(bayMenethilToDustwallow);
             if (ObjectManager.Me.Position.DistanceTo(bayMenethilToDustwallow) < 4)
             {
-                WaitForTransport(ShipMenethilToDustwallowId, 30);
+                WaitForTransport(shipMenethilToDustwallowId, 30);
                 ForceMoveTo(insideShipMenethilToDustwallow);
                 WaitOnTransport(bayDustwallowToMenethil, 50);
             }
         }
 
         // ********** FROM OUTLANDS **********
-        public void PortalShattrathToDarnassus()
+
+        public void PortalShattrathToStormwind()
         {
-            Logger.Log("Taking portal to Darnassus");
-            GoToTask.ToPositionAndIntecractWithGameObject(shattrathPortalToDarnassusPosition, shattrathPortalToDarnassusId);
+            Logger.Log("Taking portal to Stormwind");
+            GoToTask.ToPositionAndIntecractWithGameObject(shattrathPortalToStormwindPosition, shattrathPortalToStormwindId);
             Thread.Sleep(5000);
         }
-
+        public void PortalShattrathToIronforge()
+        {
+            Logger.Log("Taking portal to Ironforge");
+            GoToTask.ToPositionAndIntecractWithGameObject(shattrathPortalToIronforgePosition, shattrathPortalToIronforgeId);
+            Thread.Sleep(5000);
+        }
         public void PortalShattrathToOrgrimmar()
         {
             Logger.Log("Taking portal to Orgrimmar");
@@ -492,7 +498,7 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
             GoToTask.ToPosition(bayDarkshoreToDarnassus);
             if (ObjectManager.Me.Position.DistanceTo(bayDarkshoreToDarnassus) < 4)
             {
-                WaitForTransport(ShipDarkshoreToDarnassusId, 30);
+                WaitForTransport(shipDarkshoreToDarnassusId, 30);
                 ForceMoveTo(insideShipDarkshoreToDarnassus);
                 WaitOnTransport(bayDarnassusToDarkshore, 50);
             }
@@ -504,7 +510,7 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
             GoToTask.ToPosition(bayDarkshoreToStormwind);
             if (ObjectManager.Me.Position.DistanceTo(bayDarkshoreToStormwind) < 4)
             {
-                WaitForTransport(ShipDarkshoreToStormwindId, 30);
+                WaitForTransport(shipDarkshoreToStormwindId, 30);
                 ForceMoveTo(insideShipDarkshoreToStormwind);
                 WaitOnTransport(bayStormwindToDarkshore, 50);
             }
@@ -516,7 +522,7 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
             GoToTask.ToPosition(bayDustwallowToMenethil);
             if (ObjectManager.Me.Position.DistanceTo(bayDustwallowToMenethil) < 4)
             {
-                WaitForTransport(ShipMenethilToDustwallowId, 30);
+                WaitForTransport(shipMenethilToDustwallowId, 30);
                 ForceMoveTo(insideShipDustwallowToMenethil);
                 WaitOnTransport(bayMenethilToDustwallow, 50);
             }
@@ -528,7 +534,7 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
             GoToTask.ToPosition(bayDarnassusToDarkshore);
             if (ObjectManager.Me.Position.DistanceTo(bayDarnassusToDarkshore) < 4)
             {
-                WaitForTransport(ShipDarkshoreToDarnassusId, 30);
+                WaitForTransport(shipDarkshoreToDarnassusId, 30);
                 ForceMoveTo(insideShipDarnassusToDarkshore);
                 WaitOnTransport(bayDarkshoreToDarnassus, 50);
             }
@@ -599,18 +605,6 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
             Thread.Sleep(5000);
         }
 
-        public void ShipStormwindToBoreanTundra()
-        {
-            Logger.Log("Taking ship to Borean Tundra");
-            GoToTask.ToPosition(bayStormwindToBoreanTundra, 0, true);
-            if (ObjectManager.Me.Position.DistanceTo(bayStormwindToBoreanTundra) < 4)
-            {
-                WaitForTransport(shipStormwindToBoreanTundraId, 30);
-                ForceMoveTo(insideShipStormwindToBoreanTundra);
-                WaitOnTransport(bayBoreanTundraToStormwind, 25);
-            }
-        }
-
         public void ZeppelinOrgrimmarToBoreanTundra()
         {
             Logger.Log("Taking zeppelin to Borean Tundra");
@@ -635,7 +629,32 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
             }
         }
 
+        public void ShipStormwindToBoreanTundra()
+        {
+            Logger.Log("Taking ship to Borean Tundra");
+            GoToTask.ToPosition(bayStormwindToBoreanTundra, 0, true);
+            if (ObjectManager.Me.Position.DistanceTo(bayStormwindToBoreanTundra) < 4)
+            {
+                WaitForTransport(shipStormwindToBoreanTundraId, 30);
+                ForceMoveTo(insideShipStormwindToBoreanTundra);
+                WaitOnTransport(bayBoreanTundraToStormwind, 25);
+            }
+        }
+
+        public void ShipMenethilToHowlingFjord()
+        {
+            Logger.Log("Taking ship to Howling Fjord");
+            GoToTask.ToPosition(bayMenethilToHowlingFjord, 0, true);
+            if (ObjectManager.Me.Position.DistanceTo(bayMenethilToHowlingFjord) < 4)
+            {
+                WaitForTransport(shipMenethilToHowlingFjord, 30);
+                ForceMoveTo(insideShipMenethilToHowlingFjord);
+                WaitOnTransport(bayHowlingFjordToMenethil, 25);
+            }
+        }
+
         // ********** FROM NORTHREND **********
+        /*
         public void ShipBoreanTundraToStormwind()
         {
             Logger.Log("Taking ship to Stormwind");
@@ -647,6 +666,7 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
                 WaitOnTransport(bayStormwindToBoreanTundra, 25);
             }
         }
+        */
         public void PortalDalaranToUndercity()
         {
             Logger.Log("Taking portal to Undercity");
@@ -784,6 +804,24 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
                 183177,
                 ContinentId.Expansion01,
                 "Telredor elevator DOWN");
+
+            AddTransportOffMesh(new Vector3(-2009.204, 5478.759, 3.718776, "None"), // wait for transport
+                new Vector3(-2018.58, 5481.813, 3.814111, "None"), // Step in
+                new Vector3(-2021.46, 5482.74, 3.004047, "None"), // Object departure
+                new Vector3(-2021.46, 5482.74, 53.70876, "None"), // Object arrival
+                new Vector3(-2032.718, 5486.205, 54.53993, "None"), // Step out
+                183203,
+                ContinentId.Expansion01,
+                "Scryers elevator UP");
+
+            AddTransportOffMesh(new Vector3(-2032.718, 5486.205, 54.53993, "None"), // wait for transport
+                new Vector3(-2022.939, 5483.274, 54.52467, "None"), // Step in
+                new Vector3(-2021.46, 5482.74, 53.70876, "None"), // Object departure
+                new Vector3(-2021.46, 5482.74, 3.004047, "None"), // Object arrival
+                new Vector3(-2009.204, 5478.759, 3.718776, "None"), // Step out
+                183203,
+                ContinentId.Expansion01,
+                "Scryers elevator DOWN");
 
             OffMeshConnections.Save();
         }

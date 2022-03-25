@@ -72,7 +72,7 @@ namespace Wholesome_Auto_Quester.Helpers
                 }
 
                 // TURN IN
-                if (WaitFor(QuestFrameCompleteButtonIsVisible, 1000))
+                if (WaitFor(QuestFrameCompleteButtonIsVisible, 2000))
                 {
                     Lua.LuaDoString("GetClickFrame('QuestFrameCompleteButton'):Click()");
                 }
@@ -152,12 +152,13 @@ namespace Wholesome_Auto_Quester.Helpers
                 }
                 else if (GossipFrameIsVisible)
                 {
-                    Lua.LuaDoString($@"
+                    bool isautocomplete = Lua.LuaDoString<bool>($@"
             	        local availableQuests = {{ GetGossipAvailableQuests() }};
             	        for j=1, GetNumGossipAvailableQuests(), 1 do
             		        local i = j*5-4;
             		        if availableQuests[i] == '{questName.EscapeLuaString()}' then
             			        SelectGossipAvailableQuest(j);
+                                return false;
             		        end
             	        end
                         local autoCompleteQuests = {{ GetGossipActiveQuests() }}
@@ -165,9 +166,16 @@ namespace Wholesome_Auto_Quester.Helpers
             		        local i = j*4-3;
             		        if autoCompleteQuests[i] == '{questName.EscapeLuaString()}' then
             			        SelectGossipActiveQuest(j);
+                                return true;
             		        end
             	        end                         
                     ");
+
+                    // Autocomplete
+                    if (isautocomplete)
+                    {
+                        return GossipTurnInQuest(questName, questId);
+                    }
                 }
 
                 // ACCEPT QUEST

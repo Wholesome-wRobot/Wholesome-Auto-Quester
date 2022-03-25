@@ -42,6 +42,8 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
                     || unit.Entry == 25984 // Crashed recon pilot
                     || unit.Entry == 3891 // Teronis' Corpse
                     || unit.Entry == 25328 // Shadowstalker Luther
+                    || unit.Entry == 24122 // Pulroy the Archaeologist
+                    || unit.Entry == 24145 // Zedd
                     || unit.Entry == 16852; // Sedai's Corpse
             }
             return false;

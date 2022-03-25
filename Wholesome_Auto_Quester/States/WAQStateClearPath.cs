@@ -84,19 +84,7 @@ namespace Wholesome_Auto_Quester.States
                 LinesToCheck = linesToCheck;
 
                 // Check if enemies along the lines
-                List<WoWUnit> units = ObjectManager.GetObjectWoWUnit()
-                    .FindAll(u => u.IsAttackable
-                        && u.Reaction == wManager.Wow.Enums.Reaction.Hostile
-                        && u.IsAlive
-                        && u.Entry != 17578 // Hellfire Training Dummy
-                        && u.IsValid
-                        && !u.IsElite
-                        && !u.IsTaggedByOther
-                        && !u.PlayerControlled
-                        && u.Position.DistanceTo(myPosition) < 50
-                        && u.Level < ObjectManager.Me.Level + 4)
-                    .OrderBy(u => u.Position.DistanceTo(myPosition))
-                    .ToList();
+                List<WoWUnit> units = ToolBox.GetListObjManagerHostiles();
 
                 // Check for hostiles along the lines
                 foreach ((Vector3 a, Vector3 b) line in linesToCheck)

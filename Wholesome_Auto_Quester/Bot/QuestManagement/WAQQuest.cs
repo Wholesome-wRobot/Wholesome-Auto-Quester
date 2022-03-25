@@ -350,6 +350,9 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                         {
                             foreach (ModelCreature creature in obje.CreatureTemplate.Creatures)
                             {
+                                if (QuestTemplate.Id == 11243 
+                                    && creature.GetSpawnPosition.DistanceTo(new Vector3(746.2075, -4927.192, 16.62478)) > 50) // If Valgarde falls, important northrend starter quest
+                                    continue;
                                 AddTaskToDictionary(obje.ObjectiveIndex, new WAQTaskKill(QuestTemplate, obje.CreatureTemplate, creature));
                             }
                         }
@@ -422,7 +425,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
                 foreach (Objective ob in GetAllObjectives())
                 {
-                    string objectiveToRecord = objectives.FirstOrDefault(o => ob.ObjectiveName != "" && o.StartsWith(ob.ObjectiveName));
+                    string objectiveToRecord = objectives.FirstOrDefault(o => !string.IsNullOrEmpty(ob.ObjectiveName) && o.StartsWith(ob.ObjectiveName));
                     if (objectiveToRecord != null)
                     {
                         ob.ObjectiveIndex = Array.IndexOf(objectives, objectiveToRecord) + 1;

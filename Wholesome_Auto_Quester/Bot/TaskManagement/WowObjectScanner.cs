@@ -176,6 +176,12 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                         }
                     }
 
+                    if (closestObject.Guid <= 0)
+                    {
+                        ActiveWoWObject = (null, null);
+                        return;
+                    }
+
                     if (_scanned.Count > 10) _scanned.Remove(_scanned.Keys.First());
 
                     if (ActiveWoWObject.wowObject == null|| ActiveWoWObject.wowObject.Guid != closestObject.Guid)
@@ -187,7 +193,8 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
                         if (_scanned[closestObject.Guid] > 3)
                         {
-                            Logger.Log($"{closestObject.Name} has been temporarily banned from the scanner");
+                            if (_scanned[closestObject.Guid] == 4)
+                                Logger.LogError($"{closestObject.Name} has been temporarily banned from the scanner");
                             ActiveWoWObject = (null, null);
                             return;
                         }

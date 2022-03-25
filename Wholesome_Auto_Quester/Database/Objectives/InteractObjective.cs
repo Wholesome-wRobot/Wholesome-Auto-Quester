@@ -10,7 +10,7 @@ namespace Wholesome_Auto_Quester.Database.Objectives
         {
             GameObjectTemplate = gameObjectTemplate;
             Amount = amount;
-            ObjectiveName = objectiveName;
+            ObjectiveName = objectiveName ?? gameObjectTemplate.name;
         }
     }
 }

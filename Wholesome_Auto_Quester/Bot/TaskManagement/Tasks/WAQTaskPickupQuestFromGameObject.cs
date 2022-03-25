@@ -41,6 +41,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
 
         public override void PostInteraction(WoWObject wowObject)
         {
+            Usefuls.WaitIsCastingAndLooting();
             WoWGameObject pickUpTarget = (WoWGameObject)wowObject;
             if (!ToolBox.IsNpcFrameActive())
             {

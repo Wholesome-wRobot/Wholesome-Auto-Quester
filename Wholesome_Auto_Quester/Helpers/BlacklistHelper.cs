@@ -71,6 +71,10 @@ namespace Wholesome_Auto_Quester.Helpers
 
             // Telredor base
             wManagerSetting.AddBlackListZone(new Vector3(283.2617, 6052.715, 23.4), 60, ContinentId.Expansion01, isSessionBlacklist: true);
+
+            // Shadowmoon pool
+            wManagerSetting.AddBlackListZone(new Vector3(-4204.122, 1712.808, 88.00595), 60, ContinentId.Expansion01, isSessionBlacklist: true);
+            wManagerSetting.AddBlackListZone(new Vector3(-4189.208, 2012.61, 57.39383), 50, ContinentId.Expansion01, isSessionBlacklist: true);
         }
 
         public static void CleanupBlacklist()

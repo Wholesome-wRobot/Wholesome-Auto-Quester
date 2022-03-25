@@ -18,7 +18,7 @@ namespace Wholesome_Auto_Quester.States
             Priority = priority;
         }
 
-        public override string DisplayName { get; set; } = "WAQ Grind";
+        public override string DisplayName { get; set; } = "WAQ Kill";
 
         public override bool NeedToRun
         {

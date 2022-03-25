@@ -36,7 +36,7 @@ namespace Wholesome_Auto_Quester.Helpers
             Vector3 myPos = ObjectManager.Me.Position;
             Vector3 objectPos = (wowObject is WoWUnit) ? new Vector3(wowObject.Position.X, wowObject.Position.Y, wowObject.Position.Z + 2) : wowObject.Position;
             return !TraceLine.TraceLineGo(new Vector3(myPos.X, myPos.Y, myPos.Z + 2),
-                objectPos, 
+                objectPos,
                 CGWorldFrameHitFlags.HitTestSpellLoS | CGWorldFrameHitFlags.HitTestLOS);
         }
 
@@ -116,10 +116,10 @@ namespace Wholesome_Auto_Quester.Helpers
                 return true;
             }
 
-            List<WoWUnit> objectManager = ObjectManager.GetWoWUnitHostile();
+            List<WoWUnit> hostiles = GetListObjManagerHostiles();
             Dictionary<WoWUnit, float> hostileUnits = new Dictionary<WoWUnit, float>();
             float myDistanceToPOI = me.Position.DistanceTo(poiPosition);
-            foreach (WoWUnit unit in objectManager)
+            foreach (WoWUnit unit in hostiles)
             {
                 if (unit.Guid != POI.Guid && unit.Position.DistanceTo(poiPosition) < myDistanceToPOI)
                 {
@@ -799,6 +799,10 @@ namespace Wholesome_Auto_Quester.Helpers
             { 213, 5 }, // Hostile takeover, too many mobs
             { 1398, 4 }, // Driftwood, too many mobs
             { 2870, 4 }, // Against Lord Shalzaru, too many mobs
+            { 12462, 4 }, // Breaking off a piece, too many mobs
+            { 12043, 3 }, // Nozzlerust defense, too many mobs
+            { 12044, 3 }, // Stocking up, too many mobs
+            { 12120, 3 }, // DrakAguul's Mallet, too many mobs
         };
 
         // Returns whether the player has the debuff passed as a string (ex: Weakened Soul)
@@ -824,6 +828,24 @@ namespace Wholesome_Auto_Quester.Helpers
                         if closeButton:IsVisible() then
             	            closeButton:Click();
                         end");
+        }
+
+        public static List<WoWUnit> GetListObjManagerHostiles()
+        {
+            Vector3 myPosition = ObjectManager.Me.Position;
+            return ObjectManager.GetObjectWoWUnit()
+               .FindAll(u => u.IsAttackable
+                   && u.Reaction == Reaction.Hostile
+                   && u.IsAlive
+                   && u.Entry != 17578 // Hellfire Training Dummy
+                   && u.IsValid
+                   && !u.IsElite
+                   && !u.IsTaggedByOther
+                   && !u.PlayerControlled
+                   && u.Position.DistanceTo(myPosition) < 50
+                   && u.Level < ObjectManager.Me.Level + 4)
+               .OrderBy(u => u.Position.DistanceTo(myPosition))
+               .ToList();
         }
         /*
         public static WAQPath AdjustPathToTask(WAQTask task)

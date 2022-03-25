@@ -81,7 +81,9 @@ namespace Wholesome_Auto_Quester.States
             }
 
             MoveHelper.StopAllMove(true);
+            Thread.Sleep(200);
             Interact.InteractGameObject(gameObject.GetBaseAddress);
+            Thread.Sleep(200);
 
             task.PostInteraction(gameObject);
         }

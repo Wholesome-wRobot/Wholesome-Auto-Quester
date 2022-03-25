@@ -195,9 +195,19 @@ namespace Wholesome_Auto_Quester.States
                     }
 
                 }
+                // From Outlands
+                if (myContinent == WAQContinent.Outlands)
+                {
+                    _travelManager.PortalShattrathToIronforge();
+                }
                 // From Kalimdor
                 if (myContinent == WAQContinent.Kalimdor)
                 {
+                    // To Northrend
+                    if (destinationContinent == WAQContinent.Northrend)
+                    {
+                        _travelManager.ShipDustwallowToMenethil();
+                    }
                     // To Teldrassil
                     if (destinationContinent == WAQContinent.Teldrassil)
                     {
@@ -245,6 +255,18 @@ namespace Wholesome_Auto_Quester.States
                 // From EK
                 if (myContinent == WAQContinent.EasternKingdoms)
                 {
+                    // To Northrend
+                    if (destinationContinent == WAQContinent.Northrend)
+                    {
+                        if (task.Location.Y > 265)
+                        {
+                            _travelManager.ShipStormwindToBoreanTundra();
+                        }
+                        else
+                        {
+                            _travelManager.ShipMenethilToHowlingFjord();
+                        }
+                    }
                     // To Outlands
                     if (destinationContinent == WAQContinent.Outlands)
                     {

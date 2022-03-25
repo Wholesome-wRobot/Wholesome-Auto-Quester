@@ -190,6 +190,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
         {
             Dictionary<int, Quest.PlayerQuest> logQuests = Quest.GetLogQuestId().ToDictionary(quest => quest.ID);
             List<string> itemsToAddToDNSList = new List<string>();
+            Lua.LuaDoString("ExpandQuestHeader(0);");
 
             lock (_questManagerLock)
             {
@@ -532,6 +533,16 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(4103, "Salve via hunting, requires active item", false);
             AddQuestToBlackList(1126, "Hive in the Tower, No objective", false);
             AddQuestToBlackList(9936, "Giselda the crone, too many mobs", false);
+            AddQuestToBlackList(10412, "Firewing signets, too many mobs", false);
+            AddQuestToBlackList(10516, "Trappings of a vindicator, requires item interaction", false);
+            AddQuestToBlackList(549, "WANTED: Syndicate personel, too many NPCS", false);
+            AddQuestToBlackList(10315, "Neutralizing the Nethermancers, too many NPCS", false);
+            AddQuestToBlackList(10678, "The main course!, NPC in poison", false);
+            AddQuestToBlackList(11508, "Grezzix Spindlesnap, on boat", false);
+            AddQuestToBlackList(11625, "Trident of Naz'Jan, unreachable", false);
+            AddQuestToBlackList(14409, "A cautious return, Dalaran", false);
+            AddQuestToBlackList(13347, "Reborn from the ashes, NPC absent", false);
+            AddQuestToBlackList(12443, "Seeking solvent, too many NPCS", false);
 
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))

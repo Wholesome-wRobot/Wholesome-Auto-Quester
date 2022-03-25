@@ -41,7 +41,7 @@ namespace Wholesome_Auto_Quester
             DevMode = false;
             ListCompletedQuests = new List<int>();
             RecordedUnreachables = new List<uint>();
-            LevelDeltaPlus = 2;
+            LevelDeltaPlus = 0;
             LevelDeltaMinus = 5;
             SmoothMove = false;
             LastUpdateDate = 0;

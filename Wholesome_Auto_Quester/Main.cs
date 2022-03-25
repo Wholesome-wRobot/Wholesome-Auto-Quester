@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using Wholesome_Auto_Quester;
 using Wholesome_Auto_Quester.Bot;
@@ -18,7 +19,7 @@ using wManager.Wow.ObjectManager;
 
 public class Main : IProduct
 {
-    public static readonly string ProductVersion = "0.1.16"; // Must match version in Version.txt
+    public static readonly string ProductVersion = "0.1.17"; // Must match version in Version.txt
     public static readonly string ProductName = "Wholesome Auto Quester";
     public static readonly string FileName = "Wholesome_Auto_Quester";
     private ProductSettingsControl _settingsUserControl;
@@ -188,6 +189,7 @@ public class Main : IProduct
         }
         else if (log.Text == "PathFinder server seem down, use offline pathfinder.")
         {
+            MessageBox.Show("The pathfinder server is down, please close and resart WRobot");
             Logger.LogError($"The pathfinder server is down, please close and resart WRobot");
             Stop();
         }
