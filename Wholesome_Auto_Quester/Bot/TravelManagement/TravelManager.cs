@@ -182,7 +182,7 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
         readonly Vector3 insideShipHowlingFjordToMenethil = new Vector3(588.0685, -5120.662, 9.447546, "None");
         
 
-        /*readonly int ShipAzuremystToDarkshoreId = 181646;*/
+        readonly int shipAzuremystToDarkshoreId = 181646;
         readonly int shipMenethilToHowlingFjord = 181688;
         readonly int shipDarkshoreToStormwindId = 176310;
         readonly int shipStormwindToBoreanTundraId = 190536;
@@ -448,6 +448,30 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
                 WaitForTransport(shipMenethilToDustwallowId, 30);
                 ForceMoveTo(insideShipMenethilToDustwallow);
                 WaitOnTransport(bayDustwallowToMenethil, 50);
+            }
+        }
+
+        internal void ShipAzuremystToDarkshore()
+        {
+            Logger.Log("Taking ship to Darkshore");
+            GoToTask.ToPosition(bayAzuremystToDarkshore);
+            if (ObjectManager.Me.Position.DistanceTo(bayAzuremystToDarkshore) < 4)
+            {
+                WaitForTransport(shipAzuremystToDarkshoreId, 30);
+                ForceMoveTo(insideShipAzuremystToDarkshore);
+                WaitOnTransport(bayDarkshoreToAzuremyst, 50);
+            }
+        }
+
+        internal void ShipDarkshoreToAzuremyst()
+        {
+            Logger.Log("Taking ship to Azuremyst");
+            GoToTask.ToPosition(bayDarkshoreToAzuremyst);
+            if (ObjectManager.Me.Position.DistanceTo(bayDarkshoreToAzuremyst) < 4)
+            {
+                WaitForTransport(shipAzuremystToDarkshoreId, 30);
+                ForceMoveTo(insideShipDarkshoreToAzuremyst);
+                WaitOnTransport(bayAzuremystToDarkshore, 50);
             }
         }
 

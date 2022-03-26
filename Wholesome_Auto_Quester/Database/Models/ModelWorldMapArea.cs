@@ -47,17 +47,17 @@ namespace Wholesome_Auto_Quester.Database.Models
                         _continent = WAQContinent.DeeprunTram;
                     }
                     // Teldrassil - Darnassus
-                    else if (areaID == 141 || areaID == 1657)
+                    else if (IsElfStartingZone)
                     {
                         _continent = WAQContinent.Teldrassil;
                     }
                     // EversongWoods - Ghostlands - SilvermoonCity
-                    else if (areaID == 3430 || areaID == 3433 || areaID == 3487)
+                    else if (IsBloodElfStartingZone)
                     {
                         _continent = WAQContinent.BloodElfStartingZone;
                     }
                     // AzuremystIsle - TheExodar - BloodmystIsle
-                    else if (areaID == 3524 || areaID == 3557 || areaID == 3525)
+                    else if (IsDraneiStartingZone)
                     {
                         _continent = WAQContinent.DraeneiStartingZone;
                     }
@@ -83,5 +83,23 @@ namespace Wholesome_Auto_Quester.Database.Models
                 return _continent;
             }
         }
+
+        public bool IsBloodElfStartingZone => areaID == 3430 || areaID == 3433 || areaID == 3487;
+        public bool IsDraneiStartingZone => areaID == 3524 || areaID == 3557 || areaID == 3525;
+        public bool IsElfStartingZone => areaID == 141 || areaID == 1657;
+        public bool IsOrcStartingZone => areaID == 14 || areaID == 1637;
+        public bool IsTaurenStartingZone => areaID == 215 || areaID == 1638;
+        public bool IsUndeadStartingZone => areaID == 85 || areaID == 1497;
+        public bool IsDwarfStartingZone => areaID == 1 || areaID == 1537;
+        public bool IsHumanStartingZone => areaID == 12 || areaID == 1519;
+        public bool IsInAStartingZone => 
+            IsBloodElfStartingZone
+            || IsDraneiStartingZone
+            || IsElfStartingZone
+            || IsOrcStartingZone
+            || IsTaurenStartingZone
+            || IsUndeadStartingZone
+            || IsDwarfStartingZone
+            || IsHumanStartingZone;
     }
 }

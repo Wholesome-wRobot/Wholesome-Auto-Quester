@@ -545,6 +545,13 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(12443, "Seeking solvent, too many NPCS", false);
             AddQuestToBlackList(12796, "The magical Kingdom of Dalaran, Dalaran", false);
             AddQuestToBlackList(12462, "Breaking off a piece, too many NPCS", false);
+            AddQuestToBlackList(12819, "Just around the corner, mine field", false);
+            AddQuestToBlackList(12844, "Equipment recovery, north of northrend", false);
+            AddQuestToBlackList(12870, "Ancient relics, north of northrend", false);
+            AddQuestToBlackList(12863, "Offering thanks, north of northrend", false);
+            AddQuestToBlackList(12854, "On Brann's Tail, north of northrend", false);
+            AddQuestToBlackList(12876, "Unwelcome guests, north of northrend", false);
+            AddQuestToBlackList(13418, "Preparation of war, Dalaran", false);
 
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))

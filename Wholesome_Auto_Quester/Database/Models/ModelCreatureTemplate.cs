@@ -31,6 +31,10 @@ namespace Wholesome_Auto_Quester.Database.Models
         public bool IsNeutralOrFriendly => (int)WoWFactionTemplate.FromId(faction).GetReactionTowards(ObjectManager.Me.FactionTemplate) >= 3;
         public Reaction GetRelationTypeTowardsMe => WoWFactionTemplate.FromId(faction).GetReactionTowards(ObjectManager.Me.FactionTemplate);
 
+        public bool IsAttackable => !IsFriendly
+            && !UnitFlags.Contains("UNIT_FLAG_NOT_ATTACKABLE_1")
+            && !UnitFlags.Contains("UNIT_FLAG_NON_ATTACKABLE");
+
         private List<string> _unitFlags;
         public List<string> UnitFlags
         {

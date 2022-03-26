@@ -75,6 +75,10 @@ namespace Wholesome_Auto_Quester.Helpers
             // Shadowmoon pool
             wManagerSetting.AddBlackListZone(new Vector3(-4204.122, 1712.808, 88.00595), 60, ContinentId.Expansion01, isSessionBlacklist: true);
             wManagerSetting.AddBlackListZone(new Vector3(-4189.208, 2012.61, 57.39383), 50, ContinentId.Expansion01, isSessionBlacklist: true);
+
+            // Sparksocket Minefield
+            wManagerSetting.AddBlackListZone(new Vector3(6084.664, -649.5412, 375.806), 50, ContinentId.Northrend, isSessionBlacklist: true);
+            wManagerSetting.AddBlackListZone(new Vector3(6037.082, -655.2501, 369.9831), 50, ContinentId.Northrend, isSessionBlacklist: true);
         }
 
         public static void CleanupBlacklist()

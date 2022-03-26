@@ -322,28 +322,32 @@ namespace Wholesome_Auto_Quester.Database
                 {
                     foreach (ModelCreatureLootTemplate creaLootTemplate in quest.ItemDrop1Template.CreatureLootTemplates)
                     {
-                        quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity1, creaLootTemplate, quest.ItemDrop1Template));
+                        if (creaLootTemplate.CreatureTemplate.IsAttackable)
+                            quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity1, creaLootTemplate, quest.ItemDrop1Template));
                     }
                 }
                 if (quest.ItemDrop2Template != null)
                 {
                     foreach (ModelCreatureLootTemplate creaLootTemplate in quest.ItemDrop2Template.CreatureLootTemplates)
                     {
-                        quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity2, creaLootTemplate, quest.ItemDrop2Template));
+                        if (creaLootTemplate.CreatureTemplate.IsAttackable)
+                            quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity2, creaLootTemplate, quest.ItemDrop2Template));
                     }
                 }
                 if (quest.ItemDrop3Template != null)
                 {
                     foreach (ModelCreatureLootTemplate creaLootTemplate in quest.ItemDrop3Template.CreatureLootTemplates)
                     {
-                        quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity3, creaLootTemplate, quest.ItemDrop3Template));
+                        if (creaLootTemplate.CreatureTemplate.IsAttackable)
+                            quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity3, creaLootTemplate, quest.ItemDrop3Template));
                     }
                 }
                 if (quest.ItemDrop4Template != null)
                 {
                     foreach (ModelCreatureLootTemplate creaLootTemplate in quest.ItemDrop4Template.CreatureLootTemplates)
                     {
-                        quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity4, creaLootTemplate, quest.ItemDrop4Template));
+                        if (creaLootTemplate.CreatureTemplate.IsAttackable)
+                            quest.AddObjective(new KillLootObjective(quest.ItemDropQuantity4, creaLootTemplate, quest.ItemDrop4Template));
                     }
                 }
 
@@ -396,42 +400,48 @@ namespace Wholesome_Auto_Quester.Database
                 {
                     foreach (ModelCreatureLootTemplate creaLootTemplate in quest.RequiredItem1Template.CreatureLootTemplates)
                     {
-                        quest.AddObjective(new KillLootObjective(quest.RequiredItemCount1, creaLootTemplate, quest.RequiredItem1Template));
+                        if (creaLootTemplate.CreatureTemplate.IsAttackable)
+                            quest.AddObjective(new KillLootObjective(quest.RequiredItemCount1, creaLootTemplate, quest.RequiredItem1Template));
                     }
                 }
                 if (quest.RequiredItem2Template != null)
                 {
                     foreach (ModelCreatureLootTemplate creaLootTemplate in quest.RequiredItem2Template.CreatureLootTemplates)
                     {
-                        quest.AddObjective(new KillLootObjective(quest.RequiredItemCount2, creaLootTemplate, quest.RequiredItem2Template));
+                        if (creaLootTemplate.CreatureTemplate.IsAttackable)
+                            quest.AddObjective(new KillLootObjective(quest.RequiredItemCount2, creaLootTemplate, quest.RequiredItem2Template));
                     }
                 }
                 if (quest.RequiredItem3Template != null)
                 {
                     foreach (ModelCreatureLootTemplate creaLootTemplate in quest.RequiredItem3Template.CreatureLootTemplates)
                     {
-                        quest.AddObjective(new KillLootObjective(quest.RequiredItemCount3, creaLootTemplate, quest.RequiredItem3Template));
+                        if (creaLootTemplate.CreatureTemplate.IsAttackable)
+                            quest.AddObjective(new KillLootObjective(quest.RequiredItemCount3, creaLootTemplate, quest.RequiredItem3Template));
                     }
                 }
                 if (quest.RequiredItem4Template != null)
                 {
                     foreach (ModelCreatureLootTemplate creaLootTemplate in quest.RequiredItem4Template.CreatureLootTemplates)
                     {
-                        quest.AddObjective(new KillLootObjective(quest.RequiredItemCount4, creaLootTemplate, quest.RequiredItem4Template));
+                        if (creaLootTemplate.CreatureTemplate.IsAttackable)
+                            quest.AddObjective(new KillLootObjective(quest.RequiredItemCount4, creaLootTemplate, quest.RequiredItem4Template));
                     }
                 }
                 if (quest.RequiredItem5Template != null)
                 {
                     foreach (ModelCreatureLootTemplate creaLootTemplate in quest.RequiredItem5Template.CreatureLootTemplates)
                     {
-                        quest.AddObjective(new KillLootObjective(quest.RequiredItemCount5, creaLootTemplate, quest.RequiredItem5Template));
+                        if (creaLootTemplate.CreatureTemplate.IsAttackable)
+                            quest.AddObjective(new KillLootObjective(quest.RequiredItemCount5, creaLootTemplate, quest.RequiredItem5Template));
                     }
                 }
                 if (quest.RequiredItem6Template != null && quest.RequiredItem6Template.Class != 12)
                 {
                     foreach (ModelCreatureLootTemplate creaLootTemplate in quest.RequiredItem6Template.CreatureLootTemplates)
                     {
-                        quest.AddObjective(new KillLootObjective(quest.RequiredItemCount6, creaLootTemplate, quest.RequiredItem6Template));
+                        if (creaLootTemplate.CreatureTemplate.IsAttackable)
+                            quest.AddObjective(new KillLootObjective(quest.RequiredItemCount6, creaLootTemplate, quest.RequiredItem6Template));
                     }
                 }
 
@@ -446,53 +456,53 @@ namespace Wholesome_Auto_Quester.Database
                 // Kill
                 if (quest.RequiredNPC1Template != null)
                 {
-                    if (!quest.RequiredNPC1Template.IsFriendly)
+                    if (quest.RequiredNPC1Template.IsAttackable)
                     {
                         quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount1, quest.RequiredNPC1Template, quest.ObjectiveText1));
                     }
                     quest.RequiredNPC1Template.KillCredits.AddRange(_database.QueryCreatureTemplatesByKillCredits(quest.RequiredNPC1Template.entry));
                     foreach (ModelCreatureTemplate kcTemplate in quest.RequiredNPC1Template.KillCredits)
                     {
-                        if (!kcTemplate.IsFriendly)
+                        if (kcTemplate.IsAttackable)
                             quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount1, kcTemplate, quest.ObjectiveText1 ?? quest.RequiredNPC1Template.name + " slain"));
                     }
                 }
                 if (quest.RequiredNPC2Template != null)
                 {
-                    if (!quest.RequiredNPC2Template.IsFriendly)
+                    if (quest.RequiredNPC2Template.IsAttackable)
                     {
                         quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount2, quest.RequiredNPC2Template, quest.ObjectiveText2));
                     }
                     quest.RequiredNPC2Template.KillCredits.AddRange(_database.QueryCreatureTemplatesByKillCredits(quest.RequiredNPC2Template.entry));
                     foreach (ModelCreatureTemplate kcTemplate in quest.RequiredNPC2Template.KillCredits)
                     {
-                        if (!kcTemplate.IsFriendly)
+                        if (kcTemplate.IsAttackable)
                             quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount2, kcTemplate, quest.ObjectiveText2 ?? quest.RequiredNPC2Template.name + " slain"));
                     }
                 }
                 if (quest.RequiredNPC3Template != null)
                 {
-                    if (!quest.RequiredNPC3Template.IsFriendly)
+                    if (quest.RequiredNPC3Template.IsAttackable)
                     {
                         quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount3, quest.RequiredNPC3Template, quest.ObjectiveText3));
                     }
                     quest.RequiredNPC3Template.KillCredits.AddRange(_database.QueryCreatureTemplatesByKillCredits(quest.RequiredNPC3Template.entry));
                     foreach (ModelCreatureTemplate kcTemplate in quest.RequiredNPC3Template.KillCredits)
                     {
-                        if (!kcTemplate.IsFriendly)
+                        if (kcTemplate.IsAttackable)
                             quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount3, kcTemplate, quest.ObjectiveText3 ?? quest.RequiredNPC3Template.name + " slain"));
                     }
                 }
                 if (quest.RequiredNPC4Template != null)
                 {
-                    if (!quest.RequiredNPC4Template.IsFriendly)
+                    if (quest.RequiredNPC4Template.IsAttackable)
                     {
                         quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount4, quest.RequiredNPC4Template, quest.ObjectiveText4));
                     }
                     quest.RequiredNPC4Template.KillCredits.AddRange(_database.QueryCreatureTemplatesByKillCredits(quest.RequiredNPC4Template.entry));
                     foreach (ModelCreatureTemplate kcTemplate in quest.RequiredNPC4Template.KillCredits)
                     {
-                        if (!kcTemplate.IsFriendly)
+                        if (kcTemplate.IsAttackable)
                             quest.AddObjective(new KillObjective(quest.RequiredNpcOrGoCount4, kcTemplate, quest.ObjectiveText4 ?? quest.RequiredNPC4Template.name + " slain"));
                     }
                 }

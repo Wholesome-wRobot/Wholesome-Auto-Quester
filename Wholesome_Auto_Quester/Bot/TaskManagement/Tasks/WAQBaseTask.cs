@@ -3,6 +3,7 @@ using Wholesome_Auto_Quester.Bot.TravelManagement;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
 using wManager;
+using wManager.Wow.Enums;
 using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
@@ -26,6 +27,12 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             get
             {
                 uint myLevel = ObjectManager.Me.Level;
+
+                if (myLevel < 12 && !IsInMyStartingZone())
+                {
+                    InvalidityReason = "Sticking to starting zone";
+                    return false;
+                }
 
                 if (IsTimedOut)
                 {
@@ -68,7 +75,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
                 if (myLevel < 60
                     && WorldMapArea.Continent == WAQContinent.Outlands)
                 {
-                    InvalidityReason = "Sticking out of Outlands";
+                    InvalidityReason = "Sticking to Azeroth";
                     return false;
                 }
 
@@ -111,6 +118,21 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         public abstract void UnregisterEntryToScanner(IWowObjectScanner scanner);
         public abstract void PostInteraction(WoWObject wowObject);
         public abstract void RecordAsUnreachable();
+
+        private bool IsInMyStartingZone()
+        {
+            WoWRace myRace = ObjectManager.Me.WowRace;
+            if (myRace == WoWRace.Human) return WorldMapArea.IsHumanStartingZone;
+            if (myRace == WoWRace.Dwarf || myRace == WoWRace.Gnome) return WorldMapArea.IsDwarfStartingZone;
+            if (myRace == WoWRace.NightElf) return WorldMapArea.IsElfStartingZone;
+            if (myRace == WoWRace.Draenei) return WorldMapArea.IsDraneiStartingZone;
+            if (myRace == WoWRace.Orc || myRace == WoWRace.Troll) return WorldMapArea.IsOrcStartingZone;
+            if (myRace == WoWRace.Undead) return WorldMapArea.IsUndeadStartingZone;
+            if (myRace == WoWRace.Tauren) return WorldMapArea.IsTaurenStartingZone;
+            if (myRace == WoWRace.BloodElf) return WorldMapArea.IsBloodElfStartingZone;
+            Logger.LogError($"Couldn't detect your race");
+            return false;
+        }
 
         public void PutTaskOnTimeout(string reason, int timeInSeconds = 0, bool exponentiallyLonger = false)
         {

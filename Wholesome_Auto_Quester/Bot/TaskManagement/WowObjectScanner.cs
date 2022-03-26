@@ -184,24 +184,6 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                         return;
                     }
 
-                    if (_scanned.Count > 5) _scanned.Remove(_scanned.Keys.First());
-
-                    if (ActiveWoWObject.wowObject == null || ActiveWoWObject.wowObject.Guid != closestObject.Guid)
-                    {
-                        if (_scanned.TryGetValue(closestObject.Guid, out int amount))
-                        {
-                            _scanned[closestObject.Guid]++;
-                            if (_scanned[closestObject.Guid] > 3)
-                            {
-                                Logger.LogError($"{closestObject.Name} has been temporarily banned from the scanner");
-                            }
-                        }
-                        else
-                        {
-                            _scanned.Add(closestObject.Guid, 1);
-                        }
-                    }
-
                     IWAQTask associatedTask = GetTaskMatchingWithObject(closestObject);
                     if (associatedTask != null)
                     {
@@ -209,6 +191,21 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                         Logger.LogWatchScanner($"SCANNER FOUND OBJECT", watch.ElapsedMilliseconds);
                         return;
                     }
+                }
+
+                if (_scanned.Count > 5) _scanned.Remove(_scanned.Keys.First());
+
+                // scanner Unsnapped
+                if (ActiveWoWObject.wowObject != null)
+                {
+                    if (_scanned.TryGetValue(ActiveWoWObject.wowObject.Guid, out int amount))
+                    {
+                        _scanned[ActiveWoWObject.wowObject.Guid]++;
+                        if (_scanned[ActiveWoWObject.wowObject.Guid] > 3)
+                            Logger.LogError($"{ActiveWoWObject.wowObject.Name} has been temporarily banned from the scanner");
+                    }
+                    else
+                        _scanned.Add(ActiveWoWObject.wowObject.Guid, 1);
                 }
 
                 Logger.LogWatchScanner($"SCANNER FOUND NOTHING", watch.ElapsedMilliseconds);

@@ -195,6 +195,11 @@ namespace Wholesome_Auto_Quester.States
                     }
 
                 }
+                // From Azuremyst
+                if (myContinent == WAQContinent.DraeneiStartingZone)
+                {
+                    _travelManager.ShipAzuremystToDarkshore();
+                }
                 // From Outlands
                 if (myContinent == WAQContinent.Outlands)
                 {
@@ -203,6 +208,11 @@ namespace Wholesome_Auto_Quester.States
                 // From Kalimdor
                 if (myContinent == WAQContinent.Kalimdor)
                 {
+                    // To Azuremyst
+                    if (destinationContinent == WAQContinent.DraeneiStartingZone)
+                    {
+                        _travelManager.ShipDarkshoreToAzuremyst();
+                    }
                     // To Northrend
                     if (destinationContinent == WAQContinent.Northrend)
                     {
@@ -306,6 +316,11 @@ namespace Wholesome_Auto_Quester.States
                                 _travelManager.ShipStormwindToDarkshore();
                             }
                         }
+                    }
+                    // To Azuremyst
+                    if (destinationContinent == WAQContinent.DraeneiStartingZone)
+                    {
+                        _travelManager.ShipStormwindToDarkshore();
                     }
                 }
             }

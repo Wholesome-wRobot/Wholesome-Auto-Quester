@@ -200,204 +200,7 @@ namespace Wholesome_Auto_Quester.Helpers
         public static bool IsNpcFrameActive() =>
             Lua.LuaDoString<bool>(
                 "return GetClickFrame('GossipFrame'):IsVisible() == 1 or GetClickFrame('QuestFrame'):IsVisible() == 1;");
-        /*
-        public static bool GossipTurnInQuest(string questName, int questId)
-        {
-            return QuestLUAHelper.GossipTurnInQuest(questName, questId);
-            
-            // Select quest
-            var exitCodeOpen = Lua.LuaDoString<int>($@"
-            if GetClickFrame('QuestFrameAcceptButton'):IsVisible() == 1
-                or GetClickFrame('QuestFrameCompleteButton'):IsVisible() == 1
-                or GetClickFrame('QuestFrameCompleteQuestButton'):IsVisible() == 1 then return 0; end
-            if GetClickFrame('QuestFrame'):IsVisible() == 1 then
-            	for i=1, 32 do
-            		local button = GetClickFrame('QuestTitleButton' .. i);
-            		if button:IsVisible() ~= 1 then break; end
-            		local text = button:GetText();
-            		text = strsub(text, 11, strlen(text)-2);
-            		if text == '{questName.EscapeLuaString()}' then
-                        button:Click();
-                        return 0;
-                    end
-            	end
-            elseif GetClickFrame('GossipFrame'):IsVisible() == 1 then
-            	local activeQuests = {{ GetGossipActiveQuests() }};
-            	for j=1, GetNumGossipActiveQuests(), 1 do
-            		local i = j*4-3;
-            		if activeQuests[i] == '{questName.EscapeLuaString()}' then
-            			if activeQuests[i+3] ~= 1 then return 3; end
-            			SelectGossipActiveQuest(j);
-            			return 0;
-            		end
-            	end
-            else
-            	return 1;
-            end
-            return 2;");
 
-            switch (exitCodeOpen)
-            {
-                case 1:
-                    Logger.LogError($"No Gossip window was open to hand in {questName}");
-                    return false;
-                case 2:
-                    if (!IsQuestCompleted(questId))
-                    {
-                        Logger.LogError($"The quest {questName} has not been found to hand in.");
-                        return false;
-                    }
-                    return true;
-                case 3:
-                    Logger.LogError($"The quest {questName} has been found but is not completed yet.");
-                    return false;
-            }
-
-            Thread.Sleep(200);
-
-            var requiresItems = Lua.LuaDoString<bool>("return GetNumQuestItems() > 0;");
-            if (requiresItems)
-            {
-                Lua.LuaDoString("CompleteQuest();");
-                Thread.Sleep(200);
-            }
-
-            // Get reward
-            var hasQuestReward = Lua.LuaDoString<bool>("return GetNumQuestChoices() > 0;");
-            if (hasQuestReward)
-            {
-                // Ugly workaround to trigger the selection event
-                Logger.LogDebug("Letting InventoryManager select quest reward.");
-                Quest.CompleteQuest();
-            }
-
-            Thread.Sleep(200);
-
-            // Finish it
-            Lua.LuaDoString(
-                $"if GetClickFrame('QuestFrame'):IsVisible() then GetQuestReward({(hasQuestReward ? "1" : "nil")}); end");
-            Thread.Sleep(200);
-            Lua.LuaDoString(@"
-            local closeButton = GetClickFrame('QuestFrameCloseButton');
-            if closeButton:IsVisible() then
-            	closeButton:Click();
-            end");
-
-            robotManager.Helpful.Timer timer = new robotManager.Helpful.Timer(3000);
-            while (Quest.HasQuest(questId) && !timer.IsReady)
-            {
-                Thread.Sleep(500);
-            }
-            if (timer.IsReady)
-            {
-                return false;
-            }
-
-            Logger.Log($"Turned in quest {questName}.");
-            SaveQuestAsCompleted(questId);
-
-            return true;
-        }
-        */
-        /*
-        public static bool GossipPickUpQuest(string questName, int questId)
-        {
-            return QuestLUAHelper.GossipPickupQuest(questName, questId);
-            
-            // Select quest
-            var exitCodeOpen = Lua.LuaDoString<int>($@"
-            if GetClickFrame('QuestFrameCompleteQuestButton'):IsVisible() == 1 then return 3; end
-            if GetClickFrame('QuestFrameAcceptButton'):IsVisible() == 1 or GetClickFrame('QuestFrameCompleteButton'):IsVisible() == 1 then return 0; end
-            if GetClickFrame('QuestFrame'):IsVisible() == 1 then
-            	for i=1, 32 do
-            		local button = GetClickFrame('QuestTitleButton' .. i);
-            		if button:IsVisible() ~= 1 then break; end
-            		local text = button:GetText();
-            		text = strsub(text, 11, strlen(text)-2);
-            		if text == '{questName.EscapeLuaString()}' then
-                        button:Click();
-                        return 0;
-                    end
-            	end
-            elseif GetClickFrame('GossipFrame'):IsVisible() == 1 then
-            	local availableQuests = {{ GetGossipAvailableQuests() }};
-            	for j=1, GetNumGossipAvailableQuests(), 1 do
-            		local i = j*5-4;
-            		if availableQuests[i] == '{questName.EscapeLuaString()}' then
-            			SelectGossipAvailableQuest(j);
-            			return 0;
-            		end
-            	end
-                local autoCompleteQuests = {{ GetGossipActiveQuests() }}
-            	for j=1, GetNumGossipActiveQuests(), 1 do
-            		local i = j*4-3;
-            		if autoCompleteQuests[i] == '{questName.EscapeLuaString()}' then
-            			SelectGossipActiveQuest(j);
-            			return 3;
-            		end
-            	end
-            else
-            	return 1;
-            end
-            return 2;");
-
-            switch (exitCodeOpen)
-            {
-                case 1:
-                    Logger.LogError($"No Gossip or Quest window was open to pick up {questName}");
-                    return false;
-                case 2:
-                    Logger.LogError($"The quest {questName} has not been found to pick up.");
-                    return false;
-                case 3:
-                    Logger.Log($"The quest {questName} is an autocomplete.");
-                    Thread.Sleep(200);
-                    Quest.CompleteQuest();
-                    Thread.Sleep(1000);
-                    if (Quest.HasQuest(questId))
-                    {
-                        return false;
-                    }
-                    return true;
-            }
-
-            Thread.Sleep(200);
-
-            if (Lua.LuaDoString<bool>("return GetClickFrame('QuestFrameCompleteButton'):IsVisible() == 1;"))
-            {
-                Logger.LogError($"The quest {questName} seems to be a trade quest.");
-                Lua.LuaDoString(@"
-                    local closeButton = GetClickFrame('QuestFrameCloseButton');
-                    if closeButton:IsVisible() then
-                	    closeButton:Click();
-                    end");
-                return false;
-            }
-
-            // Finish it
-            Lua.LuaDoString("if GetClickFrame('QuestFrame'):IsVisible() then AcceptQuest(); end");
-            Thread.Sleep(200);
-            Lua.LuaDoString(@"
-            local closeButton = GetClickFrame('QuestFrameCloseButton');
-            if closeButton:IsVisible() then
-            	closeButton:Click();
-            end");
-
-            robotManager.Helpful.Timer timer = new robotManager.Helpful.Timer(3000);
-            while (!Quest.HasQuest(questId) && !timer.IsReady)
-            {
-                Thread.Sleep(100);
-            }
-            if (timer.IsReady)
-            {
-                return false;
-            }
-
-            Logger.Log($"Picked up quest {questName}.");
-
-            return true;
-        }
-        */
         public static bool SaveQuestAsCompleted(int questId)
         {
             if (!WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Contains(questId) && !Quest.HasQuest(questId))
@@ -579,20 +382,7 @@ namespace Wholesome_Auto_Quester.Helpers
         {
             _objectiveCompletionDict = GetObjectiveCompletionDict(questIds);
         }
-        /*
-        public static bool AreAllObjectivesDicCompleted(int questId)
-        {
-            if (_objectiveCompletionDict.TryGetValue(questId, out bool[] objs))
-            {
-                return objs.All(obj => obj == true);
-            }
-            else
-            {
-                Logger.LogError($"Tried to get completion from an unexisting quest {questId}");
-                return false;
-            }
-        }
-        */
+
         private static Dictionary<int, bool[]> GetObjectiveCompletionDict(int[] questIds)
         {
             var resultDict = new Dictionary<int, bool[]>();
@@ -682,39 +472,6 @@ namespace Wholesome_Auto_Quester.Helpers
             Logger.LogError($"Did not have quest {questId} in completion dictionary.");
             return false;
         }
-        /*
-        public static bool DangerousEnemiesAtLocation(Vector3 location)
-        {
-            uint myLevel = ObjectManager.Me.Level;
-            var unitCounter = 0;
-            foreach (WoWUnit unit in ObjectManager.GetWoWUnitHostile())
-            {
-                float distance = unit.PositionWithoutType.DistanceTo(location);
-                if (distance > 40 || distance > unit.AggroDistance + 3) continue;
-                uint unitLevel = unit.Level;
-                if (unitLevel > myLevel + 2 || unitLevel > myLevel && unit.IsElite) return true;
-                if (unitLevel > myLevel - 2) unitCounter++;
-                if (unitCounter > 3) break;
-            }
-
-            return unitCounter > 3;
-        }
-        */
-        // public static string GetTaskId(WAQTask task) => task.TaskId;
-
-        // public static string GetTaskIdLegacy(WAQTask task) {
-        //     string taskType = ((int) task.TaskType).ToString();
-        //     string questEntry = task.Quest.Id.ToString();
-        //     string objIndex = task.ObjectiveIndex.ToString();
-        //     string uniqueId = $"{task.Npc?.Guid}{task.GatherObject?.Guid}";
-        //
-        //     return $"{taskType}{questEntry}{objIndex}{uniqueId}";
-        // }
-
-        // public static string GetTaskId(TaskType taskType, int questEntry, int objIndex, int uniqueId = 0) {
-        //     string uid = uniqueId == 0 ? "" : uniqueId.ToString();
-        //     return $"{(int) taskType}{questEntry}{objIndex}{uid}";
-        // }
 
         public static string GetWoWVersion() => Lua.LuaDoString<string>("v, b, d, t = GetBuildInfo(); return v");
 
@@ -846,62 +603,50 @@ namespace Wholesome_Auto_Quester.Helpers
                .OrderBy(u => u.Position.DistanceTo(myPosition))
                .ToList();
         }
-        /*
-        public static WAQPath AdjustPathToTask(WAQTask task)
+
+        public static bool ZoneIsInAStartingZone(string zone)
         {
-            Random rand = new Random();
-            Vector3 location = task.Location;
-            for (int i = 0; i < 10; i++)
-            {
-                Vector3 newdest = new Vector3(
-                    location.X + rand.NextDouble() * 4 - 2,
-                    location.Y + rand.NextDouble() * 4 - 2,
-                    location.Z + rand.NextDouble() * 4 - 2);
-                WAQPath newPath = GetWAQPath(ObjectManager.Me.Position, newdest);
-                Logger.Log($"Trying to adjust path for {task.TaskName} {i}");
-                if (newPath.IsReachable)
-                {
-                    Logger.Log($"FOUND");
-                    task.Location = newdest;
-                    return newPath;
-                }
-            }
-            Logger.Log($"FAILED");
-            return new WAQPath(new List<Vector3>(), 0);
-        }
-        
-        public static WAQPath AdjustPathToObject(WoWObject wObject)
-        {
-            Random rand = new Random();
-            Vector3 location = wObject.Position;
-            for (int i = 0; i < 10; i++)
-            {
-                Vector3 newdest = new Vector3(
-                    location.X + rand.NextDouble() * 4 - 2,
-                    location.Y + rand.NextDouble() * 4 - 2,
-                    location.Z + rand.NextDouble() * 4 - 2);
-                WAQPath newPath = GetWAQPath(ObjectManager.Me.Position, newdest);
-                Logger.Log($"Trying to adjust path for {wObject.Name} {i}");
-                if (newPath.IsReachable)
-                {
-                    Logger.Log($"FOUND");
-                    return newPath;
-                }
-            }
-            Logger.Log($"FAILED");
-            return new WAQPath(new List<Vector3>(), 0);
+            return ZoneInBloodElfStartingZone(zone)
+                || ZoneInDraneiStartingZone(zone)
+                || ZoneInDwarfStartingZone(zone)
+                || ZoneInElfStartingZone(zone)
+                || ZoneInHumanStartingZone(zone)
+                || ZoneInOrcStartingZone(zone)
+                || ZoneInTaurenStartingZone(zone)
+                || ZoneInUndeadStartingZone(zone);
         }
 
-        public static bool PlayerInBloodElfStartingZone()
+        public static bool ZoneInBloodElfStartingZone(string zone)
         {
-            string zone = Lua.LuaDoString<string>("return GetRealZoneText();");
             return zone == "Eversong Woods" || zone == "Ghostlands" || zone == "Silvermoon City";
         }
-
-        public static bool PlayerInDraneiStartingZone()
+        public static bool ZoneInDraneiStartingZone(string zone)
         {
-            string zone = Lua.LuaDoString<string>("return GetRealZoneText();");
             return zone == "Azuremyst Isle" || zone == "Bloodmyst Isle" || zone == "The Exodar";
-        }*/
+        }
+        public static bool ZoneInOrcStartingZone(string zone)
+        {
+            return zone == "Durotar" || zone == "Orgrimmar";
+        }
+        public static bool ZoneInTaurenStartingZone(string zone)
+        {
+            return zone == "Mulgore" || zone == "Thunder Bluff";
+        }
+        public static bool ZoneInUndeadStartingZone(string zone)
+        {
+            return zone == "Tirisfal Glades" || zone == "Undercity";
+        }
+        public static bool ZoneInDwarfStartingZone(string zone)
+        {
+            return zone == "Dun Morogh" || zone == "Ironforge";
+        }
+        public static bool ZoneInHumanStartingZone(string zone)
+        {
+            return zone == "Elwynn Forest" || zone == "Stormwind";
+        }
+        public static bool ZoneInElfStartingZone(string zone)
+        {
+            return zone == "Darnassus" || zone == "Teldrassil";
+        }
     }
 }

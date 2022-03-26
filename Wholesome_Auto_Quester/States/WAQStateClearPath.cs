@@ -102,7 +102,8 @@ namespace Wholesome_Auto_Quester.States
                             {
                                 continue;
                             }
-                            if (ToolBox.GetZDistance(unit.Position) < 10 && ToolBox.PointDistanceToLine(line.a, line.b, unit.Position) < 20)
+                            if (ToolBox.GetZDistance(unit.Position) < 5 
+                                && ToolBox.PointDistanceToLine(line.a, line.b, unit.Position) < 20)
                             {
                                 _unitToClear = unit;
                                 break;

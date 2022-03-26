@@ -220,7 +220,7 @@ namespace Wholesome_Auto_Quester.Database
             string queryTemplates = $@"
                 SELECT * FROM creature_template ct
                 WHERE 
-	                ct.maxlevel <= {myLevel} 
+	                ct.maxlevel <= {myLevel + 1}
 	                AND ct.minlevel >= {myLevel - 3}
 	                AND ct.type = 1
             ";
