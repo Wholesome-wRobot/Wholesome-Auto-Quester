@@ -29,6 +29,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
         private readonly List<IWAQTask> _grindTasks = new List<IWAQTask>();
         private bool _isRunning = false;
         private int _tick;
+        private Dictionary<IWAQTask, int> _snappedTasks = new Dictionary<IWAQTask, int>(); // guid, times scanned
 
         public IWAQTask ActiveTask { get; private set; }
 
@@ -242,6 +243,23 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             {
                 Logger.LogWatchTask($"TASKM TOO CLOSE TO SWITCH", watch.ElapsedMilliseconds);
                 return;
+            }
+
+            // Avoid task snap
+            if (_snappedTasks.Count > 3) _snappedTasks.Clear();
+            if (closestTask != ActiveTask)
+            {
+                if (_snappedTasks.TryGetValue(closestTask, out int amount))
+                {
+                    _snappedTasks[closestTask]++;
+                    if (_snappedTasks[closestTask] > 3)
+                    {
+                        closestTask.PutTaskOnTimeout("Avoid back and forth", 30, true);
+                        return;
+                    }
+                }
+                else
+                    _snappedTasks.Add(closestTask, 1);
             }
 
             Logger.LogWatchTask($"TASKM FOUND ACTIVE", watch.ElapsedMilliseconds);

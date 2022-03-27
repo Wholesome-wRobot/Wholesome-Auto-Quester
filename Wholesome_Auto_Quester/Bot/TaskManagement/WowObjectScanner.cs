@@ -193,7 +193,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                     }
                 }
 
-                if (_scanned.Count > 5) _scanned.Remove(_scanned.Keys.First());
+                if (_scanned.Count > 3) _scanned.Clear();
 
                 // scanner Unsnapped
                 if (ActiveWoWObject.wowObject != null)

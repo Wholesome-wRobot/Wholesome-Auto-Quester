@@ -50,7 +50,7 @@ namespace Wholesome_Auto_Quester
             BlackListedQuests = new List<BlackListedQuest>();
             AbandonUnfitQuests = false;
             GoToMobEntry = 0;
-            RecordUnreachables = true;
+            RecordUnreachables = false;
             StopAtLevel = 80;
             BlacklistDangerousZones = true;
 
