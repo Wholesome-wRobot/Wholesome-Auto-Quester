@@ -14,6 +14,7 @@ using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 using static wManager.Wow.Helpers.Quest.PlayerQuest;
+using Timer = robotManager.Helpful.Timer;
 
 namespace Wholesome_Auto_Quester.Bot.QuestManagement
 {
@@ -24,6 +25,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
         private readonly QuestsTrackerGUI _tracker;
         private readonly List<IWAQQuest> _questList = new List<IWAQQuest>();
         private readonly object _questManagerLock = new object();
+        private Timer _itemCheckTimer = new Timer();
 
         public QuestManager(IWowObjectScanner objectScanner, QuestsTrackerGUI questTrackerGUI)
         {
@@ -63,7 +65,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 List<ModelQuestTemplate> dbQuestTemplates = wotlkQueries.GetAvailableQuests();
 
                 // Remove quests that are not supposed to be here anymore
-                List<IWAQQuest> questsToRemove = _questList.FindAll(quest => !dbQuestTemplates.Exists(dbQ => dbQ.Id ==  quest.QuestTemplate.Id));
+                List<IWAQQuest> questsToRemove = _questList.FindAll(quest => !dbQuestTemplates.Exists(dbQ => dbQ.Id == quest.QuestTemplate.Id));
                 RemoveAllQuests(questsToRemove);
 
                 // Add quests if they don't already exist
@@ -116,7 +118,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     UpdateCompletedQuests();
                     break;
                 case "BAG_UPDATE":
-                    CheckInventoryForQuestsGivenByItems();
+                    CheckInventory();
                     break;
                 case "PLAYER_LEVEL_UP":
                     if (ObjectManager.Me.Level < WholesomeAQSettings.CurrentSetting.StopAtLevel)
@@ -156,14 +158,43 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             }
         }
 
-        private void CheckInventoryForQuestsGivenByItems()
+        private void CheckInventory()
         {
-            int itemFound = 0;
-            foreach (int itemId in _itemsGivingQuest)
+            if (!_itemCheckTimer.IsReady)
             {
-                if (ItemsManager.HasItemById((uint)itemId))
+                return;
+            }
+            _itemCheckTimer = new Timer(1000);
+
+            lock (_questManagerLock)
+            {
+                List<WoWItem> bagItems = Bag.GetBagItem();
+
+                // Get quest items from DoNotSellList
+                List<string> dnsList = wManagerSetting.CurrentSetting.DoNotSellList;
+                int WAQlistStartIndex = dnsList.IndexOf("WAQStart");
+                int WAQlistEndIndex = dnsList.IndexOf("WAQEnd");
+                int WAQListLength = WAQlistEndIndex - WAQlistStartIndex - 1;
+                List<string> listQuestItems = dnsList.GetRange(WAQlistStartIndex + 1, WAQListLength);
+
+                // Check for deprecated quest items
+                foreach (WoWItem item in bagItems)
                 {
-                    lock (_questManagerLock)
+                    if (item.GetItemInfo.ItemType == "Quest" 
+                        && item.GetItemInfo.ItemSubType == "Quest"
+                        && !listQuestItems.Contains(item.Name)
+                        && !_itemsGivingQuest.Contains(item.Entry))
+                    {
+                        Logger.Log($"Deleting item {item.Name} because it's a deprecated quest item");
+                        ToolBox.DeleteItemByName(item.Name);
+                    }
+                }
+
+                // Check items that give quests
+                int itemFound = 0;
+                foreach (int itemId in _itemsGivingQuest)
+                {
+                    if (bagItems.Exists(item => item.Entry == itemId))
                     {
                         IWAQQuest questToPickup = _questList.Find(quest => quest.QuestTemplate.StartItem == itemId && quest.Status == QuestStatus.ToPickup);
                         if (questToPickup != null)
@@ -177,12 +208,14 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                         {
                             throw new System.Exception($"Couldn't find quest associated with item {itemId}");
                         }
+
                     }
                 }
-            }
-            if (itemFound > 0)
-            {
-                _itemsGivingQuest.Remove(itemFound);
+
+                if (itemFound > 0)
+                {
+                    _itemsGivingQuest.Remove(itemFound);
+                }
             }
         }
 

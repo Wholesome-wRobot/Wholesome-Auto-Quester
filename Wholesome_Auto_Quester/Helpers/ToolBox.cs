@@ -648,5 +648,19 @@ namespace Wholesome_Auto_Quester.Helpers
         {
             return zone == "Darnassus" || zone == "Teldrassil";
         }
+
+        public static void DeleteItemByName(string itemName)
+        {
+            Lua.LuaDoString($@"
+                for b=0,4 do 
+                    for s=1,36 do 
+                        n=GetContainerItemLink(b,s);
+                        if n and string.find(n,""{itemName}"") then 
+                            PickupContainerItem(b,s);DeleteCursorItem();
+                        end;
+                    end;
+                end;
+            ");
+        }
     }
 }
