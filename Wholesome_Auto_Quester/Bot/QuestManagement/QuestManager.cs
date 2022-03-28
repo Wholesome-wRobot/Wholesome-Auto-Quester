@@ -187,6 +187,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     {
                         Logger.Log($"Deleting item {item.Name} because it's a deprecated quest item");
                         ToolBox.DeleteItemByName(item.Name);
+                        Thread.Sleep(300);
                     }
                 }
 
@@ -548,6 +549,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(13171, "From whence they came, unreachable", false);
             AddQuestToBlackList(13084, "Vandalizing Jotunheim, unreachable", false);
             AddQuestToBlackList(13140, "The runesmisths of Malykriss, unreachable", false);
+            AddQuestToBlackList(962, "Serpentbloom, instance", false);
             // ALLIANCE
             AddQuestToBlackList(168, "Collecting memories, too many NPCS", false);
             AddQuestToBlackList(167, "Oh brother, too many NPCS", false);

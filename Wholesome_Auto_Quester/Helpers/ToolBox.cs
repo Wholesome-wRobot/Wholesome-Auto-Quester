@@ -656,7 +656,9 @@ namespace Wholesome_Auto_Quester.Helpers
                     for s=1,36 do 
                         n=GetContainerItemLink(b,s);
                         if n and string.find(n,""{itemName}"") then 
-                            PickupContainerItem(b,s);DeleteCursorItem();
+                            PickupContainerItem(b,s);
+                            DeleteCursorItem();
+                            return;
                         end;
                     end;
                 end;
