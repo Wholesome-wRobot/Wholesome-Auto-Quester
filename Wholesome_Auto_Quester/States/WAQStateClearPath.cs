@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Helpers;
-using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
@@ -84,29 +83,29 @@ namespace Wholesome_Auto_Quester.States
                 LinesToCheck = linesToCheck;
 
                 // Check if enemies along the lines
-                List<WoWUnit> units = ToolBox.GetListObjManagerHostiles();
+                List<WoWUnit> hostiles = ToolBox.GetListObjManagerHostiles();
 
                 // Check for hostiles along the lines
+                List<WoWUnit> unitsAlongLine = new List<WoWUnit>();
                 foreach ((Vector3 a, Vector3 b) line in linesToCheck)
                 {
                     if (_unitToClear == null)
                     {
-                        foreach (WoWUnit unit in units)
+                        foreach (WoWUnit unit in hostiles)
                         {
                             if (_scanner.ActiveWoWObject.wowObject != null && _scanner.ActiveWoWObject.wowObject.Guid == unit.Guid)
                             {
                                 continue;
                             }
-                            if (wManager.wManagerSetting.IsBlackListedZone(unit.Position) 
+                            if (wManager.wManagerSetting.IsBlackListedZone(unit.Position)
                                 || !ToolBox.IHaveLineOfSightOn(unit))
                             {
                                 continue;
                             }
-                            if (ToolBox.GetZDistance(unit.Position) < 5 
+                            if (ToolBox.GetZDistance(unit.Position) < 5
                                 && ToolBox.PointDistanceToLine(line.a, line.b, unit.Position) < 20)
                             {
-                                _unitToClear = unit;
-                                break;
+                                unitsAlongLine.Add(unit);
                             }
                         }
                     }
@@ -114,6 +113,13 @@ namespace Wholesome_Auto_Quester.States
                     {
                         break;
                     }
+                }
+
+                if (unitsAlongLine.Count > 0)
+                {
+                    _unitToClear = unitsAlongLine
+                        .OrderBy(unit => myPosition.DistanceTo(unit.Position))
+                        .First();
                 }
 
                 return _unitToClear != null;

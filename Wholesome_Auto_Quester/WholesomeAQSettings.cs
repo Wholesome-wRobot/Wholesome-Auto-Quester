@@ -48,7 +48,7 @@ namespace Wholesome_Auto_Quester
             GrindOnly = false;
             ContinentTravel = true;
             BlackListedQuests = new List<BlackListedQuest>();
-            AbandonUnfitQuests = false;
+            AbandonUnfitQuests = true;
             GoToMobEntry = 0;
             RecordUnreachables = false;
             StopAtLevel = 80;
