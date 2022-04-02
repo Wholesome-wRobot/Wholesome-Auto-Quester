@@ -86,6 +86,8 @@ namespace Wholesome_Auto_Quester.States
             Thread.Sleep(200);
 
             task.PostInteraction(gameObject);
+
+            Thread.Sleep(1000);
         }
     }
 }
