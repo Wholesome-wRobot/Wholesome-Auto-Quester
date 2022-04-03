@@ -655,7 +655,7 @@ namespace Wholesome_Auto_Quester.Helpers
                 for b=0,4 do 
                     for s=1,36 do 
                         n=GetContainerItemLink(b,s);
-                        if n and string.find(n,""{itemName}"") then 
+                        if n and string.find(n,'{itemName}',1,true) then 
                             PickupContainerItem(b,s);
                             DeleteCursorItem();
                             return;

@@ -55,22 +55,22 @@
                    HorizontalAlignment="Right" VerticalAlignment="Center"  Text="Log debug :" FontSize="13"  />
 
         <Controls:ToggleSwitch Grid.Row="2" Grid.Column="1"  Margin="10,10,10,10"
-                   HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="True" 
-                   Click="LogDebugChanged" Name="LogDebug" OnLabel="" OffLabel="" />
+                   HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="{Binding Path=LogDebug, Mode=TwoWay}" 
+                   Click="SaveSettings" Name="LogDebug" OnLabel="" OffLabel="" />
 
         <TextBlock Grid.Row="3" Grid.Column="0" Margin="10" 
                    HorizontalAlignment="Right" VerticalAlignment="Center"  Text="Quests GUI :" FontSize="13"  />
 
         <Controls:ToggleSwitch Grid.Row="3" Grid.Column="1"  Margin="10,10,10,10"
-                   HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="True" 
-                   Click="ActivateQuestsGUIChanged" Name="ActivateQuestsGUI" OnLabel="" OffLabel="" />
+                   HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="{Binding Path=ActivateQuestsGUI, Mode=TwoWay}"
+                   Click="SaveSettings" Name="ActivateQuestsGUI" OnLabel="" OffLabel="" />
 
         <TextBlock Grid.Row="4" Grid.Column="0" Margin="10" 
                    HorizontalAlignment="Right" VerticalAlignment="Center"  Text="Dev Mode :" FontSize="13"  />
 
         <Controls:ToggleSwitch Grid.Row="4" Grid.Column="1"  Margin="10,10,10,10"
-                   HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="True" 
-                   Click="DevModeChanged" Name="DevMode" OnLabel="" OffLabel="" />
+                   HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="{Binding Path=DevMode, Mode=TwoWay}" 
+                   Click="SaveSettings" Name="DevMode" OnLabel="" OffLabel="" />
 
         <TextBlock Grid.Row="5" 
                     Grid.Column="0" 
@@ -84,8 +84,9 @@
                     Grid.Column="1"  
                     Margin="10,10,0,10"
                     HorizontalAlignment="Left"
-                    VerticalAlignment="Center" 
-                    ValueChanged="LevelDeltaMinusChanged"
+                    VerticalAlignment="Center"
+                    Value="{Binding Path=LevelDeltaMinus, Mode=TwoWay}"
+                    ValueChanged="SaveSettings"
                     x:Name="LevelDeltaMinus"  />
 
         <TextBlock Grid.Row="6" 
@@ -101,7 +102,8 @@
                     Margin="10,10,0,10"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center" 
-                    ValueChanged="LevelDeltaPlusChanged"
+                    Value="{Binding Path=LevelDeltaPlus, Mode=TwoWay}"
+                    ValueChanged="SaveSettings"
                     x:Name="LevelDeltaPlus"  />
 
         <TextBlock Grid.Row="7" 
@@ -121,8 +123,8 @@
                     Text="Record unreachables :" 
                     FontSize="13"  />
         <Controls:ToggleSwitch Grid.Row="8" Grid.Column="1"  Margin="10,10,10,10"
-                   HorizontalAlignment="Left"  VerticalAlignment="Center"
-                   Click="RecordUnreachablesChanged" Name="RecordUnreachables" OnLabel="" OffLabel="" />
+                   HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="{Binding Path=RecordUnreachables, Mode=TwoWay}" 
+                   Click="SaveSettings" Name="RecordUnreachables" OnLabel="" OffLabel="" />
 
         <TextBlock Grid.Row="2" 
                     Grid.Column="2" 
@@ -132,8 +134,8 @@
                     Text="Grind only :" 
                     FontSize="13"  />
         <Controls:ToggleSwitch Grid.Row="2" Grid.Column="3"  Margin="10,10,10,10"
-                   HorizontalAlignment="Left"  VerticalAlignment="Center"
-                   Click="GrindOnlyChanged" Name="GrindOnly" OnLabel="" OffLabel="" />
+                   HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="{Binding Path=GrindOnly, Mode=TwoWay}" 
+                   Click="SaveSettings" Name="GrindOnly" OnLabel="" OffLabel="" />
 
         <TextBlock Grid.Row="3" 
                     Grid.Column="2" 
@@ -143,8 +145,8 @@
                     Text="Continent travels :" 
                     FontSize="13"  />
         <Controls:ToggleSwitch Grid.Row="3" Grid.Column="3"  Margin="10,10,10,10"
-                   HorizontalAlignment="Left"  VerticalAlignment="Center"
-                   Click="ContinentTravelChanged" Name="ContinentTravel" OnLabel="" OffLabel="" />
+                   HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="{Binding Path=ContinentTravel, Mode=TwoWay}" 
+                   Click="SaveSettings" Name="ContinentTravel" OnLabel="" OffLabel="" />
 
         <TextBlock Grid.Row="4" 
                     Grid.Column="2" 
@@ -154,8 +156,8 @@
                     Text="Abandon unfit quests :" 
                     FontSize="13"  />
         <Controls:ToggleSwitch Grid.Row="4" Grid.Column="3"  Margin="10,10,10,10"
-                   HorizontalAlignment="Left"  VerticalAlignment="Center"
-                   Click="AbandonUnfitChanged" Name="AbandonUnfit" OnLabel="" OffLabel="" />
+                   HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="{Binding Path=AbandonUnfitQuests, Mode=TwoWay}" 
+                   Click="SaveSettings" Name="AbandonUnfit" OnLabel="" OffLabel="" />
 
         <TextBlock Grid.Row="5" 
                     Grid.Column="2" 
@@ -165,8 +167,8 @@
                     Text="Blacklist danger zones :" 
                     FontSize="13"  />
         <Controls:ToggleSwitch Grid.Row="5" Grid.Column="3"  Margin="10,10,10,10"
-                   HorizontalAlignment="Left"  VerticalAlignment="Center"
-                   Click="BlacklistDangerZonesChanged" Name="BlacklistDangerZones" OnLabel="" OffLabel="" />
+                   HorizontalAlignment="Left"  VerticalAlignment="Center"  IsChecked="{Binding Path=BlacklistDangerousZones, Mode=TwoWay}" 
+                   Click="SaveSettings" Name="BlacklistDangerZones" OnLabel="" OffLabel="" />
 
         <TextBlock Grid.Row="6" 
                     Grid.Column="2" 
@@ -182,7 +184,8 @@
                     Margin="10,10,0,10"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center" 
-                    ValueChanged="GoToMobEntryChanged"
+                    Value="{Binding Path=GoToMobEntry, Mode=TwoWay}"
+                    ValueChanged="SaveSettings"
                     x:Name="GoToMobEntry"  />
 
         <TextBlock Grid.Row="7" 
@@ -199,7 +202,8 @@
                     Margin="10,10,0,10"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center" 
-                    ValueChanged="StopAtLevelChanged"
+                    Value="{Binding Path=StopAtLevel, Mode=TwoWay}"
+                    ValueChanged="SaveSettings"
                     x:Name="StopAtLevel"  />
 
     </Grid>
