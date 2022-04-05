@@ -16,7 +16,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
 
             if (_questTemplate.QuestAddon?.AllowableClasses > 0)
             {
-                PriorityShift = 3;
+                PriorityShift = 2;
             }
             if (_questTemplate.TimeAllowed > 0)
             {

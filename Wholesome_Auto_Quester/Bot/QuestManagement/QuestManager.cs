@@ -282,10 +282,10 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     }
 
                     // Log quests
-                    if (logQuests.TryGetValue(quest.QuestTemplate.Id, out Quest.PlayerQuest foundQuest))
+                    if (logQuests.TryGetValue(quest.QuestTemplate.Id, out Quest.PlayerQuest logQuest))
                     {
                         // Quest to turn in
-                        if (foundQuest.State == StateFlag.Complete)
+                        if (logQuest.State == StateFlag.Complete)
                         {
                             itemsToAddToDNSList.AddRange(GetItemsStringsList(quest));
                             quest.ChangeStatusTo(QuestStatus.ToTurnIn);
@@ -293,7 +293,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                         }
 
                         // Quest failed
-                        if (foundQuest.State == StateFlag.Failed)
+                        if (logQuest.State == StateFlag.Failed)
                         {
                             quest.ChangeStatusTo(QuestStatus.Failed);
                             continue;
@@ -587,6 +587,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(12854, "On Brann's Tail, north of northrend", false);
             AddQuestToBlackList(12876, "Unwelcome guests, north of northrend", false);
             AddQuestToBlackList(13418, "Preparation of war, Dalaran", false);
+            AddQuestToBlackList(312, "Tundra stolen stash, elite mob", false);
 
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))
@@ -603,6 +604,11 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
         {
             List<string> result = new List<string>();
 
+            if (quest.QuestTemplate.StartItemTemplate != null)
+            {
+                result.Add(quest.QuestTemplate.StartItemTemplate.Name);
+            }
+
             foreach (KillLootObjective klo in quest.QuestTemplate.KillLootObjectives)
             {
                 if (!result.Contains(klo.ItemTemplate.Name))
@@ -611,7 +617,23 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 }
             }
 
+            foreach (KillLootObjective klo in quest.QuestTemplate.PrerequisiteLootObjectives)
+            {
+                if (!result.Contains(klo.ItemTemplate.Name))
+                {
+                    result.Add(klo.ItemTemplate.Name);
+                }
+            }
+
             foreach (GatherObjective go in quest.QuestTemplate.GatherObjectives)
+            {
+                if (!result.Contains(go.ItemTemplate.Name))
+                {
+                    result.Add(go.ItemTemplate.Name);
+                }
+            }
+
+            foreach (GatherObjective go in quest.QuestTemplate.PrerequisiteGatherObjectives)
             {
                 if (!result.Contains(go.ItemTemplate.Name))
                 {

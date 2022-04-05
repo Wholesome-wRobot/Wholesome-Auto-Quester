@@ -91,7 +91,7 @@ namespace Wholesome_Auto_Quester.Helpers
                 }
                 if (entry.Position != null && entry.ShouldBeRemoved)
                 {
-                    wManagerSetting.GetListZoneBlackListed().RemoveAll(bl => bl.GetPosition() == entry.Position);
+                    wManagerSetting.GetListZoneBlackListed().RemoveAll(bl => bl.GetPosition().DistanceTo(entry.Position) < 5);
                 }
             }
             ListEntries.RemoveAll(le => le.ShouldBeRemoved);

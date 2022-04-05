@@ -13,13 +13,14 @@ using Wholesome_Auto_Quester;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.GUI;
 using Wholesome_Auto_Quester.Helpers;
+using wManager;
 using wManager.Plugin;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
 public class Main : IProduct
 {
-    public static readonly string ProductVersion = "0.1.25"; // Must match version in Version.txt
+    public static readonly string ProductVersion = "0.1.26"; // Must match version in Version.txt
     public static readonly string ProductName = "Wholesome Auto Quester";
     public static readonly string FileName = "Wholesome_Auto_Quester";
     private ProductSettingsControl _settingsUserControl;
@@ -164,6 +165,7 @@ public class Main : IProduct
         {
             Lua.RunMacroText("/stopcasting");
             MoveHelper.StopAllMove(true);
+            wManagerSetting.GetListZoneBlackListed().Clear();
             tracker.HideWindow();
             LoggingEvents.OnAddLog -= AddLogHandler;
             EventsLuaWithArgs.OnEventsLuaStringWithArgs -= EventsWithArgsHandler;

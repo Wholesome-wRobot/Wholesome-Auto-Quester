@@ -71,6 +71,7 @@ namespace Wholesome_Auto_Quester.Bot
 
                 Fsm.AddState(new MyMacro { Priority = 33 });
 
+                //Fsm.AddState(new WAQBlacklistDanger { Priority = 32 });
                 Fsm.AddState(new WAQStatePriorityLoot(_objectScanner, 31));
                 Fsm.AddState(new WAQDefend { Priority = 30 });
                 Fsm.AddState(new WAQWaitResurrectionSickness { Priority = 29 });

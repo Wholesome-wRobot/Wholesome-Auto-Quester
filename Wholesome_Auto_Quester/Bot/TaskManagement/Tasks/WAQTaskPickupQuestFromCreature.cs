@@ -19,7 +19,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             SpatialWeight = 0.25;
             if (_questTemplate.QuestAddon?.AllowableClasses > 0)
             {
-                PriorityShift = 3;
+                PriorityShift = 2;
             }
             // Through the Dark Portal
             if (_questTemplate.Id == 9407 || questTemplate.Id == 10119)
