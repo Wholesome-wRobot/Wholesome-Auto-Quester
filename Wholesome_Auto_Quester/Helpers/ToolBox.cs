@@ -380,6 +380,8 @@ namespace Wholesome_Auto_Quester.Helpers
 
         public static void UpdateObjectiveCompletionDict(int[] questIds)
         {
+            if (questIds.Length <= 0)
+                return;
             _objectiveCompletionDict = GetObjectiveCompletionDict(questIds);
         }
 
@@ -463,6 +465,7 @@ namespace Wholesome_Auto_Quester.Helpers
             }
 
             // It's possible that the completion dic hasn't been set yet, so we check the quest individually
+            Logger.LogDebug($"Individual update");
             Dictionary<int, bool[]> tempDic = GetObjectiveCompletionDict(new int[] { questId });
             if (tempDic.TryGetValue(questId, out bool[] tempCompArray))
             {
@@ -547,8 +550,6 @@ namespace Wholesome_Auto_Quester.Helpers
             { 115, 3 }, // Culling the threat, too many murlocs
             { 180, 3 }, // Lieutenant Fangore, too many mobs
             { 323, 3 }, // Proving your worth, too many mobs
-            { 303, 3 }, // Dark iron War, too many mobs
-            { 304, 3 }, // A grim task, too many mobs
             { 464, 3 }, // War banners, too many mobs
             { 203, 3 }, // The second rebellion, too many mobs
             { 505, 3 }, // Syndicate assassins, too many mobs

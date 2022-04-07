@@ -79,7 +79,7 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
         {
             return ContinentHelper.MyMapArea.Continent == WAQContinent.Teldrassil
                 && ObjectManager.Me.Position.Z >= 600
-                && (task.Location.Z < 600 || task.WorldMapArea.Continent != WAQContinent.Kalimdor); // Under teldrassil tree
+                && (task.Location.Z < 600 || task.WorldMapArea.Continent != WAQContinent.Teldrassil); // Under teldrassil tree
         }
 
         public bool ShouldTakePortalRutTheranToDarnassus(IWAQTask task)

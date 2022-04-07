@@ -550,6 +550,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(13084, "Vandalizing Jotunheim, unreachable", false);
             AddQuestToBlackList(13140, "The runesmisths of Malykriss, unreachable", false);
             AddQuestToBlackList(962, "Serpentbloom, instance", false);
+
             // ALLIANCE
             AddQuestToBlackList(168, "Collecting memories, too many NPCS", false);
             AddQuestToBlackList(167, "Oh brother, too many NPCS", false);
@@ -588,6 +589,9 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(12876, "Unwelcome guests, north of northrend", false);
             AddQuestToBlackList(13418, "Preparation of war, Dalaran", false);
             AddQuestToBlackList(312, "Tundra stolen stash, elite mob", false);
+            AddQuestToBlackList(303, "Dark iron War, Too many mobs", false);
+            AddQuestToBlackList(304, "A grim task, Too many mobs", false);
+            AddQuestToBlackList(663, "Land ho!, no objective", false);
 
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))

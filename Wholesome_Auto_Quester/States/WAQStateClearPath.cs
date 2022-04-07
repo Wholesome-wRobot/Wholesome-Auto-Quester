@@ -98,7 +98,8 @@ namespace Wholesome_Auto_Quester.States
                                 continue;
                             }
                             if (wManager.wManagerSetting.IsBlackListedZone(unit.Position)
-                                || !ToolBox.IHaveLineOfSightOn(unit))
+                                || !ToolBox.IHaveLineOfSightOn(unit)
+                                || unit.Level < ObjectManager.Me.Level - 5)
                             {
                                 continue;
                             }
