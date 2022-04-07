@@ -739,6 +739,13 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
                 new Vector3(194.8526, 8489.873, 27.46523, "None")
             }, (int)ContinentId.Expansion01, OffMeshConnectionType.Bidirectional, true));
 
+            // Ratchet northern house
+            OffMeshConnections.Add(new OffMeshConnection(new List<Vector3>()
+            {
+                new Vector3(-859.9623, -3757.758, 19.88704, "None"),
+                new Vector3(-847.8208, -3740.918, 22.26572, "None")
+            }, (int)ContinentId.Kalimdor, OffMeshConnectionType.Bidirectional, true));
+
             AddTransportOffMesh(new Vector3(695.7321, -3822.025, 254.6207, "None"), // wait for transport
                 new Vector3(704.0106, -3822.148, 254.8952, "None"), // Step in
                 new Vector3(700.767, -3823.5, 268.267, "None"), // Object departure
