@@ -51,11 +51,11 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         public override void PostInteraction(WoWObject wowObject)
         {
             WoWUnit pickUpTarget = (WoWUnit)wowObject;
-            if (!WTGossip.IsQuestGiverFrameActive())
+            if (!WTGossip.IsQuestGiverFrameActive)
             {
                 MoveHelper.StopAllMove(true);
                 Interact.InteractGameObject(pickUpTarget.GetBaseAddress);
-                if (!WTGossip.IsQuestGiverFrameActive())
+                if (!WTGossip.IsQuestGiverFrameActive)
                 {
                     PutTaskOnTimeout($"Couldn't open quest frame", 15 * 60, true);
                 }

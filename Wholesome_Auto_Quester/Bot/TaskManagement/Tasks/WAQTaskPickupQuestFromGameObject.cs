@@ -44,13 +44,13 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         {
             Usefuls.WaitIsCastingAndLooting();
             WoWGameObject pickUpTarget = (WoWGameObject)wowObject;
-            if (!WTGossip.IsQuestGiverFrameActive())
+            if (!WTGossip.IsQuestGiverFrameActive)
             {
                 MoveHelper.StopAllMove(true);
                 Interact.InteractGameObject(pickUpTarget.GetBaseAddress);
                 Usefuls.WaitIsCasting();
                 Thread.Sleep(500);
-                if (!WTGossip.IsQuestGiverFrameActive())
+                if (!WTGossip.IsQuestGiverFrameActive)
                 {
                     PutTaskOnTimeout($"Couldn't open quest frame", 15 * 60, true);
                 }
