@@ -9,6 +9,7 @@ using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Database.Objectives;
 using Wholesome_Auto_Quester.GUI;
 using Wholesome_Auto_Quester.Helpers;
+using WholesomeToolbox;
 using wManager;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
@@ -186,7 +187,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                         && !_itemsGivingQuest.Contains(item.Entry))
                     {
                         Logger.Log($"Deleting item {item.Name} because it's a deprecated quest item");
-                        ToolBox.DeleteItemByName(item.Name);
+                        WTItem.DeleteItemByName(item.Name);
                         Thread.Sleep(300);
                     }
                 }
@@ -201,7 +202,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                         if (questToPickup != null)
                         {
                             Logger.Log($"Starting {questToPickup.QuestTemplate.LogTitle} from {questToPickup.QuestTemplate.StartItemTemplate.Name}");
-                            ToolBox.PickupQuestFromBagItem(questToPickup.QuestTemplate.StartItemTemplate.Name);
+                            WTItem.PickupQuestFromBagItem(questToPickup.QuestTemplate.StartItemTemplate.Name);
                             itemFound = itemId;
                             break;
                         }
@@ -381,18 +382,8 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
         private void AbandonQuest(int questId, string reason)
         {
-            Lua.LuaDoString("ExpandQuestHeader(0);");
             Logger.Log($"Abandonning quest {questId} ({reason})");
-            int logIndex = Lua.LuaDoString<int>(@$"
-                local nbLogQuests  = GetNumQuestLogEntries()
-                for i=1, nbLogQuests do
-                    local _, _, _, _, _, _, _, _, questID = GetQuestLogTitle(i);
-                    if questID == {questId} then
-                        return i;
-                    end
-                end
-            ");
-            Lua.LuaDoString($"SelectQuestLogEntry({logIndex}); SetAbandonQuest(); AbandonQuest();");
+            WTQuestLog.AbandonQuest(questId);
             Thread.Sleep(500);
         }
 
@@ -483,7 +474,8 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
         private void InitializeWAQSettings()
         {
             // HORDE
-            if (ToolBox.IsHorde()) AddQuestToBlackList(4740, "Bugged, should only be alliance", false);
+            if (WTPlayer.IsHorde()) AddQuestToBlackList(4740, "Bugged, should only be alliance", false);
+            if (WTPlayer.IsHorde()) AddQuestToBlackList(3741, "Hilary's Necklace, should only be alliance", false);
             AddQuestToBlackList(1202, "Theramore docks, runs through ally city", false);
             AddQuestToBlackList(863, "Ignition, bugged platform", false);
             AddQuestToBlackList(6383, "Ashenvale hunt, bugged", false);
@@ -550,6 +542,9 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(13084, "Vandalizing Jotunheim, unreachable", false);
             AddQuestToBlackList(13140, "The runesmisths of Malykriss, unreachable", false);
             AddQuestToBlackList(962, "Serpentbloom, instance", false);
+            AddQuestToBlackList(17, "Uldaman reagent run, too many npcs", false);
+            AddQuestToBlackList(1360, "Reclaimed treasures, too many npcs", false);
+            AddQuestToBlackList(450, "A recipe for death, too many npcs", false);
 
             // ALLIANCE
             AddQuestToBlackList(168, "Collecting memories, too many NPCS", false);

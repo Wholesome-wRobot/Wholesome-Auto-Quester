@@ -1,5 +1,6 @@
 ﻿using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
+using WholesomeToolbox;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
@@ -52,11 +53,11 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         public override void PostInteraction(WoWObject wowObject)
         {
             WoWUnit turnInTarget = (WoWUnit)wowObject;
-            if (!ToolBox.IsNpcFrameActive())
+            if (!WTGossip.IsQuestGiverFrameActive())
             {
                 MoveHelper.StopAllMove(true);
                 Interact.InteractGameObject(turnInTarget.GetBaseAddress);
-                if (!ToolBox.IsNpcFrameActive())
+                if (!WTGossip.IsQuestGiverFrameActive())
                 {
                     PutTaskOnTimeout($"Couldn't open quest frame", 15 * 60, true);
                 }

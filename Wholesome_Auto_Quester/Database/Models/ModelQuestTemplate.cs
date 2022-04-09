@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Wholesome_Auto_Quester.Database.Conditions;
 using Wholesome_Auto_Quester.Database.DBC;
 using Wholesome_Auto_Quester.Database.Objectives;
-using Wholesome_Auto_Quester.Helpers;
 
 namespace Wholesome_Auto_Quester.Database.Models
 {
@@ -76,7 +75,7 @@ namespace Wholesome_Auto_Quester.Database.Models
                         IDBConditionGroup existingGroup = result.Find(group => group.IsPartOfGroup(condition));
                         if (existingGroup == null)
                         {
-                            IDBConditionGroup groupToAdd = new DBConditionGroup(condition.SourceTypeOrReferenceId, 
+                            IDBConditionGroup groupToAdd = new DBConditionGroup(condition.SourceTypeOrReferenceId,
                                 condition.SourceGroup, condition.SourceEntry, condition.ElseGroup);
                             groupToAdd.AddConditionToGroup(new DBCondition(condition));
                             result.Add(groupToAdd);

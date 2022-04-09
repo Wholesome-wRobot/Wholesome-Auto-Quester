@@ -283,6 +283,10 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
+    <Reference Include="WholesomeToolbox">
+      <HintPath>..\Dependencies\WholesomeToolbox.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="wManager">
       <HintPath>..\Dependencies\wManager.dll</HintPath>
@@ -294,7 +298,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutoUpdater.cs" />
-    <Compile Include="Bot\Bot.cs" />
+    <Compile Include="Bot\WAQBot.cs" />
     <Compile Include="Bot\GrindManagement\GrindManager.cs" />
     <Compile Include="Bot\GrindManagement\IGrindManager.cs" />
     <Compile Include="Bot\ICycleable.cs" />

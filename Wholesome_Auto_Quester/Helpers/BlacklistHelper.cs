@@ -1,5 +1,6 @@
 ﻿using robotManager.Helpful;
 using System.Collections.Generic;
+using WholesomeToolbox;
 using wManager;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
@@ -30,55 +31,9 @@ namespace Wholesome_Auto_Quester.Helpers
 
         public static void AddDefaultBLZones()
         {
-            // Faction specific
-            if (ToolBox.IsHorde())
-            {
-                // Astranaar
-                wManagerSetting.AddBlackListZone(new Vector3(2735.73, -373.2593, 107.1535), 160, ContinentId.Kalimdor, isSessionBlacklist: true);
-            }
-            else
-            {
-                // Crossroads
-                wManagerSetting.AddBlackListZone(new Vector3(-452.84, -2650.76, 95.5209), 160, ContinentId.Kalimdor, isSessionBlacklist: true);
-                // Ratchet
-                wManagerSetting.AddBlackListZone(new Vector3(-956.664, -3754.71, 5.33239), 160, ContinentId.Kalimdor, isSessionBlacklist: true);
-                // BrackenWall Village
-                wManagerSetting.AddBlackListZone(new Vector3(-3124.758, -2882.661, 34.73463), 130, ContinentId.Kalimdor, isSessionBlacklist: true);
-            }
-
-            // Drak'Tharon Keep
-            wManagerSetting.AddBlackListZone(new Vector3(4643.429, -2043.915, 184.1842), 200, ContinentId.Northrend, isSessionBlacklist: true);
-
-            // Blue sky logging camp water
-            wManagerSetting.AddBlackListZone(new Vector3(4321.85, -3021.175, 305.8569), 50, ContinentId.Northrend, isSessionBlacklist: true);
-
-            // Avoid Orgrimmar Braseros
-            wManagerSetting.AddBlackListZone(new Vector3(1731.702, -4423.403, 36.86293), 5, ContinentId.Kalimdor, isSessionBlacklist: true);
-            wManagerSetting.AddBlackListZone(new Vector3(1669.99, -4359.609, 29.23425), 5, ContinentId.Kalimdor, isSessionBlacklist: true);
-
-            // Warsong hold top elevator
-            wManagerSetting.AddBlackListZone(new Vector3(2892.18, 6236.34, 208.908), 15, ContinentId.Northrend, isSessionBlacklist: true);
-
-            // Portal Rut'Theran UP/DOWN
-            wManagerSetting.AddBlackListZone(new Vector3(9946.391, 2630.067, 1316.194), 15, ContinentId.Kalimdor, isSessionBlacklist: true);
-            wManagerSetting.AddBlackListZone(new Vector3(8798.752, 969.5687, 30.38474), 15, ContinentId.Kalimdor, isSessionBlacklist: true);
-
-            // Staghein Point
-            wManagerSetting.AddBlackListZone(new Vector3(-6427.419, 219.1993, 4.853653), 70, ContinentId.Kalimdor, isSessionBlacklist: true);
-
-            // Hellfire giants passage
-            wManagerSetting.AddBlackListZone(new Vector3(41.35702, 4443.034, 81.65746), 70, ContinentId.Expansion01, isSessionBlacklist: true);
-
-            // Telredor base
-            wManagerSetting.AddBlackListZone(new Vector3(283.2617, 6052.715, 23.4), 60, ContinentId.Expansion01, isSessionBlacklist: true);
-
-            // Shadowmoon pool
-            wManagerSetting.AddBlackListZone(new Vector3(-4204.122, 1712.808, 88.00595), 60, ContinentId.Expansion01, isSessionBlacklist: true);
-            wManagerSetting.AddBlackListZone(new Vector3(-4189.208, 2012.61, 57.39383), 50, ContinentId.Expansion01, isSessionBlacklist: true);
-
-            // Sparksocket Minefield
-            wManagerSetting.AddBlackListZone(new Vector3(6084.664, -649.5412, 375.806), 50, ContinentId.Northrend, isSessionBlacklist: true);
-            wManagerSetting.AddBlackListZone(new Vector3(6037.082, -655.2501, 369.9831), 50, ContinentId.Northrend, isSessionBlacklist: true);
+            WTSettings.AddRecommendedBlacklistZones();
+            if (!WTPlayer.IsHorde())
+                WTSettings.AddBlacklistZone(new Vector3(-956.664, -3754.71, 5.33239), 160, ContinentId.Kalimdor);
         }
 
         public static void CleanupBlacklist()

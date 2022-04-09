@@ -4,6 +4,7 @@ using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Bot.TravelManagement;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
+using WholesomeToolbox;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
@@ -52,12 +53,12 @@ namespace Wholesome_Auto_Quester.States
             WAQContinent myContinent = myArea.Continent;
 
             // ------------------ HORDE ------------------
-            if (ToolBox.IsHorde())
+            if (WTPlayer.IsHorde())
             {
                 // From B11 starting zone
                 if (myContinent == WAQContinent.BloodElfStartingZone)
                 {
-                    _travelManager.PortalFromSilvermoonToTirisfal();
+                    WTTravel.PortalFromSilvermoonToTirisfal();
                 }
                 // From EK
                 if (myContinent == WAQContinent.EasternKingdoms)
@@ -67,11 +68,11 @@ namespace Wholesome_Auto_Quester.States
                     {
                         if (ObjectManager.Me.Position.X > -2384) // above wetlands)
                         {
-                            _travelManager.ZeppelinTirisfalToOrgrimmar();
+                            WTTravel.ZeppelinTirisfalToOrgrimmar();
                         }
                         else
                         {
-                            _travelManager.ShipBootyBayToRatchet();
+                            WTTravel.ShipBootyBayToRatchet();
                         }
                     }
                     if (destinationContinent == WAQContinent.EasternKingdoms)
@@ -79,18 +80,18 @@ namespace Wholesome_Auto_Quester.States
                         // To EK south
                         if (_travelManager.ShouldTravelFromNorthEKToSouthEk(task))
                         {
-                            _travelManager.ZeppelingTirisfalToStrangelthorn();
+                            WTTravel.ZeppelingTirisfalToStrangelthorn();
                         }
                         // To EK north
                         if (_travelManager.ShouldTravelFromSouthEKToNorthEK(task))
                         {
-                            _travelManager.ZeppelingStrangelthornToTirisfal();
+                            WTTravel.ZeppelingStrangelthornToTirisfal();
                         }
                     }
                     // To Outlands
                     if (destinationContinent == WAQContinent.Outlands)
                     {
-                        _travelManager.PortalBlastedLandsToOutlands();
+                        WTTravel.PortalBlastedLandsToOutlands();
                     }
                     // To Northrend
                     if (destinationContinent == WAQContinent.Northrend)
@@ -100,11 +101,11 @@ namespace Wholesome_Auto_Quester.States
                         {
                             if (task.Location.Y > 265)
                             {
-                                _travelManager.ZeppelinTirisfalToOrgrimmar();
+                                WTTravel.ZeppelinTirisfalToOrgrimmar();
                             }
                             else
                             {
-                                _travelManager.ZeppelinTirisfalToHowlingFjord();
+                                WTTravel.ZeppelinTirisfalToHowlingFjord();
                             }
                         }
                     }
@@ -117,42 +118,42 @@ namespace Wholesome_Auto_Quester.States
                     {
                         if (task.Location.X < -3240 && ObjectManager.Me.Level >= 58)
                         {
-                            _travelManager.PortalFromOrgrimmarToBlastedLands();
+                            WTTravel.PortalFromOrgrimmarToBlastedLands();
                         }
                         else
                         {
                             if (task.Location.X > -2384) // above wetlands
                             {
-                                _travelManager.ZeppelinOrgrimmarToTirisfal();
+                                WTTravel.ZeppelinOrgrimmarToTirisfal();
                             }
                             else
                             {
-                                _travelManager.ShipRatchetToBootyBay();
+                                WTTravel.ShipRatchetToBootyBay();
                             }
                         }
                     }
                     // To Outlands
                     if (destinationContinent == WAQContinent.Outlands)
                     {
-                        _travelManager.PortalFromOrgrimmarToBlastedLands();
+                        WTTravel.PortalFromOrgrimmarToBlastedLands();
                     }
                     // To Northrend
                     if (destinationContinent == WAQContinent.Northrend)
                     {
                         if (task.Location.Y > 265)
                         {
-                            _travelManager.ZeppelinOrgrimmarToBoreanTundra();
+                            WTTravel.ZeppelinOrgrimmarToBoreanTundra();
                         }
                         else
                         {
-                            _travelManager.ZeppelinOrgrimmarToTirisfal();
+                            WTTravel.ZeppelinOrgrimmarToTirisfal();
                         }
                     }
                 }
                 // From Outlands
                 if (myContinent == WAQContinent.Outlands)
                 {
-                    _travelManager.PortalShattrathToOrgrimmar();
+                    WTTravel.PortalShattrathToOrgrimmar();
                 }
 
                 // From Northrend
@@ -161,17 +162,17 @@ namespace Wholesome_Auto_Quester.States
                     // To Kalimdor
                     if (destinationContinent == WAQContinent.Kalimdor)
                     {
-                        _travelManager.PortalDalaranToOrgrimmar();
+                        WTTravel.PortalDalaranToOrgrimmar();
                     }
                     // To EK
                     if (destinationContinent == WAQContinent.EasternKingdoms)
                     {
-                        _travelManager.PortalDalaranToUndercity();
+                        WTTravel.PortalDalaranToUndercity();
                     }
                     // To Outland
                     if (destinationContinent == WAQContinent.Outlands)
                     {
-                        _travelManager.HordePortalDalaranToShattrath();
+                        WTTravel.HordePortalDalaranToShattrath();
                     }
                 }
             }
@@ -183,27 +184,27 @@ namespace Wholesome_Auto_Quester.States
                 {
                     if (_travelManager.ShouldTakePortalDarnassusToRutTheran(task))
                     {
-                        _travelManager.PortalDarnassusToRutTheran();
+                        WTTravel.PortalDarnassusToRutTheran();
                     }
                     else if (_travelManager.ShouldTakePortalRutTheranToDarnassus(task))
                     {
-                        _travelManager.PortalRutTheranToDarnassus();
+                        WTTravel.PortalRutTheranToDarnassus();
                     }
                     else
                     {
-                        _travelManager.ShipRutTheranToDarkshore();
+                        WTTravel.ShipRutTheranToDarkshore();
                     }
 
                 }
                 // From Azuremyst
                 if (myContinent == WAQContinent.DraeneiStartingZone)
                 {
-                    _travelManager.ShipAzuremystToDarkshore();
+                    WTTravel.ShipAzuremystToDarkshore();
                 }
                 // From Outlands
                 if (myContinent == WAQContinent.Outlands)
                 {
-                    _travelManager.PortalShattrathToIronforge();
+                    WTTravel.PortalShattrathToIronforge();
                 }
                 // From Kalimdor
                 if (myContinent == WAQContinent.Kalimdor)
@@ -211,28 +212,28 @@ namespace Wholesome_Auto_Quester.States
                     // To Azuremyst
                     if (destinationContinent == WAQContinent.DraeneiStartingZone)
                     {
-                        _travelManager.ShipDarkshoreToAzuremyst();
+                        WTTravel.ShipDarkshoreToAzuremyst();
                     }
                     // To Northrend
                     if (destinationContinent == WAQContinent.Northrend)
                     {
-                        _travelManager.ShipDustwallowToMenethil();
+                        WTTravel.ShipDustwallowToMenethil();
                     }
                     // To Teldrassil
                     if (destinationContinent == WAQContinent.Teldrassil)
                     {
-                        _travelManager.ShipDarkShoreToRutTheran();
+                        WTTravel.ShipDarkShoreToRutTheran();
                     }
                     // To EK/Outlands
                     if (destinationContinent == WAQContinent.EasternKingdoms || destinationContinent == WAQContinent.Outlands)
                     {
                         if (ObjectManager.Me.Level < 40)
                         {
-                            _travelManager.ShipDarkshoreToStormwind();
+                            WTTravel.ShipDarkshoreToStormwind();
                         }
                         else
                         {
-                            _travelManager.ShipDustwallowToMenethil();
+                            WTTravel.ShipDustwallowToMenethil();
                         }
                     }
                 }
@@ -243,22 +244,22 @@ namespace Wholesome_Auto_Quester.States
                     {
                         if (ObjectManager.Me.Position.Y > 1200)
                         {
-                            _travelManager.TakeTramFromStormwindToIronforge();
+                            WTTravel.TakeTramFromStormwindToIronforge();
                         }
                         else
                         {
-                            _travelManager.ExitDeeprunTramToIronforge();
+                            WTTravel.ExitDeeprunTramToIronforge();
                         }
                     }
                     else // under burning steppes
                     {
                         if (ObjectManager.Me.Position.Y > 1200)
                         {
-                            _travelManager.ExitDeeprunTramToStormwind();
+                            WTTravel.ExitDeeprunTramToStormwind();
                         }
                         else
                         {
-                            _travelManager.TakeTramFromIronforgeToStormwind();
+                            WTTravel.TakeTramFromIronforgeToStormwind();
                         }
                     }
                 }
@@ -270,28 +271,28 @@ namespace Wholesome_Auto_Quester.States
                     {
                         if (task.Location.Y > 265)
                         {
-                            _travelManager.ShipStormwindToBoreanTundra();
+                            WTTravel.ShipStormwindToBoreanTundra();
                         }
                         else
                         {
-                            _travelManager.ShipMenethilToHowlingFjord();
+                            WTTravel.ShipMenethilToHowlingFjord();
                         }
                     }
                     // To Outlands
                     if (destinationContinent == WAQContinent.Outlands)
                     {
-                        _travelManager.PortalBlastedLandsToOutlands();
+                        WTTravel.PortalBlastedLandsToOutlands();
                     }
                     // North/South
                     if (destinationContinent == WAQContinent.EasternKingdoms)
                     {
                         if (_travelManager.ShouldTravelFromNorthEKToSouthEk(task))
                         {
-                            _travelManager.EnterIronForgedDeeprunTram();
+                            WTTravel.EnterIronForgedDeeprunTram();
                         }
                         if (_travelManager.ShouldTravelFromSouthEKToNorthEK(task))
                         {
-                            _travelManager.EnterStormwindDeeprunTram();
+                            WTTravel.EnterStormwindDeeprunTram();
                         }
                     }
                     // To Kalimdor/Teldrassil
@@ -299,28 +300,28 @@ namespace Wholesome_Auto_Quester.States
                     {
                         if (ObjectManager.Me.Level >= 40)
                         {
-                            _travelManager.ShipMenethilToDustwallow();
+                            WTTravel.ShipMenethilToDustwallow();
                         }
                         else
                         {
                             if (myContinent == WAQContinent.DeeprunTram)
                             {
-                                _travelManager.TakeTramFromIronforgeToStormwind();
+                                WTTravel.TakeTramFromIronforgeToStormwind();
                             }
                             else if (ObjectManager.Me.Position.X > -8118)
                             {
-                                _travelManager.EnterIronForgedDeeprunTram();
+                                WTTravel.EnterIronForgedDeeprunTram();
                             }
                             else
                             {
-                                _travelManager.ShipStormwindToDarkshore();
+                                WTTravel.ShipStormwindToDarkshore();
                             }
                         }
                     }
                     // To Azuremyst
                     if (destinationContinent == WAQContinent.DraeneiStartingZone)
                     {
-                        _travelManager.ShipStormwindToDarkshore();
+                        WTTravel.ShipStormwindToDarkshore();
                     }
                 }
             }

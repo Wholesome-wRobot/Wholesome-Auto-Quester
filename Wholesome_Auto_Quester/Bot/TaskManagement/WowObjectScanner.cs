@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.GUI;
 using Wholesome_Auto_Quester.Helpers;
+using WholesomeToolbox;
 using wManager;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
@@ -145,7 +146,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                     // Avoid snap back and forth
                     if (ActiveWoWObject.wowObject != null
                         && MoveHelper.IsMovementThreadRunning
-                        && pathToClosestObject.Distance > MoveHelper.GetCurrentPathRemainingDistance() - 15)
+                        && pathToClosestObject.Distance > WTPathFinder.GetCurrentPathRemainingDistance() - 15)
                     {
                         Logger.LogWatchScanner($"SCANNER AVOID SNAP", watch.ElapsedMilliseconds);
                         return;

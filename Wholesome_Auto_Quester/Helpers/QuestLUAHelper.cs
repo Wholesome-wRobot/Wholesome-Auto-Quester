@@ -1,20 +1,13 @@
 ﻿using System;
 using System.Threading;
 using wManager.Wow.Helpers;
+using WholesomeToolbox;
 using Timer = robotManager.Helpful.Timer;
 
 namespace Wholesome_Auto_Quester.Helpers
 {
     class QuestLUAHelper
     {
-        private static bool QuestFrameCompleteQuestButtonIsVisible => Lua.LuaDoString<bool>("return GetClickFrame('QuestFrameCompleteQuestButton'):IsVisible() == 1");
-        private static bool QuestFrameAcceptButtonIsVisible => Lua.LuaDoString<bool>("return GetClickFrame('QuestFrameAcceptButton'):IsVisible() == 1");
-        private static bool QuestFrameCompleteButtonIsVisible => Lua.LuaDoString<bool>("return GetClickFrame('QuestFrameCompleteButton'):IsVisible() == 1");
-        private static bool QuestFrameIsVisible => Lua.LuaDoString<bool>("return GetClickFrame('QuestFrame'):IsVisible() == 1");
-        private static bool GossipFrameIsVisible => Lua.LuaDoString<bool>("return GetClickFrame('GossipFrame'):IsVisible() == 1");
-        private static bool QuestFrameCloseButtonIsVisible => Lua.LuaDoString<bool>("return GetClickFrame('QuestFrameCloseButton'):IsVisible() == 1");
-        private static bool HasQuestItems => Lua.LuaDoString<bool>("return GetNumQuestItems() > 0;");
-        private static bool HasQuestChoices => Lua.LuaDoString<bool>("return GetNumQuestChoices() > 0;");
         private static Func<int, bool> IsQuestCompleted => (questId) => ToolBox.IsQuestCompleted(questId);
         private static Func<int, bool> HasQuest => (questId) => Quest.HasQuest(questId);
 
@@ -28,14 +21,14 @@ namespace Wholesome_Auto_Quester.Helpers
         public static bool GossipTurnInQuest(string questName, int questId)
         {
             if (WaitFor(
-                QuestFrameAcceptButtonIsVisible
-                || QuestFrameCompleteButtonIsVisible
-                || QuestFrameCompleteQuestButtonIsVisible
-                || QuestFrameIsVisible
-                || GossipFrameIsVisible))
+                WTGossip.QuestFrameAcceptButtonIsVisible
+                || WTGossip.QuestFrameCompleteButtonIsVisible
+                || WTGossip.QuestFrameCompleteQuestButtonIsVisible
+                || WTGossip.QuestFrameIsVisible
+                || WTGossip.GossipFrameIsVisible))
             {
                 // CHECK FRAME
-                if (QuestFrameIsVisible)
+                if (WTGossip.QuestFrameIsVisible)
                 {
                     Lua.LuaDoString($@"
             	        for i=1, 32 do
@@ -49,7 +42,7 @@ namespace Wholesome_Auto_Quester.Helpers
             	        end                       
                     ");
                 }
-                else if (GossipFrameIsVisible)
+                else if (WTGossip.GossipFrameIsVisible)
                 {
                     bool questFound = Lua.LuaDoString<bool>($@"
             	        local activeQuests = {{ GetGossipActiveQuests() }};
@@ -72,24 +65,24 @@ namespace Wholesome_Auto_Quester.Helpers
                 }
 
                 // TURN IN
-                if (WaitFor(QuestFrameCompleteButtonIsVisible, 2000))
+                if (WaitFor(WTGossip.QuestFrameCompleteButtonIsVisible, 2000))
                 {
                     Lua.LuaDoString("GetClickFrame('QuestFrameCompleteButton'):Click()");
                 }
 
-                if (WaitFor(HasQuestItems, 1000))
+                if (WaitFor(WTGossip.HasQuestItems, 1000))
                 {
                     Lua.LuaDoString("CompleteQuest();");
                 }
 
-                if (WaitFor(HasQuestChoices, 1000))
+                if (WaitFor(WTGossip.HasQuestChoices, 1000))
                 {
                     Quest.CompleteQuest();
                 }
 
-                if (WaitFor(QuestFrameIsVisible, 1000))
+                if (WaitFor(WTGossip.QuestFrameIsVisible, 1000))
                 {
-                    Lua.LuaDoString($"GetQuestReward({(HasQuestChoices ? "1" : "nil")});");
+                    Lua.LuaDoString($"GetQuestReward({(WTGossip.HasQuestChoices ? "1" : "nil")});");
                 }
 
                 if (WaitFor(HasQuest, questId, expectedReult: false))
@@ -118,25 +111,25 @@ namespace Wholesome_Auto_Quester.Helpers
         public static bool GossipPickupQuest(string questName, int questId)
         {
             if (WaitFor(
-                QuestFrameCompleteQuestButtonIsVisible
-                || QuestFrameAcceptButtonIsVisible
-                || QuestFrameCompleteButtonIsVisible
-                || QuestFrameIsVisible
-                || GossipFrameIsVisible))
+                WTGossip.QuestFrameCompleteQuestButtonIsVisible
+                || WTGossip.QuestFrameAcceptButtonIsVisible
+                || WTGossip.QuestFrameCompleteButtonIsVisible
+                || WTGossip.QuestFrameIsVisible
+                || WTGossip.GossipFrameIsVisible))
             {
                 // CHECK FRAME
-                if (QuestFrameCompleteQuestButtonIsVisible)
+                if (WTGossip.QuestFrameCompleteQuestButtonIsVisible)
                 {
                     Logger.Log($"The quest {questName} is an autocomplete.");
                     Thread.Sleep(200);
                     Quest.CompleteQuest();
                     return WaitFor(HasQuest, questId, expectedReult: false);
                 }
-                else if (QuestFrameAcceptButtonIsVisible || QuestFrameCompleteButtonIsVisible)
+                else if (WTGossip.QuestFrameAcceptButtonIsVisible || WTGossip.QuestFrameCompleteButtonIsVisible)
                 {
                     //Logger.LogError($"QuestFrameAcceptButtonIsVisible || QuestFrameCompleteButtonIsVisible");
                 }
-                else if (QuestFrameIsVisible)
+                else if (WTGossip.QuestFrameIsVisible)
                 {
                     Lua.LuaDoString($@"
             	        for i=1, 32 do
@@ -150,7 +143,7 @@ namespace Wholesome_Auto_Quester.Helpers
             	        end                            
                     ");
                 }
-                else if (GossipFrameIsVisible)
+                else if (WTGossip.GossipFrameIsVisible)
                 {
                     bool isautocomplete = Lua.LuaDoString<bool>($@"
             	        local availableQuests = {{ GetGossipAvailableQuests() }};
@@ -179,7 +172,7 @@ namespace Wholesome_Auto_Quester.Helpers
                 }
 
                 // ACCEPT QUEST
-                if (WaitFor(QuestFrameCompleteButtonIsVisible, 1000))
+                if (WaitFor(WTGossip.QuestFrameCompleteButtonIsVisible, 1000))
                 {
                     Logger.LogError($"The quest {questName} seems to be a trade quest.");
                     Lua.LuaDoString(@"
@@ -191,7 +184,7 @@ namespace Wholesome_Auto_Quester.Helpers
                     return false;
                 }
 
-                if (WaitFor(QuestFrameIsVisible, 1000))
+                if (WaitFor(WTGossip.QuestFrameIsVisible, 1000))
                 {
                     Lua.LuaDoString("AcceptQuest();");
                 }

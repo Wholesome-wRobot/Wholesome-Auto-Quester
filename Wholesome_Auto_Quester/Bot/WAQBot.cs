@@ -21,7 +21,7 @@ using Timer = robotManager.Helpful.Timer;
 
 namespace Wholesome_Auto_Quester.Bot
 {
-    internal class Bot
+    internal class WAQBot
     {
         private readonly Engine Fsm = new Engine();
         private readonly List<StuckCounter> ListStuckCounters = new List<StuckCounter>();

@@ -3,6 +3,7 @@ using robotManager.Helpful;
 using System.Collections.Generic;
 using System.Linq;
 using Wholesome_Auto_Quester.Helpers;
+using WholesomeToolbox;
 using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
@@ -51,7 +52,7 @@ namespace Wholesome_Auto_Quester.States
 
                 if (isMounted
                     && MoveHelper.IsMovementThreadRunning
-                    && MoveHelper.GetCurrentPathRemainingDistance() > 300)
+                    && WTPathFinder.GetCurrentPathRemainingDistance() > 300)
                     return false;
 
                 IOrderedEnumerable<WoWUnit> attackingMe = justUnits
@@ -65,13 +66,13 @@ namespace Wholesome_Auto_Quester.States
 
                 if (isMounted
                     && MoveHelper.IsMovementThreadRunning
-                    && MoveHelper.GetCurrentPathRemainingDistance() > 200
+                    && WTPathFinder.GetCurrentPathRemainingDistance() > 200
                     && attackingMe.Count() <= 2)
                     return false;
 
                 if (isMounted
                     && MoveHelper.IsMovementThreadRunning
-                    && MoveHelper.GetCurrentPathRemainingDistance() > 125
+                    && WTPathFinder.GetCurrentPathRemainingDistance() > 125
                     && attackingMe.Count() <= 1)
                     return false;
 

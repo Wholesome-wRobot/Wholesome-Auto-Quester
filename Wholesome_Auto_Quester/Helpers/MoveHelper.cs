@@ -39,38 +39,6 @@ public class MoveHelper
 
     public static bool IsMovementThreadRunning => CurrentTarget != Empty/* || MovementManager.CurrentPath.Count > 0*/;
 
-    public static float GetCurrentPathRemainingDistance()
-    {
-        float result = 0;
-        List<Vector3> currentPath = MovementManager.CurrentPath;
-        Vector3 nextNode = MovementManager.CurrentMoveTo;
-        result += ObjectManager.Me.Position.DistanceTo(nextNode);
-        bool nextNodeFound = false;
-        for (int i = 0; i < currentPath.Count - 1; i++)
-        {
-            if (!nextNodeFound && currentPath[i] == nextNode)
-            {
-                nextNodeFound = true;
-            }
-            if (nextNodeFound)
-            {
-                result += currentPath[i].DistanceTo(currentPath[i + 1]);
-            }
-        }
-        return result;
-    }
-
-    public static float GetCurrentPathTotalDistance()
-    {
-        float result = 0;
-        List<Vector3> currentPath = MovementManager.CurrentPath;
-        for (int i = 0; i < currentPath.Count - 1; i++)
-        {
-            result += currentPath[i].DistanceTo(currentPath[i + 1]);
-        }
-        return result;
-    }
-
     public static void StartGoToThread(Vector3 target, string log = null)
     {
         lock (Lock)

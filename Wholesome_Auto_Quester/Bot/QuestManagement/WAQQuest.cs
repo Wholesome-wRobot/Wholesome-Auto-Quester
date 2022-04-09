@@ -10,6 +10,7 @@ using Wholesome_Auto_Quester.Database.Conditions;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Database.Objectives;
 using Wholesome_Auto_Quester.Helpers;
+using WholesomeToolbox;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
@@ -404,7 +405,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
         {
             int nbAtempts = 0;
             int nbMaxAttempts = 5;
-            Lua.LuaDoString("ExpandQuestHeader(0);");
+            WTQuestLog.ExpandQuestHeader();
             while (nbAtempts < nbMaxAttempts)
             {
                 bool recordFailed = false;

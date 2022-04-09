@@ -6,16 +6,15 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Database.Models;
+using WholesomeToolbox;
 using wManager;
 using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 using static wManager.Wow.Helpers.PathFinder;
-using Math = System.Math;
 
 namespace Wholesome_Auto_Quester.Helpers
 {
@@ -25,7 +24,7 @@ namespace Wholesome_Auto_Quester.Helpers
 
         public static void CheckIfZReachable(Vector3 checkPosition)
         {
-            if (checkPosition.DistanceTo2D(ObjectManager.Me.Position) <= 3 && GetZDistance(checkPosition) > 3)
+            if (checkPosition.DistanceTo2D(ObjectManager.Me.Position) <= 3 && WTLocation.GetZDifferential(checkPosition) > 3)
             {
                 BlacklistHelper.AddZone(checkPosition, 2, $"Unreachable Z");
             }
@@ -38,52 +37,6 @@ namespace Wholesome_Auto_Quester.Helpers
             return !TraceLine.TraceLineGo(new Vector3(myPos.X, myPos.Y, myPos.Z + 2),
                 objectPos,
                 CGWorldFrameHitFlags.HitTestSpellLoS | CGWorldFrameHitFlags.HitTestLOS);
-        }
-
-        public static string GetMinimapZoneText()
-        {
-            return Lua.LuaDoString<string>("return GetMinimapZoneText();");
-        }
-
-        public static int GetAvergaeDurability()
-        {
-            return Lua.LuaDoString<int>($@"
-                local avrgDurability = 0;
-                local nbItems = 0;
-                for i=1,20 do
-                    local durability, max = GetInventoryItemDurability(i);
-                    if durability ~= nil and max ~= nil then
-                        avrgDurability = avrgDurability + durability;
-                        nbItems = nbItems + 1;
-                    end
-                end
-
-                if nbItems > 0 then
-                    return avrgDurability / nbItems;
-                else 
-                    return 100;
-                end
-            ");
-        }
-
-        // Get item Cooldown (must pass item string as arg)
-        public static int GetItemCooldown(int itemId)
-        {
-            List<WoWItem> _bagItems = Bag.GetBagItem();
-            foreach (WoWItem item in _bagItems)
-                if (itemId == item.Entry)
-                    return Lua.LuaDoString<int>("local startTime, duration, enable = GetItemCooldown(" + itemId + "); " +
-                        "return duration - (GetTime() - startTime)");
-
-            Logger.Log("Couldn't find item " + itemId);
-            return 0;
-        }
-
-        public static float GetZDistance(Vector3 checkPosition)
-        {
-            Vector3 myPos = ObjectManager.Me.Position;
-            if (checkPosition.Z > myPos.Z) return checkPosition.Z - myPos.Z;
-            else return myPos.Z - checkPosition.Z;
         }
 
         public static bool HostilesAreAround(WoWObject POI, IWAQTask task)
@@ -195,12 +148,6 @@ namespace Wholesome_Auto_Quester.Helpers
                 .TakeHighest(gameObject => (int)-gameObject.Position.DistanceTo(myPos));
         }
 
-        public static string EscapeLuaString(this string str) => str.Replace("\\", "\\\\").Replace("'", "\\'");
-
-        public static bool IsNpcFrameActive() =>
-            Lua.LuaDoString<bool>(
-                "return GetClickFrame('GossipFrame'):IsVisible() == 1 or GetClickFrame('QuestFrame'):IsVisible() == 1;");
-
         public static bool SaveQuestAsCompleted(int questId)
         {
             if (!WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Contains(questId) && !Quest.HasQuest(questId))
@@ -210,42 +157,6 @@ namespace Wholesome_Auto_Quester.Helpers
                 return true;
             }
             return false;
-        }
-
-        internal static int GetIndexOfClosestPoint(List<Vector3> path)
-        {
-            if (path == null || path.Count <= 0) return 0;
-            Vector3 myPos = ObjectManager.Me.PositionWithoutType;
-
-            var curIndex = 0;
-            var curDistance = float.MaxValue;
-
-            for (var i = 0; i < path.Count; i++)
-            {
-                float distance = myPos.DistanceTo(path[i]);
-                if (distance < curDistance)
-                {
-                    curDistance = distance;
-                    curIndex = i;
-                }
-            }
-
-            return curIndex;
-        }
-
-        public static float PointDistanceToLine(Vector3 start, Vector3 end, Vector3 point)
-        {
-            float vLenSquared = (start.X - end.X) * (start.X - end.X) +
-                                (start.Y - end.Y) * (start.Y - end.Y) +
-                                (start.Z - end.Z) * (start.Z - end.Z);
-            if (vLenSquared == 0f) return point.DistanceTo(start);
-
-            Vector3 ref1 = point - start;
-            Vector3 ref2 = end - start;
-            float clippedSegment = Math.Max(0, Math.Min(1, Vector3.Dot(ref ref1, ref ref2) / vLenSquared));
-
-            Vector3 projection = start + (end - start) * clippedSegment;
-            return point.DistanceTo(projection);
         }
 
         public static bool IsQuestCompleted(int questId) => WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Contains(questId);
@@ -305,54 +216,6 @@ namespace Wholesome_Auto_Quester.Helpers
             {
                 Logger.LogError("WriteJSONFromDBResult > " + e.Message);
             }
-        }
-
-        public static List<string> GetAvailableQuestGossips()
-        {
-            var result = new List<string>();
-            var numGossips = Lua.LuaDoString<int>(@"return GetNumGossipAvailableQuests()");
-            var nameIndex = 1;
-            for (var i = 1; i <= numGossips; i++)
-            {
-                result.Add(Lua.LuaDoString<string>(@"
-                    local gossips = { GetGossipAvailableQuests() };
-                    return gossips[" + nameIndex + "];"));
-                nameIndex += 4;
-            }
-
-            return result;
-        }
-
-        public static List<string> GetActiveQuestGossips()
-        {
-            var result = new List<string>();
-            var numGossips = Lua.LuaDoString<int>(@"return GetNumGossipActiveQuests()");
-            var nameIndex = 1;
-            for (var i = 1; i <= numGossips; i++)
-            {
-                result.Add(Lua.LuaDoString<string>(@"
-                    local gossips = { GetGossipActiveQuests() };
-                    return gossips[" + nameIndex + "];"));
-                nameIndex += 4;
-            }
-
-            return result;
-        }
-
-        public static List<string> GetAllGossips()
-        {
-            var result = new List<string>();
-            var numGossips = Lua.LuaDoString<int>(@"return GetNumGossipOptions()");
-            var nameIndex = 1;
-            for (var i = 1; i <= numGossips; i++)
-            {
-                result.Add(Lua.LuaDoString<string>(@"
-                    local gossips = { GetGossipOptions() };
-                    return gossips[" + nameIndex + "];"));
-                nameIndex += 3;
-            }
-
-            return result;
         }
 
         public static bool ShouldStateBeInterrupted(IWAQTask task, WoWObject gameObject)
@@ -476,8 +339,6 @@ namespace Wholesome_Auto_Quester.Helpers
             return false;
         }
 
-        public static string GetWoWVersion() => Lua.LuaDoString<string>("v, b, d, t = GetBuildInfo(); return v");
-
         public static Factions GetFaction() =>
             (PlayerFactions)ObjectManager.Me.Faction switch
             {
@@ -525,14 +386,6 @@ namespace Wholesome_Auto_Quester.Helpers
             return new WAQPath(path, distance);
         }
 
-        public static bool IsHorde()
-        {
-            uint myFaction = ObjectManager.Me.Faction;
-            return myFaction == (uint)PlayerFactions.Orc || myFaction == (uint)PlayerFactions.Tauren
-                || myFaction == (uint)PlayerFactions.Undead || myFaction == (uint)PlayerFactions.BloodElf
-                || myFaction == (uint)PlayerFactions.Troll;
-        }
-
         public static Dictionary<int, int> QuestModifiedLevel = new Dictionary<int, int>()
         {
             { 354, 3 }, // Roaming mobs, hard to find in a hostile zone
@@ -562,31 +415,6 @@ namespace Wholesome_Auto_Quester.Helpers
             { 12120, 3 }, // DrakAguul's Mallet, too many mobs
         };
 
-        // Returns whether the player has the debuff passed as a string (ex: Weakened Soul)
-        public static bool HasDebuff(string debuffName, string unitName = "player", int loops = 25)
-        {
-            return Lua.LuaDoString<bool>
-                (@$"for i=1,{loops} do
-                    local n, _, _, _, _  = UnitDebuff('{unitName}',i);
-                    if n == '{debuffName}' then
-                    return true
-                    end
-                end");
-        }
-
-        public static void PickupQuestFromBagItem(string itemName)
-        {
-            ItemsManager.UseItemByNameOrId(itemName);
-            Thread.Sleep(500);
-            Lua.LuaDoString("if GetClickFrame('QuestFrame'):IsVisible() then AcceptQuest(); end");
-            Thread.Sleep(500);
-            Lua.LuaDoString(@"
-                        local closeButton = GetClickFrame('QuestFrameCloseButton');
-                        if closeButton:IsVisible() then
-            	            closeButton:Click();
-                        end");
-        }
-
         public static List<WoWUnit> GetListObjManagerHostiles()
         {
             Vector3 myPosition = ObjectManager.Me.Position;
@@ -603,67 +431,6 @@ namespace Wholesome_Auto_Quester.Helpers
                    && u.Level < ObjectManager.Me.Level + 4)
                .OrderBy(u => u.Position.DistanceTo(myPosition))
                .ToList();
-        }
-
-        public static bool ZoneIsInAStartingZone(string zone)
-        {
-            return ZoneInBloodElfStartingZone(zone)
-                || ZoneInDraneiStartingZone(zone)
-                || ZoneInDwarfStartingZone(zone)
-                || ZoneInElfStartingZone(zone)
-                || ZoneInHumanStartingZone(zone)
-                || ZoneInOrcStartingZone(zone)
-                || ZoneInTaurenStartingZone(zone)
-                || ZoneInUndeadStartingZone(zone);
-        }
-
-        public static bool ZoneInBloodElfStartingZone(string zone)
-        {
-            return zone == "Eversong Woods" || zone == "Ghostlands" || zone == "Silvermoon City";
-        }
-        public static bool ZoneInDraneiStartingZone(string zone)
-        {
-            return zone == "Azuremyst Isle" || zone == "Bloodmyst Isle" || zone == "The Exodar";
-        }
-        public static bool ZoneInOrcStartingZone(string zone)
-        {
-            return zone == "Durotar" || zone == "Orgrimmar";
-        }
-        public static bool ZoneInTaurenStartingZone(string zone)
-        {
-            return zone == "Mulgore" || zone == "Thunder Bluff";
-        }
-        public static bool ZoneInUndeadStartingZone(string zone)
-        {
-            return zone == "Tirisfal Glades" || zone == "Undercity";
-        }
-        public static bool ZoneInDwarfStartingZone(string zone)
-        {
-            return zone == "Dun Morogh" || zone == "Ironforge";
-        }
-        public static bool ZoneInHumanStartingZone(string zone)
-        {
-            return zone == "Elwynn Forest" || zone == "Stormwind";
-        }
-        public static bool ZoneInElfStartingZone(string zone)
-        {
-            return zone == "Darnassus" || zone == "Teldrassil";
-        }
-
-        public static void DeleteItemByName(string itemName)
-        {
-            Lua.LuaDoString($@"
-                for b=0,4 do 
-                    for s=1,36 do 
-                        n=GetContainerItemLink(b,s);
-                        if n and string.find(n,""{itemName}"",1,true) then 
-                            PickupContainerItem(b,s);
-                            DeleteCursorItem();
-                            return;
-                        end;
-                    end;
-                end;
-            ");
         }
     }
 }

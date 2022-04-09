@@ -13,6 +13,7 @@ using Wholesome_Auto_Quester.Database;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.GUI;
 using Wholesome_Auto_Quester.Helpers;
+using WholesomeToolbox;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
@@ -90,7 +91,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 || _travelManager.TravelInProgress
                 || me.HaveBuff("Drink")
                 || me.HaveBuff("Food")
-                || MoveHelper.IsMovementThreadRunning && MoveHelper.GetCurrentPathRemainingDistance() > 200 && _tick % 5 != 0)
+                || MoveHelper.IsMovementThreadRunning && WTPathFinder.GetCurrentPathRemainingDistance() > 200 && _tick % 5 != 0)
             {
                 return;
             }
@@ -199,7 +200,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             if (ActiveTask != null
                 && MoveHelper.IsMovementThreadRunning)
             {
-                float remainingDistance = MoveHelper.GetCurrentPathRemainingDistance();
+                float remainingDistance = WTPathFinder.GetCurrentPathRemainingDistance();
                 if (remainingDistance > 200 && pathToClosestTask.Distance > remainingDistance)
                 {
                     Logger.LogWatchTask($"TASKM AVOID SNAP", watch.ElapsedMilliseconds);
@@ -238,7 +239,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             // only set new task on long distance if it's far apart from previous
             if (closestTask != null && ActiveTask != null
                 && MoveHelper.IsMovementThreadRunning
-                && MoveHelper.GetCurrentPathRemainingDistance() > 200
+                && WTPathFinder.GetCurrentPathRemainingDistance() > 200
                 && ActiveTask.Location.DistanceTo(closestTask.Location) < 500)
             {
                 Logger.LogWatchTask($"TASKM TOO CLOSE TO SWITCH", watch.ElapsedMilliseconds);

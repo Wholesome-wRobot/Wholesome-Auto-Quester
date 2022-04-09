@@ -8,7 +8,6 @@ namespace Wholesome_Auto_Quester.Helpers
         public static string ScannerString = "";
         public static string TaskMString = "";
 
-
         public static void Log(string str)
         {
             Logging.Write($"[{Main.ProductName}] " + str, Logging.LogType.Normal, Color.Brown);

@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
+using WholesomeToolbox;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
@@ -430,7 +431,7 @@ namespace Wholesome_Auto_Quester.Database
 
             // Quests to force get from the DB
             List<int> questsIdsToForce = new List<int>();
-            if (ToolBox.IsHorde())
+            if (WTPlayer.IsHorde())
             {
                 questsIdsToForce.Add(9407); // Through the dark portal
             }

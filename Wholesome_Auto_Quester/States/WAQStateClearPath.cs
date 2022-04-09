@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Helpers;
+using WholesomeToolbox;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
@@ -103,8 +104,8 @@ namespace Wholesome_Auto_Quester.States
                             {
                                 continue;
                             }
-                            if (ToolBox.GetZDistance(unit.Position) < 5
-                                && ToolBox.PointDistanceToLine(line.a, line.b, unit.Position) < 20)
+                            if (WTLocation.GetZDifferential(unit.Position) < 5
+                                && WTPathFinder.PointDistanceToLine(line.a, line.b, unit.Position) < 20)
                             {
                                 unitsAlongLine.Add(unit);
                             }

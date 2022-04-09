@@ -1,6 +1,7 @@
 ﻿using robotManager.FiniteStateMachine;
 using System.Threading;
 using Wholesome_Auto_Quester.Helpers;
+using WholesomeToolbox;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
@@ -18,14 +19,14 @@ namespace Wholesome_Auto_Quester.States
                     || !ObjectManager.Me.IsValid)
                     return false;
 
-                return ToolBox.HasDebuff("Resurrection Sickness", loops: 3);
+                return WTEffects.HasDebuff("Resurrection Sickness", loops: 3);
             }
         }
 
         public override void Run()
         {
             Thread.Sleep(1000);
-            if (ItemsManager.HasItemById(6948) && ToolBox.GetItemCooldown(6948) <= 0)
+            if (ItemsManager.HasItemById(6948) && WTItem.GetItemCooldown(6948) <= 0)
             {
                 ItemsManager.UseItem(6948);
             }
