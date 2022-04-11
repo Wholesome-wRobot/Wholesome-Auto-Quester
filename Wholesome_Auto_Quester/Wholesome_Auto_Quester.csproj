@@ -283,10 +283,6 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
-    <Reference Include="WholesomeToolbox">
-      <HintPath>..\Dependencies\WholesomeToolbox.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="wManager">
       <HintPath>..\Dependencies\wManager.dll</HintPath>
@@ -414,6 +410,7 @@
     <Content Include="Compiled\Wholesome_Auto_Quester.dll" />
     <Content Include="Helpers\Misc.txt" />
   </ItemGroup>
+  <Import Project="..\Wholesome-Toolbox\Wholesome_Toolbox.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y/F "F:\WoW\WoW Wotlk\WRobot WOTLK\Products\Wholesome_Auto_Quester.dll" "$(ProjectDir)\Compiled"</PostBuildEvent>
