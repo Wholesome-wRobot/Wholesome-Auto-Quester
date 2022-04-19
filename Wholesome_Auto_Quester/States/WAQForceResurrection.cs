@@ -27,7 +27,7 @@ namespace Wholesome_Auto_Quester.States
                 {
                     if (!WTEffects.HasDebuff("Ghost"))
                     {
-                        WTLua.ClickOnFrameButton("StaticPopup1Button1");
+                        WTGossip.ClickOnFrameButton("StaticPopup1Button1");
                     }
                     else
                     {
@@ -57,7 +57,7 @@ namespace Wholesome_Auto_Quester.States
                 for (int i = 0; i < 2; i++)
                 {
                     Thread.Sleep(1000);
-                    WTLua.ClickOnFrameButton("StaticPopup1Button1");
+                    WTGossip.ClickOnFrameButton("StaticPopup1Button1");
                 }
             }
         }

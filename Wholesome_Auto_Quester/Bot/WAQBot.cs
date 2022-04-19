@@ -62,28 +62,34 @@ namespace Wholesome_Auto_Quester.Bot
                 Fsm.States.Clear();
 
                 Fsm.AddState(new Relogger { Priority = 200 });
-                Fsm.AddState(new NPCScanState { Priority = 38 });
-                Fsm.AddState(new Pause { Priority = 37 });
-                Fsm.AddState(new WAQForceResurrection { Priority = 36 });
-                Fsm.AddState(new Resurrect { Priority = 35 });
+                Fsm.AddState(new NPCScanState { Priority = 40 });
+                Fsm.AddState(new Pause { Priority = 39 });
+                Fsm.AddState(new WAQForceResurrection { Priority = 38 });
+                Fsm.AddState(new Resurrect { Priority = 37 });
 
-                Fsm.AddState(new WAQExitVehicle { Priority = 34 });
+                Fsm.AddState(new WAQExitVehicle { Priority = 36 });
 
-                Fsm.AddState(new MyMacro { Priority = 33 });
+                Fsm.AddState(new MyMacro { Priority = 35 });
 
                 //Fsm.AddState(new WAQBlacklistDanger { Priority = 32 });
-                Fsm.AddState(new WAQStatePriorityLoot(_objectScanner, 31));
-                Fsm.AddState(new WAQDefend { Priority = 30 });
-                Fsm.AddState(new WAQWaitResurrectionSickness { Priority = 29 });
+                Fsm.AddState(new WAQStatePriorityLoot(_objectScanner, 34));
+                Fsm.AddState(new WAQDefend { Priority = 33 });
+                Fsm.AddState(new WAQWaitResurrectionSickness { Priority = 32 });
 
-                Fsm.AddState(new Regeneration { Priority = 28 });
+                Fsm.AddState(new Regeneration { Priority = 31 });
 
-                _clearPathState = new WAQStateClearPath(_objectScanner, 27);
+                _clearPathState = new WAQStateClearPath(_objectScanner, 30);
                 Fsm.AddState(_clearPathState);
-                Fsm.AddState(new WAQStateLoot(_objectScanner, 26));
+                Fsm.AddState(new WAQStateLoot(_objectScanner, 29));
 
-                Fsm.AddState(new Looting { Priority = 25 });
-                Fsm.AddState(new FlightMasterTakeTaxiState { Priority = 24 });
+                Fsm.AddState(new Looting { Priority = 28 });
+                //Fsm.AddState(new MillingState { Priority = 25 });
+                Fsm.AddState(new Farming { Priority = 27 });
+                Fsm.AddState(new FarmingRange { Priority = 26 });
+
+                Fsm.AddState(new FlightMasterTakeTaxiState { Priority = 25 });
+                Fsm.AddState(new FlightMasterDiscoverState { Priority = 24 });
+
                 Fsm.AddState(new Trainers { Priority = 23 });
                 Fsm.AddState(new ToTown { Priority = 22 });
 

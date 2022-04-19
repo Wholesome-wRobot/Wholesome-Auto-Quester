@@ -20,7 +20,7 @@ using wManager.Wow.ObjectManager;
 
 public class Main : IProduct
 {
-    public static readonly string ProductVersion = "0.1.31"; // Must match version in Version.txt
+    public static readonly string ProductVersion = "0.1.32"; // Must match version in Version.txt
     public static readonly string ProductName = "Wholesome Auto Quester";
     public static readonly string FileName = "Wholesome_Auto_Quester";
     private ProductSettingsControl _settingsUserControl;
