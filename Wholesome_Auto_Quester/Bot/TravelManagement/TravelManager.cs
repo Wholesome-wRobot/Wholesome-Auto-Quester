@@ -3,6 +3,7 @@ using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
 using WholesomeToolbox;
 using wManager.Wow.ObjectManager;
+using static wManager.Wow.Helpers.PathFinder;
 
 namespace Wholesome_Auto_Quester.Bot.TravelManagement
 {
@@ -87,6 +88,7 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
         public void AddAllOffmeshConnections()
         {
             Logger.Log("Adding offmesh connections");
+            OffMeshConnections.MeshConnection.Clear(); // must do first to clear faulty connections
             WTSettings.AddRecommendedBlacklistZones();
             WTSettings.AddRecommendedOffmeshConnections();
             WTTransport.AddRecommendedTransportsOffmeshes();
