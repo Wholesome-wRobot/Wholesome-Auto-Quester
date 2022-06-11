@@ -17,7 +17,9 @@ namespace Wholesome_Auto_Quester
 
         public static bool CheckUpdate(string mainVersion)
         {
-            _currentVersion = mainVersion;
+
+            Version currentVersion = new Version(mainVersion);
+
             DateTime dateBegin = new DateTime(2020, 1, 1);
             DateTime currentDate = DateTime.Now;
 
@@ -25,6 +27,7 @@ namespace Wholesome_Auto_Quester
             elapsedTicks /= 10000000;
 
             double timeSinceLastUpdate = elapsedTicks - WholesomeAQSettings.CurrentSetting.LastUpdateDate;
+
             string currentFile = Others.GetCurrentDirectory + $@"\Products\{Main.FileName}.dll";
             string oldFile = Others.GetCurrentDirectory + $@"\Products\{Main.FileName} dmp";
 
@@ -42,14 +45,14 @@ namespace Wholesome_Auto_Quester
                     }
                     fs.Close();
                 }
-                catch
+                catch (Exception e)
                 {
-                    ShowReloadMessage();
+                    Logger.LogError($"Error while deleting dump file: {e}");
                     return true;
                 }
             }
 
-            // If last update try was < 10 seconds ago, we exit to avoid looping
+            // If last update try was < 30 seconds ago, we exit to avoid looping
             if (timeSinceLastUpdate < 30)
             {
                 Logger.Log($"Last update attempt was {timeSinceLastUpdate} seconds ago. Exiting updater.");
@@ -60,34 +63,36 @@ namespace Wholesome_Auto_Quester
             {
                 WholesomeAQSettings.CurrentSetting.LastUpdateDate = elapsedTicks;
                 WholesomeAQSettings.CurrentSetting.Save();
-                Logger.Log("Starting updater");
-                string onlineFile = "https://github.com/Wholesome-wRobot/Wholesome-Auto-Quester/raw/master/Wholesome_Auto_Quester/Compiled/Wholesome_Auto_Quester.dll";
-                string onlineVersion = "https://raw.githubusercontent.com/Wholesome-wRobot/Wholesome-Auto-Quester/master/Wholesome_Auto_Quester/Compiled/Version.txt";
 
-                _onlineVersion = new System.Net.WebClient { Encoding = Encoding.UTF8 }.DownloadString(onlineVersion);
+                string onlineDllLink = "https://github.com/Wholesome-wRobot/Wholesome-Auto-Quester/raw/master/Wholesome_Auto_Quester/Compiled/Wholesome_Auto_Quester.dll";
+                string onlineVersionLink = "https://raw.githubusercontent.com/Wholesome-wRobot/Wholesome-Auto-Quester/master/Wholesome_Auto_Quester/Compiled/Version.txt";
 
-                Logger.Log($"Online Version : {_onlineVersion}");
-                if (_onlineVersion == null || _onlineVersion.Length > 10 || _onlineVersion == _currentVersion)
+                string onlineVersionTxt = new System.Net.WebClient { Encoding = Encoding.UTF8 }.DownloadString(onlineVersionLink);
+                Version onlineVersion = new Version(onlineVersionTxt);
+
+                if (onlineVersion.CompareTo(currentVersion) <= 0)
                 {
-                    Logger.Log($"Your version is up to date ({_currentVersion})");
+                    Logger.Log($"Your version is up to date ({currentVersion} / {onlineVersion})");
                     return false;
                 }
 
-                byte[] onlineFileContent = new System.Net.WebClient { Encoding = Encoding.UTF8 }.DownloadData(onlineFile);
+                byte[] onlineDllContent = new WebClient { Encoding = Encoding.UTF8 }.DownloadData(onlineDllLink);
 
-                if (onlineFileContent != null && onlineFileContent.Length > 0)
+                if (onlineDllContent != null && onlineDllContent.Length > 0)
                 {
-                    Logger.Log($"Your version : {_currentVersion}");
-                    Logger.Log("Trying to update");
+                    Logger.Log($"Updating your version {currentVersion} to online Version {onlineVersion}");
 
                     File.Move(currentFile, oldFile);
 
                     Logger.Log("Writing file");
-                    File.WriteAllBytes(currentFile, onlineFileContent); // replace user file by online file
+                    File.WriteAllBytes(currentFile, onlineDllContent); // replace user file by online file
 
-                    Thread.Sleep(2000);
+                    Thread.Sleep(1000);
 
-                    ShowReloadMessage();
+                    Logger.LogError($"A new version of the Wholesome Auto Quester has been downloaded, please restart WRobot.".ToUpper() +
+                        $"\r{currentVersion} => {onlineVersion}".ToUpper());
+                    Products.DisposeProduct();
+
                     return true;
                 }
             }

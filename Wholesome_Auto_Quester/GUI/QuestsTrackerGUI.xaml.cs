@@ -22,7 +22,7 @@ namespace Wholesome_Auto_Quester.GUI
         {
             InitializeComponent();
             DiscordLink.RequestNavigate += (sender, e) => { System.Diagnostics.Process.Start(e.Uri.ToString()); };
-            Title = $"Wholesome quest tracker ({Main.ProductVersion})";
+            Title = $"Wholesome quest tracker";
             detailsPanel.Visibility = Visibility.Hidden;
         }
 
