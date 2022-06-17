@@ -326,6 +326,7 @@
     <Compile Include="Bot\TaskManagement\WowObjectScanner.cs" />
     <Compile Include="Bot\TravelManagement\ContinentHelper.cs" />
     <Compile Include="Bot\TravelManagement\ITravelManager.cs" />
+    <Content Include="Compiled\Auto_Version.txt" />
     <Compile Include="Database\Conditions\DBConditionGroup.cs" />
     <Compile Include="Database\Conditions\DBCondition.cs" />
     <Compile Include="Database\Conditions\IDBCondition.cs" />
@@ -444,7 +445,7 @@
 			PostBuildMacros;
 		</PostBuildEventDependsOn>
     <PostBuildEvent>xcopy /Y/F "F:\WoW\WoW Wotlk\WRobot WOTLK\Products\Wholesome_Auto_Quester.dll" "$(ProjectDir)\Compiled"
-echo Writing assembly version in Version.txt: @(VersionNumber)
-echo @(VersionNumber) &gt; $(ProjectDir)\Compiled\Version.txt</PostBuildEvent>
+echo Writing assembly version in Auto_Version.txt: @(VersionNumber)
+echo @(VersionNumber) &gt; $(ProjectDir)\Compiled\Auto_Version.txt</PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -65,7 +65,7 @@ namespace Wholesome_Auto_Quester
                 WholesomeAQSettings.CurrentSetting.Save();
 
                 string onlineDllLink = "https://github.com/Wholesome-wRobot/Wholesome-Auto-Quester/raw/master/Wholesome_Auto_Quester/Compiled/Wholesome_Auto_Quester.dll";
-                string onlineVersionLink = "https://raw.githubusercontent.com/Wholesome-wRobot/Wholesome-Auto-Quester/master/Wholesome_Auto_Quester/Compiled/Version.txt";
+                string onlineVersionLink = "https://raw.githubusercontent.com/Wholesome-wRobot/Wholesome-Auto-Quester/master/Wholesome_Auto_Quester/Compiled/Auto_Version.txt";
 
                 string onlineVersionTxt = new System.Net.WebClient { Encoding = Encoding.UTF8 }.DownloadString(onlineVersionLink);
                 Version onlineVersion = new Version(onlineVersionTxt);
