@@ -444,7 +444,7 @@
 			$(PostBuildEventDependsOn);
 			PostBuildMacros;
 		</PostBuildEventDependsOn>
-    <PostBuildEvent>xcopy /Y/F "F:\WoW\WoW Wotlk\WRobot WOTLK\Products\Wholesome_Auto_Quester.dll" "$(ProjectDir)\Compiled"
+    <PostBuildEvent>xcopy /Y/F "$(TargetDir)\Wholesome_Auto_Quester.dll" "$(ProjectDir)\Compiled"
 echo Writing assembly version in Auto_Version.txt: @(VersionNumber)
 echo @(VersionNumber) &gt; $(ProjectDir)\Compiled\Auto_Version.txt</PostBuildEvent>
   </PropertyGroup>
