@@ -45,6 +45,8 @@ namespace Wholesome_Auto_Quester.GUI
                 {
                     IWAQQuest selected = (IWAQQuest)sourceQuestsList.SelectedItem;
                     _questManager?.AddQuestToBlackList(selected.QuestTemplate.Id, "Blacklisted by user", true);
+                    sourceQuestsList.SelectedItem = null;
+                    sourceQuestsList.SelectedItem = selected;
                 }
             }
         }
@@ -57,62 +59,64 @@ namespace Wholesome_Auto_Quester.GUI
                 {
                     IWAQQuest selected = (IWAQQuest)sourceQuestsList.SelectedItem;
                     _questManager?.RemoveQuestFromBlackList(selected.QuestTemplate.Id, "Removed by user", true);
+                    sourceQuestsList.SelectedItem = null;
+                    sourceQuestsList.SelectedItem = selected;
                 }
             }
         }
 
         public void ShowWindow()
         {
-            lock (_guiLock)
+            try
             {
-                try
+                Dispatcher.UnhandledException += App_DispatcherUnhandledException;
+                Dispatcher.BeginInvoke((Action)(() =>
                 {
-                    Dispatcher.UnhandledException += App_DispatcherUnhandledException;
-                    Dispatcher.BeginInvoke((Action)(() =>
+                    lock (_guiLock)
                     {
                         Show();
                         if (WholesomeAQSettings.CurrentSetting.QuestTrackerPositionLeft != 0)
                             Left = WholesomeAQSettings.CurrentSetting.QuestTrackerPositionLeft;
                         if (WholesomeAQSettings.CurrentSetting.QuestTrackerPositionTop != 0)
                             Top = WholesomeAQSettings.CurrentSetting.QuestTrackerPositionTop;
-                    }));
-                }
-                catch (Exception e)
-                {
-                    Logger.LogError($"Tracker ShowWindow => {e.Message}");
-                }
+                    }
+                }));
+            }
+            catch (Exception e)
+            {
+                Logger.LogError($"Tracker ShowWindow => {e.Message}");
             }
         }
 
         public void HideWindow()
         {
-            lock (_guiLock)
+            try
             {
-                try
+                Dispatcher.BeginInvoke((Action)(() =>
                 {
-                    Dispatcher.BeginInvoke((Action)(() =>
+                    lock (_guiLock)
                     {
                         Hide();
                         WholesomeAQSettings.CurrentSetting.QuestTrackerPositionLeft = Left;
                         WholesomeAQSettings.CurrentSetting.QuestTrackerPositionTop = Top;
                         WholesomeAQSettings.CurrentSetting.Save();
-                    }));
-                    Dispatcher.UnhandledException -= App_DispatcherUnhandledException;
-                }
-                catch (Exception e)
-                {
-                    Logger.LogError($"Tracker HideWindow => {e.Message}");
-                }
+                    }
+                }));
+                Dispatcher.UnhandledException -= App_DispatcherUnhandledException;
+            }
+            catch (Exception e)
+            {
+                Logger.LogError($"Tracker HideWindow => {e.Message}");
             }
         }
 
         public void UpdateQuestsList(List<IWAQQuest> questList)
         {
-            lock (_guiLock)
+            Dispatcher.BeginInvoke((Action)(() =>
             {
-                Dispatcher.BeginInvoke((Action)(() =>
+                try
                 {
-                    try
+                    lock (_guiLock)
                     {
                         object selectedQuest = sourceQuestsList.SelectedItem;
                         sourceQuestsList.ItemsSource = questList;
@@ -124,39 +128,39 @@ namespace Wholesome_Auto_Quester.GUI
 
                         questTitleTop.Text = $"Quests ({questList.Count})";
                     }
-                    catch (Exception e)
-                    {
-                        Logger.LogError($"Tracker UpdateQuestsList => {e.Message}");
-                    }
-                }));
-            }
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError($"Tracker UpdateQuestsList => {e.Message}");
+                }
+            }));
         }
 
         public void UpdateScanReg(List<GUIScanEntry> guiScanEntries)
         {
-            lock (_guiLock)
+            Dispatcher.BeginInvoke((Action)(() =>
             {
-                Dispatcher.BeginInvoke((Action)(() =>
+                try
                 {
-                    try
+                    lock (_guiLock)
                     {
                         sourceScanReg.ItemsSource = guiScanEntries;
                     }
-                    catch (Exception e)
-                    {
-                        Logger.LogError($"Tracker UpdateScanReg => {e.Message}");
-                    }
-                }));
-            }
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError($"Tracker UpdateScanReg => {e.Message}");
+                }
+            }));
         }
 
         public void UpdateInvalids(List<IWAQTask> invalidTasks)
         {
-            lock (_guiLock)
+            Dispatcher.BeginInvoke((Action)(() =>
             {
-                Dispatcher.BeginInvoke((Action)(() =>
+                try
                 {
-                    try
+                    lock (_guiLock)
                     {
                         sourceInvalids.ItemsSource = null;
                         int counter = 0;
@@ -171,21 +175,21 @@ namespace Wholesome_Auto_Quester.GUI
                         sourceInvalids.ItemsSource = guiTasks;
                         invalidsTitleTop.Text = $"Invalid tasks ({countText})";
                     }
-                    catch (Exception e)
-                    {
-                        Logger.LogError($"Tracker UpdateInvalids => {e.Message}");
-                    }
-                }));
-            }
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError($"Tracker UpdateInvalids => {e.Message}");
+                }
+            }));
         }
 
         public void UpdateTasksList(List<GUITask> guiTaskPile)
         {
-            lock (_guiLock)
+            Dispatcher.BeginInvoke((Action)(() =>
             {
-                Dispatcher.BeginInvoke((Action)(() =>
+                try
                 {
-                    try
+                    lock (_guiLock)
                     {
                         sourceTasksList.ItemsSource = null;
                         int limit = 200;
@@ -193,14 +197,13 @@ namespace Wholesome_Auto_Quester.GUI
                         string countText = guiTaskPile.Count >= limit ? $"{limit}+" : $"{guiTaskPile.Count}";
                         sourceTasksList.ItemsSource = tasksToDisplay;
                         tasksTitleTop.Text = $"Current Tasks ({countText})";
-
                     }
-                    catch (Exception e)
-                    {
-                        Logger.LogError($"Tracker UpdateTasksList => {e.Message}");
-                    }
-                }));
-            }
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError($"Tracker UpdateTasksList => {e.Message}");
+                }
+            }));
         }
 
         private void SelectQuest(object sender, RoutedEventArgs e)
@@ -219,8 +222,8 @@ namespace Wholesome_Auto_Quester.GUI
                     // blacklisted
                     if (selected.IsQuestBlackListed)
                     {
-                        blacklisted.Text = @$"Blacklisted : { WholesomeAQSettings.CurrentSetting.BlackListedQuests
-                            .Find(blq => blq.Id == selected.QuestTemplate.Id).Reason }";
+                        blacklisted.Text = @$"Blacklisted : {WholesomeAQSettings.CurrentSetting.BlackListedQuests
+                            .Find(blq => blq.Id == selected.QuestTemplate.Id).Reason}";
                         blacklisted.Visibility = Visibility.Visible;
                     }
                     else

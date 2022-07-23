@@ -334,20 +334,20 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                         {
                             if (logQuest.Value.State == StateFlag.Failed)
                             {
-                                AddQuestToBlackList(waqQuest.QuestTemplate.Id, "Failed");
                                 AbandonQuest(waqQuest.QuestTemplate.Id, "Failed");
+                                AddQuestToBlackList(waqQuest.QuestTemplate.Id, "Failed");
                                 continue;
                             }
                             if (logQuest.Value.State == StateFlag.None && waqQuest.GetAllObjectives().Count <= 0)
                             {
-                                AddQuestToBlackList(waqQuest.QuestTemplate.Id, "In progress with no objectives");
                                 AbandonQuest(waqQuest.QuestTemplate.Id, "In progress with no objectives");
+                                AddQuestToBlackList(waqQuest.QuestTemplate.Id, "In progress with no objectives");
                                 continue;
                             }
                             if (waqQuest.QuestTemplate.QuestLevel < ObjectManager.Me.Level - WholesomeAQSettings.CurrentSetting.LevelDeltaMinus - 1)
                             {
-                                AddQuestToBlackList(waqQuest.QuestTemplate.Id, "Underleveled");
                                 AbandonQuest(waqQuest.QuestTemplate.Id, "Underleveled");
+                                AddQuestToBlackList(waqQuest.QuestTemplate.Id, "Underleveled");
                                 continue;
                             }
                         }

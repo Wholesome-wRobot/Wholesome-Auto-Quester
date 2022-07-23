@@ -60,14 +60,14 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
         private void LuaEventHandler(string eventid, List<string> args)
         {
-            lock (_scannerLock)
+            switch (eventid)
             {
-                switch (eventid)
-                {
-                    case "PLAYER_LEVEL_UP":
+                case "PLAYER_LEVEL_UP":
+                    lock (_scannerLock)
+                    {
                         ActiveWoWObject = (null, null);
-                        break;
-                }
+                    }
+                    break;
             }
         }
 
@@ -128,14 +128,12 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                         && wowObject.Position.DistanceTo(myPos) < 60)
                     .OrderBy(wowObject => wowObject.Position.DistanceTo(myPos))
                     .ToList();
-
                 listSurroundingPOIs.RemoveAll(wowObject => _scanned.ContainsKey(wowObject.Guid) && _scanned[wowObject.Guid] > 3);
 
                 if (listSurroundingPOIs.Count > 0)
                 {
                     WoWObject closestObject = listSurroundingPOIs[0];
                     WAQPath pathToClosestObject = ToolBox.GetWAQPath(me.Position, closestObject.Position);
-
                     if (closestObject.Position.DistanceTo(myPos) > 5 && !pathToClosestObject.IsReachable)
                     {
                         MarkAsUnreachable(closestObject);
@@ -179,7 +177,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                         }
                     }
 
-                    if (closestObject.Guid <= 0)
+                    if (closestObject.Guid <= 0 || !closestObject.IsValid)
                     {
                         ActiveWoWObject = (null, null);
                         return;
@@ -216,26 +214,19 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
         private IWAQTask GetTaskMatchingWithObject(WoWObject closestObject)
         {
-            lock (_scannerLock)
+            if (closestObject == null)
             {
-                if (closestObject == null)
-                {
-                    throw new System.Exception($"[Scanner] Tried to get a task matching with the active object entry but it was null");
-                }
-
-                if (_scannerRegistry.TryGetValue(closestObject.Entry, out List<IWAQTask> taskList))
-                {
-                    return taskList
-                        .Where(task => task.IsObjectValidForTask(closestObject) && task.IsValid)
-                        .OrderBy(task => task.Location.DistanceTo(closestObject.Position))
-                        .FirstOrDefault();
-                }
-                else
-                {
-                    throw new System.Exception($"[Scanner] Tried to get a task matching with the object entry {closestObject.Entry} but the entry didn't exist");
-                }
+                throw new System.Exception($"[Scanner] Tried to get a task matching with the active object entry but it was null");
             }
 
+            if (_scannerRegistry.TryGetValue(closestObject.Entry, out List<IWAQTask> taskList))
+            {
+                return taskList
+                    .Where(task => task.IsObjectValidForTask(closestObject) && task.IsValid)
+                    .OrderBy(task => task.Location.DistanceTo(closestObject.Position))
+                    .FirstOrDefault();
+            }
+            throw new System.Exception($"[Scanner] Tried to get a task matching with the object entry {closestObject.Entry} but the entry didn't exist");
         }
 
         public void AddToScannerRegistry(int entry, IWAQTask task)
@@ -286,25 +277,22 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
         {
             get
             {
-                lock (_scannerLock)
+                List<GUIScanEntry> scanEntries = new List<GUIScanEntry>();
+                foreach (KeyValuePair<int, List<IWAQTask>> entry in _scannerRegistry)
                 {
-                    List<GUIScanEntry> scanEntries = new List<GUIScanEntry>();
-                    foreach (KeyValuePair<int, List<IWAQTask>> entry in _scannerRegistry)
+                    foreach (IWAQTask task in entry.Value)
                     {
-                        foreach (IWAQTask task in entry.Value)
+                        if (!scanEntries.Exists(entry => entry.TaskName == task.TaskName))
                         {
-                            if (!scanEntries.Exists(entry => entry.TaskName == task.TaskName))
-                            {
-                                scanEntries.Add(new GUIScanEntry(entry.Key, task));
-                            }
-                            else
-                            {
-                                scanEntries.Find(entry => entry.TaskName == task.TaskName).AddOne(task);
-                            }
+                            scanEntries.Add(new GUIScanEntry(entry.Key, task));
+                        }
+                        else
+                        {
+                            scanEntries.Find(entry => entry.TaskName == task.TaskName).AddOne(task);
                         }
                     }
-                    return scanEntries;
                 }
+                return scanEntries;
             }
         }
     }
