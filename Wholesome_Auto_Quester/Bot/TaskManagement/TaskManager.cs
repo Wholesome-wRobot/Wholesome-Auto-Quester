@@ -60,11 +60,21 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                     }
                 }
             });
+            EventsLuaWithArgs.OnEventsLuaStringWithArgs += LuaEventHandler;
+        }
+
+        private void LuaEventHandler(string eventid, List<string> args)
+        {
+            if (eventid == "PLAYER_LEVEL_UP")
+            {
+                _grindTasks.Clear();
+            }
         }
 
         public void Dispose()
         {
             _taskPile.Clear();
+            EventsLuaWithArgs.OnEventsLuaStringWithArgs -= LuaEventHandler;
             _isRunning = false;
         }
 
@@ -104,6 +114,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             Vector3 myPosition = ObjectManager.Me.Position;
             List<IWAQTask> tasksToAdd = new List<IWAQTask>();
 
+            // Go to mob entry
             if (WholesomeAQSettings.CurrentSetting.GoToMobEntry > 0)
             {
                 DB _db = new DB();
@@ -121,6 +132,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 }
             }
 
+            // Quests
             if (WholesomeAQSettings.CurrentSetting.GoToMobEntry <= 0 && !WholesomeAQSettings.CurrentSetting.GrindOnly)
             {
                 tasksToAdd.AddRange(_questManager.GetAllValidQuestTasks());

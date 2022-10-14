@@ -23,36 +23,38 @@ namespace Wholesome_Auto_Quester.Bot.GrindManagement
         {
             _grindTasks.Clear();
             DB _database = new DB();
-            List<ModelCreatureTemplate> ctToGrind = _database.QueryCreatureTemplatesToGrind();
+            List<ModelCreatureTemplate> creaturesToGrind = _database.QueryCreatureTemplatesToGrind();
             _database.Dispose();
 
-            ctToGrind.RemoveAll(ct =>
+            creaturesToGrind.RemoveAll(ct =>
                 ct.Creatures.Any(c =>
                     !ContinentHelper.PointIsOnMyContinent(c.GetSpawnPosition, c.map) && !WholesomeAQSettings.CurrentSetting.ContinentTravel)
                 || ct.IsFriendly
                 || ct.faction == 188);
-            Logger.Log($"Found {ctToGrind.Count} templates to grind");
-            foreach (ModelCreatureTemplate template in ctToGrind)
+            Logger.Log($"Found {creaturesToGrind.Count} templates to grind");
+            foreach (ModelCreatureTemplate template in creaturesToGrind)
             {
                 foreach (ModelCreature creature in template.Creatures)
                 {
                     _grindTasks.Add(new WAQTaskGrind(template, creature));
                 }
             }
-            _grindTasks.RemoveAll(task => task.WorldMapArea == null);
+            _grindTasks.RemoveAll(task => task.WorldMapArea == null || !task.IsValid);
         }
 
         public void Initialize()
         {
+            /*
             RecordGrindTasksFromDB();
             EventsLuaWithArgs.OnEventsLuaStringWithArgs += LuaEventHandler;
+            */
         }
 
         public void Dispose()
         {
-            EventsLuaWithArgs.OnEventsLuaStringWithArgs -= LuaEventHandler;
+            //EventsLuaWithArgs.OnEventsLuaStringWithArgs -= LuaEventHandler;
         }
-
+        /*
         private void LuaEventHandler(string eventid, List<string> args)
         {
             if (eventid == "PLAYER_LEVEL_UP" && ObjectManager.Me.Level < WholesomeAQSettings.CurrentSetting.StopAtLevel)
@@ -60,7 +62,11 @@ namespace Wholesome_Auto_Quester.Bot.GrindManagement
                 RecordGrindTasksFromDB();
             }
         }
-
-        public List<IWAQTask> GetGrindTasks() => _grindTasks.FindAll(task => task.IsValid);
+        */
+        public List<IWAQTask> GetGrindTasks()
+        {
+            RecordGrindTasksFromDB();
+            return _grindTasks;
+        }
     }
 }
