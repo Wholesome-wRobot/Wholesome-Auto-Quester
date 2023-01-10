@@ -1,11 +1,18 @@
-﻿using robotManager.Products;
+﻿using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
+using robotManager.Products;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Database.Objectives;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.ObjectManager;
+using System.Collections;
+using robotManager.Helpful;
+using System.IO;
+using System;
 
 namespace Wholesome_Auto_Quester.Database
 {
@@ -535,13 +542,50 @@ namespace Wholesome_Auto_Quester.Database
             {
                 Stopwatch stopwatchJSON = Stopwatch.StartNew();
                 Logger.Log($"{allFilteredQuests.Count} results. Building JSON. Please wait.");
-                ToolBox.WriteJSONFromDBResult(allFilteredQuests);
+                try
+                {
+                    if (File.Exists(Others.GetCurrentDirectory + @"\Data\WAQquests.json"))
+                        File.Delete(Others.GetCurrentDirectory + @"\Data\WAQquests.json");
+
+                    using (StreamWriter file = File.CreateText(Others.GetCurrentDirectory + @"\Data\WAQquests.json"))
+                    {
+                        var serializer = new JsonSerializer();
+                        serializer.ContractResolver = ShouldSerializeContractResolver.Instance;
+                        serializer.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                        serializer.DefaultValueHandling = DefaultValueHandling.Ignore;
+                        serializer.NullValueHandling = NullValueHandling.Ignore;
+                        serializer.Serialize(file, allFilteredQuests);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError("WriteJSONFromDBResult > " + e.Message);
+                }
                 Logger.Log($"Process time (JSON processing) : {stopwatchJSON.ElapsedMilliseconds} ms");
             }
 
             Logger.Log($"DONE! Process time (TOTAL) : {stopwatch.ElapsedMilliseconds} ms");
 
             return allFilteredQuests;
+        }
+    }
+
+    public class ShouldSerializeContractResolver : DefaultContractResolver
+    {
+        public static readonly ShouldSerializeContractResolver Instance = new ShouldSerializeContractResolver();
+
+        protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+        {
+            JsonProperty property = base.CreateProperty(member, memberSerialization);
+
+            if (property.PropertyType != typeof(string))
+            {
+                if (property.PropertyType.GetInterface(nameof(IEnumerable)) != null)
+                    property.ShouldSerialize =
+                        instance => (instance?.GetType().GetProperty(property.UnderlyingName)?.GetValue(instance) as IEnumerable)?.OfType<object>().Count() > 0;
+            }
+
+            return property;
         }
     }
 }

@@ -30,6 +30,7 @@ namespace Wholesome_Auto_Quester.Bot.GrindManagement
                 ct.Creatures.Any(c =>
                     !ContinentHelper.PointIsOnMyContinent(c.GetSpawnPosition, c.map) && !WholesomeAQSettings.CurrentSetting.ContinentTravel)
                 || ct.IsFriendly
+                || ct.rank > 0
                 || ct.faction == 188);
             Logger.Log($"Found {creaturesToGrind.Count} templates to grind");
             foreach (ModelCreatureTemplate template in creaturesToGrind)

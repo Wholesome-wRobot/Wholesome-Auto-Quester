@@ -199,25 +199,6 @@ namespace Wholesome_Auto_Quester.Helpers
             }
         }
 
-        public static void WriteJSONFromDBResult(List<ModelQuestTemplate> resultFromDB)
-        {
-            try
-            {
-                if (File.Exists(Others.GetCurrentDirectory + @"\Data\WAQquests.json"))
-                    File.Delete(Others.GetCurrentDirectory + @"\Data\WAQquests.json");
-
-                using (StreamWriter file = File.CreateText(Others.GetCurrentDirectory + @"\Data\WAQquests.json"))
-                {
-                    var serializer = new JsonSerializer();
-                    serializer.Serialize(file, resultFromDB);
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.LogError("WriteJSONFromDBResult > " + e.Message);
-            }
-        }
-
         public static bool ShouldStateBeInterrupted(IWAQTask task, WoWObject gameObject)
         {
             if (gameObject == null)
