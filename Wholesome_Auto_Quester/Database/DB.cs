@@ -310,7 +310,6 @@ namespace Wholesome_Auto_Quester.Database
             ";
             List<ModelConditions> result = _con.Query<ModelConditions>(query).ToList();
             return result;
-
         }
 
         public List<ModelGameObjectTemplate> QueryGameObjectTemplatesByLootEntry(int lootEntry)
@@ -454,6 +453,7 @@ namespace Wholesome_Auto_Quester.Database
             ";
             List<ModelQuestTemplate> result = _con.Query<ModelQuestTemplate>(queryQuest).ToList();
 
+            // Quest adjustments
             foreach (ModelQuestTemplate template in result)
             {
                 // Reduce starter zone quest levels

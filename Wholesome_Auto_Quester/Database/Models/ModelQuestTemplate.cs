@@ -21,8 +21,8 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int ItemDropQuantity3 { get; }
         public int ItemDropQuantity4 { get; }
         public string LogTitle { get; }
-        public int MinLevel { get; }
-        public int NextQuestInChain { get; } // TBC DB Only
+        //public int MinLevel { get; }
+        //public int NextQuestInChain { get; } // TBC DB Only
         public string ObjectiveText1 { get; }
         public string ObjectiveText2 { get; }
         public string ObjectiveText3 { get; }
@@ -30,11 +30,11 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int QuestLevel { get; set; }
         public int QuestSortID { get; }
         public int QuestInfoID { get; }
-        public int QuestType { get; }
+        //public int QuestType { get; }
         public int RequiredFactionId1 { get; }
         public int RequiredFactionId2 { get; }
-        public int RequiredFactionValue1 { get; }
-        public int RequiredFactionValue2 { get; }
+        //public int RequiredFactionValue1 { get; }
+        //public int RequiredFactionValue2 { get; }
         public int RequiredItemCount1 { get; }
         public int RequiredItemCount2 { get; }
         public int RequiredItemCount3 { get; }
@@ -57,7 +57,7 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int RequiredNpcOrGoCount4 { get; }
         public int StartItem { get; }
         public int TimeAllowed { get; }
-        public int Unknown0 { get; }
+        //public int Unknown0 { get; }
 
         public ModelQuestTemplateAddon QuestAddon { get; set; }
 
@@ -92,8 +92,8 @@ namespace Wholesome_Auto_Quester.Database.Models
         }
 
         public List<ModelCreatureTemplate> CreatureQuestGivers { get; set; } = new List<ModelCreatureTemplate>();
-        public List<ModelCreatureTemplate> CreatureQuestTurners { get; set; } = new List<ModelCreatureTemplate>();
         public List<ModelGameObjectTemplate> GameObjectQuestGivers { get; set; } = new List<ModelGameObjectTemplate>();
+        public List<ModelCreatureTemplate> CreatureQuestTurners { get; set; } = new List<ModelCreatureTemplate>();
         public List<ModelGameObjectTemplate> GameObjectQuestTurners { get; set; } = new List<ModelGameObjectTemplate>();
         public List<ModelAreaTrigger> ModelAreasTriggers { get; set; } = new List<ModelAreaTrigger>();
 

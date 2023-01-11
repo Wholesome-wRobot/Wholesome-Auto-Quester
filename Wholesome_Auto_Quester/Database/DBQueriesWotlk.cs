@@ -1,18 +1,18 @@
-﻿using Newtonsoft.Json.Serialization;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using robotManager.Helpful;
 using robotManager.Products;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Database.Objectives;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.ObjectManager;
-using System.Collections;
-using robotManager.Helpful;
-using System.IO;
-using System;
 
 namespace Wholesome_Auto_Quester.Database
 {
@@ -150,6 +150,58 @@ namespace Wholesome_Auto_Quester.Database
         }
 
         public List<ModelQuestTemplate> GetAvailableQuests()
+        {
+            List<ModelQuestTemplate> quests = new List<ModelQuestTemplate>();
+
+            using (StreamReader reader = new StreamReader(Others.GetCurrentDirectory + @"Data\AQ.json"))
+            {
+                string jsonFile = reader.ReadToEnd();
+                var settings = new JsonSerializerSettings
+                {
+                    Error = (sender, args) =>
+                    {
+                        Logger.LogError($"Deserialization error: {args.CurrentObject} => {args.ErrorContext.Error}");
+                    }
+                };
+
+                FullJSONModel fullJsonModel = JsonConvert.DeserializeObject<FullJSONModel>(jsonFile, settings);
+
+                // Load quest list from JSON
+                foreach (JSONModelQuestTemplate jsonQuestTemplate in fullJsonModel.QuestTemplates)
+                {
+                    // ici
+                }
+
+                // Write Debug JSON
+                if (WholesomeAQSettings.CurrentSetting.DevMode)
+                {
+                    Stopwatch stopwatchJSON = Stopwatch.StartNew();
+                    Logger.Log($"Building Debug JSON. Please wait.");
+                    try
+                    {
+                        File.Delete(Others.GetCurrentDirectory + @"\Data\AQDebug.json");
+                        using (StreamWriter file = File.CreateText(Others.GetCurrentDirectory + @"\Data\AQDebug.json"))
+                        {
+                            JsonSerializer serializer = new JsonSerializer();
+                            serializer.ContractResolver = ShouldSerializeContractResolver.Instance;
+                            serializer.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                            serializer.DefaultValueHandling = DefaultValueHandling.Ignore;
+                            serializer.NullValueHandling = NullValueHandling.Ignore;
+                            serializer.Serialize(file, fullJsonModel);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.LogError("WriteJSONFromDBResult > " + e.Message);
+                    }
+                    Logger.Log($"Process time (Debug JSON processing) : {stopwatchJSON.ElapsedMilliseconds} ms");
+                }
+            }
+
+            return quests;
+        }
+
+        public List<ModelQuestTemplate> OLD_GetAvailableQuests()
         {
             Stopwatch stopwatch = Stopwatch.StartNew();
 

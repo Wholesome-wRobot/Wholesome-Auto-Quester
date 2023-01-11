@@ -2,7 +2,7 @@
 {
     public class ModelSpell
     {
-        public int Id { get; }
+        /*public int Id { get; }
         public int category { get; }
         public int dispelType { get; }
         public int mechanic { get; }
@@ -173,6 +173,6 @@
         public int unk1_2 { get; }
         public int unk1_3 { get; }
         public int spellDescriptionVariableID { get; }
-        public int spellDifficultyID { get; }
+        public int spellDifficultyID { get; }*/
     }
 }

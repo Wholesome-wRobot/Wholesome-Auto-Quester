@@ -5,16 +5,12 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
-using Wholesome_Auto_Quester.Database;
 using Wholesome_Auto_Quester.Helpers;
 
 namespace Wholesome_Auto_Quester
 {
     public static class AutoUpdater
     {
-        private static string _currentVersion = null;
-        private static string _onlineVersion = null;
-
         public static bool CheckUpdate(string mainVersion)
         {
 
@@ -85,7 +81,8 @@ namespace Wholesome_Auto_Quester
                     File.Move(currentFile, oldFile);
 
                     Logger.Log("Writing file");
-                    File.WriteAllBytes(currentFile, onlineDllContent); // replace user file by online file
+                    File.WriteAllBytes(currentFile, onlineDllContent); // Replace user file by online file
+                    File.Delete(Others.GetCurrentDirectory + @"Data\AQ.json"); // Delete AQ.json to retrigger an exctraction
 
                     Thread.Sleep(1000);
 
@@ -102,14 +99,14 @@ namespace Wholesome_Auto_Quester
             }
             return false;
         }
-
+        /*
         private static void ShowReloadMessage()
         {
             Logger.LogError($"A new version of {Main.ProductName} has been downloaded, please restart WRobot.".ToUpper() +
                 $"\r{_currentVersion} => {_onlineVersion}".ToUpper());
             Products.DisposeProduct();
         }
-
+        
         public static bool CheckDbDownload()
         {
             // Download DB if needed
@@ -129,7 +126,7 @@ namespace Wholesome_Auto_Quester
                 return true;
             }
         }
-
+        
         private static bool DownloadDB()
         {
             Logger.Log($"Downloading WoWDB335. Please wait...");
@@ -154,6 +151,6 @@ namespace Wholesome_Auto_Quester
 
             Logger.Log($"Successfully downloaded Wholesome Database");
             return true;
-        }
+        }*/
     }
 }

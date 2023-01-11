@@ -4,7 +4,7 @@ namespace Wholesome_Auto_Quester.Database.Models
 {
     public class ModelWayPointData
     {
-        public int point { get; }
+        //public int point { get; }
         public float position_x { get; }
         public float position_y { get; }
         public float position_z { get; }

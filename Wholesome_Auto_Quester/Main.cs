@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO.Compression;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -17,6 +19,7 @@ using wManager;
 using wManager.Plugin;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
+using System.Reflection;
 
 public class Main : IProduct
 {
@@ -77,12 +80,33 @@ public class Main : IProduct
                 tracker.ShowWindow();
             }
 
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            string zipPath = Others.GetCurrentDirectory + @"Data\AQ.zip";
+            string jsonPath = Others.GetCurrentDirectory + @"Data\AQ.json";
+
+            // unzip json into data folder
+            if (!File.Exists(jsonPath))
+            {
+                Logger.Log($"Extracting AQ.json to your data folder");
+                File.Delete(zipPath);
+                using (Stream compressedStream = assembly.GetManifestResourceStream("Wholesome_Auto_Quester.Database.AQ.zip"))
+                {
+                    using (FileStream outputFileStream = new FileStream(zipPath, FileMode.CreateNew, FileAccess.Write))
+                    {
+                        compressedStream.CopyTo(outputFileStream);
+                        compressedStream.Close();
+                    }
+                }
+                ZipFile.ExtractToDirectory(zipPath, Others.GetCurrentDirectory + @"Data");
+                File.Delete(zipPath);
+            }
+            /*
             if (!AutoUpdater.CheckDbDownload())
             {
                 Logger.LogError($"There was a problem with the DB download");
                 return;
             }
-
+            */
             if (!WholesomeAQSettings.CurrentSetting.RecordUnreachables)
             {
                 WholesomeAQSettings.CurrentSetting.RecordedUnreachables.Clear();

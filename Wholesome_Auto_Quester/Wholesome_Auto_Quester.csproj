@@ -334,6 +334,7 @@
     <Compile Include="Database\DB.cs" />
     <Compile Include="Database\DBC\DBCFaction.cs" />
     <Compile Include="Database\DBQueriesWotlk.cs" />
+    <Compile Include="Database\Models\FullJSONModel.cs" />
     <Compile Include="Database\Models\ModelConditions.cs" />
     <Compile Include="Database\Models\ModelCreature.cs" />
     <Compile Include="Database\Models\ModelCreatureAddon.cs" />
@@ -391,6 +392,7 @@
   <ItemGroup />
   <ItemGroup>
     <None Include="App.config" />
+    <EmbeddedResource Include="Database\AQ.zip" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

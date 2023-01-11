@@ -7,14 +7,14 @@ namespace Wholesome_Auto_Quester.Database.Models
     {
         public int Entry { get; }
         public string Name { get; }
-        public int AllowableClass { get; }
-        public int AllowableRace { get; }
-        public int BuyCount { get; }
-        public int BuyPrice { get; }
+        //public int AllowableClass { get; }
+        //public int AllowableRace { get; }
+        //public int BuyCount { get; }
+        //public int BuyPrice { get; }
         public int Class { get; }
-        public int DisplayId { get; }
+        //public int DisplayId { get; }
         public int Flags { get; }
-        public int FlagsExtra { get; }
+        /*public int FlagsExtra { get; }
         public int InventoryType { get; }
         public int ItemLevel { get; }
         public int Quality { get; }
@@ -31,30 +31,31 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int ContainerSlots { get; }
         public int delay { get; }
         public int ammo_type { get; }
-        public int RangedModRange { get; }
+        public int RangedModRange { get; }*/
         public int spellid_1 { get; }
-        public int spelltrigger_1 { get; }
+        /*public int spelltrigger_1 { get; }
         public int spellcharges_1 { get; }
         public int spellppmRate_1 { get; }
         public int spellcooldown_1 { get; }
         public int spellcategory_1 { get; }
-        public int spellcategorycooldown_1 { get; }
+        public int spellcategorycooldown_1 { get; }*/
         public int spellid_2 { get; }
+        /*
         public int spelltrigger_2 { get; }
         public int spellcharges_2 { get; }
         public int spellppmRate_2 { get; }
         public int spellcooldown_2 { get; }
         public int spellcategory_2 { get; }
-        public int spellcategorycooldown_2 { get; }
+        public int spellcategorycooldown_2 { get; }*/
         public int spellid_3 { get; }
-        public int spelltrigger_3 { get; }
+        /*public int spelltrigger_3 { get; }
         public int spellcharges_3 { get; }
         public int spellppmRate_3 { get; }
         public int spellcooldown_3 { get; }
         public int spellcategory_3 { get; }
-        public int spellcategorycooldown_3 { get; }
+        public int spellcategorycooldown_3 { get; }*/
         public int spellid_4 { get; }
-        public int spelltrigger_4 { get; }
+        /*public int spelltrigger_4 { get; }
         public int spellcharges_4 { get; }
         public int spellppmRate_4 { get; }
         public int spellcooldown_4 { get; }
@@ -71,9 +72,9 @@ namespace Wholesome_Auto_Quester.Database.Models
         public string Description { get; }
         public int PageText { get; }
         public int LanguageID { get; }
-        public int PageMaterial { get; }
+        public int PageMaterial { get; }*/
         public int startquest { get; }
-        public int lockid { get; }
+        /*public int lockid { get; }
         public int Material { get; }
         public int sheath { get; }
         public int RandomProperty { get; }
@@ -94,7 +95,7 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int maxMoneyLoot { get; }
         public int flagsCustom { get; }
         public int SellPrice { get; }
-        public int Subclass { get; }
+        public int Subclass { get; }*/
 
         public ModelSpell Spell1 { get; set; }
         public ModelSpell Spell2 { get; set; }

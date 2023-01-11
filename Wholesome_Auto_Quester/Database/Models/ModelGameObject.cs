@@ -12,5 +12,6 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int spawntimesecs { get; }
 
         public Vector3 GetSpawnPosition => new Vector3(position_x, position_y, position_z);
+        public bool ShouldSerializeGetSpawnPosition() => false;
     }
 }

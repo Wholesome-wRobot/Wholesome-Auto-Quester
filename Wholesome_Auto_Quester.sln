@@ -1,17 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31424.327
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wholesome_Auto_Quester", "Wholesome_Auto_Quester\Wholesome_Auto_Quester.csproj", "{1CAC3B4B-6684-47A4-82B8-D051B838A4CA}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Wholesome_Toolbox", "Wholesome-Toolbox\Wholesome_Toolbox.shproj", "{A9DE1156-9128-4F74-952C-0B2EEE692AE4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Db_To_Json", "Db_To_Json\Db_To_Json.csproj", "{309143A5-DA1F-483D-9DF6-6AB34BB35D8A}"
+EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Wholesome-Toolbox\Wholesome_Toolbox.projitems*{1cac3b4b-6684-47a4-82b8-d051b838a4ca}*SharedItemsImports = 4
-		Wholesome-Toolbox\Wholesome_Toolbox.projitems*{a9de1156-9128-4f74-952c-0b2eee692ae4}*SharedItemsImports = 13
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -24,11 +22,21 @@ Global
 		{1CAC3B4B-6684-47A4-82B8-D051B838A4CA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1CAC3B4B-6684-47A4-82B8-D051B838A4CA}.zero|Any CPU.ActiveCfg = zero|Any CPU
 		{1CAC3B4B-6684-47A4-82B8-D051B838A4CA}.zero|Any CPU.Build.0 = zero|Any CPU
+		{309143A5-DA1F-483D-9DF6-6AB34BB35D8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{309143A5-DA1F-483D-9DF6-6AB34BB35D8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{309143A5-DA1F-483D-9DF6-6AB34BB35D8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{309143A5-DA1F-483D-9DF6-6AB34BB35D8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{309143A5-DA1F-483D-9DF6-6AB34BB35D8A}.zero|Any CPU.ActiveCfg = Debug|Any CPU
+		{309143A5-DA1F-483D-9DF6-6AB34BB35D8A}.zero|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3BD018EB-C649-4003-9DD5-0EAEB76966F1}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Wholesome-Toolbox\Wholesome_Toolbox.projitems*{1cac3b4b-6684-47a4-82b8-d051b838a4ca}*SharedItemsImports = 4
+		Wholesome-Toolbox\Wholesome_Toolbox.projitems*{a9de1156-9128-4f74-952c-0b2eee692ae4}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

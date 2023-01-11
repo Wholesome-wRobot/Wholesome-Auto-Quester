@@ -14,7 +14,7 @@ namespace Wholesome_Auto_Quester.Database.Models
         public ModelWorldMapArea() { }
 
         private bool _isContinentSet = false;
-        public int ID { get; }
+        //public int ID { get; }
         public int mapID { get; }
         public int areaID { get; }
         public string areaName { get; }
