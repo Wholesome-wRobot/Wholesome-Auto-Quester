@@ -8,3 +8,6 @@ packages
 /Dependencies/*
 /.idea/
 Dependencies
+/Db_To_Json/bin/Debug
+/Db_To_Json/obj/Debug
+/Db_To_Json/WoWDB/WoWDb335
