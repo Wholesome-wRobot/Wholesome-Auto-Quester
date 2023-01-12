@@ -48,19 +48,17 @@ namespace Db_To_Json.AutoQuester.Models
         public int RequiredNpcOrGoCount4 { get; set; }
         public int StartItem { get; set; }
         public int TimeAllowed { get; set; }
+        public int MinLevel { get; set; }
 
-        public AQModelQuestTemplateAddon QuestAddon { get; set; }
-
-        public AQModelItemTemplate StartItemTemplate { get; set; }
         public List<int> CreatureQuestGiversEntries { get; set; } = new List<int>();
         public List<int> GameObjectQuestGiversEntries { get; set; } = new List<int>();
         public List<int> CreatureQuestEndersEntries { get; set; } = new List<int>();
         public List<int> GameObjectQuestEndersEntries { get; set; } = new List<int>();
         public List<int> NextQuestsIds { get; set; } = new List<int>();
         public List<int> PreviousQuestsIds { get; set; } = new List<int>();
-        public List<AQModelConditions> Conditions { get; set; }
-        public List<int> CreatureQuestGivers { get; set; }
-        public List<int> GameObjectQuestGivers { get; set; }
+
+        public AQModelQuestTemplateAddon QuestAddon { get; set; }
+        public List<AQModelConditions> Conditions { get; set; } = new List<AQModelConditions>();
         public List<AQModelAreaTrigger> ModelAreasTriggers { get; set; } = new List<AQModelAreaTrigger>();
     }
 }

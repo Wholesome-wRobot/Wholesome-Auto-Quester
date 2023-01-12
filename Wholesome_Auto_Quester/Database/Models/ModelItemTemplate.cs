@@ -1,10 +1,71 @@
 ﻿using System;
 using System.Collections.Generic;
+using Wholesome_Auto_Quester.Helpers;
 
 namespace Wholesome_Auto_Quester.Database.Models
 {
     public class ModelItemTemplate
     {
+        public ModelItemTemplate(
+            JSONModelItemTemplate jmit,
+            Dictionary<int, JSONModelSpell> spellsDic,
+            Dictionary<int, JSONModelCreatureTemplate> creatureTemplatesDic,
+            Dictionary<int, JSONModelGameObjectTemplate> gameObjectTemplatesDic)
+        {
+            Entry = jmit.Entry;
+            Name = jmit.Name;
+            Class = jmit.Class;
+            Flags = jmit.Flags;
+            startquest = jmit.startquest;
+
+            if (jmit.spellid_1 > 0)
+            {
+                if (spellsDic.TryGetValue(jmit.spellid_1, out JSONModelSpell jms))
+                    Spell1 = new ModelSpell(jms);
+                else
+                    Logger.LogDevDebug($"WARNING: spellid_1 with entry {jmit.spellid_1} couldn't be found in dictionary");
+            }
+
+            if (jmit.spellid_2 > 0)
+            {
+                if (spellsDic.TryGetValue(jmit.spellid_2, out JSONModelSpell jms))
+                    Spell2 = new ModelSpell(jms);
+                else
+                    Logger.LogDevDebug($"WARNING: spellid_2 with entry {jmit.spellid_2} couldn't be found in dictionary");
+            }
+
+            if (jmit.spellid_3 > 0)
+            {
+                if (spellsDic.TryGetValue(jmit.spellid_3, out JSONModelSpell jms))
+                    Spell3 = new ModelSpell(jms);
+                else
+                    Logger.LogDevDebug($"WARNING: spellid_3 with entry {jmit.spellid_3} couldn't be found in dictionary");
+            }
+
+            if (jmit.spellid_4 > 0)
+            {
+                if (spellsDic.TryGetValue(jmit.spellid_4, out JSONModelSpell jms))
+                    Spell4 = new ModelSpell(jms);
+                else
+                    Logger.LogDevDebug($"WARNING: spellid_4 with entry {jmit.spellid_4} couldn't be found in dictionary");
+            }
+
+            foreach (JSONModelCreatureLootTemplate jmclt in jmit.CreatureLootTemplates)
+            {
+                CreatureLootTemplates.Add(new ModelCreatureLootTemplate(jmclt, creatureTemplatesDic));
+            }
+
+            foreach (JSONModelGameObjectLootTemplate jgolt in jmit.GameObjectLootTemplates)
+            {
+                GameObjectLootTemplates.Add(new ModelGameObjectLootTemplate(jgolt, gameObjectTemplatesDic));
+            }
+
+            foreach (JSONModelItemLootTemplate jmilt in jmit.ItemLootTemplates)
+            {
+                ItemLootTemplates.Add(new ModelItemLootTemplate(jmilt));
+            }
+        }
+
         public int Entry { get; }
         public string Name { get; }
         //public int AllowableClass { get; }
@@ -32,14 +93,14 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int delay { get; }
         public int ammo_type { get; }
         public int RangedModRange { get; }*/
-        public int spellid_1 { get; }
+        //public int spellid_1 { get; }
         /*public int spelltrigger_1 { get; }
         public int spellcharges_1 { get; }
         public int spellppmRate_1 { get; }
         public int spellcooldown_1 { get; }
         public int spellcategory_1 { get; }
         public int spellcategorycooldown_1 { get; }*/
-        public int spellid_2 { get; }
+        //public int spellid_2 { get; }
         /*
         public int spelltrigger_2 { get; }
         public int spellcharges_2 { get; }
@@ -47,14 +108,14 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int spellcooldown_2 { get; }
         public int spellcategory_2 { get; }
         public int spellcategorycooldown_2 { get; }*/
-        public int spellid_3 { get; }
+        //public int spellid_3 { get; }
         /*public int spelltrigger_3 { get; }
         public int spellcharges_3 { get; }
         public int spellppmRate_3 { get; }
         public int spellcooldown_3 { get; }
         public int spellcategory_3 { get; }
         public int spellcategorycooldown_3 { get; }*/
-        public int spellid_4 { get; }
+        //public int spellid_4 { get; }
         /*public int spelltrigger_4 { get; }
         public int spellcharges_4 { get; }
         public int spellppmRate_4 { get; }

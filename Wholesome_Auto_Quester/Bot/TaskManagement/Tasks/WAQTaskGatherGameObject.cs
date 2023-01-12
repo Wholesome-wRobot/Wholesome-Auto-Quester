@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using Wholesome_Auto_Quester.Bot.ContinentManagement;
 using Wholesome_Auto_Quester.Database.DBC;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
@@ -12,14 +13,15 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         private ModelGameObjectTemplate _gameObjectTemplate;
         private ModelQuestTemplate _questTemplate;
 
-        public WAQTaskGatherGameObject(ModelQuestTemplate questTemplate, ModelGameObjectTemplate goTemplate, ModelGameObject gameObject)
+        public WAQTaskGatherGameObject(ModelQuestTemplate questTemplate, ModelGameObjectTemplate goTemplate, ModelGameObject gameObject, IContinentManager continentManager)
             : base(gameObject.GetSpawnPosition, gameObject.map, $"Gather {goTemplate.name} for {questTemplate.LogTitle}", goTemplate.entry,
-                  gameObject.spawntimesecs, gameObject.guid)
+                  gameObject.spawntimesecs, gameObject.guid, continentManager)
         {
             _gameObjectTemplate = goTemplate;
             _questTemplate = questTemplate;
 
-            if (questTemplate.QuestAddon?.AllowableClasses > 0)
+            if (_questTemplate.QuestAddon != null
+                && questTemplate.QuestAddon.AllowableClasses > 0)
             {
                 PriorityShift = 2;
             }

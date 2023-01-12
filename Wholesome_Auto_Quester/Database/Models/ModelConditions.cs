@@ -2,6 +2,17 @@
 {
     public class ModelConditions
     {
+        public ModelConditions(JSONModelConditions jmc)
+        {
+            SourceTypeOrReferenceId = jmc.SourceTypeOrReferenceId;
+            SourceGroup = jmc.SourceGroup;
+            SourceEntry = jmc.SourceEntry;
+            ElseGroup = jmc.ElseGroup;
+            ConditionTypeOrReference = jmc.ConditionTypeOrReference;
+            ConditionValue1 = jmc.ConditionValue1;
+            ConditionValue2 = jmc.ConditionValue2;
+            NegativeCondition = jmc.NegativeCondition;
+        }
         public int SourceTypeOrReferenceId { get; }
         public int SourceGroup { get; }
         public int SourceEntry { get; }

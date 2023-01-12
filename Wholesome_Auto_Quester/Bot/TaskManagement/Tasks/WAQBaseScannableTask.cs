@@ -1,4 +1,5 @@
 ﻿using robotManager.Helpful;
+using Wholesome_Auto_Quester.Bot.ContinentManagement;
 using wManager.Wow.ObjectManager;
 
 namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
@@ -9,8 +10,8 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         public int DefaultTimeOutDuration { get; }
         public uint ObjectDBGuid { get; }
 
-        public WAQBaseScannableTask(Vector3 location, int continent, string taskName, int objectEntry, int defaultTimeOutDuration, uint dbGuid)
-            : base(location, continent, taskName)
+        public WAQBaseScannableTask(Vector3 location, int continent, string taskName, int objectEntry, int defaultTimeOutDuration, uint dbGuid, IContinentManager continentManager)
+            : base(location, continent, taskName, continentManager)
         {
             ObjectDBGuid = dbGuid;
             ObjectEntry = objectEntry;

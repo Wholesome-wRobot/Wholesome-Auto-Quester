@@ -235,7 +235,7 @@ namespace Wholesome_Auto_Quester.GUI
                     if (selected.QuestTemplate.CreatureQuestGivers.Count > 0)
                     {
                         string qg = "";
-                        selected.QuestTemplate.CreatureQuestGivers.ForEach(q => qg += $"{q.entry} ");
+                        selected.QuestTemplate.CreatureQuestGivers.ForEach(q => qg += $"{q.Entry} ");
                         selected.QuestTemplate.GameObjectQuestGivers.ForEach(q => qg += $"{q.entry} ");
                         questGivers.Text = $"Quest Givers: {qg}";
                         questGivers.Visibility = Visibility.Visible;
@@ -246,11 +246,11 @@ namespace Wholesome_Auto_Quester.GUI
                     }
 
                     // quest turners
-                    if (selected.QuestTemplate.CreatureQuestTurners.Count > 0)
+                    if (selected.QuestTemplate.CreatureQuestEnders.Count > 0)
                     {
                         string qt = "";
-                        selected.QuestTemplate.CreatureQuestTurners.ForEach(q => qt += $"{q.entry} ");
-                        selected.QuestTemplate.GameObjectQuestTurners.ForEach(q => qt += $"{q.entry} ");
+                        selected.QuestTemplate.CreatureQuestEnders.ForEach(q => qt += $"{q.Entry} ");
+                        selected.QuestTemplate.GameObjectQuestEnders.ForEach(q => qt += $"{q.entry} ");
                         questTurners.Text = $"Quest Turners: {qt}";
                         questTurners.Visibility = Visibility.Visible;
                     }
@@ -324,7 +324,7 @@ namespace Wholesome_Auto_Quester.GUI
                         foreach (KillObjective obje in selected.QuestTemplate.KillObjectives)
                         {
                             questKillCreatures.Children.Add(CreateListTextBlock(
-                                $"[{obje.ObjectiveIndex}] {obje.CreatureTemplate.name} ({obje.CreatureTemplate.Creatures.Count} found)"));
+                                $"[{obje.ObjectiveIndex}] {obje.CreatureTemplate.Name} ({obje.CreatureTemplate.Creatures.Count} found)"));
                         }
                     }
                     else
@@ -338,7 +338,7 @@ namespace Wholesome_Auto_Quester.GUI
                         foreach (KillLootObjective obje in selected.QuestTemplate.KillLootObjectives)
                         {
                             questLootCreatures.Children.Add(CreateListTextBlock(
-                                $"[{obje.ObjectiveIndex}] {obje.CreatureLootTemplate.CreatureTemplate.name} ({obje.CreatureLootTemplate.CreatureTemplate.Creatures.Count} found - {(int)obje.CreatureLootTemplate.Chance}%)"));
+                                $"[{obje.ObjectiveIndex}] {obje.CreatureLootTemplate.CreatureTemplate.Name} ({obje.CreatureLootTemplate.CreatureTemplate.Creatures.Count} found - {(int)obje.CreatureLootTemplate.Chance}%)"));
                         }
                     }
                     else

@@ -5,12 +5,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Wholesome_Auto_Quester.Bot.ContinentManagement;
 using Wholesome_Auto_Quester.Bot.GrindManagement;
 using Wholesome_Auto_Quester.Bot.QuestManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Bot.TravelManagement;
-using Wholesome_Auto_Quester.Database;
-using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.GUI;
 using Wholesome_Auto_Quester.Helpers;
 using WholesomeToolbox;
@@ -25,6 +24,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
         private readonly IGrindManager _grindManager;
         private readonly IWowObjectScanner _objectScanner;
         private readonly ITravelManager _travelManager;
+        private readonly IContinentManager _continentManager;
         private readonly QuestsTrackerGUI _tracker;
         private readonly List<IWAQTask> _taskPile = new List<IWAQTask>();
         private readonly List<IWAQTask> _grindTasks = new List<IWAQTask>();
@@ -34,9 +34,15 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
         public IWAQTask ActiveTask { get; private set; }
 
-        public TaskManager(IWowObjectScanner scanner, IQuestManager questManager, IGrindManager grindManager,
-            QuestsTrackerGUI questTrackerGUI, ITravelManager travelManager)
+        public TaskManager(
+            IWowObjectScanner scanner, 
+            IQuestManager questManager, 
+            IGrindManager grindManager,
+            QuestsTrackerGUI questTrackerGUI, 
+            ITravelManager travelManager,
+            IContinentManager continentManager)
         {
+            _continentManager = continentManager;
             _travelManager = travelManager;
             _objectScanner = scanner;
             _questManager = questManager;
@@ -67,7 +73,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
         {
             if (eventid == "PLAYER_LEVEL_UP")
             {
-                _grindTasks.Clear();
+                ClearGrindTasks();
             }
         }
 
@@ -76,6 +82,15 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             _taskPile.Clear();
             EventsLuaWithArgs.OnEventsLuaStringWithArgs -= LuaEventHandler;
             _isRunning = false;
+        }
+
+        private void ClearGrindTasks()
+        {
+            foreach (IWAQTask grindTask in _grindTasks)
+            {
+                grindTask.UnregisterEntryToScanner(_objectScanner);
+            }
+            _grindTasks.Clear();
         }
 
         private void AddTaskToPile(IWAQTask task)
@@ -114,26 +129,8 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             Vector3 myPosition = ObjectManager.Me.Position;
             List<IWAQTask> tasksToAdd = new List<IWAQTask>();
 
-            // Go to mob entry
-            if (WholesomeAQSettings.CurrentSetting.GoToMobEntry > 0)
-            {
-                DB _db = new DB();
-                ModelCreatureTemplate template = _db.QueryCreatureTemplateByEntry(WholesomeAQSettings.CurrentSetting.GoToMobEntry);
-                _db.Dispose();
-
-                if (template?.Creatures.Count > 0)
-                {
-                    tasksToAdd.Add(new WAQTaskSettingTravel(template));
-                }
-                else
-                {
-                    Logger.LogError($"Couldn't find NPC {WholesomeAQSettings.CurrentSetting.GoToMobEntry}");
-                    return;
-                }
-            }
-
             // Quests
-            if (WholesomeAQSettings.CurrentSetting.GoToMobEntry <= 0 && !WholesomeAQSettings.CurrentSetting.GrindOnly)
+            if (!WholesomeAQSettings.CurrentSetting.GrindOnly)
             {
                 tasksToAdd.AddRange(_questManager.GetAllValidQuestTasks());
             }
@@ -143,7 +140,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             {
                 if (_grindTasks.Count <= 0)
                 {
-                    List<IWAQTask> allGrindTasks = _grindManager.GetGrindTasks();
+                    List<IWAQTask> allGrindTasks = _grindManager.GetGrindTasks;
                     _grindTasks.AddRange(allGrindTasks);
                     foreach (IWAQTask grindTask in allGrindTasks)
                     {
@@ -158,11 +155,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 _tracker.UpdateInvalids(_questManager.GetAllInvalidQuestTasks());
                 if (_grindTasks.Count > 0)
                 {
-                    foreach (IWAQTask grindTask in _grindTasks)
-                    {
-                        grindTask.UnregisterEntryToScanner(_objectScanner);
-                    }
-                    _grindTasks.Clear();
+                    ClearGrindTasks();
                 }
             }
 
@@ -296,7 +289,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
             priority >>= task.PriorityShift;
 
-            if (task.WorldMapArea.Continent != ContinentHelper.MyMapArea.Continent)
+            if (task.WorldMapArea.Continent != _continentManager.MyMapArea.Continent)
             {
                 priority <<= 10;
             }

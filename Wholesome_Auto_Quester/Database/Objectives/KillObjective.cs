@@ -10,7 +10,7 @@ namespace Wholesome_Auto_Quester.Database.Objectives
         {
             Amount = amount;
             CreatureTemplate = creatureTemplate;
-            ObjectiveName = string.IsNullOrEmpty(objectiveName) ? CreatureTemplate.name + " slain" : objectiveName;
+            ObjectiveName = string.IsNullOrEmpty(objectiveName) ? CreatureTemplate.Name + " slain" : objectiveName;
         }
     }
 }

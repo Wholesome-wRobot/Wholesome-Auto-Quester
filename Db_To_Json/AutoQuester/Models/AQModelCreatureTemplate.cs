@@ -10,6 +10,7 @@ namespace Db_To_Json.AutoQuester.Models
         public int KillCredit1 { get; set; }
         public int KillCredit2 { get; set; }
         public int maxLevel { get; set; }
+        public int minLevel { get; set; }
         public long unit_flags { get; set; }
         public long unit_flags2 { get; set; }
         public long type_flags { get; set; }

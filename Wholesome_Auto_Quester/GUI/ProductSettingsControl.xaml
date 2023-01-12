@@ -169,7 +169,7 @@
         <Controls:ToggleSwitch Grid.Row="5" Grid.Column="3"  Margin="10,10,10,10"
                    HorizontalAlignment="Left"  VerticalAlignment="Center"  IsChecked="{Binding Path=BlacklistDangerousZones, Mode=TwoWay}" 
                    Click="SaveSettings" Name="BlacklistDangerZones" OnLabel="" OffLabel="" />
-
+        <!--
         <TextBlock Grid.Row="6" 
                     Grid.Column="2" 
                     Margin="10" 
@@ -187,7 +187,7 @@
                     Value="{Binding Path=GoToMobEntry, Mode=TwoWay}"
                     ValueChanged="SaveSettings"
                     x:Name="GoToMobEntry"  />
-
+        -->
         <TextBlock Grid.Row="7" 
                     Grid.Column="2" 
                     Margin="10" 

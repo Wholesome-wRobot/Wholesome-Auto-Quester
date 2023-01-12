@@ -1,4 +1,5 @@
 ﻿using robotManager.FiniteStateMachine;
+using Wholesome_Auto_Quester.Bot.ContinentManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Bot.TravelManagement;
@@ -12,15 +13,21 @@ namespace Wholesome_Auto_Quester.States
 {
     public class WAQStateTravel : State, IWAQState
     {
+        private readonly IContinentManager _continentManager;
         private readonly ITaskManager _taskManager;
         private readonly TravelManager _travelManager;
 
         public override string DisplayName { get; set; } = "WAQ Travel";
 
-        public WAQStateTravel(ITaskManager taskManager, TravelManager travelManager, int priority)
+        public WAQStateTravel(
+            ITaskManager taskManager, 
+            TravelManager travelManager,
+            IContinentManager continentManager,
+            int priority)
         {
             _travelManager = travelManager;
             _taskManager = taskManager;
+            _continentManager = continentManager;
             Priority = priority;
         }
 
@@ -38,7 +45,7 @@ namespace Wholesome_Auto_Quester.States
                     return false;
                 }
 
-                DisplayName = $"Traveling ({ContinentHelper.MyMapArea.areaName} to {_taskManager.ActiveTask.WorldMapArea.areaName})";
+                DisplayName = $"Traveling ({_continentManager.MyMapArea.areaName} to {_taskManager.ActiveTask.WorldMapArea.areaName})";
                 return true;
             }
         }
@@ -47,7 +54,7 @@ namespace Wholesome_Auto_Quester.States
         {
             MoveHelper.StopAllMove(true);
             IWAQTask task = _taskManager.ActiveTask;
-            ModelWorldMapArea myArea = ContinentHelper.MyMapArea;
+            ModelWorldMapArea myArea = _continentManager.MyMapArea;
             ModelWorldMapArea destinationArea = task.WorldMapArea;
             WAQContinent destinationContinent = destinationArea.Continent;
             WAQContinent myContinent = myArea.Continent;

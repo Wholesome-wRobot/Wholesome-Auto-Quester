@@ -11,17 +11,29 @@ namespace Wholesome_Auto_Quester.Database.Models
             areaID = _areaId;
             areaName = _areaName;
         }
+
+        public ModelWorldMapArea(JSONModelWorldMapArea jmwma)
+        {
+            mapID = jmwma.mapID;
+            areaID = jmwma.areaID;
+            areaName = jmwma.areaName;
+            locLeft = jmwma.locLeft;
+            locRight = jmwma.locRight;
+            locTop = jmwma.locTop;
+            locBottom = jmwma.locBottom;
+        }
+
         public ModelWorldMapArea() { }
 
         private bool _isContinentSet = false;
         //public int ID { get; }
-        public int mapID { get; }
-        public int areaID { get; }
-        public string areaName { get; }
-        public double locLeft { get; }
-        public double locRight { get; }
-        public double locTop { get; }
-        public double locBottom { get; }
+        public int mapID { get; set; }
+        public int areaID { get; set; }
+        public string areaName { get; set; }
+        public double locLeft { get; set; }
+        public double locRight { get; set; }
+        public double locTop { get; set; }
+        public double locBottom { get; set; }
 
         public bool IsPointInMapArea(Vector3 point, int mapId)
         {
@@ -29,7 +41,10 @@ namespace Wholesome_Auto_Quester.Database.Models
             {
                 return true;
             }
-            if (mapId != mapID) return false;
+            if (mapId != mapID)
+            {
+                return false;
+            }
             Rect zone = new Rect(new Point(locBottom, locLeft), new Point(locTop, locRight));
             return zone.Contains(new Point(point.X, point.Y));
         }

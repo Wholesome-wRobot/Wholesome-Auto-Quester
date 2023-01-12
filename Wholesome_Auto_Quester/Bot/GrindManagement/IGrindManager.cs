@@ -5,6 +5,7 @@ namespace Wholesome_Auto_Quester.Bot.GrindManagement
 {
     public interface IGrindManager : ICycleable
     {
-        List<IWAQTask> GetGrindTasks();
+        List<IWAQTask> GetGrindTasks { get; }
+        void RecordGrindTasksFromJSON();
     }
 }

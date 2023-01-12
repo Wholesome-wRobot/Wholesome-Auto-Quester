@@ -4,6 +4,22 @@ namespace Wholesome_Auto_Quester.Database.Models
 {
     public class ModelQuestTemplateAddon
     {
+        public ModelQuestTemplateAddon(JSONModelQuestTemplateAddon jmqta)
+        {
+            AllowableClasses = jmqta.AllowableClasses;
+            PrevQuestID = jmqta.PrevQuestID;
+            NextQuestID = jmqta.NextQuestID;
+            ExclusiveGroup = jmqta.ExclusiveGroup;
+            RequiredSkillID = jmqta.RequiredSkillID;
+            RequiredSkillPoints = jmqta.RequiredSkillPoints;
+            SpecialFlags = jmqta.SpecialFlags;
+            RequiredMaxRepFaction = jmqta.RequiredMaxRepFaction;
+            RequiredMaxRepValue = jmqta.RequiredMaxRepValue;
+            RequiredMinRepFaction = jmqta.RequiredMinRepFaction;
+            RequiredMinRepValue = jmqta.RequiredMinRepValue;
+            ExclusiveQuests = jmqta.ExclusiveQuests;
+        }
+
         public int AllowableClasses { get; }
         public int PrevQuestID { get; }
         public int NextQuestID { get; }
@@ -16,6 +32,6 @@ namespace Wholesome_Auto_Quester.Database.Models
         public int RequiredMinRepFaction { get; }
         public int RequiredMinRepValue { get; }
 
-        public List<int> ExclusiveQuests { get; set; }
+        public List<int> ExclusiveQuests { get; set; } = new List<int>();
     }
 }

@@ -1,4 +1,5 @@
-﻿using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
+﻿using Wholesome_Auto_Quester.Bot.ContinentManagement;
+using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
 using WholesomeToolbox;
@@ -10,9 +11,11 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
     public class TravelManager : ITravelManager
     {
         private bool _shouldTravel;
+        private readonly IContinentManager _continentManager;
 
-        public TravelManager()
+        public TravelManager(IContinentManager continentManager)
         {
+            _continentManager = continentManager;
             Initialize();
         }
 
@@ -35,7 +38,7 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
 
         public bool IsTravelRequired(IWAQTask task)
         {
-            ModelWorldMapArea myArea = ContinentHelper.MyMapArea;
+            ModelWorldMapArea myArea = _continentManager.MyMapArea;
             ModelWorldMapArea destinationArea = task.WorldMapArea;
 
             if (myArea.Continent != destinationArea.Continent
@@ -55,29 +58,29 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
         public bool ShouldTravelFromNorthEKToSouthEk(IWAQTask task)
         {
             return ObjectManager.Me.Level <= 40
-                && ContinentHelper.MyMapArea.Continent == WAQContinent.EasternKingdoms
-                && (ObjectManager.Me.Position.X > -8118 || ContinentHelper.MyMapArea.areaID == 1537) // above burning steppes
+                && _continentManager.MyMapArea.Continent == WAQContinent.EasternKingdoms
+                && (ObjectManager.Me.Position.X > -8118 || _continentManager.MyMapArea.areaID == 1537) // above burning steppes
                 && task.Location.X <= -8118;
         }
 
         public bool ShouldTravelFromSouthEKToNorthEK(IWAQTask task)
         {
             return ObjectManager.Me.Level <= 40
-                && ContinentHelper.MyMapArea.Continent == WAQContinent.EasternKingdoms
-                && (ObjectManager.Me.Position.X < -8118 || ContinentHelper.MyMapArea.areaID == 1519) // under burning steppes
+                && _continentManager.MyMapArea.Continent == WAQContinent.EasternKingdoms
+                && (ObjectManager.Me.Position.X < -8118 || _continentManager.MyMapArea.areaID == 1519) // under burning steppes
                 && task.Location.X >= -8118;
         }
 
         public bool ShouldTakePortalDarnassusToRutTheran(IWAQTask task)
         {
-            return ContinentHelper.MyMapArea.Continent == WAQContinent.Teldrassil
+            return _continentManager.MyMapArea.Continent == WAQContinent.Teldrassil
                 && ObjectManager.Me.Position.Z >= 600
                 && (task.Location.Z < 600 || task.WorldMapArea.Continent != WAQContinent.Teldrassil); // Under teldrassil tree
         }
 
         public bool ShouldTakePortalRutTheranToDarnassus(IWAQTask task)
         {
-            return ContinentHelper.MyMapArea.Continent == WAQContinent.Teldrassil
+            return _continentManager.MyMapArea.Continent == WAQContinent.Teldrassil
                 && ObjectManager.Me.Position.Z < 600
                 && task.WorldMapArea.Continent == WAQContinent.Teldrassil
                 && task.Location.Z > 600; // Over teldrassil tree

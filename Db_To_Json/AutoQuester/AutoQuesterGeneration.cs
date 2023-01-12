@@ -26,11 +26,16 @@ namespace Db_To_Json.AutoQuester
         private static List<AQModelGameObjectTemplate> _allGameObjectTemplates = new List<AQModelGameObjectTemplate>();
         private static List<AQModelItemTemplate> _allItemTemplates = new List<AQModelItemTemplate>();
         private static List<AQModelSpell> _allSpells = new List<AQModelSpell>();
+        private static List<AQModelCreatureTemplate> _allCreaturesToGrind = new List<AQModelCreatureTemplate>();
+        private static List<AQModelWorldMapArea> _allWorldMapAreas = new List<AQModelWorldMapArea>();
 
         public static void Generate(SQLiteConnection con, SQLiteCommand cmd)
         {
             Console.WriteLine("----- Starting generation for Auto Quester -----");
             Stopwatch totalWatch = Stopwatch.StartNew();
+
+            // WORLD 
+            _allWorldMapAreas = QueryWorldMapAreas(con);
 
             // ---------------- QUEST TEMPLATES ----------------
 
@@ -40,24 +45,7 @@ namespace Db_To_Json.AutoQuester
                 -1, -21, -22, -23, -25, -41, -221, -241, -284, -344, -364, -365, -366, -367, -368, -369, -370, -374, -375, -376 // misc (epic, seasonal etc)
                 // we leave the class sortIds in
             };
-            /*
-            // Quests to force get from the DB
-            List<int> questsIdsToForce = new List<int>();
-            if (WTPlayer.IsHorde())
-            {
-                questsIdsToForce.Add(9407); // Through the dark portal
-            }
-            else
-            {
-                questsIdsToForce.Add(10119); // Through the dark portal
-            }
 
-            List<int> logQuestsIds = new List<int>();
-            foreach (Quest.PlayerQuest quest in Quest.GetLogQuestId())
-            {
-                logQuestsIds.Add(quest.ID);
-            }
-            */
             string queryQuest = $@"
                 SELECT * 
                 FROM quest_template
@@ -84,14 +72,6 @@ namespace Db_To_Json.AutoQuester
                 }
             }
 
-            /*
-            result.RemoveAll(q =>
-                !questsIdsToForce.Contains(q.Id)
-                && (q.QuestLevel > levelDeltaPlus || q.QuestLevel < levelDeltaMinus)
-                && q.QuestLevel != -1
-                && (!logQuestsIds.Contains(q.Id) || q.QuestLevel > levelDeltaPlus));
-            */
-
             int qtRemovedBecauseSpecificId = quests
                 .RemoveAll(q => q.Id == 338
                     || q.Id == 339
@@ -108,8 +88,9 @@ namespace Db_To_Json.AutoQuester
                 .RemoveAll(q => q.RequiredFactionId1 != 0 || q.RequiredFactionId2 != 0);
             Console.WriteLine($"[AQ] Removed {qtRemovedBecauseReputation} Reputation quests");
 
-            //result.RemoveAll(q => myLevel < 60 && (q.Id == 9407 || q.Id == 10119)); // wait for dark portal
-
+            // ---------------- CREATURES TO GRIND ----------------
+            QueryCreatureTemplatesToGrind(con);
+            Console.WriteLine($"[AQ] {_allCreaturesToGrind.Count} creatures to grind");
 
             // ---------------- QUEST TEMPLATE ADDONS ----------------
             Stopwatch qtAddonsWatch = Stopwatch.StartNew();
@@ -131,13 +112,13 @@ namespace Db_To_Json.AutoQuester
             Console.WriteLine($"[AQ] Quest Template addons took {qtAddonsWatch.ElapsedMilliseconds}ms ({quests.Count} quests)");
 
             int qtRemovedBecauseRepeatable = quests
-                .RemoveAll(q => (q.QuestAddon?.SpecialFlags & 1) != 0);
+                .RemoveAll(q => q.QuestAddon != null && (q.QuestAddon.SpecialFlags & 1) != 0);
             Console.WriteLine($"[AQ] Removed {qtRemovedBecauseRepeatable} repeatables quests");
             int qtRemovedBecauseEscort = quests
-                .RemoveAll(q => (q.QuestAddon?.SpecialFlags & 2) != 0);
+                .RemoveAll(q => q.QuestAddon != null && (q.QuestAddon.SpecialFlags & 2) != 0);
             Console.WriteLine($"[AQ] Removed {qtRemovedBecauseEscort} escorts quests");
             int qtRemovedBecauseNotClass = quests
-                .RemoveAll(q => q.QuestLevel == -1 && q.QuestAddon?.AllowableClasses == 0);
+                .RemoveAll(q => q.QuestLevel == -1 && q.QuestAddon != null && q.QuestAddon.AllowableClasses == 0);
             Console.WriteLine($"[AQ] Removed {qtRemovedBecauseNotClass} quests with level -1 and not class quest");
 
             // ---------------- QUEST GIVERS ----------------
@@ -216,10 +197,10 @@ namespace Db_To_Json.AutoQuester
             Stopwatch stopwatchItemDrops = Stopwatch.StartNew();
             foreach (AQModelQuestTemplate quest in quests)
             {
-                AQModelItemTemplate item1 = QueryItemTemplateByItemEntry(con, quest.ItemDrop1); // for record
-                AQModelItemTemplate item2 = QueryItemTemplateByItemEntry(con, quest.ItemDrop2); // for record
-                AQModelItemTemplate item3 = QueryItemTemplateByItemEntry(con, quest.ItemDrop3); // for record
-                AQModelItemTemplate item4 = QueryItemTemplateByItemEntry(con, quest.ItemDrop4); // for record
+                QueryItemTemplateByItemEntry(con, quest.ItemDrop1); // for record
+                QueryItemTemplateByItemEntry(con, quest.ItemDrop2); // for record
+                QueryItemTemplateByItemEntry(con, quest.ItemDrop3); // for record
+                QueryItemTemplateByItemEntry(con, quest.ItemDrop4); // for record
             }
             Console.WriteLine($"[AQ] Item drops took {stopwatchAreas.ElapsedMilliseconds}ms");
 
@@ -227,12 +208,12 @@ namespace Db_To_Json.AutoQuester
             Stopwatch stopwatchRequiredItem = Stopwatch.StartNew();
             foreach (AQModelQuestTemplate quest in quests)
             {
-                AQModelItemTemplate item1 = QueryItemTemplateByItemEntry(con, quest.RequiredItemId1); // for record
-                AQModelItemTemplate item2 = QueryItemTemplateByItemEntry(con, quest.RequiredItemId2); // for record
-                AQModelItemTemplate item3 = QueryItemTemplateByItemEntry(con, quest.RequiredItemId3); // for record
-                AQModelItemTemplate item4 = QueryItemTemplateByItemEntry(con, quest.RequiredItemId4); // for record
-                AQModelItemTemplate item5 = QueryItemTemplateByItemEntry(con, quest.RequiredItemId5); // for record
-                AQModelItemTemplate item6 = QueryItemTemplateByItemEntry(con, quest.RequiredItemId6); // for record
+                QueryItemTemplateByItemEntry(con, quest.RequiredItemId1); // for record
+                QueryItemTemplateByItemEntry(con, quest.RequiredItemId2); // for record
+                QueryItemTemplateByItemEntry(con, quest.RequiredItemId3); // for record
+                QueryItemTemplateByItemEntry(con, quest.RequiredItemId4); // for record
+                QueryItemTemplateByItemEntry(con, quest.RequiredItemId5); // for record
+                QueryItemTemplateByItemEntry(con, quest.RequiredItemId6); // for record
             }
             Console.WriteLine($"[AQ] Required items took {stopwatchRequiredItem.ElapsedMilliseconds}ms");
 
@@ -240,7 +221,7 @@ namespace Db_To_Json.AutoQuester
             Stopwatch stopwatchStartItem = Stopwatch.StartNew();
             foreach (AQModelQuestTemplate quest in quests)
             {
-                quest.StartItemTemplate = QueryItemTemplateByItemEntry(con, quest.StartItem);
+                QueryItemTemplateByItemEntry(con, quest.StartItem); // for record
             }
             Console.WriteLine($"[AQ] Start items took {stopwatchStartItem.ElapsedMilliseconds}ms");
 
@@ -248,15 +229,15 @@ namespace Db_To_Json.AutoQuester
             Stopwatch stopwatchRequiredNPC = Stopwatch.StartNew();
             foreach (AQModelQuestTemplate quest in quests)
             {
-                AQModelCreatureTemplate req1 = QueryCreatureTemplateByEntry(con, quest.RequiredNpcOrGo1); // for record
-                AQModelCreatureTemplate req2 = QueryCreatureTemplateByEntry(con, quest.RequiredNpcOrGo2); // for record
-                AQModelCreatureTemplate req3 = QueryCreatureTemplateByEntry(con, quest.RequiredNpcOrGo3); // for record
-                AQModelCreatureTemplate req4 = QueryCreatureTemplateByEntry(con, quest.RequiredNpcOrGo4); // for record
+                QueryCreatureTemplateByEntry(con, quest.RequiredNpcOrGo1); // for record
+                QueryCreatureTemplateByEntry(con, quest.RequiredNpcOrGo2); // for record
+                QueryCreatureTemplateByEntry(con, quest.RequiredNpcOrGo3); // for record
+                QueryCreatureTemplateByEntry(con, quest.RequiredNpcOrGo4); // for record
 
-                AQModelGameObjectTemplate reqGo1 = QueryGameObjectTemplateByEntry(con, -quest.RequiredNpcOrGo1); // for record
-                AQModelGameObjectTemplate reqGo2 = QueryGameObjectTemplateByEntry(con, -quest.RequiredNpcOrGo2); // for record
-                AQModelGameObjectTemplate reqGo3 = QueryGameObjectTemplateByEntry(con, -quest.RequiredNpcOrGo3); // for record
-                AQModelGameObjectTemplate reqGo4 = QueryGameObjectTemplateByEntry(con, -quest.RequiredNpcOrGo4); // for record
+                QueryGameObjectTemplateByEntry(con, -quest.RequiredNpcOrGo1); // for record
+                QueryGameObjectTemplateByEntry(con, -quest.RequiredNpcOrGo2); // for record
+                QueryGameObjectTemplateByEntry(con, -quest.RequiredNpcOrGo3); // for record
+                QueryGameObjectTemplateByEntry(con, -quest.RequiredNpcOrGo4); // for record
             }
             Console.WriteLine($"[AQ] Required NPCs/Interact took {stopwatchRequiredNPC.ElapsedMilliseconds}ms");
 
@@ -277,7 +258,7 @@ namespace Db_To_Json.AutoQuester
                     ct1.KillCredits.AddRange(QueryCreatureTemplatesByKillCredits(con, quest.RequiredNpcOrGo1));
                     foreach (int kcId in ct1.KillCredits)
                     {
-                        AQModelCreatureTemplate ct1k = QueryCreatureTemplateByEntry(con, kcId); // for record
+                        QueryCreatureTemplateByEntry(con, kcId); // for record
                     }
                 }
                 if (quest.RequiredNpcOrGo2 > 0)
@@ -286,7 +267,7 @@ namespace Db_To_Json.AutoQuester
                     ct2.KillCredits.AddRange(QueryCreatureTemplatesByKillCredits(con, quest.RequiredNpcOrGo2));
                     foreach (int kcId in ct2.KillCredits)
                     {
-                        AQModelCreatureTemplate ct2k = QueryCreatureTemplateByEntry(con, kcId); // for record
+                        QueryCreatureTemplateByEntry(con, kcId); // for record
                     }
                 }
                 if (quest.RequiredNpcOrGo3 > 0)
@@ -295,7 +276,7 @@ namespace Db_To_Json.AutoQuester
                     ct3.KillCredits.AddRange(QueryCreatureTemplatesByKillCredits(con, quest.RequiredNpcOrGo3));
                     foreach (int kcId in ct3.KillCredits)
                     {
-                        AQModelCreatureTemplate ct3k = QueryCreatureTemplateByEntry(con, kcId); // for record
+                        QueryCreatureTemplateByEntry(con, kcId); // for record
                     }
                 }
                 if (quest.RequiredNpcOrGo4 > 0)
@@ -304,10 +285,15 @@ namespace Db_To_Json.AutoQuester
                     ct4.KillCredits.AddRange(QueryCreatureTemplatesByKillCredits(con, quest.RequiredNpcOrGo4));
                     foreach (int kcId in ct4.KillCredits)
                     {
-                        AQModelCreatureTemplate ct4k = QueryCreatureTemplateByEntry(con, kcId); // for record
+                        QueryCreatureTemplateByEntry(con, kcId); // for record
                     }
                 }
             }
+
+            int ctBeforeDupesRm = _allCreatureTemplates.Count;
+            int gotBeforeDupesRm = _allGameObjectTemplates.Count;
+            int itBeforeDupesRm = _allItemTemplates.Count;
+            int spellsBeforeDupesRm = _allSpells.Count;
 
             // remove duplicates
             _allCreatureTemplates = _allCreatureTemplates
@@ -322,6 +308,18 @@ namespace Db_To_Json.AutoQuester
                 .GroupBy(c => c.Entry)
                 .Select(g => g.First())
                 .ToList();
+            _allSpells = _allSpells
+                .GroupBy(c => c.Id)
+                .Select(g => g.First())
+                .ToList();
+
+            Console.WriteLine($"-----------------------------");
+            Console.WriteLine($"Final: {quests.Count} quests");
+            Console.WriteLine($"Final: {_allCreatureTemplates.Count} creature templates ({ctBeforeDupesRm - _allCreatureTemplates.Count} dupes removed)");
+            Console.WriteLine($"Final: {_allGameObjectTemplates.Count} gameobject templates ({gotBeforeDupesRm - _allGameObjectTemplates.Count}) dupes removed)");
+            Console.WriteLine($"Final: {_allItemTemplates.Count} item templates ({itBeforeDupesRm - _allItemTemplates.Count}) dupes removed)");
+            Console.WriteLine($"Final: {_allSpells.Count} spells ({spellsBeforeDupesRm - _allSpells.Count}) dupes removed)");
+            Console.WriteLine($"-----------------------------");
 
             File.Delete(_AQJsonOutputPath);
             File.Delete(_zipFilePath);
@@ -340,7 +338,10 @@ namespace Db_To_Json.AutoQuester
                         quests,
                         _allCreatureTemplates,
                         _allGameObjectTemplates,
-                        _allItemTemplates)
+                        _allItemTemplates,
+                        _allSpells,
+                        _allCreaturesToGrind,
+                        _allWorldMapAreas)
                     );
                 Console.WriteLine($"[AQ] JSON created in {_AQJsonOutputPath}");
                 long fileSize = new FileInfo(_AQJsonOutputPath).Length;
@@ -366,7 +367,7 @@ namespace Db_To_Json.AutoQuester
                 Console.WriteLine($"ERROR: Directory {_AQJsonCopyToPath} does not exist");
             }
 
-            Console.WriteLine($"[AQ] Total took {totalWatch.ElapsedMilliseconds}ms");
+            Console.WriteLine($"[AQ] Total process took {totalWatch.ElapsedMilliseconds}ms");
         }
 
         private static List<int> QueryCreatureTemplatesByKillCredits(SQLiteConnection con, int entry)
@@ -377,6 +378,7 @@ namespace Db_To_Json.AutoQuester
                 WHERE KillCredit1 = {entry} OR KillCredit2 = {entry}
             ";
             List<AQModelCreatureTemplate> result = con.Query<AQModelCreatureTemplate>(queryTemplate).ToList();
+            // record kill credits
             return result.Select(ct => ct.entry).ToList();
         }
 
@@ -432,44 +434,66 @@ namespace Db_To_Json.AutoQuester
                 WHERE entry = {itemEntry}
             ";
             List<AQModelItemTemplate> result = con.Query<AQModelItemTemplate>(queryItemTemplate).ToList();
-            if (result.Count <= 0) return null;
+            if (result.Count <= 0)
+            {
+                Console.WriteLine($"Couldn't find item template with entry {itemEntry}");
+                return null;
+            }
             if (result.Count > 1) Console.WriteLine($"Item entry {itemEntry} has more than one template !");
 
-            result.ForEach(it =>
+            foreach (AQModelItemTemplate it in result)
             {
                 it.CreatureLootTemplates = QueryCreatureLootTemplatesByItemEntry(con, itemEntry);
                 it.GameObjectLootTemplates = QueryGameObjectLootTemplateByItemEntry(con, itemEntry);
-                it.ItemLootTemplates = QueryItemLootTemplateByEntry(con, itemEntry);
-                /*
-                AQModelSpell spell1 = QuerySpellById(con, it.spellid_1);
-                if (spell1 != null) it.Spell1 = spell1.Id;
-                AQModelSpell spell2 = QuerySpellById(con, it.spellid_2);
-                if (spell2 != null) it.Spell2 = spell2.Id;
-                AQModelSpell spell3 = QuerySpellById(con, it.spellid_3);
-                if (spell3 != null) it.Spell3 = spell3.Id;
-                AQModelSpell spell4 = QuerySpellById(con, it.spellid_4);
-                if (spell4 != null) it.Spell4 = spell4.Id;
-                */
-            });
+                it.ItemLootTemplates = QueryItemLootTemplateByEntry(con, itemEntry);                
+                QuerySpellById(con, it.spellid_1); // for record
+                QuerySpellById(con, it.spellid_2); // for record
+                QuerySpellById(con, it.spellid_3); // for record
+                QuerySpellById(con, it.spellid_4); // for record
+            }
+
             _allItemTemplates.AddRange(result);
 
             return result.FirstOrDefault();
         }
 
-        private static int QuerySpellById(SQLiteConnection con, int spellID)
+        private static List<AQModelCreatureTemplate> QueryCreatureTemplatesToGrind(SQLiteConnection con)
         {
-            if (spellID == 0) return 0;
+            string queryTemplates = $@"
+                SELECT * FROM creature_template ct
+                WHERE ct.type = 1
+            ";
+            List<AQModelCreatureTemplate> result = con.Query<AQModelCreatureTemplate>(queryTemplates).ToList();
+
+            foreach (AQModelCreatureTemplate template in result)
+            {
+                template.Creatures = QueryCreaturesById(con, template.entry);
+            }
+
+            result.RemoveAll(ct => ct.Creatures.Count < 2); // filter out uniques
+
+            _allCreaturesToGrind.AddRange(result);
+            return result;
+        }
+
+        private static AQModelSpell QuerySpellById(SQLiteConnection con, int spellID)
+        {
+            if (spellID <= 0) return null;
             string query = $@"
                 SELECT *
                 FROM spell
                 WHERE ID = {spellID}
             ";
             List<AQModelSpell> spells = con.Query<AQModelSpell>(query).ToList();
-            if (spells.Count <= 0) return 0;
+            if (spells.Count <= 0)
+            {
+                Console.WriteLine($"Couldn't find spell with ID {spellID}");
+                return null;
+            }
             if (spells.Count > 1) Console.WriteLine($"Spell ID {spellID} has more than one spells !");
             AQModelSpell result = spells.FirstOrDefault();
             _allSpells.Add(result);
-            return result.Id;
+            return result;
         }
 
         private static List<AQModelItemLootTemplate> QueryItemLootTemplateByEntry(SQLiteConnection con, int lootEntry)
@@ -558,15 +582,8 @@ namespace Db_To_Json.AutoQuester
                 FROM gameobject_questender
                 WHERE quest = {questId}
             ";
-            List<int> ids = con.Query<int>(queryGOEndersIds).ToList();
-            /*
-            List<AQModelGameObjectTemplate> result = new List<AQModelGameObjectTemplate>();
-            foreach (AQModelGameObjectTemplate got in result)
-            {
-                result.Add(QueryGameObjectTemplateByEntry(con, id));
-            }
-            */
-            return ids;
+            List<int> result = con.Query<int>(queryGOEndersIds).ToList();
+            return result;
         }
 
         private static List<int> QueryCreatureQuestEnders(SQLiteConnection con, int questId)
@@ -577,11 +594,6 @@ namespace Db_To_Json.AutoQuester
                 WHERE quest = {questId}
             ";
             List<int> result = con.Query<int>(queryQuestEndersIds).ToList();
-            /*
-            List<AQModelCreatureTemplate> result = new List<AQModelCreatureTemplate>();
-            questEndersIds.ForEach(id => { result.Add(QueryCreatureTemplateByEntry(con, id)); });
-            result.RemoveAll(template => !template.IsNeutralOrFriendly);
-            */
             return result;
         }
 
@@ -598,15 +610,23 @@ namespace Db_To_Json.AutoQuester
 
         private static AQModelGameObjectTemplate QueryGameObjectTemplateByEntry(SQLiteConnection con, int objectEntry)
         {
+            if (objectEntry <= 0) return null;
             string queryGOTemplate = $@"
                 Select *
                 FROM gameobject_template
                 WHERE entry = {objectEntry}
             ";
             List<AQModelGameObjectTemplate> result = con.Query<AQModelGameObjectTemplate>(queryGOTemplate).ToList();
-            if (result.Count <= 0) return null;
+            if (result.Count <= 0)
+            {
+                Console.WriteLine($"Couldn't find game object template with entry {objectEntry}");
+                return null;
+            }
             if (result.Count > 1) Console.WriteLine($"Game Object entry {objectEntry} has more than one templates !");
-            result.ForEach(got => got.GameObjects = QueryGameObjectByEntry(con, got.entry));
+            foreach (AQModelGameObjectTemplate got in result)
+            {
+                got.GameObjects = QueryGameObjectByEntry(con, got.entry);
+            }
             _allGameObjectTemplates.AddRange(result);
             return result.FirstOrDefault();
         }
@@ -619,10 +639,6 @@ namespace Db_To_Json.AutoQuester
                 WHERE quest = {questId}
             ";
             List<int> ids = con.Query<int>(queryGOGiverssIds).ToList();
-            /*
-            List<AQModelGameObjectTemplate> result = new List<AQModelGameObjectTemplate>();
-            ids.ForEach(id => { result.Add(QueryGameObjectTemplateByEntry(con, id)); });
-            */
             return ids;
         }
 
@@ -645,7 +661,10 @@ namespace Db_To_Json.AutoQuester
                 WHERE guid = {guid}
             ";
             AQModelCreatureAddon result = con.Query<AQModelCreatureAddon>(queryCreatureAddon).FirstOrDefault();
-            if (result != null && result.path_id > 0) result.WayPoints = QueryWayPointDataByPathId(con, result.path_id);
+            if (result != null && result.path_id > 0)
+            {
+                result.WayPoints = QueryWayPointDataByPathId(con, result.path_id);
+            }
             return result;
         }
 
@@ -661,20 +680,23 @@ namespace Db_To_Json.AutoQuester
             if (result.Count > 0)
             {
                 List<AQModelCreature> creaturesToAddWP = new List<AQModelCreature>();
-                result.ForEach(c =>
+                foreach (AQModelCreature modelCreature in result)
                 {
-                    c.CreatureAddon = QueryCreaturesAddonsByGuid(con, c.guid);
-                    if (withWayPoints && c.CreatureAddon?.WayPoints?.Count > 0)
+                    modelCreature.CreatureAddon = QueryCreaturesAddonsByGuid(con, modelCreature.guid);
+                    if (withWayPoints && modelCreature.CreatureAddon?.WayPoints?.Count > 0)
                     {
-                        c.CreatureAddon.WayPoints.Reverse();
-                        if (c.CreatureAddon.WayPoints.Count > 4)
+                        modelCreature.CreatureAddon.WayPoints.Reverse();
+                        if (modelCreature.CreatureAddon.WayPoints.Count > 4)
                         {
-                            c.CreatureAddon.WayPoints.RemoveAll(cToRemove => c.CreatureAddon.WayPoints.IndexOf(cToRemove) % 2 != 0);
+                            modelCreature.CreatureAddon.WayPoints.RemoveAll(cToRemove => modelCreature.CreatureAddon.WayPoints.IndexOf(cToRemove) % 2 != 0);
                         }
-                        c.CreatureAddon.WayPoints.ForEach(wp =>
-                            creaturesToAddWP.Add(new AQModelCreature(wp.position_x, wp.position_y, wp.position_z, c.guid, c.map, c.spawnTimeSecs)));
+
+                        foreach (AQModelWayPointData wp in modelCreature.CreatureAddon.WayPoints)
+                        {
+                            creaturesToAddWP.Add(new AQModelCreature(wp.position_x, wp.position_y, wp.position_z, modelCreature.guid, modelCreature.map, modelCreature.spawnTimeSecs));
+                        }
                     }
-                });
+                }
                 result.AddRange(creaturesToAddWP);
             }
             return result.Count > 0 ? result : new List<AQModelCreature>();
@@ -682,14 +704,18 @@ namespace Db_To_Json.AutoQuester
 
         private static AQModelCreatureTemplate QueryCreatureTemplateByEntry(SQLiteConnection con, int creatureEntry)
         {
-            if (creatureEntry == 0) return null;
+            if (creatureEntry <= 0) return null;
             string queryTemplate = $@"
                 SELECT *
                 FROM creature_template
                 WHERE entry = {creatureEntry}
             ";
             List<AQModelCreatureTemplate> result = con.Query<AQModelCreatureTemplate>(queryTemplate).ToList();
-            if (result.Count <= 0) return null;
+            if (result.Count <= 0)
+            {
+                Console.WriteLine($"Couldn't find creature template with entry {creatureEntry}");
+                return null;
+            }
             if (result.Count > 1) Console.WriteLine($"Creature entry {creatureEntry} has more than one templates !");
 
             foreach (AQModelCreatureTemplate template in result)
@@ -709,11 +735,6 @@ namespace Db_To_Json.AutoQuester
                 WHERE quest = {questId}
             ";
             List<int> questGiversIds = con.Query<int>(queryQuestGiversIds).ToList();
-            /*
-            List<AQModelCreatureTemplate> result = new List<AQModelCreatureTemplate>();
-            questGiversIds.ForEach(id => { result.Add(QueryCreatureTemplateByEntry(con, id)); });
-            //result.RemoveAll(template => !template.IsNeutralOrFriendly);
-            */
             return questGiversIds;
         }
 
@@ -727,6 +748,15 @@ namespace Db_To_Json.AutoQuester
             ";
             List<int> result = con.Query<int>(queryQuestExcl).ToList();
             return result;
+        }
+
+        private static List<AQModelWorldMapArea> QueryWorldMapAreas(SQLiteConnection con)
+        {
+            string queryWMap = $@"
+                SELECT *
+                FROM world_map_area
+            ";
+            return con.Query<AQModelWorldMapArea>(queryWMap).ToList();
         }
 
         private static List<AQModelConditions> QueryConditionsBySourceEntry(SQLiteConnection con, int sourceEntry)
@@ -795,17 +825,26 @@ namespace Db_To_Json.AutoQuester
         public List<AQModelCreatureTemplate> CreatureTemplates { get; }
         public List<AQModelGameObjectTemplate> GameObjectTemplates { get; }
         public List<AQModelItemTemplate> ItemTemplates { get; }
+        public List<AQModelSpell> Spells { get; }
+        public List<AQModelCreatureTemplate> CreaturesToGrind { get; }
+        public List<AQModelWorldMapArea> WorldMapAreas { get; }
 
         public AQJsonExport(
             List<AQModelQuestTemplate> waters,
             List<AQModelCreatureTemplate> creatureTemplates,
             List<AQModelGameObjectTemplate> gameObjectTemplates,
-            List<AQModelItemTemplate> itemTemplates)
+            List<AQModelItemTemplate> itemTemplates,
+            List<AQModelSpell> spells,
+            List<AQModelCreatureTemplate> creaturesToGrind,
+            List<AQModelWorldMapArea> worldMapAreas)
         {
             QuestTemplates = waters;
             CreatureTemplates = creatureTemplates;
             GameObjectTemplates = gameObjectTemplates;
             ItemTemplates = itemTemplates;
+            Spells = spells;
+            CreaturesToGrind = creaturesToGrind;
+            WorldMapAreas = worldMapAreas;
         }
     }
 }

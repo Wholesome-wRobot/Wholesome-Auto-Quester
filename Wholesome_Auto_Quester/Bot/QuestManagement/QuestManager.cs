@@ -1,10 +1,12 @@
 ﻿using robotManager.Helpful;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Wholesome_Auto_Quester.Bot.ContinentManagement;
+using Wholesome_Auto_Quester.Bot.JSONManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
-using Wholesome_Auto_Quester.Database;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Database.Objectives;
 using Wholesome_Auto_Quester.GUI;
@@ -21,6 +23,8 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 {
     public class QuestManager : IQuestManager
     {
+        private readonly IContinentManager _continentManager;
+        private readonly IJSONManager _jSONManager;
         private readonly List<int> _itemsGivingQuest = new List<int>();
         private readonly IWowObjectScanner _objectScanner;
         private readonly QuestsTrackerGUI _tracker;
@@ -28,11 +32,17 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
         private readonly object _questManagerLock = new object();
         private Timer _itemCheckTimer = new Timer();
 
-        public QuestManager(IWowObjectScanner objectScanner, QuestsTrackerGUI questTrackerGUI)
+        public QuestManager(
+            IWowObjectScanner objectScanner, 
+            QuestsTrackerGUI questTrackerGUI, 
+            IJSONManager jSONManager,
+            IContinentManager continentManager)
         {
             questTrackerGUI.Initialize(this);
             _tracker = questTrackerGUI;
             _objectScanner = objectScanner;
+            _jSONManager = jSONManager;
+            _continentManager = continentManager;
             Initialize();
         }
 
@@ -55,15 +65,14 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
         {
             lock (_questManagerLock)
             {
-                if (WholesomeAQSettings.CurrentSetting.GoToMobEntry != 0 || WholesomeAQSettings.CurrentSetting.GrindOnly)
+                if (WholesomeAQSettings.CurrentSetting.GrindOnly)
                 {
                     _questList.Clear();
                     _tracker.UpdateQuestsList(GuiQuestList);
                     return;
                 }
 
-                DBQueriesWotlk wotlkQueries = new DBQueriesWotlk();
-                List<ModelQuestTemplate> dbQuestTemplates = wotlkQueries.GetAvailableQuests();
+                List<ModelQuestTemplate> dbQuestTemplates = _jSONManager.GetAvailableQuestsFromJSON();
 
                 // Remove quests that are not supposed to be here anymore
                 List<IWAQQuest> questsToRemove = _questList.FindAll(quest => !dbQuestTemplates.Exists(dbQ => dbQ.Id == quest.QuestTemplate.Id));
@@ -74,12 +83,13 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 {
                     if (!_questList.Exists(quest => quest.QuestTemplate.Id == qTemplate.Id))
                     {
-                        _questList.Add(new WAQQuest(qTemplate, _objectScanner));
+                        _questList.Add(new WAQQuest(qTemplate, _objectScanner, _continentManager));
                     }
 
                     // Quest started by item
-                    if (qTemplate.StartItemTemplate?.startquest > 0
-                        && qTemplate.Id == qTemplate.StartItemTemplate?.startquest
+                    if (qTemplate.StartItemTemplate != null 
+                        && qTemplate.StartItemTemplate.startquest > 0
+                        && qTemplate.Id == qTemplate.StartItemTemplate.startquest
                         && !Quest.HasQuest(qTemplate.Id)
                         && !_itemsGivingQuest.Contains(qTemplate.StartItemTemplate.Entry))
                     {
@@ -181,7 +191,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 // Check for deprecated quest items
                 foreach (WoWItem item in bagItems)
                 {
-                    if (item.GetItemInfo.ItemType == "Quest" 
+                    if (item.GetItemInfo.ItemType == "Quest"
                         && item.GetItemInfo.ItemSubType == "Quest"
                         && !listQuestItems.Contains(item.Name)
                         && !_itemsGivingQuest.Contains(item.Entry))
@@ -198,7 +208,11 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 {
                     if (bagItems.Exists(item => item.Entry == itemId))
                     {
-                        IWAQQuest questToPickup = _questList.Find(quest => quest.QuestTemplate.StartItem == itemId && quest.Status == QuestStatus.ToPickup);
+                        IWAQQuest questToPickup = _questList
+                            .Find(quest =>
+                                quest.QuestTemplate.StartItemTemplate != null
+                                && quest.QuestTemplate.StartItemTemplate.Entry == itemId
+                                && quest.Status == QuestStatus.ToPickup);
                         if (questToPickup != null)
                         {
                             Logger.Log($"Starting {questToPickup.QuestTemplate.LogTitle} from {questToPickup.QuestTemplate.StartItemTemplate.Name}");
@@ -256,7 +270,8 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     }
 
                     // Mark quest as completed if it's part of an exclusive group
-                    if (quest.QuestTemplate.QuestAddon.ExclusiveGroup > 0 && !logQuests.ContainsKey(quest.QuestTemplate.Id))
+                    if (quest.QuestTemplate.QuestAddon != null 
+                        && quest.QuestTemplate.QuestAddon.ExclusiveGroup > 0 && !logQuests.ContainsKey(quest.QuestTemplate.Id))
                     {
                         if (quest.QuestTemplate.QuestAddon.ExclusiveQuests.Any(qId =>
                             qId != quest.QuestTemplate.Id
@@ -462,7 +477,8 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 return false;
             }
 
-            if (quest.QuestTemplate.QuestAddon.RequiredSkillID > 0
+            if (quest.QuestTemplate.QuestAddon != null 
+                && quest.QuestTemplate.QuestAddon.RequiredSkillID > 0
                 && Skill.GetValue((SkillLine)quest.QuestTemplate.QuestAddon.RequiredSkillID) < quest.QuestTemplate.QuestAddon.RequiredSkillPoints)
             {
                 return false;

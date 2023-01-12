@@ -1,4 +1,5 @@
 ﻿using robotManager.Helpful;
+using Wholesome_Auto_Quester.Bot.ContinentManagement;
 using Wholesome_Auto_Quester.Bot.TravelManagement;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
@@ -101,11 +102,11 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             }
         }
 
-        public WAQBaseTask(Vector3 location, int continent, string taskName)
+        public WAQBaseTask(Vector3 location, int continent, string taskName, IContinentManager continentManager)
         {
             Location = location;
             TaskName = taskName;
-            WorldMapArea = ContinentHelper.GetWorldMapAreaFromPoint(location, continent);
+            WorldMapArea = continentManager.GetWorldMapAreaFromPoint(location, continent);
         }
 
         protected abstract bool IsRecordedAsUnreachable { get; }

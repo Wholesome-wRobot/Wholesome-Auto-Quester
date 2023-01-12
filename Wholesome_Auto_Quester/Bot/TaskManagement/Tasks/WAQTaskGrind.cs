@@ -1,4 +1,5 @@
-﻿using Wholesome_Auto_Quester.Database.Models;
+﻿using Wholesome_Auto_Quester.Bot.ContinentManagement;
+using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.ObjectManager;
 
@@ -6,9 +7,9 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
 {
     public class WAQTaskGrind : WAQBaseScannableTask
     {
-        public WAQTaskGrind(ModelCreatureTemplate creatureTemplate, ModelCreature creature)
-            : base(creature.GetSpawnPosition, creature.map, $"Grind {creatureTemplate.name}", creatureTemplate.entry, creature.spawnTimeSecs,
-                  creature.guid)
+        public WAQTaskGrind(ModelCreatureTemplate creatureTemplate, ModelCreature creature, IContinentManager continentManager)
+            : base(creature.GetSpawnPosition, creature.map, $"Grind {creatureTemplate.Name}", creatureTemplate.Entry, creature.spawnTimeSecs,
+                  creature.guid, continentManager)
         { }
 
         public new void PutTaskOnTimeout(string reason, int timeInSeconds, bool exponentiallyLonger)

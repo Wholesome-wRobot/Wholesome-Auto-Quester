@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using wManager.Wow.Enums;
+using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
@@ -8,13 +8,45 @@ namespace Wholesome_Auto_Quester.Database.Models
 {
     public class ModelCreatureTemplate
     {
-        public int entry { get; }
-        public string name { get; }
-        public uint faction { get; }
+        public ModelCreatureTemplate(
+            JSONModelCreatureTemplate jmct,
+            Dictionary<int, JSONModelCreatureTemplate> creatureTemplatesDic)
+        {
+            Entry = jmct.entry;
+            Name = jmct.name;
+            Faction = jmct.faction;
+            KillCredit1 = jmct.KillCredit1;
+            KillCredit2 = jmct.KillCredit2;
+            MinLevel = jmct.minLevel;
+            MaxLevel = jmct.maxLevel;
+            unit_flags = jmct.unit_flags;
+            unit_flags2 = jmct.unit_flags2;
+            type_flags = jmct.type_flags;
+            dynamicflags = jmct.dynamicflags;
+            flags_extra = jmct.flags_extra;
+            rank = jmct.rank;
+
+            foreach (int killCreditId in jmct.KillCredits)
+            {
+                if (creatureTemplatesDic.TryGetValue(killCreditId, out JSONModelCreatureTemplate jSONModelCreatureTemplate))
+                    KillCredits.Add(new ModelCreatureTemplate(jSONModelCreatureTemplate, creatureTemplatesDic));
+                else
+                    Logger.LogDevDebug($"WARNING: killCreditId with entry {killCreditId} couldn't be found in dictionary");
+            }
+
+            foreach (JSONModelCreature creature in jmct.Creatures)
+            {
+                Creatures.Add(new ModelCreature(creature));
+            }
+        }
+
+        public int Entry { get; }
+        public string Name { get; }
+        public uint Faction { get; }
         public int KillCredit1 { get; }
         public int KillCredit2 { get; }
-        //public int minLevel { get; }
-        public int maxLevel { get; }
+        public int MinLevel { get; }
+        public int MaxLevel { get; }
         public long unit_flags { get; }
         public long unit_flags2 { get; }
         public long type_flags { get; }
@@ -22,13 +54,13 @@ namespace Wholesome_Auto_Quester.Database.Models
         public long flags_extra { get; }
         public int rank { get; }
 
-        public List<ModelCreatureTemplate> KillCredits = new List<ModelCreatureTemplate>();
+        public List<ModelCreatureTemplate> KillCredits { get; set; } = new List<ModelCreatureTemplate>();
         //public bool HasKillCredit => KillCredit1 > 0 || KillCredit2 > 0;
         public List<ModelCreature> Creatures { get; set; } = new List<ModelCreature>();
         //public bool IsHostile => (int)WoWFactionTemplate.FromId(faction).GetReactionTowards(ObjectManager.Me.FactionTemplate) <= 2;
         //public bool IsNeutral => (int)WoWFactionTemplate.FromId(faction).GetReactionTowards(ObjectManager.Me.FactionTemplate) == 3;
-        public bool IsFriendly => (int)WoWFactionTemplate.FromId(faction).GetReactionTowards(ObjectManager.Me.FactionTemplate) >= 4;
-        public bool IsNeutralOrFriendly => (int)WoWFactionTemplate.FromId(faction).GetReactionTowards(ObjectManager.Me.FactionTemplate) >= 3;
+        public bool IsFriendly => (int)WoWFactionTemplate.FromId(Faction).GetReactionTowards(ObjectManager.Me.FactionTemplate) >= 4;
+        public bool IsNeutralOrFriendly => (int)WoWFactionTemplate.FromId(Faction).GetReactionTowards(ObjectManager.Me.FactionTemplate) >= 3;
         //public Reaction GetRelationTypeTowardsMe => WoWFactionTemplate.FromId(faction).GetReactionTowards(ObjectManager.Me.FactionTemplate);
 
         public bool IsAttackable => !IsFriendly

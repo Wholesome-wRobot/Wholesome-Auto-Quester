@@ -1,4 +1,5 @@
-﻿using Wholesome_Auto_Quester.Database.Models;
+﻿using Wholesome_Auto_Quester.Bot.ContinentManagement;
+using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
 using WholesomeToolbox;
 using wManager.Wow.Helpers;
@@ -10,14 +11,15 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
     {
         private ModelQuestTemplate _questTemplate;
 
-        public WAQTaskTurninQuestToCreature(ModelQuestTemplate questTemplate, ModelCreatureTemplate creatureTemplate, ModelCreature creature)
-            : base(creature.GetSpawnPosition, creature.map, $"Turn in {questTemplate.LogTitle} to {creatureTemplate.name}", creatureTemplate.entry,
-                  creature.spawnTimeSecs, creature.guid)
+        public WAQTaskTurninQuestToCreature(ModelQuestTemplate questTemplate, ModelCreatureTemplate creatureTemplate, ModelCreature creature, IContinentManager continentManager)
+            : base(creature.GetSpawnPosition, creature.map, $"Turn in {questTemplate.LogTitle} to {creatureTemplate.Name}", creatureTemplate.Entry,
+                  creature.spawnTimeSecs, creature.guid, continentManager)
         {
             _questTemplate = questTemplate;
 
             SpatialWeight = 2.0;
-            if (_questTemplate.QuestAddon?.AllowableClasses > 0)
+            if (_questTemplate.QuestAddon != null 
+                && _questTemplate.QuestAddon.AllowableClasses > 0)
             {
                 PriorityShift = 2;
             }

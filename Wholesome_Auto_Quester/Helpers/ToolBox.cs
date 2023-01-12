@@ -1,10 +1,13 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using robotManager.Helpful;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Database.Models;
@@ -413,5 +416,25 @@ namespace Wholesome_Auto_Quester.Helpers
                .OrderBy(u => u.Position.DistanceTo(myPosition))
                .ToList();
         }
+    }
+}
+
+
+public class ShouldSerializeContractResolver : DefaultContractResolver
+{
+    public static readonly ShouldSerializeContractResolver Instance = new ShouldSerializeContractResolver();
+
+    protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+    {
+        JsonProperty property = base.CreateProperty(member, memberSerialization);
+
+        if (property.PropertyType != typeof(string))
+        {
+            if (property.PropertyType.GetInterface(nameof(IEnumerable)) != null)
+                property.ShouldSerialize =
+                    instance => (instance?.GetType().GetProperty(property.UnderlyingName)?.GetValue(instance) as IEnumerable)?.OfType<object>().Count() > 0;
+        }
+
+        return property;
     }
 }

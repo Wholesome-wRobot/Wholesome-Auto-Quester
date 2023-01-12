@@ -4,7 +4,9 @@ using robotManager.Products;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Wholesome_Auto_Quester.Bot.ContinentManagement;
 using Wholesome_Auto_Quester.Bot.GrindManagement;
+using Wholesome_Auto_Quester.Bot.JSONManagement;
 using Wholesome_Auto_Quester.Bot.QuestManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
@@ -29,6 +31,8 @@ namespace Wholesome_Auto_Quester.Bot
         private ITaskManager _taskManager;
         private IQuestManager _questManager;
         private IGrindManager _grindManager;
+        private IJSONManager _jsonManager;
+        private IContinentManager _continentManager;
         private TravelManager _travelManager;
         private QuestsTrackerGUI _questTrackerGui;
         private IProduct _product;
@@ -40,11 +44,13 @@ namespace Wholesome_Auto_Quester.Bot
             {
                 _product = product;
                 _questTrackerGui = tracker;
-                _travelManager = new TravelManager();
-                _grindManager = new GrindManager();
+                _jsonManager = new JSONManager();
+                _continentManager = new ContinentManager(_jsonManager);
+                _travelManager = new TravelManager(_continentManager);
+                _grindManager = new GrindManager(_jsonManager, _continentManager);
                 _objectScanner = new WowObjectScanner(_questTrackerGui);
-                _questManager = new QuestManager(_objectScanner, _questTrackerGui);
-                _taskManager = new TaskManager(_objectScanner, _questManager, _grindManager, _questTrackerGui, _travelManager);
+                _questManager = new QuestManager(_objectScanner, _questTrackerGui, _jsonManager, _continentManager);
+                _taskManager = new TaskManager(_objectScanner, _questManager, _grindManager, _questTrackerGui, _travelManager, _continentManager);
                 DBCFaction.RecordReputations();
 
                 // Attach onlevelup for spell book:
@@ -93,7 +99,7 @@ namespace Wholesome_Auto_Quester.Bot
                 Fsm.AddState(new Trainers { Priority = 23 });
                 Fsm.AddState(new ToTown { Priority = 22 });
 
-                Fsm.AddState(new WAQStateTravel(_taskManager, _travelManager, 21));
+                Fsm.AddState(new WAQStateTravel(_taskManager, _travelManager, _continentManager, 21));
 
                 Fsm.AddState(new WAQStateInteract(_objectScanner, 15));
                 Fsm.AddState(new WAQStateKill(_objectScanner, 14));
@@ -128,6 +134,7 @@ namespace Wholesome_Auto_Quester.Bot
         {
             try
             {
+                _jsonManager?.Dispose();
                 _grindManager?.Dispose();
                 _objectScanner?.Dispose();
                 _questManager?.Dispose();
@@ -182,7 +189,7 @@ namespace Wholesome_Auto_Quester.Bot
 
                 if (_travelManager.TravelInProgress)
                 {
-                    Radar3D.DrawString($"{ContinentHelper.MyMapArea.Continent} - {ContinentHelper.MyMapArea.areaName} " +
+                    Radar3D.DrawString($"{_continentManager.MyMapArea.Continent} - {_continentManager.MyMapArea.areaName} " +
                         $"=> {_taskManager.ActiveTask.WorldMapArea.Continent} - {_taskManager.ActiveTask.WorldMapArea.areaName}",
                         new Vector3(30, 330, 0), 10, Color.PaleGoldenrod);
                 }

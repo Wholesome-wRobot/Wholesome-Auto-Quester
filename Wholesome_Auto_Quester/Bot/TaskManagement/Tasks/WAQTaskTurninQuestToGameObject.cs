@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using Wholesome_Auto_Quester.Bot.ContinentManagement;
 using Wholesome_Auto_Quester.Database.DBC;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
@@ -13,15 +14,16 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         private ModelGameObjectTemplate _gameObjectTemplate;
         private ModelQuestTemplate _questTemplate;
 
-        public WAQTaskTurninQuestToGameObject(ModelQuestTemplate questTemplate, ModelGameObjectTemplate goTemplate, ModelGameObject gameObject)
+        public WAQTaskTurninQuestToGameObject(ModelQuestTemplate questTemplate, ModelGameObjectTemplate goTemplate, ModelGameObject gameObject, IContinentManager continentManager)
             : base(gameObject.GetSpawnPosition, gameObject.map, $"Turn in {questTemplate.LogTitle} to {goTemplate.name}", goTemplate.entry,
-                  gameObject.spawntimesecs, gameObject.guid)
+                  gameObject.spawntimesecs, gameObject.guid, continentManager)
         {
             _gameObjectTemplate = goTemplate;
             _questTemplate = questTemplate;
 
             SpatialWeight = 2.0;
-            if (_questTemplate.QuestAddon?.AllowableClasses > 0)
+            if (_questTemplate.QuestAddon != null 
+                && _questTemplate.QuestAddon.AllowableClasses > 0)
             {
                 PriorityShift = 2;
             }

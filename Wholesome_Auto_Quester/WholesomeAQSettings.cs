@@ -29,7 +29,6 @@ namespace Wholesome_Auto_Quester
         public bool ContinentTravel { get; set; }
         public List<BlackListedQuest> BlackListedQuests { get; set; }
         public bool AbandonUnfitQuests { get; set; }
-        public int GoToMobEntry { get; set; }
         public int StopAtLevel { get; set; }
         public bool BlacklistDangerousZones { get; set; }
         public bool AllowStopWatch { get; set; }
@@ -49,7 +48,6 @@ namespace Wholesome_Auto_Quester
             ContinentTravel = true;
             BlackListedQuests = new List<BlackListedQuest>();
             AbandonUnfitQuests = true;
-            GoToMobEntry = 0;
             RecordUnreachables = false;
             StopAtLevel = 80;
             BlacklistDangerousZones = true;

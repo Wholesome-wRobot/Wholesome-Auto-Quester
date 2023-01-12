@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using Wholesome_Auto_Quester.Bot.ContinentManagement;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
 using WholesomeToolbox;
@@ -11,14 +12,15 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
     {
         private ModelQuestTemplate _questTemplate;
 
-        public WAQTaskPickupQuestFromCreature(ModelQuestTemplate questTemplate, ModelCreatureTemplate creatureTemplate, ModelCreature creature)
-            : base(creature.GetSpawnPosition, creature.map, $"Pick up {questTemplate.LogTitle} from {creatureTemplate.name}", creatureTemplate.entry,
-                  creature.spawnTimeSecs, creature.guid)
+        public WAQTaskPickupQuestFromCreature(ModelQuestTemplate questTemplate, ModelCreatureTemplate creatureTemplate, ModelCreature creature, IContinentManager continentManager)
+            : base(creature.GetSpawnPosition, creature.map, $"Pick up {questTemplate.LogTitle} from {creatureTemplate.Name}", creatureTemplate.Entry,
+                  creature.spawnTimeSecs, creature.guid, continentManager)
         {
             _questTemplate = questTemplate;
 
             SpatialWeight = 0.25;
-            if (_questTemplate.QuestAddon?.AllowableClasses > 0)
+            if (_questTemplate.QuestAddon != null
+                && _questTemplate.QuestAddon.AllowableClasses > 0)
             {
                 PriorityShift = 2;
             }

@@ -1,4 +1,5 @@
-﻿using Wholesome_Auto_Quester.Database.Models;
+﻿using Wholesome_Auto_Quester.Bot.ContinentManagement;
+using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.ObjectManager;
 
@@ -6,8 +7,8 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
 {
     public class WAQTaskSettingTravel : WAQBaseTask
     {
-        public WAQTaskSettingTravel(ModelCreatureTemplate creatureTemplate)
-            : base(creatureTemplate.Creatures[0].GetSpawnPosition, creatureTemplate.Creatures[0].map, $"Going to {creatureTemplate.name} (force travel)")
+        public WAQTaskSettingTravel(ModelCreatureTemplate creatureTemplate, IContinentManager continentManager)
+            : base(creatureTemplate.Creatures[0].GetSpawnPosition, creatureTemplate.Creatures[0].map, $"Going to {creatureTemplate.Name} (force travel)", continentManager)
         {
             SearchRadius = 2;
         }

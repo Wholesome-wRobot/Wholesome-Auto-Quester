@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Wholesome_Auto_Quester.Bot.ContinentManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
-using Wholesome_Auto_Quester.Bot.TravelManagement;
 using Wholesome_Auto_Quester.Database.Conditions;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Database.Objectives;
@@ -19,6 +19,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
     public class WAQQuest : IWAQQuest
     {
         private readonly IWowObjectScanner _objectScanner;
+        private readonly IContinentManager _continentManager;
         private readonly Dictionary<int, List<IWAQTask>> _questTasks = new Dictionary<int, List<IWAQTask>>(); // objective index => task list
         private bool _objectivesRecorded;
         private bool _objectivesRecordFailed;
@@ -26,6 +27,17 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
         public ModelQuestTemplate QuestTemplate { get; }
         public QuestStatus Status { get; private set; } = QuestStatus.Unchecked;
+
+        public WAQQuest(
+            ModelQuestTemplate questTemplate, 
+            IWowObjectScanner objectScanner,
+            IContinentManager continentManager)
+        {
+            _objectScanner = objectScanner;
+            _continentManager = continentManager;
+            QuestTemplate = questTemplate;
+        }
+
         public string GetConditionsText
         {
             get
@@ -37,12 +49,6 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 }
                 return result;
             }
-        }
-
-        public WAQQuest(ModelQuestTemplate questTemplate, IWowObjectScanner objectScanner)
-        {
-            _objectScanner = objectScanner;
-            QuestTemplate = questTemplate;
         }
 
         public List<IWAQTask> GetAllTasks()
@@ -77,7 +83,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
             if (ObjectManager.Me.Level < 58
                 && !WholesomeAQSettings.CurrentSetting.ContinentTravel
-                && task.WorldMapArea.Continent != ContinentHelper.MyMapArea.Continent)
+                && task.WorldMapArea.Continent != _continentManager.MyMapArea.Continent)
             {
                 return;
             }
@@ -195,8 +201,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
             // quest is in progress but we don't have the starting item
             if (Status == QuestStatus.InProgress
-                && QuestTemplate.StartItem > 0
-                && QuestTemplate.StartItemTemplate != null)
+                && QuestTemplate.StartItemTemplate?.Entry > 0)
             {
                 if (!Bag.GetBagItem().Any(item => item.Entry == QuestTemplate.StartItemTemplate.Entry))
                 {
@@ -210,20 +215,20 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 ClearTasksDictionary();
 
                 // Turn in quest to an NPC
-                foreach (ModelCreatureTemplate creatureTemplate in QuestTemplate.CreatureQuestTurners)
+                foreach (ModelCreatureTemplate creatureTemplate in QuestTemplate.CreatureQuestEnders)
                 {
                     foreach (ModelCreature creature in creatureTemplate.Creatures)
                     {
-                        AddTaskToDictionary(0, new WAQTaskTurninQuestToCreature(QuestTemplate, creatureTemplate, creature));
+                        AddTaskToDictionary(0, new WAQTaskTurninQuestToCreature(QuestTemplate, creatureTemplate, creature, _continentManager));
                     }
                 }
 
                 // Turn in quest to a game object
-                foreach (ModelGameObjectTemplate gameObjectTemplate in QuestTemplate.GameObjectQuestTurners)
+                foreach (ModelGameObjectTemplate gameObjectTemplate in QuestTemplate.GameObjectQuestEnders)
                 {
                     foreach (ModelGameObject gameObject in gameObjectTemplate.GameObjects)
                     {
-                        AddTaskToDictionary(0, new WAQTaskTurninQuestToGameObject(QuestTemplate, gameObjectTemplate, gameObject));
+                        AddTaskToDictionary(0, new WAQTaskTurninQuestToGameObject(QuestTemplate, gameObjectTemplate, gameObject, _continentManager));
                     }
                 }
 
@@ -240,7 +245,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 {
                     foreach (ModelCreature creature in creatureTemplate.Creatures)
                     {
-                        AddTaskToDictionary(0, new WAQTaskPickupQuestFromCreature(QuestTemplate, creatureTemplate, creature));
+                        AddTaskToDictionary(0, new WAQTaskPickupQuestFromCreature(QuestTemplate, creatureTemplate, creature, _continentManager));
                     }
                 }
 
@@ -249,7 +254,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 {
                     foreach (ModelGameObject gameObject in gameObjectTemplate.GameObjects)
                     {
-                        AddTaskToDictionary(0, new WAQTaskPickupQuestFromGameObject(QuestTemplate, gameObjectTemplate, gameObject));
+                        AddTaskToDictionary(0, new WAQTaskPickupQuestFromGameObject(QuestTemplate, gameObjectTemplate, gameObject, _continentManager));
                     }
                 }
 
@@ -264,7 +269,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 // Prerequisite Kill & Loot
                 foreach (KillLootObjective obje in QuestTemplate.PrerequisiteLootObjectives)
                 {
-                    if (obje.CreatureLootTemplate.CreatureTemplate.maxLevel > ObjectManager.Me.Level + 3)
+                    if (obje.CreatureLootTemplate.CreatureTemplate.MaxLevel > ObjectManager.Me.Level + 3)
                     {
                         continue;
                     }
@@ -274,7 +279,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                         needsPrerequisite = true;
                         foreach (ModelCreature creature in obje.CreatureLootTemplate.CreatureTemplate.Creatures)
                         {
-                            AddTaskToDictionary(obje.ObjectiveIndex, new WAQTaskKillAndLoot(QuestTemplate, obje.CreatureLootTemplate.CreatureTemplate, creature));
+                            AddTaskToDictionary(obje.ObjectiveIndex, new WAQTaskKillAndLoot(QuestTemplate, obje.CreatureLootTemplate.CreatureTemplate, creature, _continentManager));
                         }
                     }
                     else
@@ -293,7 +298,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                             needsPrerequisite = true;
                             foreach (ModelGameObject gameObject in gameObjectTemplate.GameObjects)
                             {
-                                AddTaskToDictionary(obje.ObjectiveIndex, new WAQTaskGatherGameObject(QuestTemplate, gameObjectTemplate, gameObject));
+                                AddTaskToDictionary(obje.ObjectiveIndex, new WAQTaskGatherGameObject(QuestTemplate, gameObjectTemplate, gameObject, _continentManager));
                             }
                         }
                         else
@@ -310,7 +315,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     {
                         if (!ToolBox.IsObjectiveCompleted(obje.ObjectiveIndex, QuestTemplate.Id))
                         {
-                            AddTaskToDictionary(obje.ObjectiveIndex, new WAQTaskExploreLocation(QuestTemplate, obje.Area.GetPosition, obje.Area.ContinentId));
+                            AddTaskToDictionary(obje.ObjectiveIndex, new WAQTaskExploreLocation(QuestTemplate, obje.Area.GetPosition, _continentManager, obje.Area.ContinentId));
                         }
                         else
                         {
@@ -321,7 +326,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     // Kill & Loot
                     foreach (KillLootObjective obje in QuestTemplate.KillLootObjectives)
                     {
-                        if (obje.CreatureLootTemplate.CreatureTemplate.maxLevel > ObjectManager.Me.Level + 3)
+                        if (obje.CreatureLootTemplate.CreatureTemplate.MaxLevel > ObjectManager.Me.Level + 3)
                         {
                             continue;
                         }
@@ -330,7 +335,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                         {
                             foreach (ModelCreature creature in obje.CreatureLootTemplate.CreatureTemplate.Creatures)
                             {
-                                AddTaskToDictionary(obje.ObjectiveIndex, new WAQTaskKillAndLoot(QuestTemplate, obje.CreatureLootTemplate.CreatureTemplate, creature));
+                                AddTaskToDictionary(obje.ObjectiveIndex, new WAQTaskKillAndLoot(QuestTemplate, obje.CreatureLootTemplate.CreatureTemplate, creature, _continentManager));
                             }
                         }
                         else
@@ -342,7 +347,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     // Kill
                     foreach (KillObjective obje in QuestTemplate.KillObjectives)
                     {
-                        if (obje.CreatureTemplate.maxLevel > ObjectManager.Me.Level + 3)
+                        if (obje.CreatureTemplate.MaxLevel > ObjectManager.Me.Level + 3)
                         {
                             continue;
                         }
@@ -351,10 +356,10 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                         {
                             foreach (ModelCreature creature in obje.CreatureTemplate.Creatures)
                             {
-                                if (QuestTemplate.Id == 11243 
+                                if (QuestTemplate.Id == 11243
                                     && creature.GetSpawnPosition.DistanceTo(new Vector3(746.2075, -4927.192, 16.62478)) > 50) // If Valgarde falls, important northrend starter quest
                                     continue;
-                                AddTaskToDictionary(obje.ObjectiveIndex, new WAQTaskKill(QuestTemplate, obje.CreatureTemplate, creature));
+                                AddTaskToDictionary(obje.ObjectiveIndex, new WAQTaskKill(QuestTemplate, obje.CreatureTemplate, creature, _continentManager));
                             }
                         }
                         else
@@ -372,7 +377,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                             {
                                 foreach (ModelGameObject gameObject in gameObjectTemplate.GameObjects)
                                 {
-                                    AddTaskToDictionary(obje.ObjectiveIndex, new WAQTaskGatherGameObject(QuestTemplate, gameObjectTemplate, gameObject));
+                                    AddTaskToDictionary(obje.ObjectiveIndex, new WAQTaskGatherGameObject(QuestTemplate, gameObjectTemplate, gameObject, _continentManager));
                                 }
                             }
                             else
@@ -389,7 +394,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                         {
                             foreach (ModelGameObject gameObject in obje.GameObjectTemplate.GameObjects)
                             {
-                                AddTaskToDictionary(obje.ObjectiveIndex, new WAQTaskInteractWithGameObject(QuestTemplate, obje.GameObjectTemplate, gameObject));
+                                AddTaskToDictionary(obje.ObjectiveIndex, new WAQTaskInteractWithGameObject(QuestTemplate, obje.GameObjectTemplate, gameObject, _continentManager));
                             }
                         }
                         else

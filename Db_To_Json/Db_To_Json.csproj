@@ -93,6 +93,7 @@
     <Compile Include="AutoQuester\Models\AQModelReferenceLootTemplate.cs" />
     <Compile Include="AutoQuester\Models\AQModelSpell.cs" />
     <Compile Include="AutoQuester\Models\AQModelWayPointData.cs" />
+    <Compile Include="AutoQuester\Models\AQModelWorldMapArea.cs" />
     <Compile Include="JSONGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

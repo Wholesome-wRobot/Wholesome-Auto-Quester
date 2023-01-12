@@ -84,6 +84,12 @@ public class Main : IProduct
             string zipPath = Others.GetCurrentDirectory + @"Data\AQ.zip";
             string jsonPath = Others.GetCurrentDirectory + @"Data\AQ.json";
 
+            // Regenerate JSON every time when in dev mode
+            if (WholesomeAQSettings.CurrentSetting.DevMode)
+            {
+                File.Delete(jsonPath);
+            }
+
             // unzip json into data folder
             if (!File.Exists(jsonPath))
             {
@@ -100,13 +106,7 @@ public class Main : IProduct
                 ZipFile.ExtractToDirectory(zipPath, Others.GetCurrentDirectory + @"Data");
                 File.Delete(zipPath);
             }
-            /*
-            if (!AutoUpdater.CheckDbDownload())
-            {
-                Logger.LogError($"There was a problem with the DB download");
-                return;
-            }
-            */
+
             if (!WholesomeAQSettings.CurrentSetting.RecordUnreachables)
             {
                 WholesomeAQSettings.CurrentSetting.RecordedUnreachables.Clear();

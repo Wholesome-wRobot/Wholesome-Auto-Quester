@@ -14,6 +14,21 @@ namespace Wholesome_Auto_Quester.Database.Models
             spawnTimeSecs = spawnTime;
         }
 
+        public ModelCreature(JSONModelCreature jmc) 
+        {
+            position_x = jmc.position_x;
+            position_y = jmc.position_y;
+            position_z = jmc.position_z;
+            guid = jmc.guid;
+            map = jmc.map;
+            spawnTimeSecs = jmc.spawnTimeSecs;
+
+            if (jmc.CreatureAddon != null)
+            {
+                CreatureAddon = new ModelCreatureAddon(jmc.CreatureAddon);
+            }
+        }
+
         public ModelCreature() { }
 
         public uint guid { get; }
@@ -25,6 +40,5 @@ namespace Wholesome_Auto_Quester.Database.Models
 
         public ModelCreatureAddon CreatureAddon { get; set; }
         public Vector3 GetSpawnPosition => new Vector3(position_x, position_y, position_z);
-        public bool ShouldSerializeGetSpawnPosition() => false;
     }
 }

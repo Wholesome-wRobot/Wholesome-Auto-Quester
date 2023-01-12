@@ -1,7 +1,6 @@
-﻿using robotManager.Helpful;
+﻿/*using robotManager.Helpful;
 using System.Collections.Generic;
 using System.Linq;
-using Wholesome_Auto_Quester.Database;
 using Wholesome_Auto_Quester.Database.Models;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
@@ -19,7 +18,7 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
                 {
                     DB _dataBase = new DB();
                     _listWorldMapAreas = _dataBase.QueryWorldMapAreas();
-                    _listWorldMapAreas.Add(new ModelWorldMapArea( 369, 0, "DeeprunTram"));
+                    _listWorldMapAreas.Add(new ModelWorldMapArea(369, 0, "DeeprunTram"));
                     _dataBase.Dispose();
                 }
 
@@ -58,3 +57,4 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
         }
     }
 }
+*/

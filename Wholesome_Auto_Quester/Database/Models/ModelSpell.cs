@@ -2,7 +2,13 @@
 {
     public class ModelSpell
     {
-        /*public int Id { get; }
+        public ModelSpell(JSONModelSpell jms)
+        {
+            Id = jms.Id;
+        }
+
+        public int Id { get; }
+        /*
         public int category { get; }
         public int dispelType { get; }
         public int mechanic { get; }

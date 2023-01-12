@@ -21,6 +21,14 @@ namespace Wholesome_Auto_Quester.Helpers
             }
         }
 
+        public static void LogDevDebug(string str)
+        {
+            if (WholesomeAQSettings.CurrentSetting.DevMode)
+            {
+                Logging.Write($"[{Main.ProductName}] " + str, Logging.LogType.Normal, Color.MediumVioletRed);
+            }
+        }
+
         public static void LogError(string str)
         {
             Logging.Write($"[{Main.ProductName}] " + str, Logging.LogType.Error, Color.Red);

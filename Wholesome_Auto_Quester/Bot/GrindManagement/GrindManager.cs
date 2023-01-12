@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Wholesome_Auto_Quester.Bot.ContinentManagement;
+using Wholesome_Auto_Quester.Bot.JSONManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
-using Wholesome_Auto_Quester.Bot.TravelManagement;
-using Wholesome_Auto_Quester.Database;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Helpers;
@@ -13,61 +13,77 @@ namespace Wholesome_Auto_Quester.Bot.GrindManagement
     public class GrindManager : IGrindManager
     {
         private readonly List<IWAQTask> _grindTasks = new List<IWAQTask>();
+        private readonly IJSONManager _jsonManager;
+        private readonly IContinentManager _continentManager;
 
-        public GrindManager()
+        public GrindManager(IJSONManager jSONManager, IContinentManager continentManager)
         {
+            _jsonManager = jSONManager;
+            _continentManager = continentManager;
             Initialize();
-        }
-
-        private void RecordGrindTasksFromDB()
-        {
-            _grindTasks.Clear();
-            DB _database = new DB();
-            List<ModelCreatureTemplate> creaturesToGrind = _database.QueryCreatureTemplatesToGrind();
-            _database.Dispose();
-
-            creaturesToGrind.RemoveAll(ct =>
-                ct.Creatures.Any(c =>
-                    !ContinentHelper.PointIsOnMyContinent(c.GetSpawnPosition, c.map) && !WholesomeAQSettings.CurrentSetting.ContinentTravel)
-                || ct.IsFriendly
-                || ct.rank > 0
-                || ct.faction == 188);
-            Logger.Log($"Found {creaturesToGrind.Count} templates to grind");
-            foreach (ModelCreatureTemplate template in creaturesToGrind)
-            {
-                foreach (ModelCreature creature in template.Creatures)
-                {
-                    _grindTasks.Add(new WAQTaskGrind(template, creature));
-                }
-            }
-            _grindTasks.RemoveAll(task => task.WorldMapArea == null || !task.IsValid);
         }
 
         public void Initialize()
         {
-            /*
-            RecordGrindTasksFromDB();
+            RecordGrindTasksFromJSON();
             EventsLuaWithArgs.OnEventsLuaStringWithArgs += LuaEventHandler;
-            */
         }
 
         public void Dispose()
         {
-            //EventsLuaWithArgs.OnEventsLuaStringWithArgs -= LuaEventHandler;
+            EventsLuaWithArgs.OnEventsLuaStringWithArgs -= LuaEventHandler;
         }
-        /*
+
+        public void RecordGrindTasksFromJSON()
+        {
+            List<ModelCreatureTemplate> creaturesToGrind = _jsonManager.GetCreatureTemplatesToGrindFromJSON();
+
+            _grindTasks.Clear();
+
+            uint myLevel = ObjectManager.Me.Level;
+            if (myLevel <= 3) myLevel = 3;
+            creaturesToGrind.RemoveAll(ct => ct.MaxLevel > myLevel + 1);
+            creaturesToGrind.RemoveAll(ct => ct.MinLevel < myLevel - 3);
+            creaturesToGrind.RemoveAll(ct => ct.rank > 0);
+
+            creaturesToGrind.RemoveAll(ct =>
+                ct.Creatures.Any(c =>
+                    !_continentManager.PointIsOnMyContinent(c.GetSpawnPosition, c.map) && !WholesomeAQSettings.CurrentSetting.ContinentTravel)
+                || ct.IsFriendly
+                || ct.Faction == 188);
+
+            if (creaturesToGrind.Exists(ct => ct.Creatures.Count > 10))
+                creaturesToGrind.RemoveAll(ct => ct.Creatures.Count < 10);
+
+            Logger.Log($"Found {creaturesToGrind.Count} templates to grind");
+
+            foreach (ModelCreatureTemplate template in creaturesToGrind)
+            {
+                foreach (ModelCreature creature in template.Creatures)
+                {
+                    _grindTasks.Add(new WAQTaskGrind(template, creature, _continentManager));
+                }
+            }
+
+            _grindTasks.RemoveAll(task => task.WorldMapArea == null || !task.IsValid);
+        }
+
+        public List<IWAQTask> GetGrindTasks => _grindTasks;
+
         private void LuaEventHandler(string eventid, List<string> args)
         {
-            if (eventid == "PLAYER_LEVEL_UP" && ObjectManager.Me.Level < WholesomeAQSettings.CurrentSetting.StopAtLevel)
+            switch (eventid)
             {
-                RecordGrindTasksFromDB();
+                case "PLAYER_LEVEL_UP":
+                    if (ObjectManager.Me.Level < WholesomeAQSettings.CurrentSetting.StopAtLevel)
+                    {
+                        RecordGrindTasksFromJSON();
+                    }
+                    break;
+                case "PLAYER_ENTERING_WORLD":
+                    RecordGrindTasksFromJSON();
+                    break;
             }
-        }
-        */
-        public List<IWAQTask> GetGrindTasks()
-        {
-            RecordGrindTasksFromDB();
-            return _grindTasks;
         }
     }
 }
