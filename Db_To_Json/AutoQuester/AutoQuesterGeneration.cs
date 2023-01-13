@@ -106,8 +106,8 @@ namespace Db_To_Json.AutoQuester
                 {
                     questTemplate.QuestAddon = questTemplateAddon;
                     questTemplate.QuestAddon.ExclusiveQuests = QueryQuestIdsByExclusiveGroup(con, questTemplateAddon.ExclusiveGroup); // Add EQ to addon
-                    questTemplate.Conditions = QueryConditionsBySourceEntry(con, questTemplate.Id);
                 }
+                questTemplate.Conditions = QueryConditionsBySourceEntry(con, questTemplate.Id);
             }
             Console.WriteLine($"[AQ] Quest Template addons took {qtAddonsWatch.ElapsedMilliseconds}ms ({quests.Count} quests)");
 

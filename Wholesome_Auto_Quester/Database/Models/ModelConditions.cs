@@ -13,20 +13,21 @@
             ConditionValue2 = jmc.ConditionValue2;
             NegativeCondition = jmc.NegativeCondition;
         }
-        public int SourceTypeOrReferenceId { get; }
-        public int SourceGroup { get; }
-        public int SourceEntry { get; }
-        //public int SourceId { get; }
-        public int ElseGroup { get; }
-        public int ConditionTypeOrReference { get; }
-        //public int ConditionTarget { get; }
-        public int ConditionValue1 { get; }
-        public int ConditionValue2 { get; }
-        //public int ConditionValue3 { get; }
-        public int NegativeCondition { get; }
-        //public int ErrorType { get; }
-        //public int ErrorTextId { get; }
-        //public string ScriptName { get; }
-        //public string Comment { get; }
+
+        public int SourceTypeOrReferenceId { get; set; }
+        public int SourceGroup { get; set; }
+        public int SourceEntry { get; set; }
+        //public int SourceId { get; set; }
+        public int ElseGroup { get; set; }
+        public int ConditionTypeOrReference { get; set; }
+        //public int ConditionTarget { get;  set;}
+        public int ConditionValue1 { get; set; }
+        public int ConditionValue2 { get; set; }
+        //public int ConditionValue3 { get; set; }
+        public int NegativeCondition { get; set; }
+        //public int ErrorType { get; set; }
+        //public int ErrorTextId { get; set; }
+        //public string ScriptName { get; set; }
+        //public string Comment { get; set; }
     }
 }

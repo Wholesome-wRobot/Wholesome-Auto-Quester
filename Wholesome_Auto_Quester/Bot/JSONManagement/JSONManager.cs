@@ -179,13 +179,18 @@ namespace Wholesome_Auto_Quester.Bot.JSONManagement
                         continue;
                     }
 
-                    if (quest.CreatureQuestGivers.Count <= 0 && quest.CreatureQuestEnders.Count <= 0)
+                    if (quest.CreatureQuestGivers.Count <= 0 
+                        && quest.CreatureQuestEnders.Count <= 0
+                        && quest.GameObjectQuestGivers.Count <= 0
+                        && quest.GameObjectQuestEnders.Count <= 0)
                     {
                         if (_logFilter) Logger.LogDebug($"[{quest.Id}] {quest.LogTitle} has been removed (no quest giver, no quest turner)");
                         continue;
                     }
 
-                    if (quest.CreatureQuestGivers.Count > 0 && !quest.CreatureQuestGivers.Any(qg => qg.IsNeutralOrFriendly) && quest.GameObjectQuestGivers.Count <= 0)
+                    if (quest.CreatureQuestGivers.Count > 0 
+                        && !quest.CreatureQuestGivers.Any(qg => qg.IsNeutralOrFriendly) 
+                        && quest.GameObjectQuestGivers.Count <= 0)
                     {
                         if (_logFilter) Logger.LogDebug($"[{quest.Id}] {quest.LogTitle} has been removed (Not for my faction)");
                         continue;
