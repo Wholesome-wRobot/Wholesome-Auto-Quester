@@ -249,7 +249,7 @@ namespace Wholesome_Auto_Quester.Database.Models
                 if (jsonQuestTemplate.RequiredNpcOrGo4 > 0)
                 {
                     if (allCreatureTemplates.TryGetValue(jsonQuestTemplate.RequiredNpcOrGo4, out JSONModelCreatureTemplate jmct))
-                        RequiredNPC3Template = new ModelCreatureTemplate(jmct, allCreatureTemplates);
+                        RequiredNPC4Template = new ModelCreatureTemplate(jmct, allCreatureTemplates);
                     else
                         Logger.LogDevDebug($"WARNING: RequiredNpcOrGo4 with entry {jsonQuestTemplate.RequiredNpcOrGo4} couldn't be found in dictionary");
                 }
@@ -257,7 +257,7 @@ namespace Wholesome_Auto_Quester.Database.Models
                 else
                 {
                     if (allGameObjectTemplates.TryGetValue(-jsonQuestTemplate.RequiredNpcOrGo4, out JSONModelGameObjectTemplate jmgot))
-                        RequiredGO3Template = new ModelGameObjectTemplate(jmgot);
+                        RequiredGO4Template = new ModelGameObjectTemplate(jmgot);
                     else
                         Logger.LogDevDebug($"WARNING: RequiredNpcOrGo4 with entry {jsonQuestTemplate.RequiredNpcOrGo4} couldn't be found in dictionary");
                 }
