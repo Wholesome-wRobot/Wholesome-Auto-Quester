@@ -363,6 +363,7 @@
     <Compile Include="Helpers\QuestLUAHelper.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="States\WAQBlacklistDanger.cs" />
+    <Compile Include="States\WAQCheckPathAhead.cs" />
     <Compile Include="States\WAQStateClearPath.cs" />
     <Compile Include="States\IWAQState.cs" />
     <Compile Include="States\WAQDefend.cs" />

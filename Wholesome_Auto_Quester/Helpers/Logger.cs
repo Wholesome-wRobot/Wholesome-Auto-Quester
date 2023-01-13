@@ -10,7 +10,7 @@ namespace Wholesome_Auto_Quester.Helpers
 
         public static void Log(string str)
         {
-            Logging.Write($"[{Main.ProductName}] " + str, Logging.LogType.Normal, Color.Brown);
+            Logging.Write($"[{Main.ProductName}] " + str, Logging.LogType.Normal, Color.RoyalBlue);
         }
 
         public static void LogDebug(string str)

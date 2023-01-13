@@ -19,8 +19,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             _questTemplate = questTemplate;
 
             SpatialWeight = 0.25;
-            if (_questTemplate.QuestAddon != null
-                && _questTemplate.QuestAddon.AllowableClasses > 0)
+            if (_questTemplate.QuestAddon?.AllowableClasses > 0)
             {
                 PriorityShift = 2;
             }

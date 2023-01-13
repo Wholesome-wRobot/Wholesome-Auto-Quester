@@ -36,7 +36,8 @@ namespace Wholesome_Auto_Quester.Bot
         private TravelManager _travelManager;
         private QuestsTrackerGUI _questTrackerGui;
         private IProduct _product;
-        private WAQStateClearPath _clearPathState;
+        //private WAQStateClearPath _clearPathState;
+        private WAQCheckPathAhead _checkPathAheadState;
 
         internal bool Pulse(QuestsTrackerGUI tracker, IProduct product)
         {
@@ -84,8 +85,10 @@ namespace Wholesome_Auto_Quester.Bot
 
                 Fsm.AddState(new Regeneration { Priority = 31 });
 
-                _clearPathState = new WAQStateClearPath(_objectScanner, 30);
-                Fsm.AddState(_clearPathState);
+                //_clearPathState = new WAQStateClearPath(_objectScanner, 30);
+                //Fsm.AddState(_clearPathState);
+                _checkPathAheadState = new WAQCheckPathAhead(_objectScanner, 30);
+                Fsm.AddState(_checkPathAheadState);
                 Fsm.AddState(new WAQStateLoot(_objectScanner, 29));
 
                 Fsm.AddState(new Looting { Priority = 28 });
@@ -193,10 +196,32 @@ namespace Wholesome_Auto_Quester.Bot
                         $"=> {_taskManager.ActiveTask.WorldMapArea.Continent} - {_taskManager.ActiveTask.WorldMapArea.areaName}",
                         new Vector3(30, 330, 0), 10, Color.PaleGoldenrod);
                 }
-
+                /*
                 foreach ((Vector3 a, Vector3 b) line in _clearPathState.LinesToCheck)
                 {
                     Radar3D.DrawLine(line.a, line.b, Color.Red);
+                }
+                */
+
+                foreach (Vector3 point in _checkPathAheadState.PointsAlongPathSegments)
+                {
+                    Radar3D.DrawCircle(point, 0.2f, Color.Green, true, 150);
+                }
+
+                if (_checkPathAheadState.DangerTraceline.a != null && _checkPathAheadState.DangerTraceline.b != null)
+                {
+                    Radar3D.DrawCircle(_checkPathAheadState.DangerTraceline.a, 0.4f, Color.Red, false, 200);
+                    Radar3D.DrawLine(_checkPathAheadState.DangerTraceline.a, _checkPathAheadState.DangerTraceline.b, Color.Red, 200);
+                }
+
+                if (_checkPathAheadState.UnitOnPath.unit != null)
+                {
+                    Radar3D.DrawCircle(_checkPathAheadState.UnitOnPath.unit.PositionWithoutType, 0.4f, Color.Red, true, 200);
+                }
+
+                for (int i = 0; i < _checkPathAheadState.LinesToCheck.Count - 1; i++)
+                {
+                    Radar3D.DrawLine(_checkPathAheadState.LinesToCheck[i], _checkPathAheadState.LinesToCheck[i + 1], Color.OrangeRed, 150);
                 }
 
                 if (_taskManager.ActiveTask != null)

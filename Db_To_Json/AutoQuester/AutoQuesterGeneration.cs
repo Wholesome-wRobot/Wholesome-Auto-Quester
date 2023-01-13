@@ -114,11 +114,13 @@ namespace Db_To_Json.AutoQuester
             int qtRemovedBecauseRepeatable = quests
                 .RemoveAll(q => q.QuestAddon != null && (q.QuestAddon.SpecialFlags & 1) != 0);
             Console.WriteLine($"[AQ] Removed {qtRemovedBecauseRepeatable} repeatables quests");
+
             int qtRemovedBecauseEscort = quests
                 .RemoveAll(q => q.QuestAddon != null && (q.QuestAddon.SpecialFlags & 2) != 0);
             Console.WriteLine($"[AQ] Removed {qtRemovedBecauseEscort} escorts quests");
+
             int qtRemovedBecauseNotClass = quests
-                .RemoveAll(q => q.QuestLevel == -1 && q.QuestAddon != null && q.QuestAddon.AllowableClasses == 0);
+                .RemoveAll(q => q.QuestLevel == -1 && (q.QuestAddon == null || q.QuestAddon.AllowableClasses == 0));
             Console.WriteLine($"[AQ] Removed {qtRemovedBecauseNotClass} quests with level -1 and not class quest");
 
             // ---------------- QUEST GIVERS ----------------

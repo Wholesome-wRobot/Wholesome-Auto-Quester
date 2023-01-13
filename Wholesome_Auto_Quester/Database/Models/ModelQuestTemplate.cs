@@ -685,8 +685,7 @@ namespace Wholesome_Auto_Quester.Database.Models
         {
             get
             {
-                if (QuestAddon != null
-                    && QuestAddon.RequiredMinRepFaction > 0)
+                if (QuestAddon?.RequiredMinRepFaction > 0)
                 {
                     Reputation rep = DBCFaction.GetReputationById(QuestAddon.RequiredMinRepFaction);
                     if (rep == null)
@@ -698,8 +697,7 @@ namespace Wholesome_Auto_Quester.Database.Models
                         return $"Reputation with {rep.Name} too low";
                     }
                 }
-                if (QuestAddon != null 
-                    && QuestAddon.RequiredMaxRepFaction > 0)
+                if (QuestAddon?.RequiredMaxRepFaction > 0)
                 {
                     Reputation rep = DBCFaction.GetReputationById(QuestAddon.RequiredMaxRepFaction);
                     if (rep == null)

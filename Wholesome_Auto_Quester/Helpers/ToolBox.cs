@@ -25,6 +25,62 @@ namespace Wholesome_Auto_Quester.Helpers
     {
         private static Dictionary<int, bool[]> _objectiveCompletionDict = new Dictionary<int, bool[]>();
 
+        /// <summary>
+        /// Returns nodes at regular distance intervals along a path. Doesn't include starting point.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="distanceBetweenPoints"></param>
+        /// <param name="maxDistance"></param>
+        /// <returns>Nodes at regular distance intervals along a path</returns>
+        public static List<Vector3> GetPointsAlongPath(
+            List<Vector3> path,
+            float distanceBetweenPoints,
+            float maxDistance)
+        {
+            List<Vector3> result = new List<Vector3>();
+            float remainder = 0f;
+            float totalDistance = 0f;
+
+            if (path.Count <= 0)
+            {
+                return result;
+            }
+
+            for (int i = 0; i < path.Count - 1; i++)
+            {
+                Vector3 segmentStart = path[i];
+                Vector3 segmentEnd = path[i + 1];
+                float segmentLength = segmentStart.DistanceTo(segmentEnd);
+
+                if (totalDistance > maxDistance) break;
+
+                for (float offsetIndex = distanceBetweenPoints; offsetIndex < segmentLength; offsetIndex += distanceBetweenPoints)
+                {
+                    if (remainder > 0)
+                    {
+                        offsetIndex -= remainder;
+                        remainder = 0;
+                    }
+
+                    if (offsetIndex + distanceBetweenPoints > segmentLength)
+                    {
+                        remainder = segmentLength - offsetIndex;
+                    }
+
+                    Vector3 vector = new Vector3(segmentEnd.X - segmentStart.X, segmentEnd.Y - segmentStart.Y, segmentEnd.Z - segmentStart.Z);
+                    double c = System.Math.Sqrt(vector.X * vector.X + vector.Y * vector.Y + vector.Z * vector.Z);
+                    double a = offsetIndex / c;
+                    Vector3 offset = new Vector3(segmentStart.X + vector.X * a, segmentStart.Y + vector.Y * a, segmentStart.Z + vector.Z * a);
+
+                    totalDistance += distanceBetweenPoints;
+                    if (totalDistance > maxDistance) break;
+                    result.Add(offset);
+                }
+            }
+
+            return result;
+        }
+
         public static void CheckIfZReachable(Vector3 checkPosition)
         {
             if (checkPosition.DistanceTo2D(ObjectManager.Me.Position) <= 3 && WTLocation.GetZDifferential(checkPosition) > 3)

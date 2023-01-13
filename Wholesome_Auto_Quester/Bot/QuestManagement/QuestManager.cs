@@ -270,8 +270,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     }
 
                     // Mark quest as completed if it's part of an exclusive group
-                    if (quest.QuestTemplate.QuestAddon != null 
-                        && quest.QuestTemplate.QuestAddon.ExclusiveGroup > 0 && !logQuests.ContainsKey(quest.QuestTemplate.Id))
+                    if (quest.QuestTemplate.QuestAddon?.ExclusiveGroup > 0 && !logQuests.ContainsKey(quest.QuestTemplate.Id))
                     {
                         if (quest.QuestTemplate.QuestAddon.ExclusiveQuests.Any(qId =>
                             qId != quest.QuestTemplate.Id
@@ -477,8 +476,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 return false;
             }
 
-            if (quest.QuestTemplate.QuestAddon != null 
-                && quest.QuestTemplate.QuestAddon.RequiredSkillID > 0
+            if (quest.QuestTemplate.QuestAddon?.RequiredSkillID > 0
                 && Skill.GetValue((SkillLine)quest.QuestTemplate.QuestAddon.RequiredSkillID) < quest.QuestTemplate.QuestAddon.RequiredSkillPoints)
             {
                 return false;

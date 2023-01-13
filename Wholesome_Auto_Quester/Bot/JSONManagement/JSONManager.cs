@@ -156,9 +156,8 @@ namespace Wholesome_Auto_Quester.Bot.JSONManagement
                     quest.CreatureQuestGivers.RemoveAll(creature => !creature.IsNeutralOrFriendly);
                     quest.CreatureQuestEnders.RemoveAll(creature => !creature.IsNeutralOrFriendly);
 
-                    if (quest.QuestAddon != null 
-                        && quest.QuestAddon.AllowableClasses > 0 
-                        && (quest.QuestAddon.AllowableClasses & myClass) == 0)
+                    if (quest.QuestAddon?.AllowableClasses > 0 
+                        && (quest.QuestAddon?.AllowableClasses & myClass) == 0)
                     {
                         if (_logFilter) Logger.LogDebug($"[{quest.Id}] {quest.LogTitle} has been removed (Not for my class)");
                         continue;

@@ -15,8 +15,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         {
             SearchRadius = 2;
             _questTemplate = questTemplate;
-            if (_questTemplate.QuestAddon != null
-                && _questTemplate.QuestAddon.AllowableClasses > 0)
+            if (_questTemplate.QuestAddon?.AllowableClasses > 0)
             {
                 PriorityShift = 2;
             }
