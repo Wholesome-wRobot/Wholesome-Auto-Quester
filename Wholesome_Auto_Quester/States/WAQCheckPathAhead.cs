@@ -6,6 +6,7 @@ using System.Linq;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Helpers;
 using WholesomeToolbox;
+using wManager;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
@@ -26,10 +27,9 @@ namespace Wholesome_Auto_Quester.States
 
         private readonly HashSet<int> _mobIdsToIgnoreDuringPathCheck = new HashSet<int>();
 
-        public WAQCheckPathAhead(IWowObjectScanner scanner, int priority)
+        public WAQCheckPathAhead(IWowObjectScanner scanner)
         {
             _scanner = scanner;
-            Priority = priority;
         }
 
         public override bool NeedToRun
@@ -54,7 +54,9 @@ namespace Wholesome_Auto_Quester.States
 
                 // Check if enemies along the lines
                 LinesToCheck = GetFrontLinesOnPath(MovementManager.CurrentPath);
-                List<WoWUnit> hostiles = ToolBox.GetListObjManagerHostiles();
+                List<WoWUnit> hostiles = ToolBox.GetListObjManagerHostiles()
+                    .Where(unit => !wManagerSetting.IsBlackListedZone(unit.Position))
+                    .ToList();
                 UnitOnPath = EnemyAlongTheLine(LinesToCheck, hostiles);
 
                 return UnitOnPath.unit != null;

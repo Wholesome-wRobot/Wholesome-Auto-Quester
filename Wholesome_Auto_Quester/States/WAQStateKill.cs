@@ -13,10 +13,9 @@ namespace Wholesome_Auto_Quester.States
     {
         private readonly IWowObjectScanner _scanner;
 
-        public WAQStateKill(IWowObjectScanner scanner, int priority)
+        public WAQStateKill(IWowObjectScanner scanner)
         {
             _scanner = scanner;
-            Priority = priority;
         }
 
         public override string DisplayName { get; set; } = "WAQ Kill";

@@ -13,10 +13,9 @@ namespace Wholesome_Auto_Quester.States
         private ITaskManager _taskManager;
         public override string DisplayName { get; set; } = "WAQ Move to hotspot";
 
-        public WAQStateMoveToHotspot(ITaskManager taskManager, int priority)
+        public WAQStateMoveToHotspot(ITaskManager taskManager)
         {
             _taskManager = taskManager;
-            Priority = priority;
         }
 
         public override bool NeedToRun

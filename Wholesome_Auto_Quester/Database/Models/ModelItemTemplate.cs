@@ -74,7 +74,7 @@ namespace Wholesome_Auto_Quester.Database.Models
         //public int BuyPrice { get; }
         public int Class { get; }
         //public int DisplayId { get; }
-        public int Flags { get; }
+        public long Flags { get; }
         /*public int FlagsExtra { get; }
         public int InventoryType { get; }
         public int ItemLevel { get; }

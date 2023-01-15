@@ -10,7 +10,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
-using Wholesome_Auto_Quester.Database.Models;
 using WholesomeToolbox;
 using wManager;
 using wManager.Wow.Bot.Tasks;
@@ -219,8 +218,6 @@ namespace Wholesome_Auto_Quester.Helpers
         }
 
         public static bool IsQuestCompleted(int questId) => WholesomeAQSettings.CurrentSetting.ListCompletedQuests.Contains(questId);
-
-        public static bool WoWDBFileIsPresent() => File.Exists(Others.GetCurrentDirectory + @"\Data\WoWDb335");
 
         public static bool JSONFileIsPresent() => File.Exists(Others.GetCurrentDirectory + @"\Data\WAQquests.json");
 
@@ -468,7 +465,8 @@ namespace Wholesome_Auto_Quester.Helpers
                    && !u.IsTaggedByOther
                    && !u.PlayerControlled
                    && u.Position.DistanceTo(myPosition) < 50
-                   && u.Level < ObjectManager.Me.Level + 4)
+                   && u.Level < ObjectManager.Me.Level + 4
+                   && u.Level > ObjectManager.Me.Level - 5)
                .OrderBy(u => u.Position.DistanceTo(myPosition))
                .ToList();
         }

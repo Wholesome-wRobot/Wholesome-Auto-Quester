@@ -22,13 +22,11 @@ namespace Wholesome_Auto_Quester.States
         public WAQStateTravel(
             ITaskManager taskManager, 
             TravelManager travelManager,
-            IContinentManager continentManager,
-            int priority)
+            IContinentManager continentManager)
         {
             _travelManager = travelManager;
             _taskManager = taskManager;
             _continentManager = continentManager;
-            Priority = priority;
         }
 
         public override bool NeedToRun

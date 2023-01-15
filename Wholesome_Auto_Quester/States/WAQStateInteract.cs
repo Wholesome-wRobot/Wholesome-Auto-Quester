@@ -14,10 +14,9 @@ namespace Wholesome_Auto_Quester.States
 
         public override string DisplayName { get; set; } = "WAQ Interact";
 
-        public WAQStateInteract(IWowObjectScanner scanner, int priority)
+        public WAQStateInteract(IWowObjectScanner scanner)
         {
             _scanner = scanner;
-            Priority = priority;
         }
 
         public override bool NeedToRun

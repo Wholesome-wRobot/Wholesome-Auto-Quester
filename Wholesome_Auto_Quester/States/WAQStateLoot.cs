@@ -12,10 +12,9 @@ namespace Wholesome_Auto_Quester.States
     {
         private readonly IWowObjectScanner _scanner;
 
-        public WAQStateLoot(IWowObjectScanner scanner, int priority)
+        public WAQStateLoot(IWowObjectScanner scanner)
         {
             _scanner = scanner;
-            Priority = priority;
         }
 
         public override string DisplayName { get; set; } = "WAQ Loot";

@@ -32,6 +32,7 @@ namespace Wholesome_Auto_Quester
         public int StopAtLevel { get; set; }
         public bool BlacklistDangerousZones { get; set; }
         public bool AllowStopWatch { get; set; }
+        public bool TurboLoot { get; set; }
 
         public WholesomeAQSettings()
         {
@@ -51,6 +52,7 @@ namespace Wholesome_Auto_Quester
             RecordUnreachables = false;
             StopAtLevel = 80;
             BlacklistDangerousZones = true;
+            TurboLoot = true;
 
             AllowStopWatch = false;
         }

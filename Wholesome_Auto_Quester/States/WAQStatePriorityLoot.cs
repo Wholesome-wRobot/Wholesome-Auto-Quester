@@ -1,7 +1,10 @@
 ﻿using robotManager.FiniteStateMachine;
+using robotManager.Helpful;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
+using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
@@ -12,13 +15,16 @@ namespace Wholesome_Auto_Quester.States
     {
         private readonly IWowObjectScanner _scanner;
 
-        public override string DisplayName { get; set; } = "WAQ PriorityLoot";
-        private List<ulong> UnitsLooted { get; set; } = new List<ulong>();
+        public override string DisplayName { get; set; } = "WAQ Priority Loot";
 
-        public WAQStatePriorityLoot(IWowObjectScanner scanner, int priority)
+        private readonly int _lootRange = 15;
+        private WoWUnit _unitToLoot;
+        private IWAQTask _associatedTask;
+        private List<ulong> _unitsLooted = new List<ulong>();
+
+        public WAQStatePriorityLoot(IWowObjectScanner scanner)
         {
             _scanner = scanner;
-            Priority = priority;
         }
 
         public override bool NeedToRun
@@ -32,50 +38,63 @@ namespace Wholesome_Auto_Quester.States
                     || ObjectManager.Me.HealthPercent < 20)
                     return false;
 
-                var (gameObject, task) = _scanner.ActiveWoWObject;
-                WoWUnit unitToLoot = (WoWUnit)gameObject;
-
-                if (unitToLoot.IsDead
-                    && unitToLoot.IsLootable
-                    && !UnitsLooted.Contains(unitToLoot.Guid))
+                // Purge cache
+                if (_unitsLooted.Count > 20)
                 {
-                    DisplayName = $"Priority loot for {_scanner.ActiveWoWObject.task.TaskName}";
-                    return true;
+                    _unitsLooted.RemoveRange(0, 10);
                 }
 
-                return false;
+                _unitToLoot = (WoWUnit)_scanner.ActiveWoWObject.wowObject;
+                _associatedTask = _scanner.ActiveWoWObject.task;
+
+                if (_unitToLoot == null 
+                    || _associatedTask == null
+                    || _unitToLoot.IsAlive
+                    || _unitToLoot.Position.DistanceTo(ObjectManager.Me.Position) > _lootRange
+                    || !_unitToLoot.IsLootable
+                    || _unitsLooted.Contains(_unitToLoot.Guid))
+                {
+                    return false;
+                }
+
+                return true;
             }
         }
 
         public override void Run()
         {
-            var (gameObject, task) = _scanner.ActiveWoWObject;
-            WoWUnit unitToLoot = (WoWUnit)gameObject;
-            WAQPath pathToCorpse = ToolBox.GetWAQPath(ObjectManager.Me.Position, gameObject.Position);
+            Vector3 myPos = ObjectManager.Me.PositionWithoutType;
+            Vector3 corpsePos = _unitToLoot.PositionWithoutType;
 
-            if (!pathToCorpse.IsReachable)
+            // Loot
+            if (myPos.DistanceTo(corpsePos) <= 3.5)
             {
-                UnitsLooted.Add(unitToLoot.Guid);
+                Logger.Log($"[WAQPriorityLoot] Looting {_unitToLoot.Name}");
+                MovementManager.StopMove();
+                Interact.InteractGameObject(_unitToLoot.GetBaseAddress);
+                Thread.Sleep(100);
+                _unitsLooted.Add(_unitToLoot.Guid);
                 return;
             }
 
-            if (unitToLoot.GetDistance2D <= 4)
+            // Approach corpse
+            if (!MovementManager.InMovement ||
+                MovementManager.CurrentPath.Count > 0 && MovementManager.CurrentPath.Last() != corpsePos)
             {
-                ToolBox.CheckIfZReachable(gameObject.Position);
-                MoveHelper.StopAllMove(true);
-                Logger.Log($"Priority looting {unitToLoot.Name}");
-                Interact.InteractGameObject(unitToLoot.GetBaseAddress);
-                UnitsLooted.Add(unitToLoot.Guid);
-                Thread.Sleep(500);
+                MovementManager.StopMove();
+                List<Vector3> pathToCorpse = PathFinder.FindPath(myPos, corpsePos, out bool resultSuccess);
+                if (resultSuccess)
+                {
+                    MovementManager.Go(pathToCorpse);
+                }
+                else
+                {
+                    Logger.LogError($"[WAQPriorityLoot] {_unitToLoot.Name}'s corpse seems unreachable. Skipping loot.");
+                    _unitsLooted.Add(_unitToLoot.Guid);
+                }
             }
 
-            if (!MoveHelper.IsMovementThreadRunning && unitToLoot.GetDistance2D > 3)
-            {
-                MoveHelper.StopAllMove(true);
-                MoveHelper.StartGoToThread(unitToLoot.Position, null);
-            }
-
-            task.PostInteraction(gameObject);
+            _associatedTask.PostInteraction(_unitToLoot);
         }
     }
 }

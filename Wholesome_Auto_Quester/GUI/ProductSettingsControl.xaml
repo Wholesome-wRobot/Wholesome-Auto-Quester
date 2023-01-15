@@ -52,25 +52,28 @@
                Text="Wholesome Auto Quester" HorizontalAlignment="Center" />
 
         <TextBlock Grid.Row="2" Grid.Column="0" Margin="10" 
-                   HorizontalAlignment="Right" VerticalAlignment="Center"  Text="Log debug :" FontSize="13"  />
+                   HorizontalAlignment="Right" VerticalAlignment="Center"  Text="Log debug :" FontSize="13" />
 
         <Controls:ToggleSwitch Grid.Row="2" Grid.Column="1"  Margin="10,10,10,10"
                    HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="{Binding Path=LogDebug, Mode=TwoWay}" 
-                   Click="SaveSettings" Name="LogDebug" OnLabel="" OffLabel="" />
+                   Click="SaveSettings" Name="LogDebug" OnLabel="" OffLabel=""
+                   ToolTip="Display additional info in the log" />
 
         <TextBlock Grid.Row="3" Grid.Column="0" Margin="10" 
                    HorizontalAlignment="Right" VerticalAlignment="Center"  Text="Quests GUI :" FontSize="13"  />
 
         <Controls:ToggleSwitch Grid.Row="3" Grid.Column="1"  Margin="10,10,10,10"
                    HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="{Binding Path=ActivateQuestsGUI, Mode=TwoWay}"
-                   Click="SaveSettings" Name="ActivateQuestsGUI" OnLabel="" OffLabel="" />
+                   Click="SaveSettings" Name="ActivateQuestsGUI" OnLabel="" OffLabel=""
+                   ToolTip="Display advanced GUI Tracker" />
 
         <TextBlock Grid.Row="4" Grid.Column="0" Margin="10" 
                    HorizontalAlignment="Right" VerticalAlignment="Center"  Text="Dev Mode :" FontSize="13"  />
 
         <Controls:ToggleSwitch Grid.Row="4" Grid.Column="1"  Margin="10,10,10,10"
                    HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="{Binding Path=DevMode, Mode=TwoWay}" 
-                   Click="SaveSettings" Name="DevMode" OnLabel="" OffLabel="" />
+                   Click="SaveSettings" Name="DevMode" OnLabel="" OffLabel="" 
+                   ToolTip="Only turn ON if you know what you are doing"/>
 
         <TextBlock Grid.Row="5" 
                     Grid.Column="0" 
@@ -87,7 +90,8 @@
                     VerticalAlignment="Center"
                     Value="{Binding Path=LevelDeltaMinus, Mode=TwoWay}"
                     ValueChanged="SaveSettings"
-                    x:Name="LevelDeltaMinus"  />
+                    x:Name="LevelDeltaMinus"
+                   ToolTip="Quest level minus delta" />
 
         <TextBlock Grid.Row="6" 
                     Grid.Column="0" 
@@ -104,7 +108,8 @@
                     VerticalAlignment="Center" 
                     Value="{Binding Path=LevelDeltaPlus, Mode=TwoWay}"
                     ValueChanged="SaveSettings"
-                    x:Name="LevelDeltaPlus"  />
+                    x:Name="LevelDeltaPlus" 
+                   ToolTip="Quest level plus delta"/>
 
         <TextBlock Grid.Row="7" 
                     Grid.Column="0" 
@@ -124,7 +129,8 @@
                     FontSize="13"  />
         <Controls:ToggleSwitch Grid.Row="8" Grid.Column="1"  Margin="10,10,10,10"
                    HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="{Binding Path=RecordUnreachables, Mode=TwoWay}" 
-                   Click="SaveSettings" Name="RecordUnreachables" OnLabel="" OffLabel="" />
+                   Click="SaveSettings" Name="RecordUnreachables" OnLabel="" OffLabel="" 
+                   ToolTip="Keep track of unreachable objects between session"/>
 
         <TextBlock Grid.Row="2" 
                     Grid.Column="2" 
@@ -135,7 +141,8 @@
                     FontSize="13"  />
         <Controls:ToggleSwitch Grid.Row="2" Grid.Column="3"  Margin="10,10,10,10"
                    HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="{Binding Path=GrindOnly, Mode=TwoWay}" 
-                   Click="SaveSettings" Name="GrindOnly" OnLabel="" OffLabel="" />
+                   Click="SaveSettings" Name="GrindOnly" OnLabel="" OffLabel=""
+                   ToolTip="Only grind mobs. Will not do any quest." />
 
         <TextBlock Grid.Row="3" 
                     Grid.Column="2" 
@@ -146,7 +153,8 @@
                     FontSize="13"  />
         <Controls:ToggleSwitch Grid.Row="3" Grid.Column="3"  Margin="10,10,10,10"
                    HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="{Binding Path=ContinentTravel, Mode=TwoWay}" 
-                   Click="SaveSettings" Name="ContinentTravel" OnLabel="" OffLabel="" />
+                   Click="SaveSettings" Name="ContinentTravel" OnLabel="" OffLabel=""
+                   ToolTip="Allow intercontinental travels (ON recommended)" />
 
         <TextBlock Grid.Row="4" 
                     Grid.Column="2" 
@@ -157,8 +165,9 @@
                     FontSize="13"  />
         <Controls:ToggleSwitch Grid.Row="4" Grid.Column="3"  Margin="10,10,10,10"
                    HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="{Binding Path=AbandonUnfitQuests, Mode=TwoWay}" 
-                   Click="SaveSettings" Name="AbandonUnfit" OnLabel="" OffLabel="" />
-
+                   Click="SaveSettings" Name="AbandonUnfit" OnLabel="" OffLabel="" 
+                   ToolTip="Abandon deprecated/unfit quests (ON recommended)"/>
+        
         <TextBlock Grid.Row="5" 
                     Grid.Column="2" 
                     Margin="10" 
@@ -168,33 +177,28 @@
                     FontSize="13"  />
         <Controls:ToggleSwitch Grid.Row="5" Grid.Column="3"  Margin="10,10,10,10"
                    HorizontalAlignment="Left"  VerticalAlignment="Center"  IsChecked="{Binding Path=BlacklistDangerousZones, Mode=TwoWay}" 
-                   Click="SaveSettings" Name="BlacklistDangerZones" OnLabel="" OffLabel="" />
-        <!--
+                   Click="SaveSettings" Name="BlacklistDangerZones" OnLabel="" OffLabel="" 
+                   ToolTip="Blacklist high hostiles density zones"/>        
+        
         <TextBlock Grid.Row="6" 
                     Grid.Column="2" 
                     Margin="10" 
                     HorizontalAlignment="Right" 
                     VerticalAlignment="Center"  
-                    Text="Go to mob entry :" 
+                    Text="Turbo Loot :" 
                     FontSize="13"  />
-        <mah:NumericUpDown  Grid.Row="6" 
-                    Minimum="0"
-                    Grid.Column="4" 
-                    MinWidth="110"
-                    Margin="10,10,0,10"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Center" 
-                    Value="{Binding Path=GoToMobEntry, Mode=TwoWay}"
-                    ValueChanged="SaveSettings"
-                    x:Name="GoToMobEntry"  />
-        -->
+        <Controls:ToggleSwitch Grid.Row="6" Grid.Column="3"  Margin="10,10,10,10"
+                   HorizontalAlignment="Left"  VerticalAlignment="Center"  IsChecked="{Binding Path=TurboLoot, Mode=TwoWay}" 
+                   Click="SaveSettings" Name="TurboLoot" OnLabel="" OffLabel="" 
+                   ToolTip="Replace default loot state with custom fast loot (May skip a few loots)"/>
+        
         <TextBlock Grid.Row="7" 
                     Grid.Column="2" 
                     Margin="10" 
                     HorizontalAlignment="Right" 
                     VerticalAlignment="Center"  
                     Text="Stop at level :" 
-                    FontSize="13"  />
+                    FontSize="13"/>
         <mah:NumericUpDown  Grid.Row="7" 
                     Minimum="0"
                     Grid.Column="4" 
@@ -204,7 +208,8 @@
                     VerticalAlignment="Center" 
                     Value="{Binding Path=StopAtLevel, Mode=TwoWay}"
                     ValueChanged="SaveSettings"
-                    x:Name="StopAtLevel"  />
+                    x:Name="StopAtLevel"
+                   ToolTip="Stop the bot when this level is reached" />
 
     </Grid>
 </UserControl>

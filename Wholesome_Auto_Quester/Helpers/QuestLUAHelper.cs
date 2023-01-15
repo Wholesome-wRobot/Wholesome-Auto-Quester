@@ -164,8 +164,10 @@ namespace Wholesome_Auto_Quester.Helpers
             	        end                         
                     ");
 
+                    bool completebuttonVisible = Lua.LuaDoString<bool>($@"return QuestFrameCompleteQuestButton:IsVisible() == 1;");
+
                     // Autocomplete
-                    if (isautocomplete)
+                    if (isautocomplete || completebuttonVisible)
                     {
                         return GossipTurnInQuest(questName, questId);
                     }

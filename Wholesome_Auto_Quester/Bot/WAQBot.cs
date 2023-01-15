@@ -4,6 +4,7 @@ using robotManager.Products;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using Wholesome_Auto_Quester.Bot.ContinentManagement;
 using Wholesome_Auto_Quester.Bot.GrindManagement;
 using Wholesome_Auto_Quester.Bot.JSONManagement;
@@ -36,7 +37,6 @@ namespace Wholesome_Auto_Quester.Bot
         private TravelManager _travelManager;
         private QuestsTrackerGUI _questTrackerGui;
         private IProduct _product;
-        //private WAQStateClearPath _clearPathState;
         private WAQCheckPathAhead _checkPathAheadState;
 
         internal bool Pulse(QuestsTrackerGUI tracker, IProduct product)
@@ -68,53 +68,51 @@ namespace Wholesome_Auto_Quester.Bot
                 // FSM
                 Fsm.States.Clear();
 
-                Fsm.AddState(new Relogger { Priority = 200 });
-                Fsm.AddState(new NPCScanState { Priority = 40 });
-                Fsm.AddState(new Pause { Priority = 39 });
-                Fsm.AddState(new WAQForceResurrection { Priority = 38 });
-                Fsm.AddState(new Resurrect { Priority = 37 });
+                _checkPathAheadState = new WAQCheckPathAhead(_objectScanner);
+                State lootState = WholesomeAQSettings.CurrentSetting.TurboLoot ?
+                    new WAQTurboLoot() : new Looting();
 
-                Fsm.AddState(new WAQExitVehicle { Priority = 36 });
+                State[] states = new State[]
+                {
+                    new Relogger(),
+                    new NPCScanState(),
+                    new Pause(),
+                    new WAQForceResurrection(),
+                    new Resurrect(),
+                    new WAQExitVehicle(),
+                    new MyMacro(),
+                    //new WAQBlacklistDanger(),
+                    new WAQStatePriorityLoot(_objectScanner),
+                    new WAQDefend(),
+                    new WAQWaitResurrectionSickness(),
+                    new Regeneration(),
+                    _checkPathAheadState,
+                    new WAQStateLoot(_objectScanner), // loot for quests
+                    lootState,
+                    //new MillingState(),
+                    new Farming(),
+                    new FarmingRange(),
+                    new FlightMasterTakeTaxiState(),
+                    new FlightMasterDiscoverState(),
+                    new Trainers(),
+                    new ToTown(),
+                    new WAQStateTravel(_taskManager, _travelManager, _continentManager),
+                    new WAQStateInteract(_objectScanner),
+                    new WAQStateKill(_objectScanner),
+                    new WAQStateMoveToHotspot(_taskManager),
+                    new MovementLoop(),
+                    new Idle()
+                };
 
-                Fsm.AddState(new MyMacro { Priority = 35 });
+                states = states.Reverse().ToArray();
 
-                //Fsm.AddState(new WAQBlacklistDanger { Priority = 32 });
-                Fsm.AddState(new WAQStatePriorityLoot(_objectScanner, 34));
-                Fsm.AddState(new WAQDefend { Priority = 33 });
-                Fsm.AddState(new WAQWaitResurrectionSickness { Priority = 32 });
-
-                Fsm.AddState(new Regeneration { Priority = 31 });
-
-                //_clearPathState = new WAQStateClearPath(_objectScanner, 30);
-                //Fsm.AddState(_clearPathState);
-                _checkPathAheadState = new WAQCheckPathAhead(_objectScanner, 30);
-                Fsm.AddState(_checkPathAheadState);
-                Fsm.AddState(new WAQStateLoot(_objectScanner, 29));
-
-                Fsm.AddState(new Looting { Priority = 28 });
-                //Fsm.AddState(new MillingState { Priority = 25 });
-                Fsm.AddState(new Farming { Priority = 27 });
-                Fsm.AddState(new FarmingRange { Priority = 26 });
-
-                Fsm.AddState(new FlightMasterTakeTaxiState { Priority = 25 });
-                Fsm.AddState(new FlightMasterDiscoverState { Priority = 24 });
-
-                Fsm.AddState(new Trainers { Priority = 23 });
-                Fsm.AddState(new ToTown { Priority = 22 });
-
-                Fsm.AddState(new WAQStateTravel(_taskManager, _travelManager, _continentManager, 21));
-
-                Fsm.AddState(new WAQStateInteract(_objectScanner, 15));
-                Fsm.AddState(new WAQStateKill(_objectScanner, 14));
-
-                Fsm.AddState(new WAQStateMoveToHotspot(_taskManager, 7));
-
-                Fsm.AddState(new MovementLoop { Priority = 1 });
-
-                Fsm.AddState(new Idle { Priority = 0 });
+                for (int i = 0; i < states.Length; i++)
+                {
+                    states[i].Priority = i;
+                    Fsm.AddState(states[i]);
+                }
 
                 Fsm.States.Sort();
-
                 Fsm.StartEngine(10, "_AutoQuester");
 
                 StopBotIf.LaunchNewThread();

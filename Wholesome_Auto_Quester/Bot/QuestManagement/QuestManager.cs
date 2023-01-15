@@ -1,5 +1,6 @@
 ﻿using robotManager.Helpful;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -25,7 +26,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
     {
         private readonly IContinentManager _continentManager;
         private readonly IJSONManager _jSONManager;
-        private readonly List<int> _itemsGivingQuest = new List<int>();
+        private readonly Dictionary<int, int> _itemsGivingQuest = new Dictionary<int, int>(); // item id => quest
         private readonly IWowObjectScanner _objectScanner;
         private readonly QuestsTrackerGUI _tracker;
         private readonly List<IWAQQuest> _questList = new List<IWAQQuest>();
@@ -33,8 +34,8 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
         private Timer _itemCheckTimer = new Timer();
 
         public QuestManager(
-            IWowObjectScanner objectScanner, 
-            QuestsTrackerGUI questTrackerGUI, 
+            IWowObjectScanner objectScanner,
+            QuestsTrackerGUI questTrackerGUI,
             IJSONManager jSONManager,
             IContinentManager continentManager)
         {
@@ -87,13 +88,13 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     }
 
                     // Quest started by item
-                    if (qTemplate.StartItemTemplate != null 
+                    if (qTemplate.StartItemTemplate != null
                         && qTemplate.StartItemTemplate.startquest > 0
                         && qTemplate.Id == qTemplate.StartItemTemplate.startquest
                         && !Quest.HasQuest(qTemplate.Id)
-                        && !_itemsGivingQuest.Contains(qTemplate.StartItemTemplate.Entry))
+                        && !_itemsGivingQuest.ContainsKey(qTemplate.StartItemTemplate.Entry))
                     {
-                        _itemsGivingQuest.Add(qTemplate.StartItemTemplate.Entry);
+                        _itemsGivingQuest.Add(qTemplate.StartItemTemplate.Entry, qTemplate.Id);
                     }
                 }
 
@@ -194,7 +195,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     if (item.GetItemInfo.ItemType == "Quest"
                         && item.GetItemInfo.ItemSubType == "Quest"
                         && !listQuestItems.Contains(item.Name)
-                        && !_itemsGivingQuest.Contains(item.Entry))
+                        && !_itemsGivingQuest.ContainsKey(item.Entry))
                     {
                         Logger.Log($"Deleting item {item.Name} because it's a deprecated quest item");
                         WTItem.DeleteItemByName(item.Name);
@@ -204,33 +205,27 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
                 // Check items that give quests
                 int itemFound = 0;
-                foreach (int itemId in _itemsGivingQuest)
+                foreach (KeyValuePair<int, int> entry in _itemsGivingQuest)
                 {
-                    if (bagItems.Exists(item => item.Entry == itemId))
+                    if (bagItems.Exists(item => item.Entry == entry.Key))
                     {
-                        IWAQQuest questToPickup = _questList
-                            .Find(quest =>
-                                quest.QuestTemplate.StartItemTemplate != null
-                                && quest.QuestTemplate.StartItemTemplate.Entry == itemId
+                        IWAQQuest questToPick = _questList
+                            .Find(quest => quest.QuestTemplate.Id == entry.Value
                                 && quest.Status == QuestStatus.ToPickup);
-                        if (questToPickup != null)
+
+                        if (questToPick != null)
                         {
-                            Logger.Log($"Starting {questToPickup.QuestTemplate.LogTitle} from {questToPickup.QuestTemplate.StartItemTemplate.Name}");
-                            WTItem.PickupQuestFromBagItem(questToPickup.QuestTemplate.StartItemTemplate.Name);
-                            itemFound = itemId;
+                            Logger.Log($"Starting {questToPick.QuestTemplate.LogTitle} from {questToPick.QuestTemplate.StartItemTemplate.Name}");
+                            WTItem.PickupQuestFromBagItem(questToPick.QuestTemplate.StartItemTemplate.Name);
+                            _itemsGivingQuest.Remove(itemFound);
                             break;
                         }
                         else
                         {
-                            throw new System.Exception($"Couldn't find quest associated with item {itemId}");
+                            Logger.LogError($"Couldn't find quest associated with item {entry.Key}");
                         }
 
                     }
-                }
-
-                if (itemFound > 0)
-                {
-                    _itemsGivingQuest.Remove(itemFound);
                 }
             }
         }
@@ -358,7 +353,8 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                                 AddQuestToBlackList(waqQuest.QuestTemplate.Id, "In progress with no objectives");
                                 continue;
                             }
-                            if (waqQuest.QuestTemplate.QuestLevel < ObjectManager.Me.Level - WholesomeAQSettings.CurrentSetting.LevelDeltaMinus - 1)
+                            if (waqQuest.QuestTemplate.QuestLevel < ObjectManager.Me.Level - WholesomeAQSettings.CurrentSetting.LevelDeltaMinus - 1
+                                && (waqQuest.QuestTemplate.QuestAddon == null || waqQuest.QuestTemplate.QuestAddon.AllowableClasses == 0))
                             {
                                 AbandonQuest(waqQuest.QuestTemplate.Id, "Underleveled");
                                 AddQuestToBlackList(waqQuest.QuestTemplate.Id, "Underleveled");
@@ -601,7 +597,10 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(303, "Dark iron War, Too many mobs", false);
             AddQuestToBlackList(304, "A grim task, Too many mobs", false);
             AddQuestToBlackList(663, "Land ho!, no objective", false);
+            //AddQuestToBlackList(1641, "Tome of divinity, gives an item that starts an uncompletable quest", false);
 
+            // COMMON
+            AddQuestToBlackList(10881, "The Shadow Tombs, problem with boxes", false);
 
             if (!wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotSellList.Contains("WAQEnd"))
             {
