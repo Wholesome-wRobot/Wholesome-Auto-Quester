@@ -148,7 +148,7 @@ namespace Wholesome_Auto_Quester.Bot
                 CustomClass.DisposeCustomClass();
                 Fsm.StopEngine();
                 Fight.StopFight();
-                MoveHelper.StopAllMove(true);
+                MovementManager.StopMove();
             }
             catch (Exception e)
             {
@@ -241,7 +241,7 @@ namespace Wholesome_Auto_Quester.Bot
                         , new Vector3(30, 390, 0), 10, Color.GreenYellow);
                 }
 
-                if (MoveHelper.IsMovementThreadRunning)
+                if (MovementManager.InMovement)
                     Radar3D.DrawString("Movement thread running", new Vector3(30, 410, 0), 10, Color.Green);
                 else
                     Radar3D.DrawString("Movement thread not running", new Vector3(30, 410, 0), 10, Color.Red);
@@ -250,7 +250,7 @@ namespace Wholesome_Auto_Quester.Bot
 
         private void SeemStuckHandler()
         {
-            if (!MoveHelper.IsMovementThreadRunning)
+            if (!MovementManager.InMovement)
             {
                 return;
             }

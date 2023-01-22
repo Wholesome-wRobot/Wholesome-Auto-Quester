@@ -1,6 +1,8 @@
 ﻿using robotManager.FiniteStateMachine;
 using robotManager.Helpful;
+using System.Collections.Generic;
 using System.Threading;
+using System.Windows.Documents;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Helpers;
@@ -70,16 +72,16 @@ namespace Wholesome_Auto_Quester.States
 
             if (gameObject.Position.DistanceTo(myPos) > interactDistance)
             {
-                MoveHelper.StartGoToThread(gameObject.Position, $"Going to {gameObject.Name} for {task.TaskName}.");
-                if (gameObject.Position.DistanceTo(myPos) > interactDistance && gameObject.Position.DistanceTo(myPos) < 10)
+                if (!MovementManager.InMovement)
                 {
-                    MovementManager.MoveTo(gameObject.Position);
-                    Thread.Sleep(100);
+                    Logger.Log($"Going to {gameObject.Name} for {task.TaskName}.");
+                    List<Vector3> pathToGO = PathFinder.FindPath(gameObject.Position);
+                    MovementManager.Go(pathToGO);
                 }
                 return;
             }
 
-            MoveHelper.StopAllMove(true);
+            MovementManager.StopMove();
             Thread.Sleep(200);
             Interact.InteractGameObject(gameObject.GetBaseAddress);
             Thread.Sleep(200);

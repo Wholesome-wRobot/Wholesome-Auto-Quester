@@ -5,14 +5,15 @@ using System.Threading;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Bot.Tasks;
 using wManager.Wow.Helpers;
-
+/*
 public class MoveHelper
 {
+    
     private static readonly Vector3 Empty = Vector3.Empty;
     private static readonly object Lock = new();
     private static bool Running = false;
     public static Vector3 CurrentTarget { get; private set; } = Empty;
-    public static bool IsMovementThreadRunning => CurrentTarget != Empty/* || MovementManager.CurrentPath.Count > 0*/;
+    public static bool IsMovementThreadRunning => CurrentTarget != Empty/* || MovementManager.CurrentPath.Count > 0*//*;
 
     private static void Wait()
     {
@@ -66,7 +67,7 @@ public class MoveHelper
         }
     }
 }
-
+*/
 public class WAQPath
 {
     public List<Vector3> Path;

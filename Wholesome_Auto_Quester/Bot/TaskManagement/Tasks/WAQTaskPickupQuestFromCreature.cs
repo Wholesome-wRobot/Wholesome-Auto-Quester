@@ -54,7 +54,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             WoWUnit pickUpTarget = (WoWUnit)wowObject;
             if (!WTGossip.IsQuestGiverFrameActive)
             {
-                MoveHelper.StopAllMove(true);
+                MovementManager.StopMove();
                 Interact.InteractGameObject(pickUpTarget.GetBaseAddress);
                 if (!WTGossip.IsQuestGiverFrameActive)
                 {

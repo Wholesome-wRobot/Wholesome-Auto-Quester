@@ -20,6 +20,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
         private readonly object _scannerLock = new object();
         private bool _isRunning = false;
         private Dictionary<ulong, int> _scanned = new Dictionary<ulong, int>(); // guid, times scanned
+        private WAQPath _pathToObject;
 
         public (WoWObject wowObject, IWAQTask task) ActiveWoWObject { get; private set; } = (null, null);
 
@@ -28,6 +29,17 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             _guiTracker = tracker;
             Initialize();
             EventsLuaWithArgs.OnEventsLuaStringWithArgs += LuaEventHandler;
+        }
+
+        private WAQPath GetPathToObject(WoWObject wowObject)
+        {
+            if (_pathToObject == null
+                || _pathToObject.Path.Last().DistanceTo(wowObject.Position) > 3
+                || _pathToObject.Path.First().DistanceTo(ObjectManager.Me.Position) > 10)
+            {
+                _pathToObject = ToolBox.GetWAQPath(ObjectManager.Me.Position, wowObject.Position);
+            }
+            return _pathToObject;
         }
 
         public void Initialize()
@@ -133,7 +145,9 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 if (listSurroundingPOIs.Count > 0)
                 {
                     WoWObject closestObject = listSurroundingPOIs[0];
-                    WAQPath pathToClosestObject = ToolBox.GetWAQPath(me.Position, closestObject.Position);
+
+                    WAQPath pathToClosestObject = GetPathToObject(closestObject);
+
                     if (closestObject.Position.DistanceTo(myPos) > 5 && !pathToClosestObject.IsReachable)
                     {
                         MarkAsUnreachable(closestObject);
@@ -143,7 +157,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
                     // Avoid snap back and forth
                     if (ActiveWoWObject.wowObject != null
-                        && MoveHelper.IsMovementThreadRunning
+                        && MovementManager.InMovement
                         && pathToClosestObject.Distance > WTPathFinder.GetCurrentPathRemainingDistance() - 15)
                     {
                         Logger.LogWatchScanner($"SCANNER AVOID SNAP", watch.ElapsedMilliseconds);
@@ -155,7 +169,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                         int nbObject = listSurroundingPOIs.Count;
                         for (int i = 1; i < nbObject - 1; i++)
                         {
-                            WAQPath pathToNewObject = ToolBox.GetWAQPath(me.Position, listSurroundingPOIs[i].Position);
+                            WAQPath pathToNewObject = GetPathToObject(listSurroundingPOIs[i]);
 
                             if (listSurroundingPOIs[i].Position.DistanceTo(myPos) > 5 && !pathToNewObject.IsReachable)
                             {

@@ -35,7 +35,7 @@ namespace Wholesome_Auto_Quester.States
             {
                 if (!Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause
                     || !ObjectManager.Me.IsValid
-                    || MoveHelper.IsMovementThreadRunning
+                    || MovementManager.InMovement
                     || ObjectManager.Me.IsOnTaxi
                     || ObjectManager.Me.InCombat
                     || !_travelManager.TravelInProgress)
@@ -50,7 +50,7 @@ namespace Wholesome_Auto_Quester.States
 
         public override void Run()
         {
-            MoveHelper.StopAllMove(true);
+            MovementManager.StopMove();
             IWAQTask task = _taskManager.ActiveTask;
             ModelWorldMapArea myArea = _continentManager.MyMapArea;
             ModelWorldMapArea destinationArea = task.WorldMapArea;

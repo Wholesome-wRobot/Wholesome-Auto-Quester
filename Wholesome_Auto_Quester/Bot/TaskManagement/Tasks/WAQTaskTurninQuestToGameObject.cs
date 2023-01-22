@@ -50,7 +50,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             WoWGameObject turnInTarget = (WoWGameObject)wowObject;
             if (!WTGossip.IsQuestGiverFrameActive)
             {
-                MoveHelper.StopAllMove(true);
+                MovementManager.StopMove();
                 Interact.InteractGameObject(turnInTarget.GetBaseAddress);
                 Usefuls.WaitIsCasting();
                 Thread.Sleep(500);

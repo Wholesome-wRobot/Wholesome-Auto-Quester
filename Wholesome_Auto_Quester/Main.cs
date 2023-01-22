@@ -187,7 +187,7 @@ public class Main : IProduct
         try
         {
             Lua.RunMacroText("/stopcasting");
-            MoveHelper.StopAllMove(true);
+            MovementManager.StopMove();
             wManagerSetting.GetListZoneBlackListed().Clear();
             tracker.HideWindow();
             LoggingEvents.OnAddLog -= AddLogHandler;

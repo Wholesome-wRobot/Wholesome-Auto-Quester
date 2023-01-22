@@ -152,7 +152,7 @@ namespace Wholesome_Auto_Quester.Helpers
                     || hostileUnits.Where(u => u.Key.Level >= me.Level - 2 && poiPosition.DistanceTo(u.Key.Position) < 18).Count() >= maxCount + 1)
                 {
                     if (Fight.InFight) Fight.StopFight();
-                    MoveHelper.StopAllMove(true);
+                    MovementManager.StopMove();
                     BlacklistHelper.AddNPC(POI.Guid, "Surrounded by hostiles");
                     BlacklistHelper.AddZone(poiPosition, 20, "Surrounded by hostiles");
                     task.PutTaskOnTimeout($"{POI.Name} is surrounded by hostiles", 60 * 30);
@@ -265,13 +265,13 @@ namespace Wholesome_Auto_Quester.Helpers
             if (wManagerSetting.IsBlackListedZone(gameObject.Position)
                 || wManagerSetting.IsBlackListed(gameObject.Guid))
             {
-                MoveHelper.StopAllMove(true);
+                MovementManager.StopMove();
                 return true;
             }
 
             if (wManagerSetting.IsBlackListedZone(task.Location))
             {
-                MoveHelper.StopAllMove(true);
+                MovementManager.StopMove();
                 return true;
             }
 

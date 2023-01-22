@@ -17,6 +17,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         TaskInteraction InteractionType { get; }
         bool IsValid { get; }
         string InvalidityReason { get; }
+        WAQPath LongPathToTask { get; }
 
         void PostInteraction(WoWObject wowObject);
         void RegisterEntryToScanner(IWowObjectScanner scanner);

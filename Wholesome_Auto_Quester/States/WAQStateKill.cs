@@ -1,5 +1,7 @@
 ﻿using robotManager.FiniteStateMachine;
 using robotManager.Helpful;
+using System.Collections.Generic;
+using System.Windows.Documents;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Helpers;
 using WholesomeToolbox;
@@ -48,24 +50,18 @@ namespace Wholesome_Auto_Quester.States
             Vector3 myPos = ObjectManager.Me.Position;
             WoWUnit killTarget = (WoWUnit)gameObject;
             Vector3 targetPos = killTarget.Position;
-            float distanceToTarget = myPos.DistanceTo(targetPos);
 
             if (ToolBox.HostilesAreAround(killTarget, task))
             {
                 return;
             }
 
-            //Check if we have vision, it might be a big detour
             if (!ToolBox.IHaveLineOfSightOn(killTarget))
             {
-                distanceToTarget = ToolBox.GetWAQPath(myPos, targetPos).Distance;
-            }
-
-            if (distanceToTarget > 40)
-            {
-                if (!MoveHelper.IsMovementThreadRunning || targetPos.DistanceTo(MoveHelper.CurrentTarget) > 10)
+                if (!MovementManager.InMovement)
                 {
-                    MoveHelper.StartGoToThread(targetPos, null);
+                    List<Vector3> pathToUnit = PathFinder.FindPath(targetPos);
+                    MovementManager.Go(pathToUnit);
                 }
                 return;
             }

@@ -1,6 +1,6 @@
 ﻿using robotManager.Helpful;
+using System.Linq;
 using Wholesome_Auto_Quester.Bot.ContinentManagement;
-using Wholesome_Auto_Quester.Bot.TravelManagement;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
 using wManager;
@@ -14,6 +14,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         private Timer _timeOutTimer = new Timer();
         private int _timeoutMultiplicator = 1;
         private string _timeOutReason = "";
+        private WAQPath _longPathToTask;
 
         public Vector3 Location { get; }
         public string TaskName { get; }
@@ -23,6 +24,19 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         public int SearchRadius { get; protected set; } = 20;
         private bool IsTimedOut => !_timeOutTimer.IsReady;
         public string InvalidityReason { get; private set; } = " ";
+        public WAQPath LongPathToTask
+        {
+            get
+            {
+                // Only recalculate when relevant
+                if (_longPathToTask == null 
+                    || _longPathToTask.Path.First().DistanceTo(ObjectManager.Me.Position) > 70)
+                {
+                    _longPathToTask = ToolBox.GetWAQPath(ObjectManager.Me.Position, Location);
+                }
+                return _longPathToTask;
+            }
+        }
         public bool IsValid
         {
             get

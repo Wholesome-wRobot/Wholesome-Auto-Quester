@@ -66,21 +66,21 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                     }
                 }
             });
-            EventsLuaWithArgs.OnEventsLuaStringWithArgs += LuaEventHandler;
+            //EventsLuaWithArgs.OnEventsLuaStringWithArgs += LuaEventHandler;
         }
-
+        /*
         private void LuaEventHandler(string eventid, List<string> args)
-        {
+        {            
             if (eventid == "PLAYER_LEVEL_UP")
             {
                 ClearGrindTasks();
-            }
+            }            
         }
-
+        */
         public void Dispose()
         {
             _taskPile.Clear();
-            EventsLuaWithArgs.OnEventsLuaStringWithArgs -= LuaEventHandler;
+            //EventsLuaWithArgs.OnEventsLuaStringWithArgs -= LuaEventHandler;
             _isRunning = false;
         }
 
@@ -116,7 +116,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 || _travelManager.TravelInProgress
                 || me.HaveBuff("Drink")
                 || me.HaveBuff("Food")
-                || MoveHelper.IsMovementThreadRunning && WTPathFinder.GetCurrentPathRemainingDistance() > 200 && _tick % 5 != 0)
+                || MovementManager.InMovement && WTPathFinder.GetCurrentPathRemainingDistance() > 200 && _tick % 5 != 0)
             {
                 return;
             }
@@ -199,11 +199,11 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 Logger.LogWatchTask($"TASKM TRAVEL REQUIRED", watch.ElapsedMilliseconds);
                 return;
             }
-            WAQPath pathToClosestTask = ToolBox.GetWAQPath(ObjectManager.Me.Position, closestTask.Location);
+
+            WAQPath pathToClosestTask = closestTask.LongPathToTask;
 
             // Avoid snap back and forth
-            if (ActiveTask != null
-                && MoveHelper.IsMovementThreadRunning)
+            if (ActiveTask != null && MovementManager.InMovement)
             {
                 float remainingDistance = WTPathFinder.GetCurrentPathRemainingDistance();
                 if (remainingDistance > 200 && pathToClosestTask.Distance > remainingDistance)
@@ -213,20 +213,17 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 }
             }
 
+            // Detect big detours
             if (pathToClosestTask.Distance > myPosition.DistanceTo(closestTask.Location) * 2)
             {
                 int closestTaskPriorityScore = CalculatePriority(myPosition, spaceTree, closestTask);
-                int nbReachAttempts = 0;
 
                 for (int i = 0; i < _taskPile.Count - 1; i++)
                 {
 
-                    if (nbReachAttempts > 2)
-                    {
-                        break;
-                    }
-                    nbReachAttempts++;
-                    WAQPath pathToNewTask = ToolBox.GetWAQPath(myPosition, _taskPile[i].Location);
+                    if (i > 1) break;
+
+                    WAQPath pathToNewTask = _taskPile[i].LongPathToTask;
 
                     int newTaskPriority = CalculatePriority(myPosition, spaceTree, _taskPile[i]);
 
@@ -243,7 +240,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
             // only set new task on long distance if it's far apart from previous
             if (closestTask != null && ActiveTask != null
-                && MoveHelper.IsMovementThreadRunning
+                && MovementManager.InMovement
                 && WTPathFinder.GetCurrentPathRemainingDistance() > 200
                 && ActiveTask.Location.DistanceTo(closestTask.Location) < 500)
             {

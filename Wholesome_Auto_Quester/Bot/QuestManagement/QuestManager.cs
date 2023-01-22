@@ -435,7 +435,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     WholesomeAQSettings.CurrentSetting.BlackListedQuests.Add(new BlackListedQuest(questId, reason));
                     WholesomeAQSettings.CurrentSetting.Save();
                     Logger.Log($"The quest {questId} has been blacklisted ({reason})");
-                    MoveHelper.StopAllMove(true);
+                    MovementManager.StopMove();
                     if (triggerStatusUpdate)
                     {
                         UpdateStatuses();
@@ -453,7 +453,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 {
                     WholesomeAQSettings.CurrentSetting.BlackListedQuests.Remove(questToRemove);
                     WholesomeAQSettings.CurrentSetting.Save();
-                    MoveHelper.StopAllMove(true);
+                    MovementManager.StopMove();
                     Logger.Log($"The quest {questId} has been removed from the blacklist ({reason})");
                     if (triggerStatusUpdate)
                     {

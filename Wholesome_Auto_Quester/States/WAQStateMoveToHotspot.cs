@@ -1,4 +1,7 @@
 ﻿using robotManager.FiniteStateMachine;
+using robotManager.Helpful;
+using System.Collections.Generic;
+using System.Linq;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Helpers;
@@ -43,7 +46,7 @@ namespace Wholesome_Auto_Quester.States
             if (wManagerSetting.IsBlackListedZone(task.Location))
             {
                 task.PutTaskOnTimeout("Zone is blacklisted");
-                MoveHelper.StopAllMove(true);
+                MovementManager.StopMove();
                 return;
             }
 
@@ -54,10 +57,13 @@ namespace Wholesome_Auto_Quester.States
 
             ToolBox.CheckIfZReachable(task.Location);
 
-            if (task.Location.DistanceTo(ObjectManager.Me.Position) > 19 
-                && (!MoveHelper.IsMovementThreadRunning || MoveHelper.CurrentTarget != task.Location))
+            if (task.Location.DistanceTo(ObjectManager.Me.Position) > 19
+                && (!MovementManager.InMovement 
+                || MovementManager.CurrentPath.Count > 0 && MovementManager.CurrentPath.Last() != task.Location))
             {
-                MoveHelper.StartGoToThread(task.Location, $"Moving to hotspot for {task.TaskName}");
+                Logger.Log($"Moving to hotspot for {task.TaskName}");
+                List<Vector3> pathToTask = PathFinder.FindPath(task.Location);
+                MovementManager.Go(pathToTask);
             }
         }
     }
