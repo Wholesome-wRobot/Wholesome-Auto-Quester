@@ -25,7 +25,12 @@ namespace Wholesome_Auto_Quester.States
         public List<Vector3> LinesToCheck = new List<Vector3>();
         public List<Vector3> PointsAlongPathSegments = new List<Vector3>();
 
-        private readonly HashSet<int> _mobIdsToIgnoreDuringPathCheck = new HashSet<int>();
+        private readonly HashSet<int> _mobIdsToIgnoreDuringPathCheck = new HashSet<int>()
+        {
+            17578, // Hellfire Training Dummy
+            13177, // Vahgruk
+            3708, // Gruna
+        };
 
         public WAQCheckPathAhead(IWowObjectScanner scanner)
         {

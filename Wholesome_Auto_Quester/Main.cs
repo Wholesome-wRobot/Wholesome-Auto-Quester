@@ -20,6 +20,7 @@ using wManager.Plugin;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 using System.Reflection;
+using WholesomeToolbox;
 
 public class Main : IProduct
 {
@@ -114,7 +115,7 @@ public class Main : IProduct
             }
 
             IsStarted = true;
-            BlacklistHelper.AddDefaultBLZones();
+            WTSettings.AddRecommendedBlacklistZones();
             LoggingEvents.OnAddLog += AddLogHandler;
             EventsLuaWithArgs.OnEventsLuaStringWithArgs += EventsWithArgsHandler;
             EventsLua.AttachEventLua("PLAYER_DEAD", e => PlayerDeadHandler(e));

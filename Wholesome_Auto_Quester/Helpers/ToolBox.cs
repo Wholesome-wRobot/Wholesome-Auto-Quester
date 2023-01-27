@@ -459,14 +459,13 @@ namespace Wholesome_Auto_Quester.Helpers
                .FindAll(u => u.IsAttackable
                    && u.Reaction == Reaction.Hostile
                    && u.IsAlive
-                   && u.Entry != 17578 // Hellfire Training Dummy
                    && u.IsValid
                    && !u.IsElite
                    && !u.IsTaggedByOther
                    && !u.PlayerControlled
                    && u.Position.DistanceTo(myPosition) < 50
                    && u.Level < ObjectManager.Me.Level + 4
-                   && u.Level > ObjectManager.Me.Level - 5)
+                   && u.Level >= ObjectManager.Me.Level - 6)
                .OrderBy(u => u.Position.DistanceTo(myPosition))
                .ToList();
         }

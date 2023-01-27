@@ -2,7 +2,6 @@
 using robotManager.Helpful;
 using System.Collections.Generic;
 using System.Threading;
-using System.Windows.Documents;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Helpers;
@@ -13,12 +12,27 @@ namespace Wholesome_Auto_Quester.States
     class WAQStateInteract : State, IWAQState
     {
         private readonly IWowObjectScanner _scanner;
+        private Dictionary<int, float> interactDistances = new Dictionary<int, float>()
+        {
+            { 190537, 10 }, // Crashed Plague Sprayer
+            { 179828, 8 }, // Dark Iron Pillow
+        }; // object ID => interact distance
 
         public override string DisplayName { get; set; } = "WAQ Interact";
 
         public WAQStateInteract(IWowObjectScanner scanner)
         {
             _scanner = scanner;
+        }
+
+        public void Initialize()
+        {
+            EventsLuaWithArgs.OnEventsLuaStringWithArgs += EventsWithArgsHandler;
+        }
+
+        public void Dispose()
+        {
+            EventsLuaWithArgs.OnEventsLuaStringWithArgs -= EventsWithArgsHandler;
         }
 
         public override bool NeedToRun
@@ -56,14 +70,16 @@ namespace Wholesome_Auto_Quester.States
             }
 
             float scale = gameObject.Scale;
-            if (gameObject.Entry == 190537  // Crashed Plague Sprayer
-                //|| gameObject.Entry == 182116 // Fulgore Spore 
-                || gameObject.Entry == 179828) // Dark Iron Pillow
+            float interactDistance;
+            if (interactDistances.TryGetValue(gameObject.Entry, out float interactDist))
             {
-                scale = 6;
+                interactDistance = interactDist;
             }
-
-            float interactDistance = 3f + scale;
+            else
+            {
+                interactDistance = 3f + scale; // 3 ?
+                interactDistances.Add(gameObject.Entry, interactDistance);
+            }
 
             if (MovementManager.CurrentPath.Count <= 2)
             {
@@ -83,12 +99,27 @@ namespace Wholesome_Auto_Quester.States
 
             MovementManager.StopMove();
             Thread.Sleep(200);
+            
             Interact.InteractGameObject(gameObject.GetBaseAddress);
             Thread.Sleep(200);
 
             task.PostInteraction(gameObject);
 
             Thread.Sleep(1000);
+            
+        }
+
+        private void EventsWithArgsHandler(string id, List<string> args)
+        {
+            if (id == "UI_ERROR_MESSAGE" && args[0] == "You are too far away.")
+            {
+                var (gameObject, task) = _scanner.ActiveWoWObject;
+                if (gameObject != null && interactDistances.TryGetValue(gameObject.Entry, out float interactDist))
+                {
+                    interactDistances[gameObject.Entry] = interactDist - 1;
+                    Logger.Log($"Too far away. Setting interact distance for {gameObject.Name} to {interactDistances[gameObject.Entry]}");
+                }
+            }
         }
     }
 }

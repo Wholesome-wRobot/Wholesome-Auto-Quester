@@ -15,16 +15,6 @@ namespace Wholesome_Auto_Quester.States
         private WoWUnit _defendTarget;
         public override string DisplayName { get; set; } = "WAQ Defend";
 
-        public override void Run()
-        {
-            var stateName = $"Defending against {_defendTarget.Name}";
-            DisplayName = stateName;
-            Logger.Log(stateName);
-            MovementManager.StopMove();
-            Fight.StartFight(_defendTarget.Guid);
-            _defendTarget = null;
-        }
-
         public override bool NeedToRun
         {
             get
@@ -87,6 +77,16 @@ namespace Wholesome_Auto_Quester.States
 
                 return false;
             }
+        }
+
+        public override void Run()
+        {
+            var stateName = $"Defending against {_defendTarget.Name}";
+            DisplayName = stateName;
+            Logger.Log(stateName);
+            MovementManager.StopMove();
+            Fight.StartFight(_defendTarget.Guid);
+            _defendTarget = null;
         }
     }
 }

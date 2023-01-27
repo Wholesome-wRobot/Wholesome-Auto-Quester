@@ -16,6 +16,7 @@ using Wholesome_Auto_Quester.Database.DBC;
 using Wholesome_Auto_Quester.GUI;
 using Wholesome_Auto_Quester.Helpers;
 using Wholesome_Auto_Quester.States;
+using WholesomeToolbox;
 using wManager.Events;
 using wManager.Wow.Bot.States;
 using wManager.Wow.Helpers;
@@ -38,6 +39,7 @@ namespace Wholesome_Auto_Quester.Bot
         private QuestsTrackerGUI _questTrackerGui;
         private IProduct _product;
         private WAQCheckPathAhead _checkPathAheadState;
+        private WAQStateInteract _interactState;
 
         internal bool Pulse(QuestsTrackerGUI tracker, IProduct product)
         {
@@ -69,6 +71,8 @@ namespace Wholesome_Auto_Quester.Bot
                 Fsm.States.Clear();
 
                 _checkPathAheadState = new WAQCheckPathAhead(_objectScanner);
+                _interactState = new WAQStateInteract(_objectScanner);
+                _interactState.Initialize();
                 State lootState = WholesomeAQSettings.CurrentSetting.TurboLoot ?
                     new WAQTurboLoot() : new Looting();
 
@@ -97,7 +101,7 @@ namespace Wholesome_Auto_Quester.Bot
                     new Trainers(),
                     new ToTown(),
                     new WAQStateTravel(_taskManager, _travelManager, _continentManager),
-                    new WAQStateInteract(_objectScanner),
+                    _interactState,
                     new WAQStateKill(_objectScanner),
                     new WAQStateMoveToHotspot(_taskManager),
                     new MovementLoop(),
@@ -118,8 +122,12 @@ namespace Wholesome_Auto_Quester.Bot
                 StopBotIf.LaunchNewThread();
 
                 MovementEvents.OnSeemStuck += SeemStuckHandler;
-                Radar3D.OnDrawEvent += Radar3DOnDrawEvent;
-                Radar3D.Pulse();
+
+                if (WholesomeAQSettings.CurrentSetting.DevMode)
+                {
+                    Radar3D.OnDrawEvent += Radar3DOnDrawEvent;
+                    Radar3D.Pulse();
+                }
 
                 return true;
             }
@@ -142,7 +150,13 @@ namespace Wholesome_Auto_Quester.Bot
                 _taskManager?.Dispose();
                 _travelManager?.Dispose();
 
-                Radar3D.OnDrawEvent -= Radar3DOnDrawEvent;
+                _interactState.Dispose();
+
+                if (WholesomeAQSettings.CurrentSetting.DevMode)
+                {
+                    Radar3D.OnDrawEvent -= Radar3DOnDrawEvent;
+                
+                }
                 MovementEvents.OnSeemStuck -= SeemStuckHandler;
 
                 CustomClass.DisposeCustomClass();
@@ -169,7 +183,7 @@ namespace Wholesome_Auto_Quester.Bot
             CustomClass.ResetCustomClass();
             Talent.DoTalents();
             wManager.wManagerSetting.ClearBlacklistOfCurrentProductSession();
-            BlacklistHelper.AddDefaultBLZones();
+            WTSettings.AddRecommendedBlacklistZones();
         }
 
         private void OnReputationChange()

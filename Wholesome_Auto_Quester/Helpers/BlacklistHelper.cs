@@ -1,6 +1,5 @@
 ﻿using robotManager.Helpful;
 using System.Collections.Generic;
-using WholesomeToolbox;
 using wManager;
 using wManager.Wow.Enums;
 using wManager.Wow.Helpers;
@@ -27,13 +26,6 @@ namespace Wholesome_Auto_Quester.Helpers
                 Logger.Log($"Adding {guid} to NPC blacklist ({reason})");
                 ListEntries.Add(new WAQBlacklistEntry(guid, timeInMs));
             }
-        }
-
-        public static void AddDefaultBLZones()
-        {
-            WTSettings.AddRecommendedBlacklistZones();
-            if (!WTPlayer.IsHorde())
-                WTSettings.AddBlacklistZone(new Vector3(-956.664, -3754.71, 5.33239), 160, ContinentId.Kalimdor);
         }
 
         public static void CleanupBlacklist()
