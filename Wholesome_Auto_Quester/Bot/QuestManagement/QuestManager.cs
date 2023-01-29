@@ -220,11 +220,6 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                             _itemsGivingQuest.Remove(itemFound);
                             break;
                         }
-                        else
-                        {
-                            Logger.LogError($"Couldn't find quest associated with item {entry.Key}");
-                        }
-
                     }
                 }
             }

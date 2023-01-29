@@ -1,10 +1,14 @@
-﻿using robotManager.FiniteStateMachine;
+﻿using robotManager.Events;
+using robotManager.FiniteStateMachine;
 using robotManager.Helpful;
 using robotManager.Products;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.Remoting.Lifetime;
 using Wholesome_Auto_Quester.Bot.ContinentManagement;
 using Wholesome_Auto_Quester.Bot.GrindManagement;
 using Wholesome_Auto_Quester.Bot.JSONManagement;
@@ -40,6 +44,9 @@ namespace Wholesome_Auto_Quester.Bot
         private IProduct _product;
         private WAQCheckPathAhead _checkPathAheadState;
         private WAQStateInteract _interactState;
+
+        private Stopwatch statewatch = new Stopwatch();
+        private string lastState = "";
 
         internal bool Pulse(QuestsTrackerGUI tracker, IProduct product)
         {
@@ -83,6 +90,7 @@ namespace Wholesome_Auto_Quester.Bot
                     new Pause(),
                     new WAQForceResurrection(),
                     new Resurrect(),
+                    new WAQAntiDrown(),
                     new WAQExitVehicle(),
                     new MyMacro(),
                     //new WAQBlacklistDanger(),
@@ -129,6 +137,8 @@ namespace Wholesome_Auto_Quester.Bot
                     Radar3D.Pulse();
                 }
 
+                FiniteStateMachineEvents.OnBeforeCheckIfNeedToRunState += BeforeRunState;
+
                 return true;
             }
             catch (Exception e)
@@ -143,6 +153,7 @@ namespace Wholesome_Auto_Quester.Bot
         {
             try
             {
+                FiniteStateMachineEvents.OnBeforeCheckIfNeedToRunState -= BeforeRunState;
                 _jsonManager?.Dispose();
                 _grindManager?.Dispose();
                 _objectScanner?.Dispose();
@@ -167,6 +178,19 @@ namespace Wholesome_Auto_Quester.Bot
             catch (Exception e)
             {
                 Logging.WriteError("Bot > Bot  > Dispose(): " + e);
+            }
+        }
+
+        private void BeforeRunState(Engine engine, State state, CancelEventArgs cancelable)
+        {
+            if (!WholesomeAQSettings.CurrentSetting.AllowStopWatch) return;
+            if (!statewatch.IsRunning) statewatch.Start();
+            if (state.DisplayName != "Security/Stop game")
+            {
+                if (statewatch.ElapsedMilliseconds > 200)
+                    Logger.LogError($"{lastState} took {statewatch.ElapsedMilliseconds}");
+                statewatch.Restart();
+                lastState = state.DisplayName;
             }
         }
 

@@ -73,6 +73,7 @@ namespace Wholesome_Auto_Quester.States
             WoWUnit unitToClear = UnitOnPath.unit;
             DisplayName = $"WAQ Clearing path against {unitToClear.Name}";
             Logger.Log($"WAQ Clearing path against {unitToClear.Name}");
+            MovementManager.StopMove();
             Fight.StartFight(unitToClear.Guid);
             UnitOnPath.unit = null;
         }

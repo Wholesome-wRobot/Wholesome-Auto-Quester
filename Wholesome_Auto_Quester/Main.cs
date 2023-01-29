@@ -45,22 +45,6 @@ public class Main : IProduct
         }
     }
 
-    private Stopwatch statewatch = new Stopwatch();
-    private string lastState = "";
-
-    private void BeforeRunState(Engine engine, State state, CancelEventArgs cancelable)
-    {
-        if (!WholesomeAQSettings.CurrentSetting.AllowStopWatch) return;
-        if (!statewatch.IsRunning) statewatch.Start();
-        if (state.DisplayName != "Security/Stop game")
-        {
-            if (statewatch.ElapsedMilliseconds > 200)
-                Logger.LogError($"{lastState} took {statewatch.ElapsedMilliseconds}");
-            statewatch.Restart();
-            lastState = state.DisplayName;
-        }
-    }
-
     public void Start()
     {
         try
@@ -120,8 +104,6 @@ public class Main : IProduct
             EventsLuaWithArgs.OnEventsLuaStringWithArgs += EventsWithArgsHandler;
             EventsLua.AttachEventLua("PLAYER_DEAD", e => PlayerDeadHandler(e));
 
-            FiniteStateMachineEvents.OnBeforeCheckIfNeedToRunState += BeforeRunState;
-
             if (!Products.IsStarted)
             {
                 IsStarted = false;
@@ -169,6 +151,28 @@ public class Main : IProduct
         }
     }
 
+    public void Stop()
+    {
+        try
+        {
+            Lua.RunMacroText("/stopcasting");
+            MovementManager.StopMove();
+            wManagerSetting.GetListZoneBlackListed().Clear();
+            tracker.HideWindow();
+            LoggingEvents.OnAddLog -= AddLogHandler;
+            EventsLuaWithArgs.OnEventsLuaStringWithArgs -= EventsWithArgsHandler;
+            _bot.Dispose();
+            IsStarted = false;
+            PluginsManager.DisposeAllPlugins();
+            Logging.Status = "Stop Product Complete";
+            Logging.Write("Stop Product Complete");
+        }
+        catch (Exception e)
+        {
+            Logging.WriteError("Main > Stop(): " + e);
+        }
+    }
+
     public void Dispose()
     {
         try
@@ -180,29 +184,6 @@ public class Main : IProduct
         catch (Exception e)
         {
             Logging.WriteError("Main > Dispose(): " + e);
-        }
-    }
-
-    public void Stop()
-    {
-        try
-        {
-            Lua.RunMacroText("/stopcasting");
-            MovementManager.StopMove();
-            wManagerSetting.GetListZoneBlackListed().Clear();
-            tracker.HideWindow();
-            LoggingEvents.OnAddLog -= AddLogHandler;
-            EventsLuaWithArgs.OnEventsLuaStringWithArgs -= EventsWithArgsHandler;
-            FiniteStateMachineEvents.OnBeforeCheckIfNeedToRunState -= BeforeRunState;
-            _bot.Dispose();
-            IsStarted = false;
-            PluginsManager.DisposeAllPlugins();
-            Logging.Status = "Stop Product Complete";
-            Logging.Write("Stop Product Complete");
-        }
-        catch (Exception e)
-        {
-            Logging.WriteError("Main > Stop(): " + e);
         }
     }
 

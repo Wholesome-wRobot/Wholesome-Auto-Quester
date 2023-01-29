@@ -362,6 +362,7 @@
     <Compile Include="Bot\TravelManagement\TravelManager.cs" />
     <Compile Include="Helpers\QuestLUAHelper.cs" />
     <Compile Include="Main.cs" />
+    <Compile Include="States\WAQAntiDrown.cs" />
     <Compile Include="States\WAQBlacklistDanger.cs" />
     <Compile Include="States\WAQCheckPathAhead.cs" />
     <Compile Include="States\WAQStateClearPath.cs" />

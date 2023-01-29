@@ -62,6 +62,10 @@ namespace Wholesome_Auto_Quester.States
                 || MovementManager.CurrentPath.Count > 0 && MovementManager.CurrentPath.Last() != task.Location))
             {
                 Logger.Log($"Moving to hotspot for {task.TaskName}");
+                if (task.Location.DistanceTo(ObjectManager.Me.Position) > 50)
+                {
+                    MovementManager.StopMove();
+                }
                 List<Vector3> pathToTask = PathFinder.FindPath(task.Location);
                 MovementManager.Go(pathToTask);
             }

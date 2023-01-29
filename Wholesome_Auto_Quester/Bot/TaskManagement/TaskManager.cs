@@ -200,6 +200,15 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 return;
             }
 
+            // Only change task if > 30 yards diff
+            if (ActiveTask != null
+                && closestTask.Location != ActiveTask.Location
+                && closestTask.Location.DistanceTo(myPosition) > 30
+                && closestTask.Location.DistanceTo(ActiveTask.Location) < 30)
+            {
+                return;
+            }
+
             WAQPath pathToClosestTask = closestTask.LongPathToTask;
 
             // Avoid snap back and forth
