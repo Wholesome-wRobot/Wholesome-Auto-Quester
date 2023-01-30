@@ -199,7 +199,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 Logger.LogWatchTask($"TASKM TRAVEL REQUIRED", watch.ElapsedMilliseconds);
                 return;
             }
-
+            /*
             // Only change task if > 30 yards diff
             if (ActiveTask != null
                 && closestTask.Location != ActiveTask.Location
@@ -208,7 +208,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
             {
                 return;
             }
-
+            */
             WAQPath pathToClosestTask = closestTask.LongPathToTask;
 
             // Avoid snap back and forth
