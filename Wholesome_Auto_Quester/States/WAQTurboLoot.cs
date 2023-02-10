@@ -7,6 +7,7 @@ using wManager;
 using wManager.Wow.ObjectManager;
 using robotManager.Helpful;
 using System.Linq;
+using System.Diagnostics;
 
 namespace Wholesome_Auto_Quester.States
 {
@@ -16,7 +17,7 @@ namespace Wholesome_Auto_Quester.States
 
         private readonly int _lootRange = 35;
         private WoWUnit _unitToLoot;
-        private List<ulong> _unitsLooted = new List<ulong>();
+        private List<(ulong Guid, Stopwatch Watch)> _unitsLooted = new List<(ulong, Stopwatch)>();
 
         public override bool NeedToRun
         {
@@ -31,26 +32,15 @@ namespace Wholesome_Auto_Quester.States
                 }
 
                 // Purge cache
-                if (_unitsLooted.Count > 20)
-                {
-                    _unitsLooted.RemoveRange(0, 10);
-                }
+                _unitsLooted.RemoveAll(ul => ul.Watch.ElapsedMilliseconds > 120 * 1000);
 
-                _unitToLoot = null;
                 Vector3 myPosition = ObjectManager.Me.PositionWithoutType;
-                List<WoWUnit> lootableCorpses = ObjectManager.GetWoWUnitLootable()
+                _unitToLoot = ObjectManager.GetWoWUnitLootable()
+                    .Where(corpse => !_unitsLooted.Exists(ul => ul.Guid == corpse.Guid))
                     .Where(corpse => corpse?.PositionWithoutType.DistanceTo(myPosition) <= _lootRange)
                     .Where(corpse => !wManagerSetting.IsBlackListedZone(corpse.Position) || corpse.Position.DistanceTo(myPosition) < 5f)
                     .OrderBy(corpse => corpse?.PositionWithoutType.DistanceTo(myPosition))
-                    .ToList();
-                foreach (WoWUnit lootableCorpse in lootableCorpses)
-                {
-                    if (!_unitsLooted.Contains(lootableCorpse.Guid))
-                    {
-                        _unitToLoot = lootableCorpse;
-                        break;
-                    }
-                }
+                    .FirstOrDefault();
 
                 return _unitToLoot != null;
             }
@@ -69,7 +59,7 @@ namespace Wholesome_Auto_Quester.States
                 MovementManager.StopMove();
                 Interact.InteractGameObject(_unitToLoot.GetBaseAddress);
                 Thread.Sleep(100);
-                _unitsLooted.Add(_unitToLoot.Guid);
+                _unitsLooted.Add((_unitToLoot.Guid, Stopwatch.StartNew()));
                 return;
             }
 
@@ -86,7 +76,7 @@ namespace Wholesome_Auto_Quester.States
                 else
                 {
                     Logger.LogError($"[WAQTurboLoot] {_unitToLoot.Name}'s corpse seems unreachable. Skipping loot.");
-                    _unitsLooted.Add(_unitToLoot.Guid);
+                    _unitsLooted.Add((_unitToLoot.Guid, Stopwatch.StartNew()));
                 }
             }
         }

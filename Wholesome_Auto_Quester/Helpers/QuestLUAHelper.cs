@@ -36,7 +36,7 @@ namespace Wholesome_Auto_Quester.Helpers
             		        if button:IsVisible() ~= 1 then break; end
             		        local text = button:GetText();
             		        text = strsub(text, 11, strlen(text)-2);
-            		        if text == '{questName.EscapeLuaString()}' then
+            		        if text == '{questName.EscapeLuaString()}' or text == '{questName.EscapeLuaString()} (low level)' then
                                 button:Click();
                             end
             	        end                       
@@ -48,7 +48,7 @@ namespace Wholesome_Auto_Quester.Helpers
             	        local activeQuests = {{ GetGossipActiveQuests() }};
             	        for j=1, GetNumGossipActiveQuests(), 1 do
             		        local i = j*4-3;
-            		        if activeQuests[i] == '{questName.EscapeLuaString()}' then
+            		        if activeQuests[i] == '{questName.EscapeLuaString()}' or activeQuests[i] == '{questName.EscapeLuaString()} (low level)' then
             			        if activeQuests[i+3] ~= 1 then return false; end
             			        SelectGossipActiveQuest(j);
             			        return true;

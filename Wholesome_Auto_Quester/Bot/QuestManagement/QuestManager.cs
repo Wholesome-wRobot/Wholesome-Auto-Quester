@@ -369,15 +369,27 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     foreach (string item in initialWAQList)
                     {
                         if (!itemsToAddToDNSList.Contains(item))
+                        {
                             Logger.LogDebug($"Removed {item} from Do Not Sell List");
+                        }
                     }
                     foreach (string item in itemsToAddToDNSList)
                     {
                         if (!initialWAQList.Contains(item))
+                        {
                             Logger.LogDebug($"Added {item} to Do Not Sell List");
+                        }
                     }
                     wManagerSetting.CurrentSetting.DoNotSellList.RemoveRange(WAQlistStartIndex + 1, WAQListLength);
                     wManagerSetting.CurrentSetting.DoNotSellList.InsertRange(WAQlistStartIndex + 1, itemsToAddToDNSList);
+
+                    // WAQ Do not mail list
+                    WAQlistStartIndex = wManagerSetting.CurrentSetting.DoNotMailList.IndexOf("WAQStart");
+                    WAQlistEndIndex = wManagerSetting.CurrentSetting.DoNotMailList.IndexOf("WAQEnd");
+                    WAQListLength = WAQlistEndIndex - WAQlistStartIndex - 1;
+                    wManagerSetting.CurrentSetting.DoNotMailList.RemoveRange(WAQlistStartIndex + 1, WAQListLength);
+                    wManagerSetting.CurrentSetting.DoNotMailList.InsertRange(WAQlistStartIndex + 1, itemsToAddToDNSList);
+
                     wManagerSetting.CurrentSetting.Save();
                 }
 
@@ -603,6 +615,15 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 wManagerSetting.CurrentSetting.DoNotSellList.Remove("WAQEnd");
                 wManagerSetting.CurrentSetting.DoNotSellList.Add("WAQStart");
                 wManagerSetting.CurrentSetting.DoNotSellList.Add("WAQEnd");
+                wManagerSetting.CurrentSetting.Save();
+            }
+
+            if (!wManagerSetting.CurrentSetting.DoNotMailList.Contains("WAQStart") || !wManagerSetting.CurrentSetting.DoNotMailList.Contains("WAQEnd"))
+            {
+                wManagerSetting.CurrentSetting.DoNotMailList.Remove("WAQStart");
+                wManagerSetting.CurrentSetting.DoNotMailList.Remove("WAQEnd");
+                wManagerSetting.CurrentSetting.DoNotMailList.Add("WAQStart");
+                wManagerSetting.CurrentSetting.DoNotMailList.Add("WAQEnd");
                 wManagerSetting.CurrentSetting.Save();
             }
         }

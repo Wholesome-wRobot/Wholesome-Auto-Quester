@@ -1,11 +1,13 @@
 ﻿using robotManager.FiniteStateMachine;
 using robotManager.Helpful;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Helpers;
+using wManager;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 
@@ -20,7 +22,7 @@ namespace Wholesome_Auto_Quester.States
         private readonly int _lootRange = 15;
         private WoWUnit _unitToLoot;
         private IWAQTask _associatedTask;
-        private List<ulong> _unitsLooted = new List<ulong>();
+        private List<(ulong Guid, Stopwatch Watch)> _unitsLooted = new List<(ulong, Stopwatch)>();
 
         public WAQStatePriorityLoot(IWowObjectScanner scanner)
         {
@@ -39,25 +41,20 @@ namespace Wholesome_Auto_Quester.States
                     return false;
 
                 // Purge cache
-                if (_unitsLooted.Count > 20)
-                {
-                    _unitsLooted.RemoveRange(0, 10);
-                }
+                _unitsLooted.RemoveAll(ul => ul.Watch.ElapsedMilliseconds > 120 * 1000);
 
-                _unitToLoot = (WoWUnit)_scanner.ActiveWoWObject.wowObject;
+                int unitToLootEntry = _scanner.ActiveWoWObject.wowObject.Entry;
                 _associatedTask = _scanner.ActiveWoWObject.task;
 
-                if (_unitToLoot == null 
-                    || _associatedTask == null
-                    || _unitToLoot.IsAlive
-                    || _unitToLoot.Position.DistanceTo(ObjectManager.Me.Position) > _lootRange
-                    || !_unitToLoot.IsLootable
-                    || _unitsLooted.Contains(_unitToLoot.Guid))
-                {
-                    return false;
-                }
+                Vector3 myPosition = ObjectManager.Me.PositionWithoutType;
+                _unitToLoot = ObjectManager.GetWoWUnitLootable()
+                    .Where(corpse => corpse.Entry == unitToLootEntry && !_unitsLooted.Exists(ul => ul.Guid == corpse.Guid))
+                    .Where(corpse => corpse?.PositionWithoutType.DistanceTo(myPosition) <= _lootRange)
+                    .Where(corpse => !wManagerSetting.IsBlackListedZone(corpse.Position) || corpse.Position.DistanceTo(myPosition) < 5f)
+                    .OrderBy(corpse => corpse?.PositionWithoutType.DistanceTo(myPosition))
+                    .FirstOrDefault();
 
-                return true;
+                return _unitToLoot != null && _associatedTask != null;
             }
         }
 
@@ -73,7 +70,7 @@ namespace Wholesome_Auto_Quester.States
                 MovementManager.StopMove();
                 Interact.InteractGameObject(_unitToLoot.GetBaseAddress);
                 Thread.Sleep(100);
-                _unitsLooted.Add(_unitToLoot.Guid);
+                _unitsLooted.Add((_unitToLoot.Guid, Stopwatch.StartNew()));
                 return;
             }
 
@@ -90,7 +87,7 @@ namespace Wholesome_Auto_Quester.States
                 else
                 {
                     Logger.LogError($"[WAQPriorityLoot] {_unitToLoot.Name}'s corpse seems unreachable. Skipping loot.");
-                    _unitsLooted.Add(_unitToLoot.Guid);
+                    _unitsLooted.Add((_unitToLoot.Guid, Stopwatch.StartNew()));
                 }
             }
 

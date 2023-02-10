@@ -10,7 +10,6 @@ namespace Wholesome_Auto_Quester.GUI
         public ProductSettingsControl()
         {
             InitializeComponent();
-
             DataContext = WholesomeAQSettings.CurrentSetting;
             DeltaDetails.Text = GetDeltaDetailsString();
         }

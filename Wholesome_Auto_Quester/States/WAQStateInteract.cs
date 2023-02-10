@@ -3,6 +3,7 @@ using robotManager.Helpful;
 using System.Collections.Generic;
 using System.Threading;
 using Wholesome_Auto_Quester.Bot.TaskManagement;
+using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Helpers;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
@@ -56,7 +57,8 @@ namespace Wholesome_Auto_Quester.States
 
         public override void Run()
         {
-            var (gameObject, task) = _scanner.ActiveWoWObject;
+            WoWObject gameObject = _scanner.ActiveWoWObject.wowObject;
+            IWAQTask task = _scanner.ActiveWoWObject.task;
             Vector3 myPos = ObjectManager.Me.Position;
 
             if (ToolBox.ShouldStateBeInterrupted(task, gameObject))
@@ -103,7 +105,10 @@ namespace Wholesome_Auto_Quester.States
             Interact.InteractGameObject(gameObject.GetBaseAddress);
             Thread.Sleep(200);
 
-            task.PostInteraction(gameObject);
+            if (gameObject != null)
+            {
+                task.PostInteraction(gameObject);
+            }
 
             Thread.Sleep(1000);
             
