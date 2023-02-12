@@ -1,8 +1,10 @@
-﻿using Wholesome_Auto_Quester.Bot.ContinentManagement;
+﻿using System.Collections.Generic;
+using Wholesome_Auto_Quester.Bot.ContinentManagement;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
 using Wholesome_Auto_Quester.Database.Models;
 using Wholesome_Auto_Quester.Helpers;
 using WholesomeToolbox;
+using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
 using static wManager.Wow.Helpers.PathFinder;
 
@@ -12,6 +14,7 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
     {
         private bool _shouldTravel;
         private readonly IContinentManager _continentManager;
+        public bool InLoadingScreen { get; private set; }
 
         public TravelManager(IContinentManager continentManager)
         {
@@ -22,11 +25,27 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
         public void Initialize()
         {
             AddAllOffmeshConnections();
+            EventsLuaWithArgs.OnEventsLuaStringWithArgs += OnEventsLuaStringWithArgs;
         }
 
         public void Dispose()
         {
+            EventsLuaWithArgs.OnEventsLuaStringWithArgs -= OnEventsLuaStringWithArgs;
+        }
 
+        private void OnEventsLuaStringWithArgs(string id, List<string> args)
+        {
+            if (id == "PLAYER_ENTERING_WORLD"
+                || id == "PLAYER_LEAVING_WORLD")
+            {
+                MovementManager.StopMove();
+                InLoadingScreen = true;
+            }
+        }
+
+        public void ResetLoadingScreenLock()
+        {
+            InLoadingScreen = false;
         }
 
         public void ResetTravel()

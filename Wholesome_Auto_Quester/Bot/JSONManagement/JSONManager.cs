@@ -63,6 +63,14 @@ namespace Wholesome_Auto_Quester.Bot.JSONManagement
             }
         }
 
+        public void Initialize()
+        {
+        }
+
+        public void Dispose()
+        {
+        }
+
         public List<ModelWorldMapArea> GetWorldMapAreasFromJSON()
         {
             lock (_lock)
@@ -240,14 +248,6 @@ namespace Wholesome_Auto_Quester.Bot.JSONManagement
 
                 return result;
             }
-        }
-
-        public void Initialize()
-        {
-        }
-
-        public void Dispose()
-        {
         }
     }
 }

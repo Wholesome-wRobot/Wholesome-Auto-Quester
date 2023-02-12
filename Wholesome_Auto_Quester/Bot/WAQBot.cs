@@ -20,6 +20,7 @@ using Wholesome_Auto_Quester.Database.DBC;
 using Wholesome_Auto_Quester.GUI;
 using Wholesome_Auto_Quester.Helpers;
 using Wholesome_Auto_Quester.States;
+using WholesomeDungeonCrawler.States;
 using WholesomeToolbox;
 using wManager.Events;
 using wManager.Wow.Bot.States;
@@ -86,6 +87,7 @@ namespace Wholesome_Auto_Quester.Bot
                 State[] states = new State[]
                 {
                     new Relogger(),
+                    new WAQLoadingScreenLock(_travelManager),
                     new NPCScanState(),
                     new Pause(),
                     new WAQForceResurrection(),
