@@ -605,6 +605,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(303, "Dark iron War, Too many mobs", false);
             AddQuestToBlackList(304, "A grim task, Too many mobs", false);
             AddQuestToBlackList(663, "Land ho!, no objective", false);
+            AddQuestToBlackList(10590, "Prove your hatred, needs equipped item", false);
             //AddQuestToBlackList(1641, "Tome of divinity, gives an item that starts an uncompletable quest", false);
 
             // COMMON
