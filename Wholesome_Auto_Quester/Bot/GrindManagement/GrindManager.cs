@@ -55,7 +55,7 @@ namespace Wholesome_Auto_Quester.Bot.GrindManagement
             if (creaturesToGrind.Exists(ct => ct.Creatures.Count > 10))
                 creaturesToGrind.RemoveAll(ct => ct.Creatures.Count < 10);
 
-            Logger.Log($"Found {creaturesToGrind.Count} templates to grind");
+            Logger.Log($"Level {ObjectManager.Me.Level}. Found {creaturesToGrind.Count} templates to grind");
 
             foreach (ModelCreatureTemplate template in creaturesToGrind)
             {

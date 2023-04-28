@@ -66,9 +66,9 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                     }
                 }
             });
-            //EventsLuaWithArgs.OnEventsLuaStringWithArgs += LuaEventHandler;
+            EventsLuaWithArgs.OnEventsLuaStringWithArgs += LuaEventHandler;
         }
-        /*
+        
         private void LuaEventHandler(string eventid, List<string> args)
         {            
             if (eventid == "PLAYER_LEVEL_UP")
@@ -76,11 +76,11 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                 ClearGrindTasks();
             }            
         }
-        */
+        
         public void Dispose()
         {
             _taskPile.Clear();
-            //EventsLuaWithArgs.OnEventsLuaStringWithArgs -= LuaEventHandler;
+            EventsLuaWithArgs.OnEventsLuaStringWithArgs -= LuaEventHandler;
             _isRunning = false;
         }
 
