@@ -429,7 +429,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                     }
                     return;
                 }
-                Logger.LogError($"Server has not sent our quests yet");
+                Logger.LogDebug($"Server has not sent our quests yet");
             }
         }
 

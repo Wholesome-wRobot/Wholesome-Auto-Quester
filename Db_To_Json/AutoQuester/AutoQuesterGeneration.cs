@@ -488,7 +488,7 @@ namespace Db_To_Json.AutoQuester
 
             foreach (AQModelCreatureTemplate template in result)
             {
-                template.Creatures = QueryCreaturesById(con, template.entry);
+                template.Creatures = QueryCreaturesById(con, template.entry, withWayPoints: false);
             }
 
             result.RemoveAll(ct => ct.Creatures.Count < 2); // filter out uniques
