@@ -1,13 +1,12 @@
 ﻿using robotManager.Events;
-using robotManager.FiniteStateMachine;
 using robotManager.Helpful;
 using robotManager.Products;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.IO.Compression;
 using System.IO;
+using System.IO.Compression;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,12 +14,13 @@ using Wholesome_Auto_Quester;
 using Wholesome_Auto_Quester.Bot;
 using Wholesome_Auto_Quester.GUI;
 using Wholesome_Auto_Quester.Helpers;
+using WholesomeToolbox;
 using wManager;
 using wManager.Plugin;
 using wManager.Wow.Helpers;
 using wManager.Wow.ObjectManager;
-using System.Reflection;
-using WholesomeToolbox;
+using static wManager.Wow.Helpers.Channel;
+using static wManager.Wow.Helpers.PathFinderClass.FindPathPacket;
 
 public class Main : IProduct
 {
@@ -37,6 +37,12 @@ public class Main : IProduct
     {
         try
         {
+            if (Information.Version.StartsWith("1.7.2"))
+            {
+                MessageBox.Show($"This version of WRobot ({Information.Version}) is incompatible with the Auto Quester");
+                Logger.LogError($"This version of WRobot ({Information.Version}) is incompatible with the Auto Quester");
+                return;
+            }
             WholesomeAQSettings.Load();
         }
         catch (Exception e)

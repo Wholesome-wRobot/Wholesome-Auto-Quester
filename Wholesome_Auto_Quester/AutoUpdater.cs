@@ -13,7 +13,6 @@ namespace Wholesome_Auto_Quester
     {
         public static bool CheckUpdate(string mainVersion)
         {
-
             Version currentVersion = new Version(mainVersion);
 
             DateTime dateBegin = new DateTime(2020, 1, 1);
