@@ -30,12 +30,13 @@ namespace Wholesome_Auto_Quester.States
         {
             Logger.Log("[WAQ Anti Drown] Resurfacing");
             MovementManager.StopMove();
+            Lua.LuaDoString($"JumpOrAscendStart();");
             while (Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause
                 && ObjectManager.Me.BreathTimerLeft > 0)
             {
-                Lua.LuaDoString($"JumpOrAscendStart()");
                 Thread.Sleep(1000);
             }
+            Lua.LuaDoString("AscendStop();");
         }
     }
 }
