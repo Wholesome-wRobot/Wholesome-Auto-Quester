@@ -39,11 +39,11 @@ namespace Wholesome_Auto_Quester.Bot.GrindManagement
             List<ModelCreatureTemplate> creaturesToGrind = _jsonManager.GetCreatureTemplatesToGrindFromJSON();
 
             _grindTasks.Clear();
-            uint myLevel = ObjectManager.Me.Level;
+            int myLevel = (int)ObjectManager.Me.Level;
 
             if (myLevel <= 3) myLevel = 3;
-            uint lowerLvlLimit = myLevel - (uint)WholesomeAQSettings.CurrentSetting.LevelDeltaMinus;
-            uint upperLvlLimit = myLevel + (uint)WholesomeAQSettings.CurrentSetting.LevelDeltaPlus;
+            int lowerLvlLimit = myLevel - WholesomeAQSettings.CurrentSetting.LevelDeltaMinus;
+            int upperLvlLimit = myLevel + WholesomeAQSettings.CurrentSetting.LevelDeltaPlus;
             creaturesToGrind.RemoveAll(ct => ct.MinLevel < lowerLvlLimit);
             creaturesToGrind.RemoveAll(ct => ct.MaxLevel > upperLvlLimit);
             creaturesToGrind.RemoveAll(ct => ct.rank > 0);
@@ -57,7 +57,7 @@ namespace Wholesome_Auto_Quester.Bot.GrindManagement
             if (creaturesToGrind.Exists(ct => ct.Creatures.Count > 10))
                 creaturesToGrind.RemoveAll(ct => ct.Creatures.Count < 10);
 
-            Logger.Log($"Level {ObjectManager.Me.Level}. Found {creaturesToGrind.Count} templates to grind (lvl{lowerLvlLimit} to lvl{upperLvlLimit})");
+            Logger.Log($"Level {myLevel}. Found {creaturesToGrind.Count} templates to grind (lvl{lowerLvlLimit} to lvl{upperLvlLimit})");
 
             foreach (ModelCreatureTemplate template in creaturesToGrind)
             {
