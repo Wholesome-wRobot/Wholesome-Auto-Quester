@@ -55,6 +55,7 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
 
         public bool TravelInProgress => _shouldTravel;
 
+        // 不在一个大陆就需要Travel？
         public bool IsTravelRequired(IWAQTask task)
         {
             ModelWorldMapArea myArea = _continentManager.MyMapArea;

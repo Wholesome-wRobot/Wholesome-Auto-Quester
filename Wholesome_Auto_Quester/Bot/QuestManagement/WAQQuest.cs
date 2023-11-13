@@ -36,6 +36,10 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             _objectScanner = objectScanner;
             _continentManager = continentManager;
             QuestTemplate = questTemplate;
+
+            //先赋值
+            _objectivesRecorded = true;
+            _objectivesRecordFailed = false;
         }
 
         public string GetConditionsText
@@ -127,6 +131,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
         {
             lock (_questLock)
             {
+                Logger.LogError("是这里删除的么？");
                 _questTasks.Remove(objectiveId);
             }
         }
@@ -175,7 +180,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             // Skip failed indices
             if (Status == QuestStatus.InProgress && !_objectivesRecorded && !_objectivesRecordFailed)
             {
-                RecordObjectiveIndices();
+                //RecordObjectiveIndices();
                 if (_objectivesRecordFailed)
                 {
                     return;
@@ -410,18 +415,32 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
         {
             int nbAtempts = 0;
             int nbMaxAttempts = 5;
-            WTQuestLog.ExpandQuestHeader();
+            WTQuestLog.ExpandQuestHeader(); // 先把所有任务不折叠 否则numEntries就变得很小
             while (nbAtempts < nbMaxAttempts)
             {
                 bool recordFailed = false;
                 nbAtempts++;
                 Logger.Log($"Recording objective indices for {QuestTemplate.LogTitle} ({nbAtempts})");
+
+                // local numEntries, numQuests = GetNumQuestLogEntries() 
+                /* numEntries 如果任务折叠了 就算一个
+                 * numQuests 不算标题 只算里面的真实任务个数
+                 * local numObjectives = GetNumQuestLeaderBoards(i) 
+                 * numObjectives 是一个任务里面有几个要求要完成
+                 * local text, objetype, finished = GetQuestLogLeaderBoard(j, i)
+                 * 对于每一个任务，j就可以遍历这些要求
+                 * text就是实际的文本
+                 * objetype 这里要么是杀敌 要么是收集 
+                 * 可能是monster 也可能是item
+                 * 但是本题这里是插入的文本
+                 * objectives 其实是一个包含了任务具体完成项的一个字符串集合
+                 */
                 string[] objectives = Lua.LuaDoString<string[]>(@$"local numEntries, numQuests = GetNumQuestLogEntries()
                             local objectivesTable = {{}}
                             for i=1, numEntries do
                                 local questLogTitleText, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(i)
                                 if questID == {QuestTemplate.Id} then
-                                    local numObjectives = GetNumQuestLeaderBoards(i)
+                                    local numObjectives = GetNumQuestLeaderBoards(i) 
                                     for j=1, numObjectives do
                                         local text, objetype, finished = GetQuestLogLeaderBoard(j, i)
                                         table.insert(objectivesTable, text)
@@ -432,10 +451,18 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
 
                 foreach (Objective ob in GetAllObjectives())
                 {
+                    Logger.Log("objectiveName====>" + ob.ObjectiveName );
+                    Logger.Log("objectiveIndex====>" + ob.ObjectiveIndex.ToString());
+
+                    // 这里o.StartsWith(ob.ObjectiveName) 肯定不行 
+                    // 因为 objectives 保存的是中文
+                    // 而数据库GetAllObjectives这里获取的是英文
+                    // 中文：高阶教徒扎古斯的徽记: 0/1
+                    // 英文：Head of High Cultist Zangus: 0/1
                     string objectiveToRecord = objectives.FirstOrDefault(o => !string.IsNullOrEmpty(ob.ObjectiveName) && o.StartsWith(ob.ObjectiveName));
                     if (objectiveToRecord != null)
                     {
-                        ob.ObjectiveIndex = Array.IndexOf(objectives, objectiveToRecord) + 1;
+                        ob.ObjectiveIndex = Array.IndexOf(objectives, objectiveToRecord) + 1; // 不断地更新索引
                     }
                     else
                     {
@@ -454,7 +481,14 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             if (nbAtempts >= nbMaxAttempts)
             {
                 Logger.LogError($"Failed to record objectives for {QuestTemplate.LogTitle} after {nbMaxAttempts} attempts");
-                _objectivesRecordFailed = true;
+                Logger.LogError($"但是我强制设置了_objectivesRecorded = true这个标识符 ^_^");
+                //_objectivesRecordFailed = true;
+                // 看它这里搞半天就是为了设置一个_objectivesRecorded = true
+
+                // 直接强制该了得了
+                _objectivesRecordFailed = false;
+                _objectivesRecorded = true;
+
                 return;
             }
 

@@ -55,7 +55,7 @@ namespace Wholesome_Auto_Quester.Bot
             {
                 _product = product;
                 _questTrackerGui = tracker;
-                _jsonManager = new JSONManager();
+                _jsonManager = new JSONManager(); 
                 _continentManager = new ContinentManager(_jsonManager);
                 _travelManager = new TravelManager(_continentManager);
                 _grindManager = new GrindManager(_jsonManager, _continentManager);

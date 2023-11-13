@@ -198,6 +198,7 @@ public class Main : IProduct
     {
         if (log.Text == "[Fight] Mob seem bugged" && ObjectManager.Target.Guid > 0)
         {
+            Logger.Log("这个怪>>" + ObjectManager.Target +"<<是bug怪，拉黑");
             BlacklistHelper.AddNPC(ObjectManager.Target.Guid, "Mob seem bugged");
         }
         else if (log.Text == "PathFinder server seem down, use offline pathfinder.")

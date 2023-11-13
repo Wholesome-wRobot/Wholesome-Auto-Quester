@@ -188,7 +188,9 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 int WAQlistEndIndex = dnsList.IndexOf("WAQEnd");
                 int WAQListLength = WAQlistEndIndex - WAQlistStartIndex - 1;
                 List<string> listQuestItems = dnsList.GetRange(WAQlistStartIndex + 1, WAQListLength);
-
+                
+                // 不主动丢弃任务物品!
+                /*
                 // Check for deprecated quest items
                 foreach (WoWItem item in bagItems)
                 {
@@ -202,6 +204,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                         Thread.Sleep(300);
                     }
                 }
+                */
 
                 // Check items that give quests
                 int itemFound = 0;
@@ -694,6 +697,16 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
     }
 }
 
+// 任务的各种状态
+// 未选中
+// 准备交任务
+// 在处理中
+// 准备接任务
+// 数据库接收条件不满足
+// 失败
+// 空
+// 已完成
+// 黑名单
 public enum QuestStatus
 {
     Unchecked,

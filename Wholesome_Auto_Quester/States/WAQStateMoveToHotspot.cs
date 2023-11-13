@@ -67,6 +67,7 @@ namespace Wholesome_Auto_Quester.States
                     MovementManager.StopMove();
                 }
                 List<Vector3> pathToTask = PathFinder.FindPath(task.Location);
+                FlyHelper.FlyTo(task.Location);
                 MovementManager.Go(pathToTask);
             }
         }
