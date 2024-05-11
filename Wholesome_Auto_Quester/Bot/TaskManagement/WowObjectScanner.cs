@@ -141,7 +141,9 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
                         && _scannerRegistry[wowObject.Entry].Any(task => task.IsObjectValidForTask(wowObject))
                         && !wManagerSetting.IsBlackListed(wowObject.Guid)
                         && !wManagerSetting.IsBlackListedZone(wowObject.Position)
-                        && wowObject.Position.DistanceTo(myPos) < 60)
+                        && wowObject.Position.DistanceTo(myPos) < 60
+                        && wowObject.Position.Z < myPos.Z + 10
+                        && wowObject.Position.Z > myPos.Z - 10)
                     .OrderBy(wowObject => wowObject.Position.DistanceTo(myPos))
                     .ToList();
                 listSurroundingPOIs.RemoveAll(wowObject => _scanned.ContainsKey(wowObject.Guid) && _scanned[wowObject.Guid] > 3);
