@@ -73,6 +73,7 @@ namespace Wholesome_Auto_Quester.States
             }
 
             MovementManager.StopMove();
+            MovementManager.StopMoveNewThread();
             MountTask.DismountMount(false, false);
 
             Logger.Log($"Unit found - Fighting {killTarget.Name}");

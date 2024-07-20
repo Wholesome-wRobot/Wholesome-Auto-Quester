@@ -15,6 +15,7 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
         private bool _shouldTravel;
         private readonly IContinentManager _continentManager;
         public bool InLoadingScreen { get; private set; }
+        public bool ShouldTravel => _shouldTravel;
 
         public TravelManager(IContinentManager continentManager)
         {
@@ -52,8 +53,6 @@ namespace Wholesome_Auto_Quester.Bot.TravelManagement
         {
             _shouldTravel = false;
         }
-
-        public bool TravelInProgress => _shouldTravel;
 
         public bool IsTravelRequired(IWAQTask task)
         {

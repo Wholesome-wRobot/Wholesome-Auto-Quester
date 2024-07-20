@@ -38,7 +38,7 @@ namespace Wholesome_Auto_Quester.States
                     || MovementManager.InMovement
                     || ObjectManager.Me.IsOnTaxi
                     || ObjectManager.Me.InCombat
-                    || !_travelManager.TravelInProgress)
+                    || !_travelManager.ShouldTravel)
                 {
                     return false;
                 }
@@ -331,9 +331,9 @@ namespace Wholesome_Auto_Quester.States
                 }
             }
 
-            Logger.Log($"Resetting traveler");
             if (!_travelManager.IsTravelRequired(task))
             {
+                Logger.Log($"Resetting traveler");
                 _travelManager.ResetTravel();
             }
         }

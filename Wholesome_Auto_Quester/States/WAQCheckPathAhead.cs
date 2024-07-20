@@ -74,6 +74,7 @@ namespace Wholesome_Auto_Quester.States
             DisplayName = $"WAQ Clearing path against {unitToClear.Name}";
             Logger.Log($"WAQ Clearing path against {unitToClear.Name}");
             MovementManager.StopMove();
+            MovementManager.StopMoveNewThread();
             Fight.StartFight(unitToClear.Guid);
             UnitOnPath.unit = null;
         }

@@ -21,7 +21,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
         public ModelWorldMapArea WorldMapArea { get; }
         public double SpatialWeight { get; protected set; } = 1.0;
         public int PriorityShift { get; protected set; } = 1;
-        public int SearchRadius { get; protected set; } = 20;
+        public int SearchRadius { get; protected set; } = 15;
         private bool IsTimedOut => !_timeOutTimer.IsReady;
         public string InvalidityReason { get; private set; } = " ";
         public WAQPath LongPathToTask

@@ -113,7 +113,7 @@ namespace Wholesome_Auto_Quester.Bot
                     new WAQStateTravel(_taskManager, _travelManager, _continentManager),
                     _interactState,
                     new WAQStateKill(_objectScanner),
-                    new WAQStateMoveToHotspot(_taskManager),
+                    new WAQStateMoveToHotspot(_taskManager, _travelManager),
                     new MovementLoop(),
                     new Idle()
                 };
@@ -228,7 +228,7 @@ namespace Wholesome_Auto_Quester.Bot
                 Radar3D.DrawString(Logger.ScannerString, new Vector3(30, 290, 0), 10, Color.LightSteelBlue);
                 Radar3D.DrawString(Logger.TaskMString, new Vector3(30, 310, 0), 10, Color.MediumAquamarine);
 
-                if (_travelManager.TravelInProgress)
+                if (_travelManager.ShouldTravel)
                 {
                     Radar3D.DrawString($"{_continentManager.MyMapArea.Continent} - {_continentManager.MyMapArea.areaName} " +
                         $"=> {_taskManager.ActiveTask.WorldMapArea.Continent} - {_taskManager.ActiveTask.WorldMapArea.areaName}",

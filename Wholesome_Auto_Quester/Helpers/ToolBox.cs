@@ -82,6 +82,8 @@ namespace Wholesome_Auto_Quester.Helpers
 
         public static void CheckIfZReachable(Vector3 checkPosition)
         {
+            if (checkPosition.DistanceTo(new Vector3(-815.609, 2614.2, 124.3904, "None")) < 3) return; // Honor Hold exception
+            if (checkPosition.DistanceTo(new Vector3(-252.359, 5499.21, 66.60029, "None")) < 3) return; // Cenarion refuge exception
             if (checkPosition.DistanceTo2D(ObjectManager.Me.Position) <= 3 && WTLocation.GetZDifferential(checkPosition) > 3)
             {
                 BlacklistHelper.AddZone(checkPosition, 2, $"Unreachable Z");

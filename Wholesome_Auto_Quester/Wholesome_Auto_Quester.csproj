@@ -366,7 +366,6 @@
     <Compile Include="States\WAQBlacklistDanger.cs" />
     <Compile Include="States\WAQCheckPathAhead.cs" />
     <Compile Include="States\WAQLoadingScreenLock.cs" />
-    <Compile Include="States\WAQStateClearPath.cs" />
     <Compile Include="States\IWAQState.cs" />
     <Compile Include="States\WAQDefend.cs" />
     <Compile Include="States\WAQExitVehicle.cs" />
