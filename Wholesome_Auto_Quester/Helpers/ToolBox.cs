@@ -9,7 +9,9 @@ using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using Wholesome_Auto_Quester.Bot.TaskManagement.Tasks;
+using Wholesome_Auto_Quester.Database.Models;
 using WholesomeToolbox;
 using wManager;
 using wManager.Wow.Bot.Tasks;
@@ -23,6 +25,10 @@ namespace Wholesome_Auto_Quester.Helpers
     public static class ToolBox
     {
         private static Dictionary<int, bool[]> _objectiveCompletionDict = new Dictionary<int, bool[]>();
+
+        // Anti-spam cache: GUID of unit we already cast a quest item on, with timestamp.
+        private static readonly Dictionary<ulong, DateTime> _itemUsedOnGuids = new Dictionary<ulong, DateTime>();
+        private static readonly TimeSpan _itemUsedTtl = TimeSpan.FromSeconds(60);
 
         /// <summary>
         /// Returns nodes at regular distance intervals along a path. Doesn't include starting point.
@@ -470,6 +476,83 @@ namespace Wholesome_Auto_Quester.Helpers
                    && u.Level >= ObjectManager.Me.Level - 6)
                .OrderBy(u => u.Position.DistanceTo(myPosition))
                .ToList();
+        }
+
+        /// <summary>
+        /// Casts the spell from a quest's "active" item (StartItem, ItemDrop1..4 or RequiredItem1..6 with HasASpellAttached)
+        /// onto the given unit. Used for "Salve via Hunting"-type quests where the kill alone doesn't credit
+        /// the objective; the server expects the player to use a quest item on the corpse/target.
+        /// Has a per-GUID anti-loop cache so the bot doesn't spam the same item on the same unit each tick.
+        /// Returns true if a /use was actually issued.
+        /// </summary>
+        public static bool TryUseQuestItemOnTarget(ModelQuestTemplate quest, WoWUnit target)
+        {
+            if (quest == null || target == null || target.Guid == 0)
+            {
+                return false;
+            }
+
+            PruneItemUsedCache();
+            if (_itemUsedOnGuids.ContainsKey(target.Guid))
+            {
+                return false;
+            }
+
+            ModelItemTemplate itemToUse = FindActiveQuestItemInBag(quest);
+            if (itemToUse == null)
+            {
+                return false;
+            }
+
+            Logger.Log($"Using quest item {itemToUse.Name} on {target.Name} for {quest.LogTitle}");
+            Interact.InteractGameObject(target.GetBaseAddress);
+            Thread.Sleep(200);
+            Lua.RunMacroText($"/use {itemToUse.Name}");
+            Thread.Sleep(1500);
+
+            _itemUsedOnGuids[target.Guid] = DateTime.UtcNow;
+            return true;
+        }
+
+        private static ModelItemTemplate FindActiveQuestItemInBag(ModelQuestTemplate quest)
+        {
+            ModelItemTemplate[] candidates = {
+                quest.StartItemTemplate,
+                quest.ItemDrop1Template,
+                quest.ItemDrop2Template,
+                quest.ItemDrop3Template,
+                quest.ItemDrop4Template,
+                quest.RequiredItem1Template,
+                quest.RequiredItem2Template,
+                quest.RequiredItem3Template,
+                quest.RequiredItem4Template,
+                quest.RequiredItem5Template,
+                quest.RequiredItem6Template,
+            };
+
+            List<WoWItem> bagItems = Bag.GetBagItem();
+            foreach (ModelItemTemplate candidate in candidates)
+            {
+                if (candidate == null || !candidate.HasASpellAttached) continue;
+                if (bagItems.Any(b => b.Entry == candidate.Entry))
+                {
+                    return candidate;
+                }
+            }
+            return null;
+        }
+
+        private static void PruneItemUsedCache()
+        {
+            DateTime now = DateTime.UtcNow;
+            List<ulong> expired = _itemUsedOnGuids
+                .Where(kv => now - kv.Value > _itemUsedTtl)
+                .Select(kv => kv.Key)
+                .ToList();
+            foreach (ulong key in expired)
+            {
+                _itemUsedOnGuids.Remove(key);
+            }
         }
     }
 }
