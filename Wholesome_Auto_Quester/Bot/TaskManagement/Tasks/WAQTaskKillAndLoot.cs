@@ -45,6 +45,10 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             WoWUnit lootTarget = (WoWUnit)wowObject;
             if (lootTarget.IsDead && !lootTarget.IsLootable && lootTarget.Position.DistanceTo(Location) < 30)
             {
+                if (WholesomeAQSettings.CurrentSetting.AllowActiveQuestItems)
+                {
+                    ToolBox.TryUseQuestItemOnTarget(_questTemplate, lootTarget);
+                }
                 PutTaskOnTimeout("Completed");
             }
         }

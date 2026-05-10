@@ -42,6 +42,10 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement.Tasks
             WoWUnit killTarget = (WoWUnit)wowObject;
             if (killTarget.IsDead && killTarget.Position.DistanceTo(Location) < 30)
             {
+                if (WholesomeAQSettings.CurrentSetting.AllowActiveQuestItems)
+                {
+                    ToolBox.TryUseQuestItemOnTarget(_questTemplate, killTarget);
+                }
                 PutTaskOnTimeout("Completed");
                 return;
             }
