@@ -690,6 +690,28 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
                 result.Add(quest.QuestTemplate.StartItemTemplate.Name);
             }
 
+            // ItemDrop1..4 (auto-given on quest pickup) and RequiredItem1..6 (must be in bag at turn-in)
+            // need DNS protection too, even if no Loot/Gather objective covers them.
+            ModelItemTemplate[] dropAndRequiredItems = {
+                quest.QuestTemplate.ItemDrop1Template,
+                quest.QuestTemplate.ItemDrop2Template,
+                quest.QuestTemplate.ItemDrop3Template,
+                quest.QuestTemplate.ItemDrop4Template,
+                quest.QuestTemplate.RequiredItem1Template,
+                quest.QuestTemplate.RequiredItem2Template,
+                quest.QuestTemplate.RequiredItem3Template,
+                quest.QuestTemplate.RequiredItem4Template,
+                quest.QuestTemplate.RequiredItem5Template,
+                quest.QuestTemplate.RequiredItem6Template,
+            };
+            foreach (ModelItemTemplate it in dropAndRequiredItems)
+            {
+                if (it != null && !result.Contains(it.Name))
+                {
+                    result.Add(it.Name);
+                }
+            }
+
             foreach (KillLootObjective klo in quest.QuestTemplate.KillLootObjectives)
             {
                 if (!result.Contains(klo.ItemTemplate.Name))
