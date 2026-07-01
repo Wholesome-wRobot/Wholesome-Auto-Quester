@@ -234,7 +234,7 @@ namespace Wholesome_Auto_Quester.Bot.TaskManagement
 
                     if (i > 1) break;
 
-                    WAQPath pathToNewTask = _taskPile[i].LongPathToTask;
+                    //WAQPath pathToNewTask = _taskPile[i].LongPathToTask;
 
                     int newTaskPriority = CalculatePriority(myPosition, spaceTree, _taskPile[i]);
 

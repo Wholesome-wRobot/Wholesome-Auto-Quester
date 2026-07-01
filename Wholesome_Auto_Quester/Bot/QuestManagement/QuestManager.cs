@@ -563,6 +563,7 @@ namespace Wholesome_Auto_Quester.Bot.QuestManagement
             AddQuestToBlackList(1360, "Reclaimed treasures, too many npcs", false);
             AddQuestToBlackList(450, "A recipe for death, too many npcs", false);
             AddQuestToBlackList(643, "Sigil of Arathor, goes through alliance camp", false);
+            AddQuestToBlackList(8891, "Abandonned Investigations, unreachable", false);
 
             // ALLIANCE
             AddQuestToBlackList(168, "Collecting memories, too many NPCS", false);
